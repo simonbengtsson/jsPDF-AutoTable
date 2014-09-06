@@ -39,7 +39,7 @@ var rows = [
     ...
 ];
 var doc = new jsPDF('p', 'pt');
-doc.table(columns, data, {});
+doc.autoTable(columns,rows, {});
 doc.save('table.pdf');
 ```
 
