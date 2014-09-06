@@ -10,10 +10,6 @@
 
     var doc, cellPos, pageCount = 1;
 
-    var sf = {
-        px2pt: 0.264583 * 72 / 25.4 // 1 pixel = 0.264583 mm and 1 mm = 72/25.4 point
-    };
-
     var options = {
         padding: 5,
         fontSize: 10,
@@ -48,8 +44,8 @@
      };
      * </pre>
      *
-     * @param {Object[]|String[]} columns If false, no headers will be printed
-     * @param {Object[][]|String[][]} data
+     * @param {Object[]|String[]} columns Either as an array of objects or array of strings
+     * @param {Object[][]|String[][]} data Either as an array of objects or array of strings
      * @param {Object} [options={}] Options that will override the default ones (above)
      *
      * @param {Object} [options.autoWidth=true] If table should span entire page width (otherwise resorts to min-width)
@@ -166,20 +162,8 @@
         }
     }
 
-    // Credit to https://github.com/MrRio/jsPDF/blob/master/jspdf.plugin.cell.js (getTextDimensions())
-    // Consider rewriting similar to getStringUnitWidth()
     function getStringWidth(txt) {
-        var elem = document.createElement('font');
-        elem.style.fontStyle = doc.internal.getFont().fontStyle;
-        elem.style.fontName = doc.internal.getFont().fontName;
-        elem.style.fontSize = options.fontSize + 'pt';
-        elem.innerText = txt;
-
-        document.body.appendChild(elem);
-        var w = (elem.offsetWidth + 1) * sf.px2pt;
-        document.body.removeChild(elem);
-
-        return w;
+        return doc.getStringUnitWidth(txt) * doc.internal.getFontSize();
     }
 
 })(jsPDF.API);
