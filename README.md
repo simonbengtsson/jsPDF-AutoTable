@@ -66,7 +66,7 @@ var options = {
         doc.rect(x, y, w, h, 'F');
         doc.text(txt, x + options.padding, y + doc.internal.getLineHeight());
     },
-    pageMargins: { horizontal: 40, top: 50, bottom: 40 }, // How much space around the table
+    margins: { horizontal: 40, top: 50, bottom: 40 }, // How much space around the table
     extendWidth: true // If true, the table will span 100% of page width minus horizontal margins.
  };
 ```

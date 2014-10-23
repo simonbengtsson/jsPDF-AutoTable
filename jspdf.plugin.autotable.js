@@ -39,7 +39,7 @@
             doc.rect(x, y, w, h, 'F');
             doc.text(txt, x + options.padding, y + doc.internal.getLineHeight());
         },
-        pageMargins: { horizontal: 40, top: 50, bottom: 40 },
+        margins: { horizontal: 40, top: 50, bottom: 40 },
         extendWidth: true
      };
      * </pre>
@@ -83,6 +83,7 @@
             options[key] = raw[key];
         });
         doc.setFontSize(options.fontSize);
+        console.log( options.margins.top );
         cellPos = { x: options.margins.horizontal, y: options.margins.top };
     }
 
