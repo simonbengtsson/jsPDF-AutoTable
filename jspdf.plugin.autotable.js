@@ -15,10 +15,10 @@
         fontSize: 10,
         lineHeight: 20,
         renderCell: function (x, y, w, h, txt, fillColor, options) {
-            txt = txt || '';
+            txt = '' + txt;
             doc.setFillColor.apply(this, fillColor);
             doc.rect(x, y, w, h, 'F');
-            doc.text('' + txt, x + options.padding, y + options.lineHeight/2 + doc.internal.getLineHeight()/2 - 2.5);
+            doc.text('' + txt, x + options.padding, y + options.lineHeight / 2 + doc.internal.getLineHeight() / 2 - 2.5);
         },
         margins: { horizontal: 40, top: 50, bottom: 40 },
         extendWidth: true

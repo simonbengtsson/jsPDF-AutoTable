@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>AutoTable sample</title>
+
+    <script src="bower_components/jspdf/dist/jspdf.debug.js"></script>
+    <script src="jspdf.plugin.autotable.js"></script>
+    <script>
+
+        function generate() {
+            var columns = [
+                {title: "ID", key: "id"},
+                {title: "Name", key: "name"},
+                {title: "Country", key: "country"},
+                {title: "IP-address", key: "ip_address"},
+                {title: "Email", key: "email"}
+            ];
+            var data = [
+                {"id": 1, "name": "Shaw", "country": "Tanzania", "ip_address": false, "email": "abrown@avamba.info"},
+                {"id": 2, "name": "Nelson", "country": "Kazakhstan", "ip_address": "112.238.42.121", "email": "jjordan@agivu.com"},
+                {"id": 3, "name": "Garcia", "country": "Madagascar", "ip_address": "39.211.252.103", "email": "jdean@skinte.biz"},
+                {"id": 4, "name": "Richardson", "country": "Somalia", "ip_address": "27.214.238.100", "email": "nblack@midel.gov"},
+                {"id": 5, "name": "Kennedy", "country": "Libya", "ip_address": "82.148.96.120", "email": "charrison@tambee.name"}
+            ];
+            var doc = new jsPDF('p', 'pt');
+            doc.autoTable(columns, data, {});
+            doc.save('table.pdf');
+        }
+
+    </script>
+</head>
+<body>
+
+<button onclick="generate()">Generate PDF</button>
+
+</body>
+</html>
