@@ -18,6 +18,8 @@
         .menu {
             position: absolute;
             top: 0;
+            background: #e74c3c;
+            border-bottom: 8px solid #c0392b;
             padding: 0;
             margin: 0;
             white-space: nowrap;
@@ -33,11 +35,11 @@
 
         .menu li a {
             text-decoration: none;
-            color: #123;
+            color: #fff;
             font-weight: bold;
             font-family: sans-serif;
             padding: 10px;
-            line-height: 50px;
+            line-height: 47px;
         }
 
         .menu li a:hover {
@@ -64,6 +66,7 @@
     <li><a href="#long">Long text</a></li>
     <li><a href="#content">With content</a></li>
     <li><a href="#header-footer">Header and footer</a></li>
+    <li><a href="#custom">Custom style</a></li>
 </ul>
 
 <div id="wrapper">
@@ -71,60 +74,9 @@
 </div>
 
 <script src="data.js"></script>
+<script src="examples.js"></script>
 <script src="jspdf.debug.js"></script>
 <script src="../jspdf.plugin.autotable.js"></script>
-<script>
-
-    function auto() {
-        var doc = new jsPDF('p', 'pt');
-        doc.autoTable(columns, data, {});
-        document.getElementById("output").src = doc.output('datauristring');
-    }
-
-    function minimal() {
-        var doc = new jsPDF('p', 'pt');
-        doc.autoTable(columns, data, {extendWidth: false, padding: 2, lineHeight: 12, fontSize: 8});
-        document.getElementById("output").src = doc.output('datauristring');
-    }
-
-    function longData() {
-        var doc = new jsPDF('p', 'pt');
-        doc.autoTable(columnsLong, dataLong, {padding: 2});
-        document.getElementById("output").src = doc.output('datauristring');
-    }
-
-    function content() {
-        var doc = new jsPDF('p', 'pt');
-        doc.setFontSize(20);
-        doc.text('Title', 40, 48);
-        doc.setFontSize(12);
-        doc.setTextColor(100, 100, 100);
-        var splitTitle = doc.splitTextToSize(longText, doc.internal.pageSize.width - 80);
-        doc.text(splitTitle, 40, 65);
-        doc.autoTable(columns, manyRows, {startY: 160, margins: {horizontal: 40, top: 40, bottom: 40}});
-        doc.text(splitTitle, 40, doc.autoTableEndPos().y + 40);
-        document.getElementById("output").src = doc.output('datauristring');
-    }
-
-    function headerAndFooter() {
-        var totalPagesExp = "{total_pages_count_string}";
-        var doc = new jsPDF('p', 'pt');
-        var header = function (doc, pageCount, options) {
-            doc.setFontSize(20);
-            doc.text("Report for X", options.margins.horizontal, 60);
-            doc.setFontSize(options.fontSize);
-        };
-        var footer = function (doc, lastCellPos, pageCount, options) {
-            var str = "Page " + pageCount + " of " + totalPagesExp;
-            doc.text(str, options.margins.horizontal, doc.internal.pageSize.height - 30);
-        };
-        var options = {renderHeader: header, renderFooter: footer, margins: {horizontal: 40, top: 80, bottom: 50}};
-        doc.autoTable(columns, manyManyRows, options);
-        doc.putTotalPages(totalPagesExp);
-        document.getElementById("output").src = doc.output('datauristring');
-    }
-
-</script>
 
 <script>
     window.onhashchange = function () {
@@ -145,6 +97,9 @@
                 break;
             case "#header-footer" :
                 headerAndFooter();
+                break;
+            case "#custom" :
+                customStyle();
                 break;
             default:
                 auto()

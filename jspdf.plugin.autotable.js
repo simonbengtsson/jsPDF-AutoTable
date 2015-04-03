@@ -26,11 +26,12 @@
             doc.setTextColor(255, 255, 255);
             doc.setFontStyle('bold');
             doc.rect(x, y, width, height, 'F');
-            y += settings.lineHeight / 2 + doc.internal.getLineHeight() / 2 - 2.5;
+            y += settings.lineHeight / 2 + doc.internal.getLineHeight() / 2;
             doc.text('' + value, x + settings.padding, y);
         },
         renderCell: function (x, y, width, height, key, value, row, settings) {
             doc.setFillColor(row % 2 === 0 ? 245 : 255);
+            doc.setTextColor(50);
             doc.rect(x, y, width, height, 'F');
             y += settings.lineHeight / 2 + doc.internal.getLineHeight() / 2 - 2.5;
             doc.text('' + value, x + settings.padding, y);
@@ -107,9 +108,12 @@
         // Optimal widths
         var totalWidth = 0;
         columns.forEach(function (header) {
-            var widest = getStringWidth(header.title);
+            var widest = getStringWidth(header.title || '');
+            if(header.key === 'expenses') {
+                console.log(widest);
+            }
             rows.forEach(function (row) {
-                var w = getStringWidth(row[header.key]);
+                var w = getStringWidth(row[header.key] || '');
                 if (w > widest) {
                     widest = w;
                 }
@@ -120,6 +124,8 @@
 
         var paddingAndMargin = settings.padding * 2 * columns.length + settings.margins.horizontal * 2;
         var spaceDiff = doc.internal.pageSize.width - totalWidth - paddingAndMargin;
+
+
 
         var keys = Object.keys(widths);
         if (spaceDiff < 0) {
@@ -149,14 +155,14 @@
         if (!headers) return; //
         headers.forEach(function (header) {
             var width = columnWidths[header.key] + settings.padding * 2;
-            var title = ellipsize(columnWidths[header.key], header.title);
+            var title = ellipsize(columnWidths[header.key] || '', header.title);
             settings.renderHeaderCell(cellPos.x, cellPos.y, width, settings.lineHeight + 5, header.key, title, settings);
             cellPos.x += width;
         });
         doc.setTextColor(70, 70, 70);
         doc.setFontStyle('normal');
 
-        cellPos.y += settings.lineHeight;
+        cellPos.y += settings.lineHeight + 5;
         cellPos.x = settings.margins.horizontal;
     }
 
@@ -165,7 +171,7 @@
             var row = rows[i];
 
             headers.forEach(function (header) {
-                var title = ellipsize(columnWidths[header.key], row[header.key]);
+                var title = ellipsize(columnWidths[header.key] || '', row[header.key] || '');
                 var width = columnWidths[header.key] + settings.padding * 2;
                 settings.renderCell(cellPos.x, cellPos.y, width, settings.lineHeight, header.key, title, i, settings);
                 cellPos.x = cellPos.x + columnWidths[header.key] + settings.padding * 2;
@@ -187,12 +193,13 @@
     }
 
     /**
-     * Ellipize the text to fit in the width
+     * Ellipsize the text to fit in the width
      * @param width
      * @param text
      */
     function ellipsize(width, text) {
-        if (width >= getStringWidth(text)) {
+        var isBold = doc.internal.getFont().fontStyle === 'bold';
+        if (width + (isBold ? 5 : 0) >= getStringWidth(text)) {
             return text;
         }
         while (width < getStringWidth(text + "...")) {

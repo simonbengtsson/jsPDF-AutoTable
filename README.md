@@ -28,8 +28,13 @@ Some other great pdf libraries/plugins with table support (which I have tried, b
 - Supports initializing with columns and rows as an array of objects or an array of strings
 - An option to use a custom cell-renderer function
 
+![sample javascript table pdf](sample.png)
+
+![sample javascript table pdf](sample2.png)
+
+See more samples in `/samples`
+
 ### Basic example
-See the [sample.pdf](https://raw.githubusercontent.com/someatoms/jspdf-autotable/master/sample.pdf).
 
 ```javascript
 var columns = [
@@ -52,11 +57,11 @@ doc.autoTable(columns, data, {});
 doc.save('table.pdf');
 ```
 
-![sample javascript table pdf](sample.png)
+See more examples in `/examples/examples.html`
 
 ### Documentation
 
-Default options (See the examples folder for instructions how to use)
+Default options
 
 ```javascript
 var options = {
@@ -65,23 +70,31 @@ var options = {
     lineHeight: 20,
     renderHeader: function (doc, pageNumber, settings) {}, // Called before every page
     renderFooter: function (doc, lastCellPos, pageNumber, settings) {}, // Called on the end of every page
-    renderCell: function (x, y, w, h, txt, fillColor, options) { // Will render every cell in the table
-        doc.setFillColor.apply(this, fillColor);
-        doc.rect(x, y, w, h, 'F');
-        doc.text(txt, x + options.padding, y + doc.internal.getLineHeight());
+    renderHeaderCell: function (x, y, width, height, key, value, settings) {
+        doc.setFillColor(52, 73, 94); // Asphalt
+        doc.setTextColor(255, 255, 255);
+        doc.setFontStyle('bold');
+        doc.rect(x, y, width, height, 'F');
+        y += settings.lineHeight / 2 + doc.internal.getLineHeight() / 2 - 2.5;
+        doc.text('' + value, x + settings.padding, y);
+    },
+    renderCell: function (x, y, width, height, key, value, row, settings) {
+        doc.setFillColor(row % 2 === 0 ? 245 : 255);
+        doc.rect(x, y, width, height, 'F');
+        y += settings.lineHeight / 2 + doc.internal.getLineHeight() / 2 - 2.5;
+        doc.text('' + value, x + settings.padding, y);
     },
     margins: { horizontal: 40, top: 50, bottom: 40 }, // How much space around the table
     startY: 0 // The start Y position on the first page
     extendWidth: true // If true, the table will span 100% of page width minus horizontal margins.
  };
 ```
-The source code is ~200 lines of code so check it out if in doubt.
+
+See the examples folder for instructions how to use the plugin. You can also read the code (~200 lines) if in doubt!
 
 ### Contributions and feature requests
 If you would like any new features, feel free to post issues or make pull request.
 
-Features planned:
+Limitations:
 
-- Header and footers
-- Custom row and header rendering functions
-- Additional unit support (right now only pt)
+- Right now only supports units in pt
