@@ -23,6 +23,7 @@
             doc.text('' + txt, x + options.padding, y + options.lineHeight / 2 + doc.internal.getLineHeight() / 2 - 2.5);
         },
         margins: {horizontal: 40, top: 50, bottom: 40},
+        startY: 50,
         extendWidth: true
     };
 
@@ -54,6 +55,9 @@
      */
     API.autoTable = function (columns, data, options) {
         doc = this;
+
+        var userFontSize = doc.internal.getFontSize();
+
         initData({columns: columns, data: data});
         initOptions(options || {});
 
@@ -61,7 +65,13 @@
         printHeader(columns, columnWidths);
         printRows(columns, data, columnWidths);
 
+        doc.setFontSize(userFontSize);
+
         return this;
+    };
+
+    API.autoTableEndPos = function() {
+        return cellPos;
     };
 
     function initData(params) {
@@ -85,7 +95,7 @@
             options[key] = raw[key];
         });
         doc.setFontSize(options.fontSize);
-        cellPos = {x: options.margins.horizontal, y: options.margins.top};
+        cellPos = {x: options.margins.horizontal, y: options.startY};
     }
 
     function calculateColumnWidths(rows, columns) {

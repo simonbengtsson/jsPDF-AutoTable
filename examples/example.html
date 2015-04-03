@@ -62,6 +62,7 @@
     <li><a href="#">Default</a></li>
     <li><a href="#minimal">Minimal</a></li>
     <li><a href="#long">Long text</a></li>
+    <li><a href="#content">With content</a></li>
 </ul>
 
 <div id="wrapper">
@@ -91,6 +92,19 @@
         document.getElementById("output").src = doc.output('datauristring');
     }
 
+    function content() {
+        var doc = new jsPDF('p', 'pt');
+        doc.setFontSize(20);
+        doc.text('Title', 40, 48);
+        doc.setFontSize(12);
+        doc.setTextColor(100, 100, 100);
+        var splitTitle = doc.splitTextToSize(longText, doc.internal.pageSize.width - 80);
+        doc.text(splitTitle, 40, 65);
+        doc.autoTable(columns, manyRows, {startY: 200, margins: {horizontal: 40, top: 40, bottom: 40}});
+        doc.text(splitTitle, 40, doc.autoTableEndPos().y + 40);
+        document.getElementById("output").src = doc.output('datauristring');
+    }
+
 </script>
 
 <script>
@@ -106,6 +120,9 @@
                 break;
             case "#long" :
                 longData();
+                break;
+            case "#content" :
+                content();
                 break;
             default:
                 auto()

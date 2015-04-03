@@ -56,7 +56,7 @@ doc.save('table.pdf');
 
 ### Documentation
 
-Default options (specific options can be overridden with the third option in the autoTable method)
+Default options (See the examples folder for instructions how to use)
 
 ```javascript
 var options = {
@@ -69,6 +69,7 @@ var options = {
         doc.text(txt, x + options.padding, y + doc.internal.getLineHeight());
     },
     margins: { horizontal: 40, top: 50, bottom: 40 }, // How much space around the table
+    startY: 50 // The start Y position
     extendWidth: true // If true, the table will span 100% of page width minus horizontal margins.
  };
 ```
@@ -79,7 +80,6 @@ If you would like any new features, feel free to post issues or make pull reques
 
 Features planned:
 
-- Option to use special header and footer callbacks for when table spans more than one page
+- Header and footers
 - Custom row and header rendering functions
 - Additional unit support (right now only pt)
-- Ellipse values when they are too long

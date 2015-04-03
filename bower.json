@@ -12,5 +12,6 @@
     "keywords": [
         "pdf", "table"
     ],
-    "license": "MIT"
+    "license": "MIT",
+    "ignore": []
 }
