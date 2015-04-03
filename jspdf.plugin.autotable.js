@@ -38,6 +38,7 @@
         },
         margins: {horizontal: 40, top: 50, bottom: 40},
         startY: false,
+        avoidPageSplit: false,
         extendWidth: true
     };
 
@@ -58,6 +59,14 @@
 
         initData({columns: columns, data: data});
         initOptions(options || {});
+
+        cellPos = {x: settings.margins.horizontal, y: settings.startY === false ? settings.margins.top : settings.startY};
+
+        var tableHeight = settings.margins.bottom + settings.margins.top + settings.lineHeight * (data.length + 1) + 5 + settings.startY;
+        if(settings.startY !== false && settings.avoidPageSplit && tableHeight > doc.internal.pageSize.height) {
+            doc.addPage();
+            cellPos.y = settings.margins.top;
+        }
 
         settings.renderHeader(doc, pageCount, settings);
         var columnWidths = calculateColumnWidths(data, columns);
@@ -99,7 +108,6 @@
             settings[key] = raw[key];
         });
         doc.setFontSize(settings.fontSize);
-        cellPos = {x: settings.margins.horizontal, y: settings.startY === false ? settings.margins.top : settings.startY};
     }
 
     function calculateColumnWidths(rows, columns) {

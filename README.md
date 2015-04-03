@@ -25,8 +25,10 @@ Some other great pdf libraries/plugins with table support (which I have tried, b
 
 - Auto width (100% of page width or only as much as required)
 - Multiple pages
-- Supports initializing with columns and rows as an array of objects or an array of strings
-- An option to use a custom cell-renderer function
+- Custom headers and footers
+- Multiple tables on the same page
+- Custom styling
+- Bonus: Responsive examples page...
 
 ![sample javascript table pdf](sample.png)
 
@@ -86,6 +88,7 @@ var options = {
     },
     margins: { horizontal: 40, top: 50, bottom: 40 }, // How much space around the table
     startY: false // The start Y position on the first page. If set to false, top margin is used
+    avoidPageSplit: false, // Avoid splitting table over multiple pages (starts drawing table on fresh page instead).
     extendWidth: true // If true, the table will span 100% of page width minus horizontal margins.
  };
 ```

@@ -31,34 +31,17 @@ function content() {
 
 function multiple() {
     var doc = new jsPDF('p', 'pt');
-    var cols = [
-        {title: "Food", key: "food"},
-        {title: "Amount", key: "amount"},
-        {title: "Serving Size", key: "servingSize"},
-        {title: "Protein", key: "protein"},
-        {title: "Carbs", key: "carbs"},
-        {title: "Fat", key: "fat"},
-        {title: "Calories", key: "calories"}
-    ];
-    doc.setFontSize(20);
-    doc.text("Multiple tables", 40, 48);
+    doc.setFontSize(22);
+    doc.text("Multiple tables", 40, 60);
+    doc.setFontSize(12);
+    doc.text("The tables avoid being split into multiple pages", 40, 80);
 
-    for (var j = 0; j < 5; j++) {
-        var rows = [];
-        for (var k = 0; k < 3; k++) {
-            rows.push({
-                "food": "Name " + k,
-                "amount": '' + k * 100,
-                "servingSize": "cup",
-                "protein": "0",
-                "carbs": "0",
-                "fat": "0",
-                "calories": "0"
-            });
-        }
+    var firstStartY = 100;
+    for (var j = 0; j < 4; j++) {
         var endPos = doc.autoTableEndPos();
-        doc.autoTable(cols, rows, {
-            startY: endPos ? endPos.y + 10 : false,
+        doc.autoTable(columns, data, {
+            startY: endPos ? endPos.y + 20 : firstStartY,
+            avoidPageSplit: true,
             margins: {horizontal: 40, top: 60, bottom: 40}
         });
     }
