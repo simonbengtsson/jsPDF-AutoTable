@@ -23,6 +23,8 @@ Some other great pdf libraries/plugins with table support (which I have tried, b
 
 ### Features
 
+Check out the [demo](https://someatoms.github.io/jsPDF-AutoTable/)
+
 - Auto width (100% of page width or only as much as required)
 - Multiple pages
 - Custom headers and footers
