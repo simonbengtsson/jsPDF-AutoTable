@@ -121,7 +121,9 @@
                 console.log(widest);
             }
             rows.forEach(function (row) {
-                var w = getStringWidth(row[header.key] || '');
+                if(!header.hasOwnProperty('key'))
+                    throw new Error("The key attribute is required in every header");
+                var w = getStringWidth(prop(row, header.key));
                 if (w > widest) {
                     widest = w;
                 }
@@ -132,8 +134,6 @@
 
         var paddingAndMargin = settings.padding * 2 * columns.length + settings.margins.horizontal * 2;
         var spaceDiff = doc.internal.pageSize.width - totalWidth - paddingAndMargin;
-
-
 
         var keys = Object.keys(widths);
         if (spaceDiff < 0) {
@@ -163,7 +163,7 @@
         if (!headers) return; //
         headers.forEach(function (header) {
             var width = columnWidths[header.key] + settings.padding * 2;
-            var title = ellipsize(columnWidths[header.key] || '', header.title);
+            var title = ellipsize(columnWidths[header.key] || '', header.title || '');
             settings.renderHeaderCell(cellPos.x, cellPos.y, width, settings.lineHeight + 5, header.key, title, settings);
             cellPos.x += width;
         });
@@ -179,7 +179,7 @@
             var row = rows[i];
 
             headers.forEach(function (header) {
-                var title = ellipsize(columnWidths[header.key] || '', row[header.key] || '');
+                var title = ellipsize(columnWidths[header.key] || '', prop(row, header.key));
                 var width = columnWidths[header.key] + settings.padding * 2;
                 settings.renderCell(cellPos.x, cellPos.y, width, settings.lineHeight, header.key, title, i, settings);
                 cellPos.x = cellPos.x + columnWidths[header.key] + settings.padding * 2;
@@ -218,6 +218,10 @@
         }
         text += "...";
         return text;
+    }
+
+    function prop(row, key) {
+        return row.hasOwnProperty(key) ? '' + row[key] : '';
     }
 
     function getStringWidth(txt) {
