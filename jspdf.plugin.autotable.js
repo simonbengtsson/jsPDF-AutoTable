@@ -117,9 +117,6 @@
         var totalWidth = 0;
         columns.forEach(function (header) {
             var widest = getStringWidth(header.title || '');
-            if(header.key === 'expenses') {
-                console.log(widest);
-            }
             rows.forEach(function (row) {
                 if(!header.hasOwnProperty('key'))
                     throw new Error("The key attribute is required in every header");
