@@ -37,7 +37,7 @@
             doc.text('' + value, x + settings.padding, y);
         },
         margins: {horizontal: 40, top: 50, bottom: 40},
-        startY: 0,
+        startY: false,
         extendWidth: true
     };
 
@@ -99,7 +99,7 @@
             settings[key] = raw[key];
         });
         doc.setFontSize(settings.fontSize);
-        cellPos = {x: settings.margins.horizontal, y: settings.startY + settings.margins.top};
+        cellPos = {x: settings.margins.horizontal, y: settings.startY === false ? settings.margins.top : settings.startY};
     }
 
     function calculateColumnWidths(rows, columns) {

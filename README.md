@@ -57,7 +57,7 @@ doc.autoTable(columns, data, {});
 doc.save('table.pdf');
 ```
 
-See more examples in `/examples/examples.html`
+See more examples in `/examples/examples.js`
 
 ### Documentation
 
@@ -85,7 +85,7 @@ var options = {
         doc.text('' + value, x + settings.padding, y);
     },
     margins: { horizontal: 40, top: 50, bottom: 40 }, // How much space around the table
-    startY: 0 // The start Y position on the first page
+    startY: false // The start Y position on the first page. If set to false, top margin is used
     extendWidth: true // If true, the table will span 100% of page width minus horizontal margins.
  };
 ```
