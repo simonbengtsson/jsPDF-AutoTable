@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>AutoTable sample</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+        }
+
+        .menu {
+            position: absolute;
+            top: 0;
+            padding: 0;
+            margin: 0;
+            white-space: nowrap;
+            list-style: none;
+            width: 100%;
+            overflow: scroll;
+            height: 50px;
+        }
+
+        .menu li {
+            display: inline-block;
+        }
+
+        .menu li a {
+            text-decoration: none;
+            color: #123;
+            font-weight: bold;
+            font-family: sans-serif;
+            padding: 10px;
+            line-height: 50px;
+        }
+
+        .menu li a:hover {
+            font-style: italic;
+        }
+
+        #wrapper {
+            padding-top: 50px;
+            height: 100%;
+        }
+
+        #output {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+
+</head>
+<body>
+
+<ul class="menu">
+    <li><a href="#">Default</a></li>
+    <li><a href="#minimal">Minimal</a></li>
+    <li><a href="#long">Long text</a></li>
+</ul>
+
+<div id="wrapper">
+    <iframe id="output"></iframe>
+</div>
+
+<script src="data.js"></script>
+<script src="jspdf.debug.js"></script>
+<script src="../jspdf.plugin.autotable.js"></script>
+<script>
+
+    function auto() {
+        var doc = new jsPDF('p', 'pt');
+        doc.autoTable(columns, data, {});
+        document.getElementById("output").src = doc.output('datauristring');
+    }
+
+    function minimal() {
+        var doc = new jsPDF('p', 'pt');
+        doc.autoTable(columns, data, {extendWidth: false, padding: 2, lineHeight: 12, fontSize: 8});
+        document.getElementById("output").src = doc.output('datauristring');
+    }
+
+    function longData() {
+        var doc = new jsPDF('p', 'pt');
+        doc.autoTable(columnsLong, dataLong, {padding: 2});
+        document.getElementById("output").src = doc.output('datauristring');
+    }
+
+</script>
+
+<script>
+    window.onhashchange = function () {
+        location.reload(true);
+        change();
+    };
+
+    function change() {
+        switch (window.location.hash) {
+            case "#minimal" :
+                minimal();
+                break;
+            case "#long" :
+                longData();
+                break;
+            default:
+                auto()
+        }
+    }
+
+    change();
+</script>
+
+</body>
+</html>

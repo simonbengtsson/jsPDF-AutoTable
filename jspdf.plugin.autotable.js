@@ -8,6 +8,8 @@
 (function (API) {
     'use strict';
 
+    var MIN_COLUMN_WIDTH = 25;
+
     var doc, cellPos, pageCount = 1;
 
     var options = {
@@ -20,7 +22,7 @@
             doc.rect(x, y, w, h, 'F');
             doc.text('' + txt, x + options.padding, y + options.lineHeight / 2 + doc.internal.getLineHeight() / 2 - 2.5);
         },
-        margins: { horizontal: 40, top: 50, bottom: 40 },
+        margins: {horizontal: 40, top: 50, bottom: 40},
         extendWidth: true
     };
 
@@ -83,14 +85,14 @@
             options[key] = raw[key];
         });
         doc.setFontSize(options.fontSize);
-        console.log( options.margins.top );
-        cellPos = { x: options.margins.horizontal, y: options.margins.top };
+        cellPos = {x: options.margins.horizontal, y: options.margins.top};
     }
 
     function calculateColumnWidths(rows, columns) {
         var widths = {};
 
-        // Min widths
+        // Optimal widths
+        var totalWidth = 0;
         columns.forEach(function (header) {
             var widest = getStringWidth(header.title);
             rows.forEach(function (row) {
@@ -100,20 +102,30 @@
                 }
             });
             widths[header.key] = widest;
+            totalWidth += widest;
         });
 
-        // Fill page horizontally
-        if (options.extendWidth) {
-            var keys = Object.keys(widths),
-                sum = 0;
+        var paddingAndMargin = options.padding * 2 * columns.length + options.margins.horizontal * 2;
+        var spaceDiff = doc.internal.pageSize.width - totalWidth - paddingAndMargin;
 
+        var keys = Object.keys(widths);
+        if (spaceDiff < 0) {
+            // Shrink columns
+            var shrinkableColumns = [];
+            var shrinkableColumnWidths = 0;
             keys.forEach(function (key) {
-                return sum += widths[key];
+                if (widths[key] > MIN_COLUMN_WIDTH) {
+                    shrinkableColumns.push(key);
+                    shrinkableColumnWidths += widths[key];
+                }
             });
-
-            var spaceLeft = doc.internal.pageSize.width - sum - options.padding * 2 * columns.length - options.margins.horizontal * 2;
+            shrinkableColumns.forEach(function (key) {
+                widths[key] += spaceDiff *  (widths[key] / shrinkableColumnWidths);
+            });
+        } else if (spaceDiff > 0 && options.extendWidth) {
+            // Fill page horizontally
             keys.forEach(function (key) {
-                widths[key] += spaceLeft / keys.length;
+                widths[key] += spaceDiff / keys.length;
             });
         }
 
@@ -127,7 +139,8 @@
         headers.forEach(function (header) {
             var width = columnWidths[header.key] + options.padding * 2;
             var color = [52, 73, 94]; // asphalt
-            options.renderCell(cellPos.x, cellPos.y, width, options.lineHeight + 5, header.title, color, options);
+            var title = ellipsize(columnWidths[header.key], header.title);
+            options.renderCell(cellPos.x, cellPos.y, width, options.lineHeight + 5, title, color, options);
             cellPos.x = cellPos.x + columnWidths[header.key] + options.padding * 2;
         });
         doc.setTextColor(70, 70, 70);
@@ -144,8 +157,9 @@
 
             headers.forEach(function (header) {
                 var color = (odd ? 245 : 255);
+                var title = ellipsize(columnWidths[header.key], row[header.key]);
                 var width = columnWidths[header.key] + options.padding * 2;
-                options.renderCell(cellPos.x, cellPos.y, width, options.lineHeight, row[header.key], [color], options);
+                options.renderCell(cellPos.x, cellPos.y, width, options.lineHeight, title, [color], options);
                 cellPos.x = cellPos.x + columnWidths[header.key] + options.padding * 2;
             });
             odd = !odd;
@@ -161,6 +175,25 @@
                 cellPos.x = options.margins.horizontal;
             }
         }
+    }
+
+    /**
+     * Ellipize the text to fit in the width
+     * @param width
+     * @param text
+     */
+    function ellipsize(width, text) {
+        if(width >= getStringWidth(text)) {
+            return text;
+        }
+        while (width < getStringWidth(text + "...")) {
+            if(text.length < 2) {
+                break;
+            }
+            text = text.substring(0, text.length - 1);
+        }
+        text += "...";
+        return text;
     }
 
     function getStringWidth(txt) {
