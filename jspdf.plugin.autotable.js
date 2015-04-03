@@ -12,46 +12,43 @@
 
     var doc, cellPos, pageCount = 1;
 
-    var options = {
+    // See README.md for documentation of the options or the examples
+    var defaultOptions = {
         padding: 5,
         fontSize: 10,
         lineHeight: 20,
-        renderCell: function (x, y, w, h, txt, fillColor, options) {
-            txt = '' + txt;
-            doc.setFillColor.apply(this, fillColor);
-            doc.rect(x, y, w, h, 'F');
-            doc.text('' + txt, x + options.padding, y + options.lineHeight / 2 + doc.internal.getLineHeight() / 2 - 2.5);
+        renderHeader: function (doc, pageNumber, settings) {
+        },
+        renderFooter: function (doc, lastCellPos, pageNumber, settings) {
+        },
+        renderHeaderCell: function (x, y, width, height, key, value, settings) {
+            doc.setFillColor(52, 73, 94); // Asphalt
+            doc.setTextColor(255, 255, 255);
+            doc.setFontStyle('bold');
+            doc.rect(x, y, width, height, 'F');
+            y += settings.lineHeight / 2 + doc.internal.getLineHeight() / 2 - 2.5;
+            doc.text('' + value, x + settings.padding, y);
+        },
+        renderCell: function (x, y, width, height, key, value, row, settings) {
+            doc.setFillColor(row % 2 === 0 ? 245 : 255);
+            doc.rect(x, y, width, height, 'F');
+            y += settings.lineHeight / 2 + doc.internal.getLineHeight() / 2 - 2.5;
+            doc.text('' + value, x + settings.padding, y);
         },
         margins: {horizontal: 40, top: 50, bottom: 40},
-        startY: 50,
+        startY: 0,
         extendWidth: true
     };
+
+    // User and default options merged
+    var settings;
 
     /**
      * Create a table from a set of rows and columns.
      *
-     * Default options:
-     *
-     * <pre>
-     var options = {
-        padding: 3,
-        fontSize: 12,
-        lineHeight: 20,
-        renderCell: function (x, y, w, h, txt, fillColor, options) {
-            doc.setFillColor.apply(this, fillColor);
-            doc.rect(x, y, w, h, 'F');
-            doc.text(txt, x + options.padding, y + doc.internal.getLineHeight());
-        },
-        margins: { horizontal: 40, top: 50, bottom: 40 },
-        extendWidth: true
-     };
-     * </pre>
-     *
      * @param {Object[]|String[]} columns Either as an array of objects or array of strings
      * @param {Object[][]|String[][]} data Either as an array of objects or array of strings
      * @param {Object} [options={}] Options that will override the default ones (above)
-     *
-     * @param {Object} [options.autoWidth=true] If table should span entire page width (otherwise resorts to min-width)
      */
     API.autoTable = function (columns, data, options) {
         doc = this;
@@ -61,16 +58,21 @@
         initData({columns: columns, data: data});
         initOptions(options || {});
 
+        settings.renderHeader(doc, pageCount, settings);
         var columnWidths = calculateColumnWidths(data, columns);
         printHeader(columns, columnWidths);
         printRows(columns, data, columnWidths);
+        settings.renderFooter(doc, cellPos, pageCount, settings);
 
         doc.setFontSize(userFontSize);
 
         return this;
     };
 
-    API.autoTableEndPos = function() {
+    /**
+     * Returns the position of the last drawn cell
+     */
+    API.autoTableEndPos = function () {
         return cellPos;
     };
 
@@ -91,11 +93,12 @@
     }
 
     function initOptions(raw) {
+        settings = defaultOptions;
         Object.keys(raw).forEach(function (key) {
-            options[key] = raw[key];
+            settings[key] = raw[key];
         });
-        doc.setFontSize(options.fontSize);
-        cellPos = {x: options.margins.horizontal, y: options.startY};
+        doc.setFontSize(settings.fontSize);
+        cellPos = {x: settings.margins.horizontal, y: settings.startY + settings.margins.top};
     }
 
     function calculateColumnWidths(rows, columns) {
@@ -115,7 +118,7 @@
             totalWidth += widest;
         });
 
-        var paddingAndMargin = options.padding * 2 * columns.length + options.margins.horizontal * 2;
+        var paddingAndMargin = settings.padding * 2 * columns.length + settings.margins.horizontal * 2;
         var spaceDiff = doc.internal.pageSize.width - totalWidth - paddingAndMargin;
 
         var keys = Object.keys(widths);
@@ -130,9 +133,9 @@
                 }
             });
             shrinkableColumns.forEach(function (key) {
-                widths[key] += spaceDiff *  (widths[key] / shrinkableColumnWidths);
+                widths[key] += spaceDiff * (widths[key] / shrinkableColumnWidths);
             });
-        } else if (spaceDiff > 0 && options.extendWidth) {
+        } else if (spaceDiff > 0 && settings.extendWidth) {
             // Fill page horizontally
             keys.forEach(function (key) {
                 widths[key] += spaceDiff / keys.length;
@@ -144,45 +147,41 @@
 
     function printHeader(headers, columnWidths) {
         if (!headers) return; //
-        doc.setFontStyle('bold');
-        doc.setTextColor(255, 255, 255);
         headers.forEach(function (header) {
-            var width = columnWidths[header.key] + options.padding * 2;
-            var color = [52, 73, 94]; // asphalt
+            var width = columnWidths[header.key] + settings.padding * 2;
             var title = ellipsize(columnWidths[header.key], header.title);
-            options.renderCell(cellPos.x, cellPos.y, width, options.lineHeight + 5, title, color, options);
-            cellPos.x = cellPos.x + columnWidths[header.key] + options.padding * 2;
+            settings.renderHeaderCell(cellPos.x, cellPos.y, width, settings.lineHeight + 5, header.key, title, settings);
+            cellPos.x += width;
         });
         doc.setTextColor(70, 70, 70);
         doc.setFontStyle('normal');
 
-        cellPos.y += options.lineHeight;
-        cellPos.x = options.margins.horizontal;
+        cellPos.y += settings.lineHeight;
+        cellPos.x = settings.margins.horizontal;
     }
 
     function printRows(headers, rows, columnWidths) {
-        var odd = false;
         for (var i = 0; i < rows.length; i++) {
             var row = rows[i];
 
             headers.forEach(function (header) {
-                var color = (odd ? 245 : 255);
                 var title = ellipsize(columnWidths[header.key], row[header.key]);
-                var width = columnWidths[header.key] + options.padding * 2;
-                options.renderCell(cellPos.x, cellPos.y, width, options.lineHeight, title, [color], options);
-                cellPos.x = cellPos.x + columnWidths[header.key] + options.padding * 2;
+                var width = columnWidths[header.key] + settings.padding * 2;
+                settings.renderCell(cellPos.x, cellPos.y, width, settings.lineHeight, header.key, title, i, settings);
+                cellPos.x = cellPos.x + columnWidths[header.key] + settings.padding * 2;
             });
-            odd = !odd;
 
-            var newPage = (cellPos.y + options.margins.bottom + options.lineHeight * 2) >= doc.internal.pageSize.height;
+            var newPage = (cellPos.y + settings.margins.bottom + settings.lineHeight * 2) >= doc.internal.pageSize.height;
             if (newPage) {
+                settings.renderFooter(doc, cellPos, pageCount, settings);
                 doc.addPage();
-                cellPos = {x: options.margins.horizontal, y: options.margins.top};
+                cellPos = {x: settings.margins.horizontal, y: settings.margins.top};
                 pageCount++;
+                settings.renderHeader(doc, pageCount, settings);
                 printHeader(headers, columnWidths);
             } else {
-                cellPos.y += options.lineHeight;
-                cellPos.x = options.margins.horizontal;
+                cellPos.y += settings.lineHeight;
+                cellPos.x = settings.margins.horizontal;
             }
         }
     }
@@ -193,11 +192,11 @@
      * @param text
      */
     function ellipsize(width, text) {
-        if(width >= getStringWidth(text)) {
+        if (width >= getStringWidth(text)) {
             return text;
         }
         while (width < getStringWidth(text + "...")) {
-            if(text.length < 2) {
+            if (text.length < 2) {
                 break;
             }
             text = text.substring(0, text.length - 1);

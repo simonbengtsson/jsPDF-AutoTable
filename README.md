@@ -60,20 +60,22 @@ Default options (See the examples folder for instructions how to use)
 
 ```javascript
 var options = {
-    padding: 3, // Vertical cell padding
+    padding: 3, // Horizontal cell padding
     fontSize: 12,
     lineHeight: 20,
-    renderCell: function (x, y, w, h, txt, fillColor, options) {
+    renderHeader: function (doc, pageNumber, settings) {}, // Called before every page
+    renderFooter: function (doc, lastCellPos, pageNumber, settings) {}, // Called on the end of every page
+    renderCell: function (x, y, w, h, txt, fillColor, options) { // Will render every cell in the table
         doc.setFillColor.apply(this, fillColor);
         doc.rect(x, y, w, h, 'F');
         doc.text(txt, x + options.padding, y + doc.internal.getLineHeight());
     },
     margins: { horizontal: 40, top: 50, bottom: 40 }, // How much space around the table
-    startY: 50 // The start Y position
+    startY: 0 // The start Y position on the first page
     extendWidth: true // If true, the table will span 100% of page width minus horizontal margins.
  };
 ```
-For more information, see source code for now.
+The source code is ~200 lines of code so check it out if in doubt.
 
 ### Contributions and feature requests
 If you would like any new features, feel free to post issues or make pull request.

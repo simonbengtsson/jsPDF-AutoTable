@@ -63,6 +63,7 @@
     <li><a href="#minimal">Minimal</a></li>
     <li><a href="#long">Long text</a></li>
     <li><a href="#content">With content</a></li>
+    <li><a href="#header-footer">Header and footer</a></li>
 </ul>
 
 <div id="wrapper">
@@ -100,8 +101,26 @@
         doc.setTextColor(100, 100, 100);
         var splitTitle = doc.splitTextToSize(longText, doc.internal.pageSize.width - 80);
         doc.text(splitTitle, 40, 65);
-        doc.autoTable(columns, manyRows, {startY: 200, margins: {horizontal: 40, top: 40, bottom: 40}});
+        doc.autoTable(columns, manyRows, {startY: 160, margins: {horizontal: 40, top: 40, bottom: 40}});
         doc.text(splitTitle, 40, doc.autoTableEndPos().y + 40);
+        document.getElementById("output").src = doc.output('datauristring');
+    }
+
+    function headerAndFooter() {
+        var totalPagesExp = "{total_pages_count_string}";
+        var doc = new jsPDF('p', 'pt');
+        var header = function (doc, pageCount, options) {
+            doc.setFontSize(20);
+            doc.text("Report for X", options.margins.horizontal, 60);
+            doc.setFontSize(options.fontSize);
+        };
+        var footer = function (doc, lastCellPos, pageCount, options) {
+            var str = "Page " + pageCount + " of " + totalPagesExp;
+            doc.text(str, options.margins.horizontal, doc.internal.pageSize.height - 30);
+        };
+        var options = {renderHeader: header, renderFooter: footer, margins: {horizontal: 40, top: 80, bottom: 50}};
+        doc.autoTable(columns, manyManyRows, options);
+        doc.putTotalPages(totalPagesExp);
         document.getElementById("output").src = doc.output('datauristring');
     }
 
@@ -123,6 +142,9 @@
                 break;
             case "#content" :
                 content();
+                break;
+            case "#header-footer" :
+                headerAndFooter();
                 break;
             default:
                 auto()
