@@ -1,19 +1,19 @@
 function auto() {
     var doc = new jsPDF('p', 'pt');
     doc.autoTable(columns, data);
-    document.getElementById("output").src = doc.output('datauristring');
+    publish(doc.output('datauristring'));
 }
 
 function minimal() {
     var doc = new jsPDF('p', 'pt');
     doc.autoTable(columns, data, {extendWidth: false, padding: 2, lineHeight: 12, fontSize: 8});
-    document.getElementById("output").src = doc.output('datauristring');
+    publish(doc.output('datauristring'));
 }
 
 function longData() {
     var doc = new jsPDF('l', 'pt');
     doc.autoTable(columnsLong, dataLong, {padding: 2});
-    document.getElementById("output").src = doc.output('datauristring');
+    publish(doc.output('datauristring'));
 }
 
 function content() {
@@ -26,7 +26,7 @@ function content() {
     doc.text(splitTitle, 40, 65);
     doc.autoTable(columns, moreData, {startY: 200, margins: {horizontal: 40, top: 40, bottom: 40}});
     doc.text(splitTitle, 40, doc.autoTableEndPosY() + 40);
-    document.getElementById("output").src = doc.output('datauristring');
+    publish(doc.output('datauristring'));
 }
 
 function multiple() {
@@ -46,7 +46,7 @@ function multiple() {
         });
     }
 
-    document.getElementById("output").src = doc.output('datauristring');
+    publish(doc.output('datauristring'));
 }
 
 function html() {
@@ -54,7 +54,7 @@ function html() {
     doc.text("Form HTML", 40, 50);
     var json = doc.autoTableHtmlToJson(document.getElementById("basic-table"));
     doc.autoTable(false, json, {startY: 60});
-    document.getElementById("output").src = doc.output('datauristring');
+    publish(doc.output('datauristring'));
 }
 
 function headerAndFooter() {
@@ -72,7 +72,7 @@ function headerAndFooter() {
     var options = {renderHeader: header, renderFooter: footer, margins: {horizontal: 40, top: 80, bottom: 50}};
     doc.autoTable(columns, moreData, options);
     doc.putTotalPages(totalPagesExp);
-    document.getElementById("output").src = doc.output('datauristring');
+    publish(doc.output('datauristring'));
 }
 
 function customStyle() {
@@ -116,5 +116,10 @@ function customStyle() {
         doc.setTextColor(50);
     };
     doc.autoTable(columns, data, {renderCell: cell, renderHeaderCell: header});
-    document.getElementById("output").src = doc.output('datauristring');
+    publish(doc.output('datauristring'));
+}
+
+function publish(uri) {
+    var elem = document.getElementById("wrapper");
+    elem.innerHTML = '<embed id="output" src="' + uri + '" type="application/pdf">';
 }

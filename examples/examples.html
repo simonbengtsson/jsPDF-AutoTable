@@ -74,9 +74,7 @@
     <li><a href="#custom">Custom style</a></li>
 </ul>
 
-<div id="wrapper">
-    <iframe id="output"></iframe>
-</div>
+<div id="wrapper"><div id="output"></div></div>
 
 <table id="basic-table" style="display: none;">
     <thead>
@@ -149,7 +147,6 @@
 <script>
     window.onhashchange = function () {
         location.reload(true);
-        change();
     };
 
     function change() {
