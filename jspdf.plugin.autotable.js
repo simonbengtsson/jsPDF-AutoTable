@@ -53,17 +53,22 @@
      * @param {Object} [options={}] Options that will override the default ones (above)
      */
     API.autoTable = function (columns, data, options) {
+        options = options || {};
+        columns = columns || [];
         doc = this;
 
         var userFontSize = doc.internal.getFontSize();
 
         initData({columns: columns, data: data});
-        initOptions(options || {});
+        initOptions(options);
 
-        cellPos = {x: settings.margins.horizontal, y: settings.startY === false ? settings.margins.top : settings.startY};
+        cellPos = {
+            x: settings.margins.horizontal,
+            y: settings.startY === false ? settings.margins.top : settings.startY
+        };
 
         var tableHeight = settings.margins.bottom + settings.margins.top + settings.lineHeight * (data.length + 1) + 5 + settings.startY;
-        if(settings.startY !== false && settings.avoidPageSplit && tableHeight > doc.internal.pageSize.height) {
+        if (settings.startY !== false && settings.avoidPageSplit && tableHeight > doc.internal.pageSize.height) {
             doc.addPage();
             cellPos.y = settings.margins.top;
         }
@@ -80,15 +85,59 @@
     };
 
     /**
-     * Returns the position of the last drawn cell
+     * Returns the Y position of the last drawn cell
+     * @returns int
+     */
+    API.autoTableEndPosY = function () {
+        return cellPos ? cellPos.y : cellPos;
+    };
+
+    /**
+     * @deprecated Use autoTableEndPosY()
      */
     API.autoTableEndPos = function () {
         return cellPos;
     };
 
+    /**
+     * Parses an html table. To draw a table, use it like this:
+     * `doc.autoTable(false, doc.autoTableHtmlToJson(table))`
+     *
+     * @param table Html table element
+     * @returns [] Array of objects with object keys as headers
+     */
+    API.autoTableHtmlToJson = function (table) {
+        var data = [], headers = {}, header = table.rows[0];
+        for (var i = 0; i < header.cells.length; i++) {
+            headers[i] = header.cells[i] ? header.cells[i].textContent : '';
+        }
+
+        for (i = 1; i < table.rows.length; i++) {
+            var tableRow = table.rows[i];
+            var rowData = {};
+            for (var j = 0; j < header.cells.length; j++) {
+                rowData[headers[j]] = tableRow.cells[j] ? tableRow.cells[j].textContent : '';
+            }
+            data.push(rowData);
+        }
+        return data;
+    };
+
+    /**
+     * Transform all to the object initialization form
+     * @param params
+     */
     function initData(params) {
-        // Transform from String[] to Object[]
-        if (typeof params.columns[0] === 'string') {
+        // Object only initial
+        if (!params.columns || params.columns.length === 0) {
+            var keys = Object.keys(params.data[0]);
+            Array.prototype.push.apply(params.columns, keys);
+            params.columns.forEach(function (title, i) {
+                params.columns[i] = {title: title, key: keys[i]};
+            });
+        }
+        // Array initialization form
+        else if (typeof params.columns[0] === 'string') {
             params.data.forEach(function (row, i) {
                 var obj = {};
                 for (var j = 0; j < row.length; j++) {
@@ -100,6 +149,7 @@
                 params.columns[i] = {title: title, key: i};
             });
         }
+
     }
 
     function initOptions(raw) {
@@ -118,7 +168,7 @@
         columns.forEach(function (header) {
             var widest = getStringWidth(header.title || '');
             rows.forEach(function (row) {
-                if(!header.hasOwnProperty('key'))
+                if (!header.hasOwnProperty('key'))
                     throw new Error("The key attribute is required in every header");
                 var w = getStringWidth(prop(row, header.key));
                 if (w > widest) {

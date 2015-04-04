@@ -11,7 +11,7 @@ function minimal() {
 }
 
 function longData() {
-    var doc = new jsPDF('p', 'pt');
+    var doc = new jsPDF('l', 'pt');
     doc.autoTable(columnsLong, dataLong, {padding: 2});
     document.getElementById("output").src = doc.output('datauristring');
 }
@@ -25,7 +25,7 @@ function content() {
     var splitTitle = doc.splitTextToSize(longText, doc.internal.pageSize.width - 80);
     doc.text(splitTitle, 40, 65);
     doc.autoTable(columns, moreData, {startY: 200, margins: {horizontal: 40, top: 40, bottom: 40}});
-    doc.text(splitTitle, 40, doc.autoTableEndPos().y + 40);
+    doc.text(splitTitle, 40, doc.autoTableEndPosY() + 40);
     document.getElementById("output").src = doc.output('datauristring');
 }
 
@@ -34,18 +34,26 @@ function multiple() {
     doc.setFontSize(22);
     doc.text("Multiple tables", 40, 60);
     doc.setFontSize(12);
-    doc.text("The tables avoid being split into multiple pages", 40, 80);
+    doc.text("The tables avoid being split into multiple pages.", 40, 80);
 
-    var firstStartY = 100;
+    var firstStartY = 120;
     for (var j = 0; j < 4; j++) {
-        var endPos = doc.autoTableEndPos();
+        var endPosY = doc.autoTableEndPosY();
         doc.autoTable(columns, data, {
-            startY: endPos ? endPos.y + 20 : firstStartY,
+            startY: endPosY ? endPosY + 50 : firstStartY,
             avoidPageSplit: true,
             margins: {horizontal: 40, top: 60, bottom: 40}
         });
     }
 
+    document.getElementById("output").src = doc.output('datauristring');
+}
+
+function html() {
+    var doc = new jsPDF('p', 'pt');
+    doc.text("Form HTML", 40, 50);
+    var json = doc.autoTableHtmlToJson(document.getElementById("basic-table"));
+    doc.autoTable(false, json, {startY: 60});
     document.getElementById("output").src = doc.output('datauristring');
 }
 

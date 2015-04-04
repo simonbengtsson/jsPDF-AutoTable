@@ -87,9 +87,10 @@ var dataLong = [
     {
         "name": "Nelson",
         "id": 2,
+        "ip_address": "39.211.252.103",
         "country": "Kazakhstan",
         "email": "jjordan@agivu.com",
-        "text": "This is a text about nothing in particular",
+        "text": "This is a text about nothing in particular. It's interesting that it actually gets truncated.",
         "text2": "This is a text about nothing in particular"
     },
     {
@@ -98,7 +99,7 @@ var dataLong = [
         "country": "Madagas",
         "ip_address": "39.211.252.103",
         "email": "jdean@skinte.biz",
-        "text": "This is a text talking about nothing in particular",
+        "text": "This is a text talking about nothing in particular. It's interesting that it actually gets truncated.",
         "text2": "This is a text about nothing in particular"
     },
     {
@@ -107,7 +108,7 @@ var dataLong = [
         "country": "Somalia",
         "ip_address": "27.214.238.100",
         "email": "nblack@midel.gov",
-        "text": "This is a text about nothing in particular",
+        "text": "This is a text about nothing in particular. It's interesting that it actually gets truncated.",
         "text2": "This is a text about nothing in particular"
     },
     {
@@ -116,7 +117,7 @@ var dataLong = [
         "country": "Libya",
         "ip_address": "82.148.96.120",
         "email": "charrison@tambee.name",
-        "text": "This is a text about nothing in particular",
+        "text": "This is a text about nothing in particular. It's interesting that it actually gets truncated.",
         "text2": "This is a text about nothing in particular"
     }
 ];

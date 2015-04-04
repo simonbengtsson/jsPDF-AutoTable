@@ -30,6 +30,7 @@ Check out the [demo](https://someatoms.github.io/jsPDF-AutoTable/) (Source code 
 - Custom headers and footers
 - Multiple tables on the same page
 - Custom styling
+- Helper method to parse data from html table
 - Bonus: Responsive examples page...
 
 ![sample javascript table pdf](sample.png)
@@ -38,7 +39,9 @@ Check out the [demo](https://someatoms.github.io/jsPDF-AutoTable/) (Source code 
 
 See more samples in `/samples`
 
-### Basic example
+### Basic examples
+
+Object initialization
 
 ```javascript
 var columns = [
@@ -57,11 +60,44 @@ var data = [
     ...
 ];
 var doc = new jsPDF('p', 'pt');
-doc.autoTable(columns, data, {});
+doc.autoTable(columns, data);
 doc.save('table.pdf');
 ```
 
-See more examples in `/examples/examples.js`
+Array initialization
+
+```javascript
+var columns = ["ID", "Name", "Country", "IP-address", "Email"];
+var data = [
+    [1, "Shaw", "Tanzania", "92.44.246.31", "abrown@avamba.info"],
+    [2, "Nelson", "Kazakhstan", "112.238.42.121", "jjordan@agivu.com"],
+    [3, "Garcia", "Madagascar", "39.211.252.103", "jdean@skinte.biz"],
+    [4, "Richardson", "Somalia", "27.214.238.100", "nblack@midel.gov"],
+    [5, "Kennedy", "Libya", "82.148.96.120", "charrison@tambee.name"]
+    ...
+];
+var doc = new jsPDF('p', 'pt');
+doc.autoTable(columns, data);
+doc.save('table.pdf');
+```
+
+Object only initialization (headers are obtained from the first row's keys)
+
+```javascript
+var data = [
+    {"ID": 1, "Name": "Shaw", "Country": "Tanzania", "IP-adress": "92.44.246.31", "Email": "abrown@avamba.info"},
+    {"ID": 2, "Name": "Nelson", "Country": "Kazakhstan", "IP-adress": "112.238.42.121", "Email": "jjordan@agivu.com"},
+    {"ID": 3, "Name": "Garcia", "Country": "Madagascar", "IP-adress": "39.211.252.103", "Email": "jdean@skinte.biz"},
+    {"ID": 4, "Name": "Richardson", "Country": "Somalia", "IP-adress": "27.214.238.100", "Email": "nblack@midel.gov"},
+    {"ID": 5, "Name": "Kennedy", "Country": "Libya", "IP-adress": "82.148.96.120", "Email": "charrison@tambee.name"}
+    ...
+];
+var doc = new jsPDF('p', 'pt');
+doc.autoTable(false, data);
+doc.save('table.pdf');
+```
+
+See more advanced examples in `/examples/examples.js`
 
 ### Documentation
 
@@ -95,7 +131,7 @@ var options = {
  };
 ```
 
-See the examples folder for instructions how to use the plugin. You can also read the code (~200 lines) if in doubt!
+See the examples folder for instructions how to use the options. You can also read the code (~200 lines) if in doubt!
 
 ### Contributions and feature requests
 If you would like any new features, feel free to post issues or make pull request.
