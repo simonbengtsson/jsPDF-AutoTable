@@ -8,42 +8,50 @@
 (function (API) {
     'use strict';
 
+    // On every new jsPDF object, clear variables
+    API.events.push(['initialized', function () {
+        doc = undefined;
+        cellPos = undefined;
+        pageCount = 1;
+        settings = undefined;
+    }], false);
+
     var MIN_COLUMN_WIDTH = 25;
 
-    var doc, cellPos, pageCount = 1;
+    var doc, cellPos, pageCount = 1, settings;
 
-    // See README.md for documentation of the options or the examples
-    var defaultOptions = {
-        padding: 5,
-        fontSize: 10,
-        lineHeight: 20,
-        renderHeader: function (doc, pageNumber, settings) {
-        },
-        renderFooter: function (doc, lastCellPos, pageNumber, settings) {
-        },
-        renderHeaderCell: function (x, y, width, height, key, value, settings) {
-            doc.setFillColor(52, 73, 94); // Asphalt
-            doc.setTextColor(255, 255, 255);
-            doc.setFontStyle('bold');
-            doc.rect(x, y, width, height, 'F');
-            y += settings.lineHeight / 2 + doc.internal.getLineHeight() / 2;
-            doc.text('' + value, x + settings.padding, y);
-        },
-        renderCell: function (x, y, width, height, key, value, row, settings) {
-            doc.setFillColor(row % 2 === 0 ? 245 : 255);
-            doc.setTextColor(50);
-            doc.rect(x, y, width, height, 'F');
-            y += settings.lineHeight / 2 + doc.internal.getLineHeight() / 2 - 2.5;
-            doc.text('' + value, x + settings.padding, y);
-        },
-        margins: {horizontal: 40, top: 50, bottom: 40},
-        startY: false,
-        avoidPageSplit: false,
-        extendWidth: true
+    // See README.md or examples for documentation of the options
+    // return a new instance every time to avoid references issues
+    var defaultOptions = function () {
+        return {
+            padding: 5,
+            fontSize: 10,
+            lineHeight: 20,
+            renderHeader: function (doc, pageNumber, settings) {
+            },
+            renderFooter: function (doc, lastCellPos, pageNumber, settings) {
+            },
+            renderHeaderCell: function (x, y, width, height, key, value, settings) {
+                doc.setFillColor(52, 73, 94); // Asphalt
+                doc.setTextColor(255, 255, 255);
+                doc.setFontStyle('bold');
+                doc.rect(x, y, width, height, 'F');
+                y += settings.lineHeight / 2 + doc.internal.getLineHeight() / 2;
+                doc.text('' + value, x + settings.padding, y);
+            },
+            renderCell: function (x, y, width, height, key, value, row, settings) {
+                doc.setFillColor(row % 2 === 0 ? 245 : 255);
+                doc.setTextColor(50);
+                doc.rect(x, y, width, height, 'F');
+                y += settings.lineHeight / 2 + doc.internal.getLineHeight() / 2 - 2.5;
+                doc.text('' + value, x + settings.padding, y);
+            },
+            margins: {horizontal: 40, top: 50, bottom: 40},
+            startY: false,
+            avoidPageSplit: false,
+            extendWidth: true
+        }
     };
-
-    // User and default options merged
-    var settings;
 
     /**
      * Create a table from a set of rows and columns.
@@ -89,7 +97,8 @@
      * @returns int
      */
     API.autoTableEndPosY = function () {
-        return cellPos ? cellPos.y : cellPos;
+        // If cellPos is not set, autoTable() as probably not been called
+        return cellPos ? cellPos.y : false;
     };
 
     /**
@@ -153,7 +162,7 @@
     }
 
     function initOptions(raw) {
-        settings = defaultOptions;
+        settings = defaultOptions();
         Object.keys(raw).forEach(function (key) {
             settings[key] = raw[key];
         });

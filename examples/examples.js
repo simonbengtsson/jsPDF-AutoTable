@@ -24,7 +24,7 @@ function content() {
     doc.setTextColor(100, 100, 100);
     var splitTitle = doc.splitTextToSize(longText, doc.internal.pageSize.width - 80);
     doc.text(splitTitle, 40, 65);
-    doc.autoTable(columns, moreData, {startY: 200, margins: {horizontal: 40, top: 40, bottom: 40}});
+    doc.autoTable(columns, moreData, {startY: 200});
     doc.text(splitTitle, 40, doc.autoTableEndPosY() + 40);
     publish(doc.output('datauristring'));
 }
@@ -51,7 +51,7 @@ function multiple() {
 
 function html() {
     var doc = new jsPDF('p', 'pt');
-    doc.text("Form HTML", 40, 50);
+    doc.text("From HTML", 40, 50);
     var json = doc.autoTableHtmlToJson(document.getElementById("basic-table"));
     doc.autoTable(false, json, {startY: 60});
     publish(doc.output('datauristring'));
