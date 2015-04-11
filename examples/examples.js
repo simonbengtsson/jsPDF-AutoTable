@@ -1,6 +1,6 @@
 function auto() {
     var doc = new jsPDF('p', 'pt');
-    doc.autoTable(columns, data);
+    doc.autoTable(columns, data, {});
     publish(doc.output('datauristring'));
 }
 
@@ -57,6 +57,40 @@ function html() {
     publish(doc.output('datauristring'));
 }
 
+function span() {
+    var doc = new jsPDF('p', 'pt');
+    var options = {
+        renderCell: function (x, y, width, height, key, value, row, settings) {
+            // Colspan
+            if (row === 0) {
+                if (key == 'id') {
+                    doc.rect(x, y, doc.internal.pageSize.width - settings.margins.horizontal * 2, height, 'S');
+                    y += settings.lineHeight / 2 + doc.internal.getLineHeight() / 2 - 2.5;
+                    doc.text("A rowspan that works as a sub header", x + settings.padding, y);
+                }
+            }
+            // Rowspan
+            else if (key === 'id') {
+                if (row === 1 || row === 4 || row === 7) {
+                    console.log(x, y, width, height);
+                    doc.rect(x, y, width, height * 3, 'S');
+                    y += settings.lineHeight * 3 / 2 + doc.internal.getLineHeight() / 2 - 2.5;
+                    var w = doc.getStringUnitWidth('' + value) * doc.internal.getFontSize();
+                    doc.text('' + value, x + width / 2 - w / 2, y);
+                }
+            }
+            // Others
+            else {
+                doc.rect(x, y, width, height, 'S');
+                y += settings.lineHeight / 2 + doc.internal.getLineHeight() / 2 - 2.5;
+                doc.text('' + value, x + settings.padding, y);
+            }
+        }
+    };
+    doc.autoTable(columns, data, options);
+    publish(doc.output('datauristring'));
+}
+
 function headerAndFooter() {
     var totalPagesExp = "{total_pages_count_string}";
     var doc = new jsPDF('p', 'pt');
@@ -85,18 +119,18 @@ function customStyle() {
         y += settings.lineHeight / 2 + doc.internal.getLineHeight() / 2;
         doc.text('' + value, x + settings.padding, y);
     };
-    var cell = function(x, y, width, height, key, value, row, settings) {
+    var cell = function (x, y, width, height, key, value, row, settings) {
         // See path-painting operators in the PDF spec, examples are
         // 'S' for stroke, 'F' for fill, 'B' for both stroke and fill
         var style = 'S';
 
-        if(key === 'id') {
+        if (key === 'id') {
             style = 'B';
             doc.setFillColor(240);
         }
 
-        if(key === 'expenses') {
-            if(parseInt(value.substring(1, value.length)) > 5) {
+        if (key === 'expenses') {
+            if (parseInt(value.substring(1, value.length)) > 5) {
                 doc.setTextColor(200, 0, 0);
             }
         }
@@ -106,7 +140,7 @@ function customStyle() {
 
         doc.rect(x, y, width, height, style);
 
-        if(key === 'id') {
+        if (key === 'id') {
             x -= 2 * settings.padding;
             x += width / 2;
         }
