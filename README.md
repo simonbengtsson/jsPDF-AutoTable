@@ -1,19 +1,27 @@
-#AutoTable plugin to jsPDF
+# AutoTable - Table plugin for jsPDF
 
 [![Join the chat at https://gitter.im/someatoms/jsPDF-AutoTable](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/someatoms/jsPDF-AutoTable?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-**Generate PDF tables or lists with jsPDF**
+**Generate PDF tables or lists with javascript**
 
-I couldn't find a way to create javascript tables that fit my needs. Therefore I built a table plugin on top of what I believe is the best web pdf library, jsPDF. 
+Check out the [demo](https://someatoms.github.io/jsPDF-AutoTable/) to get an overview of what can be done with this plugin. I have used it for a lot of projects. Everything from startlists and resultslists for various sports to participanttables of business meetings and events. The goal is to support all kinds of tables and lists.
 
-Some other great pdf libraries/plugins with table support (which I have tried, but decided not to use):
+### Features
+- Auto width (100% of page width or only as much as required)
+- Multiple pages
+- Custom headers and footers
+- Multiple tables on the same page
+- Custom styling
+- Helper method to parse data from html table
 
-- [Included jsPDF table plugin](https://github.com/MrRio/jsPDF/blob/master/jspdf.plugin.cell.js)
-- [jsPdfTablePlugin](https://github.com/Prashanth-Nelli/jsPdfTablePlugin)
-- [pdfmake](https://github.com/bpampuch/pdfmake)
+![sample javascript table pdf](sample.png)
+
+![sample javascript table pdf](sample2.png)
+
+See all sample pdf documents in `/samples`
 
 ### Install
-- Download manually or run `bower install jspdf-autotable`
+- Download `jspdf.plugin.autotable.js` or install with bower  `bower install jspdf-autotable`
 - Include jsPDF and the plugin
 
 ```html
@@ -21,87 +29,30 @@ Some other great pdf libraries/plugins with table support (which I have tried, b
 <script src="bower_components/jspdf-autotable/jspdf.plugin.autotable.js"></script>
 ```
 
-### Features
-
-Check out the [demo](https://someatoms.github.io/jsPDF-AutoTable/) (Source code for the samples is in `/examples`)
-
-- Auto width (100% of page width or only as much as required)
-- Multiple pages
-- Custom headers and footers
-- Multiple tables on the same page
-- Custom styling
-- Helper method to parse data from html table
-- Bonus: Responsive examples page...
-
-![sample javascript table pdf](sample.png)
-
-![sample javascript table pdf](sample2.png)
-
-See more samples in `/samples`
-
-### Basic examples
-
-Object initialization
+### Basic example
 
 ```javascript
 var columns = [
     {title: "ID", key: "id"}, 
     {title: "Name", key: "name"}, 
     {title: "Country", key: "country"}, 
-    {title: "IP-address", key: "ip_address"}, 
     {title: "Email", key: "email"}
 ];
 var data = [
-    {"id": 1, "name": "Shaw", "country": "Tanzania", "ip_address": "92.44.246.31", "email": "abrown@avamba.info"},
-    {"id": 2, "name": "Nelson", "country": "Kazakhstan", "ip_address": "112.238.42.121", "email": "jjordan@agivu.com"},
-    {"id": 3, "name": "Garcia", "country": "Madagascar", "ip_address": "39.211.252.103", "email": "jdean@skinte.biz"},
-    {"id": 4, "name": "Richardson", "country": "Somalia", "ip_address": "27.214.238.100", "email": "nblack@midel.gov"},
-    {"id": 5, "name": "Kennedy", "country": "Libya", "ip_address": "82.148.96.120", "email": "charrison@tambee.name"}
+    {"id": 1, "name": "Shaw", "country": "Tanzania", "email": "abrown@avamba.info"},
+    {"id": 2, "name": "Nelson", "country": "Kazakhstan", "email": "jjordan@agivu.com"},
+    {"id": 3, "name": "Garcia", "country": "Madagascar", "email": "jdean@skinte.biz"},
     ...
 ];
+
 var doc = new jsPDF('p', 'pt');
-doc.autoTable(columns, data);
+doc.autoTable(columns, data, {});
 doc.save('table.pdf');
 ```
 
-Array initialization
+See more advanced examples in `/examples/examples.js` which is the source code for the [demo](https://someatoms.github.io/jsPDF-AutoTable/) documents.
 
-```javascript
-var columns = ["ID", "Name", "Country", "IP-address", "Email"];
-var data = [
-    [1, "Shaw", "Tanzania", "92.44.246.31", "abrown@avamba.info"],
-    [2, "Nelson", "Kazakhstan", "112.238.42.121", "jjordan@agivu.com"],
-    [3, "Garcia", "Madagascar", "39.211.252.103", "jdean@skinte.biz"],
-    [4, "Richardson", "Somalia", "27.214.238.100", "nblack@midel.gov"],
-    [5, "Kennedy", "Libya", "82.148.96.120", "charrison@tambee.name"]
-    ...
-];
-var doc = new jsPDF('p', 'pt');
-doc.autoTable(columns, data);
-doc.save('table.pdf');
-```
-
-Object only initialization (headers are obtained from the first row's keys)
-
-```javascript
-var data = [
-    {"ID": 1, "Name": "Shaw", "Country": "Tanzania", "IP-adress": "92.44.246.31", "Email": "abrown@avamba.info"},
-    {"ID": 2, "Name": "Nelson", "Country": "Kazakhstan", "IP-adress": "112.238.42.121", "Email": "jjordan@agivu.com"},
-    {"ID": 3, "Name": "Garcia", "Country": "Madagascar", "IP-adress": "39.211.252.103", "Email": "jdean@skinte.biz"},
-    {"ID": 4, "Name": "Richardson", "Country": "Somalia", "IP-adress": "27.214.238.100", "Email": "nblack@midel.gov"},
-    {"ID": 5, "Name": "Kennedy", "Country": "Libya", "IP-adress": "82.148.96.120", "Email": "charrison@tambee.name"}
-    ...
-];
-var doc = new jsPDF('p', 'pt');
-doc.autoTable(false, data);
-doc.save('table.pdf');
-```
-
-See more advanced examples in `/examples/examples.js`
-
-### Documentation
-
-Default options
+### Default options
 
 ```javascript
 var options = {
@@ -109,7 +60,7 @@ var options = {
     fontSize: 12,
     lineHeight: 20,
     renderHeader: function (doc, pageNumber, settings) {}, // Called before every page
-    renderFooter: function (doc, lastCellPos, pageNumber, settings) {}, // Called on the end of every page
+    renderFooter: function (doc, lastCellPos, pageNumber, settings) {}, // Called at the end of every page
     renderHeaderCell: function (x, y, width, height, key, value, settings) {
         doc.setFillColor(52, 73, 94); // Asphalt
         doc.setTextColor(255, 255, 255);
@@ -126,16 +77,28 @@ var options = {
     },
     margins: { horizontal: 40, top: 50, bottom: 40 }, // How much space around the table
     startY: false // The start Y position on the first page. If set to false, top margin is used
-    avoidPageSplit: false, // Avoid splitting table over multiple pages (starts drawing table on fresh page instead).
+    avoidPageSplit: false, // Avoid splitting table over multiple pages (starts drawing table on fresh page instead). Only relevant if startY option is set.
     extendWidth: true // If true, the table will span 100% of page width minus horizontal margins.
  };
 ```
 
-See the examples folder for instructions how to use the options. You can also read the code (~200 lines) if in doubt!
+All the options are used in one or more of the examples (`/examples/examples.js`) in the [demo](https://someatoms.github.io/jsPDF-AutoTable/) so be sure to check them out if in doubt.
+
+### Other libraries
+Below is a list of other plugins and libraries that I have tried. I felt that features were missing for gerating pdf tables and lists in all of them and therefore decided to build a new table plugin for jsPDF.
+
+- [Included jsPDF table plugin](https://github.com/MrRio/jsPDF/blob/master/jspdf.plugin.cell.js)
+- [jsPdfTablePlugin (jsPDF)](https://github.com/Prashanth-Nelli/jsPdfTablePlugin)
+- [pdfmake (javascript)](https://github.com/bpampuch/pdfmake)
+- [fpdf (php)](http://www.fpdf.org/)
+- [pdfbox (java)](https://pdfbox.apache.org/) 
 
 ### Contributions and feature requests
 If you would like any new features, feel free to post issues or make pull request.
 
-Limitations:
-
-- Right now only supports units in pt
+Planned features:
+- Support more units (now only supports pt)
+- Add more overflow options (linebreak, hidden, center ellipsis)
+- Columnspan and rowspan
+- A wiki describing the options, api methods and different initalization formats
+- Missing something? Let me know by posting an issue.
