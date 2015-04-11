@@ -48,6 +48,7 @@
             },
             margins: {horizontal: 40, top: 50, bottom: 40},
             startY: false,
+            //overflow: 'ellipsize', // hidden, ellipsize or linebreak
             avoidPageSplit: false,
             extendWidth: true
         }
@@ -97,7 +98,7 @@
      * @returns int
      */
     API.autoTableEndPosY = function () {
-        // If cellPos is not set, autoTable() as probably not been called
+        // If cellPos is not set, autoTable() has probably not been called
         return cellPos ? cellPos.y : false;
     };
 
@@ -110,7 +111,7 @@
 
     /**
      * Parses an html table. To draw a table, use it like this:
-     * `doc.autoTable(false, doc.autoTableHtmlToJson(table))`
+     * `doc.autoTable(false, doc.autoTableHtmlToJson(tableDomElem))`
      *
      * @param table Html table element
      * @returns [] Array of objects with object keys as headers
@@ -173,7 +174,7 @@
         var widths = {};
 
         // Optimal widths
-        var totalWidth = 0;
+        var optimalTableWidth = 0;
         columns.forEach(function (header) {
             var widest = getStringWidth(header.title || '');
             rows.forEach(function (row) {
@@ -185,11 +186,11 @@
                 }
             });
             widths[header.key] = widest;
-            totalWidth += widest;
+            optimalTableWidth += widest;
         });
 
         var paddingAndMargin = settings.padding * 2 * columns.length + settings.margins.horizontal * 2;
-        var spaceDiff = doc.internal.pageSize.width - totalWidth - paddingAndMargin;
+        var spaceDiff = doc.internal.pageSize.width - optimalTableWidth - paddingAndMargin;
 
         var keys = Object.keys(widths);
         if (spaceDiff < 0) {
@@ -216,7 +217,7 @@
     }
 
     function printHeader(headers, columnWidths) {
-        if (!headers) return; //
+        if (!headers) return;
         headers.forEach(function (header) {
             var width = columnWidths[header.key] + settings.padding * 2;
             var title = ellipsize(columnWidths[header.key] || '', header.title || '');
@@ -235,7 +236,7 @@
             var row = rows[i];
 
             headers.forEach(function (header) {
-                var title = ellipsize(columnWidths[header.key] || '', prop(row, header.key));
+                var title = ellipsize(columnWidths[header.key], prop(row, header.key));
                 var width = columnWidths[header.key] + settings.padding * 2;
                 settings.renderCell(cellPos.x, cellPos.y, width, settings.lineHeight, header.key, title, i, settings);
                 cellPos.x = cellPos.x + columnWidths[header.key] + settings.padding * 2;
