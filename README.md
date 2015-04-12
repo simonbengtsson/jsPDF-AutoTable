@@ -29,6 +29,13 @@ See all sample pdf documents in `/samples`
 <script src="bower_components/jspdf-autotable/jspdf.plugin.autotable.js"></script>
 ```
 
+### Install within a [Meteor project](http://meteor.com)
+
+[Review the documentation on Atmosphere for the most recent details on this
+package](https://atmospherejs.com/chipcastledotcom/jspdf-autotable).
+
+    meteor add chipcastledotcom:jspdf-autotable
+
 ### Basic example
 
 ```javascript
