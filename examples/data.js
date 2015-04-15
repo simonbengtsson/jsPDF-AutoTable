@@ -35,7 +35,7 @@ var data = [{
     "first_name": "Ernest",
     "email": "ecollins4@goodreads.com",
     "country": "China",
-    "expenses": "$2.16"
+    "expenses": "$20.16"
 }, {
     "id": 6,
     "first_name": "Heather",
@@ -59,7 +59,7 @@ var data = [{
     "first_name": "Timothy",
     "email": "thowell8@nih.gov",
     "country": "Gambia",
-    "expenses": "$6.18"
+    "expenses": "$12.18"
 }, {
     "id": 10,
     "first_name": "Barbara",
