@@ -29,6 +29,13 @@ See all sample pdf documents in `/samples`
 <script src="bower_components/jspdf-autotable/jspdf.plugin.autotable.js"></script>
 ```
 
+### Install within a [Meteor project](http://meteor.com)
+
+[Review the documentation on Atmosphere for the most recent details on this
+package](https://atmospherejs.com/chipcastledotcom/jspdf-autotable).
+
+    meteor add chipcastledotcom:jspdf-autotable
+
 ### Basic example
 
 ```javascript
@@ -77,6 +84,8 @@ var options = {
     },
     margins: { horizontal: 40, top: 50, bottom: 40 }, // How much space around the table
     startY: false // The start Y position on the first page. If set to false, top margin is used
+    overflow: 'ellipsize', // false, ellipsize or linebreak (false passes the raw text to renderCell)
+    overflowColumns: false, // Specify which colums that gets subjected to the overflow method chosen. false indicates all
     avoidPageSplit: false, // Avoid splitting table over multiple pages (starts drawing table on fresh page instead). Only relevant if startY option is set.
     extendWidth: true // If true, the table will span 100% of page width minus horizontal margins.
  };
