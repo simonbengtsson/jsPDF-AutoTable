@@ -57,8 +57,10 @@ function multiple() {
 function html() {
     var doc = new jsPDF('p', 'pt');
     doc.text("From HTML", 40, 50);
-    var json = doc.autoTableHtmlToJson(document.getElementById("basic-table"));
-    doc.autoTable(false, json, {startY: 60});
+    // Be sure to set the second parameter (indexBased option) to true
+    // It will be the default behavior in v2.0, but are now behind an option for compatibility
+    var res = doc.autoTableHtmlToJson(document.getElementById("basic-table"), true);
+    doc.autoTable(res.columns, res.data, {startY: 60});
     publish(doc.output('datauristring'));
 }
 
@@ -162,6 +164,5 @@ function customStyle() {
 }
 
 function publish(uri) {
-    var elem = document.getElementById("wrapper");
-    elem.innerHTML = '<embed id="output" src="' + uri + '" type="application/pdf">';
+    document.getElementById("output").src = uri;
 }

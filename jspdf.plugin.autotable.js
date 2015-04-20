@@ -115,23 +115,42 @@
      * `doc.autoTable(false, doc.autoTableHtmlToJson(tableDomElem))`
      *
      * @param table Html table element
-     * @returns [] Array of objects with object keys as headers
+     * @param indexBased Boolean flag if result should be returned as seperate cols and data
+     * @returns []|{} Array of objects with object keys as headers or based on indexes if indexBased is set to true
      */
-    API.autoTableHtmlToJson = function (table) {
-        var data = [], headers = {}, header = table.rows[0];
-        for (var i = 0; i < header.cells.length; i++) {
-            headers[i] = header.cells[i] ? header.cells[i].textContent : '';
-        }
-
-        for (i = 1; i < table.rows.length; i++) {
-            var tableRow = table.rows[i];
-            var rowData = {};
-            for (var j = 0; j < header.cells.length; j++) {
-                rowData[headers[j]] = tableRow.cells[j] ? tableRow.cells[j].textContent : '';
+    API.autoTableHtmlToJson = function (table, indexBased) {
+            var data = [], headers = {}, header = table.rows[0], i, tableRow, rowData, j;
+        if (indexBased) {
+            headers = [];
+            for (i = 0; i < header.cells.length; i++) {
+                headers.push(header.cells[i] ? header.cells[i].textContent : '');
             }
-            data.push(rowData);
+
+            for (i = 1; i < table.rows.length; i++) {
+                tableRow = table.rows[i];
+                rowData = [];
+                for (j = 0; j < header.cells.length; j++) {
+                    rowData.push(tableRow.cells[j] ? tableRow.cells[j].textContent : '');
+                }
+                data.push(rowData);
+            }
+            return {columns: headers, data: data};
+        } else {
+            for (i = 0; i < header.cells.length; i++) {
+                headers[i] = header.cells[i] ? header.cells[i].textContent : '';
+            }
+
+            for (i = 1; i < table.rows.length; i++) {
+                tableRow = table.rows[i];
+                rowData = {};
+                for (j = 0; j < header.cells.length; j++) {
+                    rowData[headers[j]] = tableRow.cells[j] ? tableRow.cells[j].textContent : '';
+                }
+                data.push(rowData);
+            }
+
+            return data;
         }
-        return data;
     };
 
     /**
@@ -198,7 +217,7 @@
             // Shrink columns
             var shrinkableColumns = [];
             var shrinkableColumnWidths = 0;
-            if(settings.overflowColumns === false) {
+            if (settings.overflowColumns === false) {
                 keys.forEach(function (key) {
                     if (widths[key] > MIN_COLUMN_WIDTH) {
                         shrinkableColumns.push(key);
@@ -207,7 +226,7 @@
                 });
             } else {
                 shrinkableColumns = settings.overflowColumns;
-                shrinkableColumns.forEach(function(col) {
+                shrinkableColumns.forEach(function (col) {
                     shrinkableColumnWidths += widths[col];
                 });
             }
@@ -245,12 +264,12 @@
             var row = rows[i];
 
             var maxRows = 1;
-            if(settings.overflow === 'linebreak') {
+            if (settings.overflow === 'linebreak') {
                 headers.forEach(function (header) {
-                    if(settings.overflowColumns !== false && settings.overflowColumns.indexOf(header.key) !== -1) {
+                    if (settings.overflowColumns !== false && settings.overflowColumns.indexOf(header.key) !== -1) {
                         var value = prop(row, header.key);
                         var arr = doc.splitTextToSize(value, columnWidths[header.key]);
-                        if(arr.length > maxRows) {
+                        if (arr.length > maxRows) {
                             maxRows = arr.length;
                         }
                     }
@@ -260,11 +279,11 @@
 
             headers.forEach(function (header) {
                 var value = prop(row, header.key);
-                if(settings.overflow === 'linebreak') {
-                    if(settings.overflowColumns !== false && settings.overflowColumns.indexOf(header.key) !== -1) {
+                if (settings.overflow === 'linebreak') {
+                    if (settings.overflowColumns !== false && settings.overflowColumns.indexOf(header.key) !== -1) {
                         value = doc.splitTextToSize(value, columnWidths[header.key]);
                     }
-                } else if(settings.overflow === 'ellipsize') {
+                } else if (settings.overflow === 'ellipsize') {
                     value = ellipsize(columnWidths[header.key], value);
                 }
                 var width = columnWidths[header.key] + settings.padding * 2;
