@@ -41,15 +41,29 @@ function multiple() {
     doc.setFontSize(12);
     doc.text("The tables avoid being split into multiple pages.", 40, 80);
 
-    var firstStartY = 120;
+    doc.autoTable(columns, data, {
+        startY: 120,
+        avoidPageSplit: true,
+        margins: {left: 10, right: 300, top: 60, bottom: 40},
+        fontSize: 8
+    });
+
+    doc.autoTable(columns, data, {
+        startY: 120,
+        avoidPageSplit: true,
+        margins: {left: 300, right: 10, top: 60, bottom: 40},
+        fontSize: 8
+    });
+
     for (var j = 0; j < 4; j++) {
-        var endPosY = doc.autoTableEndPosY();
         doc.autoTable(columns, data, {
-            startY: endPosY ? endPosY + 50 : firstStartY,
+            startY: doc.autoTableEndPosY() + 50,
             avoidPageSplit: true,
             margins: {horizontal: 40, top: 60, bottom: 40}
         });
     }
+
+
 
     publish(doc.output('datauristring'));
 }
