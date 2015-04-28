@@ -82,7 +82,7 @@ var options = {
         y += settings.lineHeight / 2 + doc.internal.getLineHeight() / 2 - 2.5;
         doc.text('' + value, x + settings.padding, y);
     },
-    margins: { horizontal: 40, top: 50, bottom: 40 }, // How much space around the table
+    margins: { right: 40, left: 40, top: 50, bottom: 40 }, // How much space around the table
     startY: false // The start Y position on the first page. If set to false, top margin is used
     overflow: 'ellipsize', // false, ellipsize or linebreak (false passes the raw text to renderCell)
     overflowColumns: false, // Specify which colums that gets subjected to the overflow method chosen. false indicates all

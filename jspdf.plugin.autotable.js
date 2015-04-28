@@ -46,7 +46,7 @@
                 y += settings.lineHeight / 2 + doc.internal.getLineHeight() / 2 - 2.5;
                 doc.text(value, x + settings.padding, y);
             },
-            margins: {horizontal: 40, top: 50, bottom: 40},
+            margins: {right: 40, left: 40, top: 50, bottom: 40},
             startY: false,
             overflow: 'ellipsize', // false, ellipsize or linebreak (false passes the raw text to renderCell)
             overflowColumns: false, // Specify which colums that gets subjected to the overflow method chosen. false indicates all
@@ -73,7 +73,7 @@
         initOptions(options);
 
         cellPos = {
-            x: settings.margins.horizontal,
+            x: settings.margins.left,
             y: settings.startY === false ? settings.margins.top : settings.startY
         };
 
@@ -158,6 +158,7 @@
      * @param params
      */
     function initData(params) {
+
         // Object only initial
         if (!params.columns || params.columns.length === 0) {
             var keys = Object.keys(params.data[0]);
@@ -178,8 +179,9 @@
             params.columns.forEach(function (title, i) {
                 params.columns[i] = {title: title, key: i};
             });
+        } else {
+            // Use options as is
         }
-
     }
 
     function initOptions(raw) {
@@ -188,6 +190,12 @@
             settings[key] = raw[key];
         });
         doc.setFontSize(settings.fontSize);
+
+        // Backwards compatibility
+        if(settings.margins.horizontal !== undefined) {
+            settings.margins.left = settings.margins.horizontal;
+            settings.margins.right = settings.margins.horizontal;
+        }
     }
 
     function calculateColumnWidths(rows, columns) {
@@ -209,7 +217,7 @@
             optimalTableWidth += widest;
         });
 
-        var paddingAndMargin = settings.padding * 2 * columns.length + settings.margins.horizontal * 2;
+        var paddingAndMargin = settings.padding * 2 * columns.length + settings.margins.left + settings.margins.right;
         var spaceDiff = doc.internal.pageSize.width - optimalTableWidth - paddingAndMargin;
 
         var keys = Object.keys(widths);
@@ -256,7 +264,7 @@
         doc.setFontStyle('normal');
 
         cellPos.y += settings.lineHeight + 5;
-        cellPos.x = settings.margins.horizontal;
+        cellPos.x = settings.margins.left;
     }
 
     function printRows(headers, rows, columnWidths) {
@@ -295,13 +303,13 @@
             if (newPage) {
                 settings.renderFooter(doc, cellPos, pageCount, settings);
                 doc.addPage();
-                cellPos = {x: settings.margins.horizontal, y: settings.margins.top};
+                cellPos = {x: settings.margins.left, y: settings.margins.top};
                 pageCount++;
                 settings.renderHeader(doc, pageCount, settings);
                 printHeader(headers, columnWidths);
             } else {
                 cellPos.y += rowHeight;
-                cellPos.x = settings.margins.horizontal;
+                cellPos.x = settings.margins.left;
             }
         }
     }
