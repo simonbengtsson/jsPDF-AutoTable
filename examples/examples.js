@@ -84,15 +84,15 @@ function headerAndFooter() {
 
 function customStyle() {
     var doc = new jsPDF('p', 'pt');
-    var header = function (x, y, width, height, key, value, settings) {
+    var header = function (rect, key, value, settings) {
         doc.setFillColor(26, 188, 156); // Turquoise
         doc.setTextColor(255, 255, 255);
         doc.setFontStyle('bold');
-        doc.rect(x, y, width, height, 'F');
-        y += settings.lineHeight / 2 + doc.internal.getLineHeight() / 2;
-        doc.text('' + value, x + settings.padding, y);
+        doc.rect(rect.x, rect.y, rect.width, rect.height, 'F');
+        rect.y += settings.lineHeight / 2 + doc.internal.getLineHeight() / 2;
+        doc.text('' + value, rect.x + settings.padding, rect.y);
     };
-    var cell = function (x, y, width, height, key, value, row, settings) {
+    var cell = function (rect, key, value, row, settings) {
         // See path-painting operators in the PDF spec, examples are
         // 'S' for stroke, 'F' for fill, 'B' for both stroke and fill
         var style = 'S';
@@ -111,22 +111,22 @@ function customStyle() {
         doc.setLineWidth(0.1);
         doc.setDrawColor(240);
 
-        doc.rect(x, y, width, height, style);
+        doc.rect(rect.x, rect.y, rect.width, rect.height, style);
 
         if (key === 'expenses') {
             var strWidth = doc.getStringUnitWidth('' + value) * doc.internal.getFontSize();
-            x += width;
-            x -= 2 * settings.padding;
-            x -= strWidth;
+            rect.x += rect.width;
+            rect.x -= 2 * settings.padding;
+            rect.x -= strWidth;
         }
 
         if (key === 'id') {
-            x -= 2 * settings.padding;
-            x += width / 2;
+            rect.x -= 2 * settings.padding;
+            rect.x += rect.width / 2;
         }
 
-        y += settings.lineHeight / 2 + doc.internal.getLineHeight() / 2 - 2.5;
-        doc.text('' + value, x + settings.padding, y);
+        rect.y += settings.lineHeight / 2 + doc.internal.getLineHeight() / 2 - 2.5;
+        doc.text('' + value, rect.x + settings.padding, rect.y);
         doc.setTextColor(50);
     };
     doc.autoTable(columns, data, {renderCell: cell, renderHeaderCell: header});
@@ -134,33 +134,33 @@ function customStyle() {
     doc.setDrawColor(200);
 
     // Row- and colspan
-    var renderCell = function (x, y, width, height, key, value, row, settings) {
+    var renderCell = function (rect, key, value, row, settings) {
         // Colspan
         if (row === 0) {
             if (key == 'id') {
-                doc.rect(x, y, doc.internal.pageSize.width - settings.margins.horizontal * 2, height, 'S');
-                y += settings.lineHeight / 2 + doc.internal.getLineHeight() / 2 - 2.5;
-                doc.text("A rowspan that works as a sub header", x + settings.padding, y);
+                doc.rect(rect.x, rect.y, doc.internal.pageSize.width - settings.margins.horizontal * 2, rect.height, 'S');
+                rect.y += settings.lineHeight / 2 + doc.internal.getLineHeight() / 2 - 2.5;
+                doc.text("A rowspan that works as a sub header", rect.x + settings.padding, rect.y);
             }
         }
         // Rowspan
         else if (key === 'id') {
             if (row === 1 || row === 4 || row === 7) {
-                doc.rect(x, y, width, height * 3, 'S');
-                y += settings.lineHeight * 3 / 2 + doc.internal.getLineHeight() / 2 - 2.5;
+                doc.rect(rect.x, rect.y, rect.width, rect.height * 3, 'S');
+                rect.y += settings.lineHeight * 3 / 2 + doc.internal.getLineHeight() / 2 - 2.5;
                 var w = doc.getStringUnitWidth('' + value) * doc.internal.getFontSize();
-                doc.text('' + value, x + width / 2 - w / 2, y);
+                doc.text('' + value, rect.x + rect.width / 2 - w / 2, rect.y);
             }
         }
         // Others
         else {
-            doc.rect(x, y, width, height, 'S');
-            y += settings.lineHeight / 2 + doc.internal.getLineHeight() / 2 - 2.5;
-            doc.text('' + value, x + settings.padding, y);
+            doc.rect(rect.x, rect.y, rect.width, rect.height, 'S');
+            rect.y += settings.lineHeight / 2 + doc.internal.getLineHeight() / 2 - 2.5;
+            doc.text('' + value, rect.x + settings.padding, rect.y);
         }
     };
     doc.autoTable(columns, data, {startY: 300, renderCell: renderCell});
-    publish(doc.output('datauristring'));
+    document.getElementById("output").src = doc.output('datauristring');
 }
 
 function publish(uri) {

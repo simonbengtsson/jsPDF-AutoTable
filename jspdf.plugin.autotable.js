@@ -31,20 +31,20 @@
             },
             renderFooter: function (doc, lastCellPos, pageNumber, settings) {
             },
-            renderHeaderCell: function (x, y, width, height, key, value, settings) {
+            renderHeaderCell: function (rect, key, value, settings) {
                 doc.setFillColor(52, 73, 94); // Asphalt
                 doc.setTextColor(255, 255, 255);
                 doc.setFontStyle('bold');
-                doc.rect(x, y, width, height, 'F');
-                y += settings.lineHeight / 2 + doc.internal.getLineHeight() / 2;
-                doc.text(value, x + settings.padding, y);
+                doc.rect(rect.x, rect.y, rect.width, rect.height, 'F');
+                rect.y += settings.lineHeight / 2 + doc.internal.getLineHeight() / 2;
+                doc.text(value, rect.x + settings.padding, rect.y);
             },
-            renderCell: function (x, y, width, height, key, value, row, settings) {
+            renderCell: function (rect, key, value, row, settings) {
                 doc.setFillColor(row % 2 === 0 ? 245 : 255);
                 doc.setTextColor(50);
-                doc.rect(x, y, width, height, 'F');
-                y += settings.lineHeight / 2 + doc.internal.getLineHeight() / 2 - 2.5;
-                doc.text(value, x + settings.padding, y);
+                doc.rect(rect.x, rect.y, rect.width, rect.height, 'F');
+                rect.y += settings.lineHeight / 2 + doc.internal.getLineHeight() / 2 - 2.5;
+                doc.text(value, rect.x + settings.padding, rect.y);
             },
             margins: {horizontal: 40, top: 50, bottom: 40},
             startY: false,
@@ -249,7 +249,8 @@
         headers.forEach(function (header) {
             var width = columnWidths[header.key] + settings.padding * 2;
             var title = ellipsize(columnWidths[header.key] || '', header.title || '');
-            settings.renderHeaderCell(cellPos.x, cellPos.y, width, settings.lineHeight + 5, header.key, title, settings);
+            var rect = {x: cellPos.x, y: cellPos.y, width: width, height: settings.lineHeight + 5};
+            settings.renderHeaderCell(rect, header.key, title, settings);
             cellPos.x += width;
         });
         doc.setTextColor(70, 70, 70);
@@ -287,7 +288,8 @@
                     value = ellipsize(columnWidths[header.key], value);
                 }
                 var width = columnWidths[header.key] + settings.padding * 2;
-                settings.renderCell(cellPos.x, cellPos.y, width, rowHeight, header.key, value, i, settings);
+                var rect = {x: cellPos.x, y: cellPos.y, width: width, height: rowHeight};
+                settings.renderCell(rect, header.key, value, i, settings);
                 cellPos.x = cellPos.x + columnWidths[header.key] + settings.padding * 2;
             });
 
