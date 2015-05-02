@@ -195,6 +195,8 @@
         if(settings.margins.horizontal !== undefined) {
             settings.margins.left = settings.margins.horizontal;
             settings.margins.right = settings.margins.horizontal;
+        } else {
+            settings.margins.horizontal = settings.margins.left;
         }
     }
 
@@ -204,7 +206,7 @@
         // Optimal widths
         var optimalTableWidth = 0;
         columns.forEach(function (header) {
-            var widest = getStringWidth(header.title || '');
+            var widest = getStringWidth(header.title || '', true);
             rows.forEach(function (row) {
                 if (!header.hasOwnProperty('key'))
                     throw new Error("The key attribute is required in every header");
@@ -256,7 +258,7 @@
         if (!headers) return;
         headers.forEach(function (header) {
             var width = columnWidths[header.key] + settings.padding * 2;
-            var title = ellipsize(columnWidths[header.key] || '', header.title || '');
+            var title = ellipsize(columnWidths[header.key], header.title || '');
             settings.renderHeaderCell(cellPos.x, cellPos.y, width, settings.lineHeight + 5, header.key, title, settings);
             cellPos.x += width;
         });
@@ -337,9 +339,15 @@
         return row.hasOwnProperty(key) ? '' + row[key] : '';
     }
 
-    function getStringWidth(txt) {
-        var isBold = doc.internal.getFont().fontStyle === 'bold';
-        return doc.getStringUnitWidth(txt) * doc.internal.getFontSize() + (isBold ? 5 : 0);
+    function getStringWidth(txt, isBold) {
+        if(isBold) {
+            doc.setFontStyle('bold');
+        }
+        var strWidth = doc.getStringUnitWidth(txt) * doc.internal.getFontSize();
+        if(isBold) {
+            doc.setFontStyle('normal');
+        }
+        return strWidth;
     }
 
 })(jsPDF.API);
