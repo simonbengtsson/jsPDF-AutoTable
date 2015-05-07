@@ -40,7 +40,7 @@ package](https://atmospherejs.com/chipcastledotcom/jspdf-autotable).
 
 ```javascript
 var columns = [
-    {title: "ID", key: "id"}, 
+    {title: "ID", key: "id"},
     {title: "Name", key: "name"}, 
     {title: "Country", key: "country"}, 
     {title: "Email", key: "email"}
@@ -89,6 +89,16 @@ var options = {
     avoidPageSplit: false, // Avoid splitting table over multiple pages (starts drawing table on fresh page instead). Only relevant if startY option is set.
     extendWidth: true // If true, the table will span 100% of page width minus horizontal margins.
  };
+```
+
+You can also specify a custom column width by adding a width property on a column. Like so:
+
+```javascript
+var columns = [
+    {title: "ID", key: "id", width: 100},
+    {title: "Name", key: "name", width: 200},
+    ...
+];
 ```
 
 All the options are used in one or more of the examples (`/examples/examples.js`) in the [demo](https://someatoms.github.io/jsPDF-AutoTable/) so be sure to check them out if in doubt.

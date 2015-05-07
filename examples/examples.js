@@ -12,11 +12,11 @@ function minimal() {
 
 function longData() {
     var doc = new jsPDF('l', 'pt');
-    doc.text("All columns ellipsized", 40, 50);
+    doc.text("All columns ellipsized", 10, 50);
     doc.autoTable(columnsLong, dataLong, {margins: {right: 10, left: 10, top: 40, bottom: 40}, startY: 70});
-    doc.text("Only text columns ellipsized", 40, doc.autoTableEndPosY() + 30);
+    doc.text("Only text columns ellipsized", 10, doc.autoTableEndPosY() + 30);
     doc.autoTable(columnsLong, dataLong, {margins: {horizontal: 10, top: 40, bottom: 40}, startY: 220, overflowColumns: ['text', 'text2']});
-    doc.text("Overflow linebreak", 40, doc.autoTableEndPosY() + 30);
+    doc.text("Overflow linebreak", 10, doc.autoTableEndPosY() + 30);
     doc.autoTable(columnsLong, dataLong, {margins: {horizontal: 10, top: 40, bottom: 40}, startY: 370, overflow: 'linebreak', overflowColumns: ['text', 'text2']});
     publish(doc.output('datauristring'));
 }

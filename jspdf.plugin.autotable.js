@@ -207,14 +207,18 @@
         var optimalTableWidth = 0;
         columns.forEach(function (header) {
             var widest = getStringWidth(header.title || '', true);
-            rows.forEach(function (row) {
-                if (!header.hasOwnProperty('key'))
-                    throw new Error("The key attribute is required in every header");
-                var w = getStringWidth(prop(row, header.key));
-                if (w > widest) {
-                    widest = w;
-                }
-            });
+            if(typeof header.width == "number") {
+                widest = header.width;
+            } else {
+                rows.forEach(function (row) {
+                    if (!header.hasOwnProperty('key'))
+                        throw new Error("The key attribute is required in every header");
+                    var w = getStringWidth(prop(row, header.key));
+                    if (w > widest) {
+                        widest = w;
+                    }
+                });
+            }
             widths[header.key] = widest;
             optimalTableWidth += widest;
         });
