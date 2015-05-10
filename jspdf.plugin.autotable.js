@@ -79,6 +79,7 @@
 
         var tableHeight = settings.margins.bottom + settings.margins.top + settings.lineHeight * (data.length + 1) + 5 + settings.startY;
         if (settings.startY !== false && settings.avoidPageSplit && tableHeight > doc.internal.pageSize.height) {
+            pageCount++;
             doc.addPage();
             cellPos.y = settings.margins.top;
         }
