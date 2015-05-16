@@ -1,0 +1,1 @@
+jsPDF = window.jsPDF;

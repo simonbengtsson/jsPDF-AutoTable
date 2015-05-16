@@ -1,0 +1,10 @@
+{
+  "devDependencies": {
+    "gulp": "^3.8.11",
+    "gulp-replace": "^0.5.3",
+    "del": "^1.1.1",
+    "gulp-util": "^3.0.4",
+    "gulp-git": "^1.2.1",
+    "run-sequence": "^1.1.0"
+  }
+}

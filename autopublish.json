@@ -1,0 +1,8 @@
+{
+  "version": "1.2.3",
+  "upstream": {
+    "git": "https://github.com/someatoms/jsPDF-AutoTable.git",
+    "release": "1.2.3",
+    "versionFile": "bower.json"
+  }
+}

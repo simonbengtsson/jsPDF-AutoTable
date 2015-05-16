@@ -1,4 +1,2 @@
-.DS_Store
-.idea
-bower_components
+upstream
 node_modules
