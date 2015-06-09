@@ -281,7 +281,7 @@
             var maxRows = 1;
             if (settings.overflow === 'linebreak') {
                 headers.forEach(function (header) {
-                    if (settings.overflowColumns !== false && settings.overflowColumns.indexOf(header.key) !== -1) {
+                    if (isOverflowColumn(header)) {
                         var value = prop(row, header.key);
                         var arr = doc.splitTextToSize(value, columnWidths[header.key]);
                         if (arr.length > maxRows) {
@@ -295,7 +295,7 @@
             headers.forEach(function (header) {
                 var value = prop(row, header.key);
                 if (settings.overflow === 'linebreak') {
-                    if (settings.overflowColumns !== false && settings.overflowColumns.indexOf(header.key) !== -1) {
+                    if (isOverflowColumn(header)) {
                         value = doc.splitTextToSize(value, columnWidths[header.key]);
                     }
                 } else if (settings.overflow === 'ellipsize') {
@@ -319,6 +319,10 @@
                 cellPos.x = settings.margins.left;
             }
         }
+    }
+
+    function isOverflowColumn(header) {
+        return settings.overflowColumns === false || settings.overflowColumns.indexOf(header.key) !== -1;
     }
 
     /**
