@@ -25,6 +25,9 @@ See all sample pdf documents in `/samples`
 - Include jsPDF and the plugin
 
 ```html
+// OBS! The jspdf file from https://parall.ax/products/jspdf is not up to 
+// date and doesn't contain all modules required for this plugin. Use 
+// either `jspdf.debug.js` or `jspdf.min.js` from the official github repo.
 <script src="bower_components/jspdf/dist/jspdf.debug.js"></script>
 <script src="bower_components/jspdf-autotable/jspdf.plugin.autotable.js"></script>
 ```
