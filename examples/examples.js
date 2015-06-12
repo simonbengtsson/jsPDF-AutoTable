@@ -1,6 +1,6 @@
 function auto() {
     var doc = new jsPDF('p', 'pt');
-    doc.autoTable(columns, data);
+    doc.autoTable(columns, data, {overflowColumns: []});
     publish(doc.output('datauristring'));
 }
 

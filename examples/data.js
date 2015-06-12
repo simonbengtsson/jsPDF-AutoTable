@@ -80,7 +80,7 @@ var columnsLong = [
     {title: "Country", key: "country"},
     {title: "IP-address", key: "ip_address"},
     {title: "Email", key: "email"},
-    {title: "Text", key: "text"},
+    {title: "Text (With an extra long title to see that it get correctly overflown and works as well)", key: "text"},
     {title: "Text2", key: "text2"}
 ];
 var dataLong = [

@@ -214,7 +214,7 @@
                 rows.forEach(function (row) {
                     if (!header.hasOwnProperty('key'))
                         throw new Error("The key attribute is required in every header");
-                    var w = getStringWidth(prop(row, header.key));
+                    var w = getStringWidth(stringify(row, header.key));
                     if (w > widest) {
                         widest = w;
                     }
@@ -261,16 +261,40 @@
 
     function printHeader(headers, columnWidths) {
         if (!headers) return;
+
+        // First calculate the height of the row
+        // (to do that the maxium amount of rows first need to be found)
+        var maxRows = 1;
+        if (settings.overflow === 'linebreak') {
+            headers.forEach(function (header) {
+                if (isOverflowColumn(header)) {
+                    var value = header.title || '';
+                    var arr = doc.splitTextToSize(value, columnWidths[header.key]);
+                    if (arr.length > maxRows) {
+                        maxRows = arr.length;
+                    }
+                }
+            });
+        }
+        var rowHeight = settings.lineHeight + (maxRows - 1) * doc.internal.getLineHeight() + 5;
+
         headers.forEach(function (header) {
             var width = columnWidths[header.key] + settings.padding * 2;
-            var title = ellipsize(columnWidths[header.key], header.title || '');
-            settings.renderHeaderCell(cellPos.x, cellPos.y, width, settings.lineHeight + 5, header.key, title, settings);
+            var value = header.title || '';
+            if (settings.overflow === 'linebreak') {
+                if (isOverflowColumn(header)) {
+                    value = doc.splitTextToSize(value, columnWidths[header.key]);
+                }
+            } else if (settings.overflow === 'ellipsize') {
+                value = ellipsize(columnWidths[header.key], value);
+            }
+            settings.renderHeaderCell(cellPos.x, cellPos.y, width, rowHeight, header.key, value, settings);
             cellPos.x += width;
         });
         doc.setTextColor(70, 70, 70);
         doc.setFontStyle('normal');
 
-        cellPos.y += settings.lineHeight + 5;
+        cellPos.y += rowHeight;
         cellPos.x = settings.margins.left;
     }
 
@@ -278,11 +302,13 @@
         for (var i = 0; i < rows.length; i++) {
             var row = rows[i];
 
+            // First calculate the height of the row
+            // (to do that the maxium amount of rows first need to be found)
             var maxRows = 1;
             if (settings.overflow === 'linebreak') {
                 headers.forEach(function (header) {
                     if (isOverflowColumn(header)) {
-                        var value = prop(row, header.key);
+                        var value = stringify(row, header.key);
                         var arr = doc.splitTextToSize(value, columnWidths[header.key]);
                         if (arr.length > maxRows) {
                             maxRows = arr.length;
@@ -292,8 +318,10 @@
             }
             var rowHeight = settings.lineHeight + (maxRows - 1) * doc.internal.getLineHeight();
 
+
+            // Render the cell
             headers.forEach(function (header) {
-                var value = prop(row, header.key);
+                var value = stringify(row, header.key);
                 if (settings.overflow === 'linebreak') {
                     if (isOverflowColumn(header)) {
                         value = doc.splitTextToSize(value, columnWidths[header.key]);
@@ -306,6 +334,7 @@
                 cellPos.x = cellPos.x + columnWidths[header.key] + settings.padding * 2;
             });
 
+            // Add a new page if cellpos is at the end of page
             var newPage = (cellPos.y + settings.margins.bottom + settings.lineHeight * 2) >= doc.internal.pageSize.height;
             if (newPage) {
                 settings.renderFooter(doc, cellPos, pageCount, settings);
@@ -344,7 +373,7 @@
         return text;
     }
 
-    function prop(row, key) {
+    function stringify(row, key) {
         return row.hasOwnProperty(key) ? '' + row[key] : '';
     }
 
