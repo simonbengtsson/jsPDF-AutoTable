@@ -35,9 +35,9 @@ See all sample pdf documents in `/samples`
 ### Install within a [Meteor project](http://meteor.com)
 
 [Review the documentation on Atmosphere for the most recent details on this
-package](https://atmospherejs.com/chipcastledotcom/jspdf-autotable).
+package](https://atmospherejs.com/jspdf/autotable).
 
-    meteor add chipcastledotcom:jspdf-autotable
+    meteor add jspdf:autotable
 
 ### Basic example
 
