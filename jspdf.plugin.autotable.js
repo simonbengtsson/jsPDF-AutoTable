@@ -36,14 +36,14 @@
                 doc.setTextColor(255, 255, 255);
                 doc.setFontStyle('bold');
                 doc.rect(x, y, width, height, 'F');
-                y += settings.lineHeight / 2 + doc.internal.getLineHeight() / 2;
+                y += settings.lineHeight / 2 + API.autoTableTextHeight() / 2;
                 doc.text(value, x + settings.padding, y);
             },
             renderCell: function (x, y, width, height, key, value, row, settings) {
                 doc.setFillColor(row % 2 === 0 ? 245 : 255);
                 doc.setTextColor(50);
                 doc.rect(x, y, width, height, 'F');
-                y += settings.lineHeight / 2 + doc.internal.getLineHeight() / 2 - 2.5;
+                y += settings.lineHeight / 2 + API.autoTableTextHeight() / 2 - 2.5;
                 doc.text(value, x + settings.padding, y);
             },
             margins: {right: 40, left: 40, top: 50, bottom: 40},
@@ -152,6 +152,17 @@
 
             return data;
         }
+    };
+
+    /**
+     * Basically the same as getLineHeight() in 1.0+ versions of jsPDF, however
+     * added here for backwards compatibility with version 0.9
+     *
+     * Export it to make it available in drawCell and drawHeaderCell
+     */
+    API.autoTableTextHeight = function() {
+        // The value 1.15 comes from from the jsPDF source code and looks about right
+        return doc.internal.getFontSize() * 1.15;
     };
 
     /**
@@ -276,7 +287,7 @@
                 }
             });
         }
-        var rowHeight = settings.lineHeight + (maxRows - 1) * doc.internal.getLineHeight() + 5;
+        var rowHeight = settings.lineHeight + (maxRows - 1) * API.autoTableTextHeight() + 5;
 
         headers.forEach(function (header) {
             var width = columnWidths[header.key] + settings.padding * 2;
@@ -316,7 +327,7 @@
                     }
                 });
             }
-            var rowHeight = settings.lineHeight + (maxRows - 1) * doc.internal.getLineHeight();
+            var rowHeight = settings.lineHeight + (maxRows - 1) * API.autoTableTextHeight();
 
 
             // Render the cell

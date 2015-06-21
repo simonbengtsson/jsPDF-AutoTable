@@ -87,12 +87,19 @@ function headerAndFooter() {
         doc.setFontSize(options.fontSize);
     };
     var footer = function (doc, lastCellPos, pageCount, options) {
-        var str = "Page " + pageCount + " of " + totalPagesExp;
+        var str = "Page " + pageCount;
+        // Total page number plugin only available in jspdf v1.0+
+        if (typeof doc.putTotalPages == 'function') {
+            str +=  + " of " + totalPagesExp;
+        }
         doc.text(str, options.margins.horizontal, doc.internal.pageSize.height - 30);
     };
     var options = {renderHeader: header, renderFooter: footer, margins: {horizontal: 40, top: 80, bottom: 50}};
     doc.autoTable(columns, moreData, options);
-    doc.putTotalPages(totalPagesExp);
+    // Total page number plugin only available in jspdf v1.0+
+    if (typeof doc.putTotalPages == 'function') {
+        doc.putTotalPages(totalPagesExp);
+    }
     publish(doc.output('datauristring'));
 }
 
@@ -103,7 +110,7 @@ function customStyle() {
         doc.setTextColor(255, 255, 255);
         doc.setFontStyle('bold');
         doc.rect(x, y, width, height, 'F');
-        y += settings.lineHeight / 2 + doc.internal.getLineHeight() / 2;
+        y += settings.lineHeight / 2 + doc.autoTableTextHeight() / 2;
         doc.text('' + value, x + settings.padding, y);
     };
     var cell = function (x, y, width, height, key, value, row, settings) {
@@ -139,7 +146,7 @@ function customStyle() {
             x += width / 2;
         }
 
-        y += settings.lineHeight / 2 + doc.internal.getLineHeight() / 2 - 2.5;
+        y += settings.lineHeight / 2 + doc.autoTableTextHeight() / 2 - 2.5;
         doc.text('' + value, x + settings.padding, y);
         doc.setTextColor(50);
     };
@@ -153,7 +160,7 @@ function customStyle() {
         if (row === 0) {
             if (key == 'id') {
                 doc.rect(x, y, doc.internal.pageSize.width - settings.margins.horizontal * 2, height, 'S');
-                y += settings.lineHeight / 2 + doc.internal.getLineHeight() / 2 - 2.5;
+                y += settings.lineHeight / 2 + doc.autoTableTextHeight() / 2 - 2.5;
                 doc.text("A rowspan that works as a sub header", x + settings.padding, y);
             }
         }
@@ -161,7 +168,7 @@ function customStyle() {
         else if (key === 'id') {
             if (row === 1 || row === 4 || row === 7) {
                 doc.rect(x, y, width, height * 3, 'S');
-                y += settings.lineHeight * 3 / 2 + doc.internal.getLineHeight() / 2 - 2.5;
+                y += settings.lineHeight * 3 / 2 + doc.autoTableTextHeight() / 2 - 2.5;
                 var w = doc.getStringUnitWidth('' + value) * doc.internal.getFontSize();
                 doc.text('' + value, x + width / 2 - w / 2, y);
             }
@@ -169,7 +176,7 @@ function customStyle() {
         // Others
         else {
             doc.rect(x, y, width, height, 'S');
-            y += settings.lineHeight / 2 + doc.internal.getLineHeight() / 2 - 2.5;
+            y += settings.lineHeight / 2 + doc.autoTableTextHeight() / 2 - 2.5;
             doc.text('' + value, x + settings.padding, y);
         }
     };
