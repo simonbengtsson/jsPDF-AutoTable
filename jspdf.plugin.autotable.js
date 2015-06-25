@@ -277,6 +277,9 @@
         // (to do that the maxium amount of rows first need to be found)
         var maxRows = 1;
         if (settings.overflow === 'linebreak') {
+            // Font style must be the same as in function renderHeaderCell()
+            doc.setFontStyle('bold'); 
+
             headers.forEach(function (header) {
                 if (isOverflowColumn(header)) {
                     var value = header.title || '';
@@ -348,12 +351,14 @@
             // Add a new page if cellpos is at the end of page
             var newPage = (cellPos.y + settings.margins.bottom + settings.lineHeight * 2) >= doc.internal.pageSize.height;
             if (newPage) {
-                settings.renderFooter(doc, cellPos, pageCount, settings);
-                doc.addPage();
-                cellPos = {x: settings.margins.left, y: settings.margins.top};
-                pageCount++;
-                settings.renderHeader(doc, pageCount, settings);
-                printHeader(headers, columnWidths);
+                if (i+1 < rows.length) {
+                    settings.renderFooter(doc, cellPos, pageCount, settings);
+                    doc.addPage();
+                    cellPos = {x: settings.margins.left, y: settings.margins.top};
+                    pageCount++;
+                    settings.renderHeader(doc, pageCount, settings);
+                    printHeader(headers, columnWidths);
+                }
             } else {
                 cellPos.y += rowHeight;
                 cellPos.x = settings.margins.left;
