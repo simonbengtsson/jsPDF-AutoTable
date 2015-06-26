@@ -89,15 +89,15 @@ function headerAndFooter() {
     var footer = function (doc, lastCellPos, pageCount, options) {
         var str = "Page " + pageCount;
         // Total page number plugin only available in jspdf v1.0+
-        if (typeof doc.putTotalPages == 'function') {
-            str +=  + " of " + totalPagesExp;
+        if (typeof doc.putTotalPages === 'function') {
+            str = str + " of " + totalPagesExp;
         }
         doc.text(str, options.margins.horizontal, doc.internal.pageSize.height - 30);
     };
     var options = {renderHeader: header, renderFooter: footer, margins: {horizontal: 40, top: 80, bottom: 50}};
     doc.autoTable(columns, moreData, options);
     // Total page number plugin only available in jspdf v1.0+
-    if (typeof doc.putTotalPages == 'function') {
+    if (typeof doc.putTotalPages === 'function') {
         doc.putTotalPages(totalPagesExp);
     }
     publish(doc.output('datauristring'));
