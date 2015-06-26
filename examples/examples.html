@@ -22,6 +22,7 @@
 
         html, body {
             height: 100%;
+            overflow: hidden;
         }
 
         .navbar {
@@ -34,6 +35,7 @@
             height: 50px;
             white-space: nowrap;
             overflow-x: auto;
+            overflow-y: hidden;
             padding: 0 10px;
         }
 
@@ -74,6 +76,7 @@
         }
 
         #wrapper {
+            overflow: hidden;
             height: 100%;
             background: rgba(193, 193, 193, 1);
         }
@@ -186,11 +189,11 @@
 <!-- All major versions (0.9, 1.0 and 1.1) should work. In my experience 1.0 is the best one right now, but
 <!-- for extended IE support 0.9 would probably be the easiest to use. 1.1 is a bit buggy as of 26th of june 2015.
 <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.1.135/jspdf.min.js"></script>-->
-<!--<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.0.272/jspdf.min.js"></script>-->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/0.9.0/jspdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.0.272/jspdf.min.js"></script>
+<!--<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/0.9.0/jspdf.min.js"></script>-->
 <script src="data.js"></script>
 <script src="examples.js"></script>
-<script src="../jspdf.plugin.autotable.js"></script>
+<script src="jspdf.plugin.autotable.js"></script>
 <script>hljs.initHighlightingOnLoad();</script>
 
 <script>
