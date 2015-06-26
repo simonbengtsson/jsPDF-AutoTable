@@ -1,16 +1,21 @@
-function auto() {
+var examples = {};
+
+// Default - shows what a default table looks like
+examples.auto = function() {
     var doc = new jsPDF('p', 'pt');
     doc.autoTable(columns, data, {overflowColumns: []});
-    publish(doc.output('datauristring'));
-}
+    return doc;
+};
 
-function minimal() {
+// Minimal - shows how compact tables can be drawn
+examples.minimal = function() {
     var doc = new jsPDF('p', 'pt');
     doc.autoTable(columns, data, {extendWidth: false, padding: 2, lineHeight: 12, fontSize: 8});
-    publish(doc.output('datauristring'));
-}
+    return doc;
+};
 
-function longData() {
+// Long data - shows how the overflow feateres looks and can be used
+examples.long = function() {
     var doc = new jsPDF('l', 'pt');
     doc.text("All columns ellipsized", 10, 50);
     doc.autoTable(columnsLong, dataLong, {margins: {right: 10, left: 10, top: 40, bottom: 40}, startY: 70});
@@ -18,10 +23,11 @@ function longData() {
     doc.autoTable(columnsLong, dataLong, {margins: {horizontal: 10, top: 40, bottom: 40}, startY: 220, overflowColumns: ['text', 'text2']});
     doc.text("Overflow linebreak", 10, doc.autoTableEndPosY() + 30);
     doc.autoTable(columnsLong, dataLong, {margins: {horizontal: 10, top: 40, bottom: 40}, startY: 370, overflow: 'linebreak', overflowColumns: ['text', 'text2']});
-    publish(doc.output('datauristring'));
-}
+    return doc;
+};
 
-function content() {
+// Content - shows how tables can be integrated with any other pdf content
+examples.content = function() {
     var doc = new jsPDF('p', 'pt');
     doc.setFontSize(20);
     doc.text('Title', 40, 48);
@@ -31,10 +37,11 @@ function content() {
     doc.text(splitTitle, 40, 65);
     doc.autoTable(columns, moreData, {startY: 200});
     doc.text(splitTitle, 40, doc.autoTableEndPosY() + 40);
-    publish(doc.output('datauristring'));
-}
+    return doc;
+};
 
-function multiple() {
+// Multiple - shows how multiple tables can be drawn both horizontally and vertically
+examples.multiple = function() {
     var doc = new jsPDF('p', 'pt');
     doc.setFontSize(22);
     doc.text("Multiple tables", 40, 60);
@@ -63,22 +70,22 @@ function multiple() {
         });
     }
 
+    return doc;
+};
 
-
-    publish(doc.output('datauristring'));
-}
-
-function html() {
+// From html - shows how tables can be be drawn from html tables
+examples.html = function() {
     var doc = new jsPDF('p', 'pt');
     doc.text("From HTML", 40, 50);
     // Be sure to set the second parameter (indexBased option) to true
     // It will be the default behavior in v2.0, but are now behind an option for compatibility
     var res = doc.autoTableHtmlToJson(document.getElementById("basic-table"), true);
     doc.autoTable(res.columns, res.data, {startY: 60});
-    publish(doc.output('datauristring'));
-}
+    return doc;
+};
 
-function headerAndFooter() {
+// Header and footers - shows how header and footers can be drawn
+examples['header-footer'] = function() {
     var totalPagesExp = "{total_pages_count_string}";
     var doc = new jsPDF('p', 'pt');
     var header = function (doc, pageCount, options) {
@@ -100,10 +107,11 @@ function headerAndFooter() {
     if (typeof doc.putTotalPages === 'function') {
         doc.putTotalPages(totalPagesExp);
     }
-    publish(doc.output('datauristring'));
-}
+    return doc;
+};
 
-function customStyle() {
+// Custom style - shows how custom styles can be applied to tables (also row- and colspans)
+examples.custom = function() {
     var doc = new jsPDF('p', 'pt');
     var header = function (x, y, width, height, key, value, settings) {
         doc.setFillColor(26, 188, 156); // Turquoise
@@ -111,7 +119,7 @@ function customStyle() {
         doc.setFontStyle('bold');
         doc.rect(x, y, width, height, 'F');
         y += settings.lineHeight / 2 + doc.autoTableTextHeight() / 2;
-        doc.text('' + value, x + settings.padding, y);
+        doc.text(value, x + settings.padding, y);
     };
     var cell = function (x, y, width, height, key, value, row, settings) {
         // See path-painting operators in the PDF spec, examples are
@@ -147,7 +155,7 @@ function customStyle() {
         }
 
         y += settings.lineHeight / 2 + doc.autoTableTextHeight() / 2 - 2.5;
-        doc.text('' + value, x + settings.padding, y);
+        doc.text(value, x + settings.padding, y);
         doc.setTextColor(50);
     };
     doc.autoTable(columns, data, {renderCell: cell, renderHeaderCell: header});
@@ -170,20 +178,16 @@ function customStyle() {
                 doc.rect(x, y, width, height * 3, 'S');
                 y += settings.lineHeight * 3 / 2 + doc.autoTableTextHeight() / 2 - 2.5;
                 var w = doc.getStringUnitWidth('' + value) * doc.internal.getFontSize();
-                doc.text('' + value, x + width / 2 - w / 2, y);
+                doc.text(value, x + width / 2 - w / 2, y);
             }
         }
         // Others
         else {
             doc.rect(x, y, width, height, 'S');
             y += settings.lineHeight / 2 + doc.autoTableTextHeight() / 2 - 2.5;
-            doc.text('' + value, x + settings.padding, y);
+            doc.text(value, x + settings.padding, y);
         }
     };
     doc.autoTable(columns, data, {startY: 300, renderCell: renderCell});
-    publish(doc.output('datauristring'));
-}
-
-function publish(uri) {
-    document.getElementById("output").src = uri;
-}
+    return doc;
+};
