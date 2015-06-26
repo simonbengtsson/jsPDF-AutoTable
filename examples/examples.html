@@ -3,6 +3,16 @@
 <head lang="en">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width">
+    <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.6.0/pure-min.css">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.6/styles/default.min.css">
+
+    <!--[if lte IE 8]>
+    <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.6.0/grids-responsive-old-ie-min.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+    <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.6.0/grids-responsive-min.css">
+    <!--<![endif]-->
+
     <title>AutoTable sample</title>
 
     <style>
@@ -11,29 +21,34 @@
         }
 
         html, body {
-            margin: 0;
-            padding: 0;
             height: 100%;
-            background: rgba(193, 193, 193, 1);
+        }
+
+        .navbar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: #e74c3c;
+            border-bottom: 5px solid #c0392b;
+            height: 50px;
+            white-space: nowrap;
+            overflow-x: scroll;
+            padding: 0 10px;
+        }
+
+        .navbar h1 {
+            font-size: 20px;
+            color: #fff;
         }
 
         .menu {
-            position: absolute;
-            top: 0;
-            background: #e74c3c;
-            border-bottom: 8px solid #c0392b;
             padding: 0;
-            margin: 0;
-            white-space: nowrap;
             list-style: none;
-            width: 100%;
-            overflow: scroll;
-            height: 50px;
         }
 
         .menu li {
             vertical-align: top;
-            display: inline-block;
         }
 
         .menu li a {
@@ -42,15 +57,23 @@
             font-weight: bold;
             font-family: sans-serif;
             padding: 10px;
-            line-height: 47px;
+            line-height: 25px;
         }
 
         .menu li a:hover {
             font-style: italic;
         }
 
+        #panel {
+            background: #141f2b;
+            //border-top: 2px solid #999;
+        }
+
+        #panel .editor {
+            background: #fff;
+        }
+
         #wrapper {
-            padding-top: 50px;
             height: 100%;
             background: rgba(193, 193, 193, 1);
         }
@@ -65,24 +88,31 @@
 </head>
 <body>
 
-<ul class="menu">
-    <li>
-        <a href="https://github.com/someatoms/jsPDF-AutoTable">
-            <img src="github.png" style="width: 35px; margin-top: 5px;">
-        </a>
-    </li>
-    <li><a href="#">Default</a></li>
-    <li><a href="#minimal">Minimal</a></li>
-    <li><a href="#long">Long text</a></li>
-    <li><a href="#content">With content</a></li>
-    <li><a href="#multiple">Multiple tables</a></li>
-    <li><a href="#html">From html</a></li>
-    <li><a href="#header-footer">Header and footer</a></li>
-    <li><a href="#custom">Custom style</a></li>
-</ul>
+<header class="navbar">
+    <h1>AutoTable - Generate PDF tables and lists (jsPDF plugin)</h1>
+</header>
+<div class="pure-g" style="padding-top: 50px; height: 100%;">
+    <div id="panel" class="pure-u-1 pure-u-md-1-5">
+        <ul class="menu">
+            <li><a href="#">Default</a></li>
+            <li><a href="#minimal">Minimal</a></li>
+            <li><a href="#long">Long text</a></li>
+            <li><a href="#content">With content</a></li>
+            <li><a href="#multiple">Multiple tables</a></li>
+            <li><a href="#html">From html</a></li>
+            <li><a href="#header-footer">Header and footer</a></li>
+            <li><a href="#custom">Custom style</a></li>
+        </ul>
 
-<div id="wrapper">
-    <iframe id="output" src=""></iframe>
+        <iframe src="https://ghbtns.com/github-btn.html?user=someatoms&repo=jsPDF-AutoTable&type=star&count=true&size=large"
+                frameborder="0" scrolling="0" width="160px" height="30px" style="margin-left: 10px;"></iframe>
+        <!--<div class="editor">
+        <pre><code class="javascript">var test = "hey!";</code></pre></div>-->
+    </div>
+
+    <div id="wrapper" class="pure-u-1 pure-u-md-4-5">
+        <iframe id="output" src=""></iframe>
+    </div>
 </div>
 
 <table id="basic-table" style="display: none;">
@@ -148,10 +178,16 @@
     </tbody>
 </table>
 
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.6/highlight.min.js"></script>
+<!-- All major versions (0.9, 1.0 and 1.1) should work. In my experience 1.0 is the best one right now, but
+<!-- for extended IE support 0.9 would probably be the easiest to use. 1.1 is a bit buggy as of 26th of june 2015.
+<!--<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.1.135/jspdf.min.js"></script>-->
+<!--<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.0.272/jspdf.min.js"></script>-->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/0.9.0/jspdf.min.js"></script>
 <script src="data.js"></script>
 <script src="examples.js"></script>
-<script src="jspdf.min.js"></script>
 <script src="../jspdf.plugin.autotable.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
 
 <script>
     window.onhashchange = function () {
