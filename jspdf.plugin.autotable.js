@@ -68,8 +68,9 @@
         doc = this;
 
         var userFontSize = doc.internal.getFontSize();
-
-        initData({columns: columns, data: data});
+        var initObj = {columns: columns, data: data};
+        initData(initObj);
+        data = initObj.data;
         initOptions(options);
 
         cellPos = {
@@ -191,15 +192,24 @@
             params.columns.forEach(function (title, i) {
                 params.columns[i] = {title: title, key: i};
             });
-        } 
-        else {
+        }
+        //parse data with unique Ids based on index rather than column name - this allows data properties to be used in multiple columns 
+        else{
+            var data = [];
             params.columns.forEach(function (title, i){
-                if(title.hasOwnProperty('parse')){
-                    params.data.forEach(function (row, j) {
-                        row[title.key] = title.parse(row[title.key]);
-                    });
-                }
+                params.data.forEach(function (row, j) {
+                    if(i==0) data[j] = {};
+                    if(title.hasOwnProperty('parse')){
+                        data[j]['id_'+i] = title.parse(row[title.key]);
+                    }
+                    else{
+                        data[j]['id_'+i] = row[title.key];
+                    }
+                });
+                title.old_key = title.key;
+                title.key = 'id_'+i;
             });
+            params.data = data;
         }
     }
 
