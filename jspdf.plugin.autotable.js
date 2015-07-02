@@ -191,8 +191,15 @@
             params.columns.forEach(function (title, i) {
                 params.columns[i] = {title: title, key: i};
             });
-        } else {
-            // Use options as is
+        } 
+        else {
+            params.columns.forEach(function (title, i){
+                if(title.hasOwnProperty('parse')){
+                    params.data.forEach(function (row, j) {
+                        row[title.key] = title.parse(row[title.key]);
+                    });
+                }
+            });
         }
     }
 
