@@ -22,37 +22,35 @@
 
     // See README.md or examples for documentation of the options
     // return a new instance every time to avoid references issues
-    var defaultOptions = function () {
-        return {
-            padding: 5,
-            fontSize: 10,
-            lineHeight: 20,
-            renderHeader: function (doc, pageNumber, settings) {
-            },
-            renderFooter: function (doc, lastCellPos, pageNumber, settings) {
-            },
-            renderHeaderCell: function (x, y, width, height, key, value, settings) {
-                doc.setFillColor(52, 73, 94); // Asphalt
-                doc.setTextColor(255, 255, 255);
-                doc.setFontStyle('bold');
-                doc.rect(x, y, width, height, 'F');
-                y += settings.lineHeight / 2 + API.autoTableTextHeight() / 2;
-                doc.text(value, x + settings.padding, y);
-            },
-            renderCell: function (x, y, width, height, key, value, row, settings) {
-                doc.setFillColor(row % 2 === 0 ? 245 : 255);
-                doc.setTextColor(50);
-                doc.rect(x, y, width, height, 'F');
-                y += settings.lineHeight / 2 + API.autoTableTextHeight() / 2 - 2.5;
-                doc.text(value, x + settings.padding, y);
-            },
-            margins: {right: 40, left: 40, top: 50, bottom: 40},
-            startY: false,
-            overflow: 'ellipsize', // false, ellipsize or linebreak (false passes the raw text to renderCell)
-            overflowColumns: false, // Specify which colums that gets subjected to the overflow method chosen. false indicates all
-            avoidPageSplit: false,
-            extendWidth: true
-        }
+    var defaultOptions = {
+        padding: 5,
+        fontSize: 10,
+        lineHeight: 20,
+        renderHeader: function (doc, pageNumber, settings) {
+        },
+        renderFooter: function (doc, lastCellPos, pageNumber, settings) {
+        },
+        renderHeaderCell: function (x, y, width, height, key, value, settings) {
+            doc.setFillColor(52, 73, 94); // Asphalt
+            doc.setTextColor(255, 255, 255);
+            doc.setFontStyle('bold');
+            doc.rect(x, y, width, height, 'F');
+            y += settings.lineHeight / 2 + API.autoTableTextHeight() / 2;
+            doc.text(value, x + settings.padding, y);
+        },
+        renderCell: function (x, y, width, height, key, value, row, settings) {
+            doc.setFillColor(row % 2 === 0 ? 245 : 255);
+            doc.setTextColor(50);
+            doc.rect(x, y, width, height, 'F');
+            y += settings.lineHeight / 2 + API.autoTableTextHeight() / 2 - 2.5;
+            doc.text(value, x + settings.padding, y);
+        },
+        margins: {right: 40, left: 40, top: 50, bottom: 40},
+        startY: false,
+        overflow: 'ellipsize', // false, ellipsize or linebreak (false passes the raw text to renderCell)
+        overflowColumns: false, // Specify which colums that gets subjected to the overflow method chosen. false indicates all
+        avoidPageSplit: false,
+        extendWidth: true
     };
 
     /**
@@ -120,7 +118,7 @@
      * @returns []|{} Array of objects with object keys as headers or based on indexes if indexBased is set to true
      */
     API.autoTableHtmlToJson = function (table, indexBased) {
-            var data = [], headers = {}, header = table.rows[0], i, tableRow, rowData, j;
+        var data = [], headers = {}, header = table.rows[0], i, tableRow, rowData, j;
         if (indexBased) {
             headers = [];
             for (i = 0; i < header.cells.length; i++) {
@@ -160,7 +158,7 @@
      *
      * Export it to make it available in drawCell and drawHeaderCell
      */
-    API.autoTableTextHeight = function() {
+    API.autoTableTextHeight = function () {
         // The value 1.15 comes from from the jsPDF source code and looks about right
         return doc.internal.getFontSize() * 1.15;
     };
@@ -197,14 +195,11 @@
     }
 
     function initOptions(raw) {
-        settings = defaultOptions();
-        Object.keys(raw).forEach(function (key) {
-            settings[key] = raw[key];
-        });
+        settings = extend(defaultOptions, raw);
         doc.setFontSize(settings.fontSize);
 
         // Backwards compatibility
-        if(settings.margins.horizontal !== undefined) {
+        if (settings.margins.horizontal !== undefined) {
             settings.margins.left = settings.margins.horizontal;
             settings.margins.right = settings.margins.horizontal;
         } else {
@@ -219,7 +214,7 @@
         var optimalTableWidth = 0;
         columns.forEach(function (header) {
             var widest = getStringWidth(header.title || '', true);
-            if(typeof header.width == "number") {
+            if (typeof header.width == "number") {
                 widest = header.width;
             } else {
                 rows.forEach(function (row) {
@@ -278,7 +273,7 @@
         var maxRows = 1;
         if (settings.overflow === 'linebreak') {
             // Font style must be the same as in function renderHeaderCell()
-            doc.setFontStyle('bold'); 
+            doc.setFontStyle('bold');
 
             headers.forEach(function (header) {
                 if (isOverflowColumn(header)) {
@@ -351,7 +346,7 @@
             // Add a new page if cellpos is at the end of page
             var newPage = (cellPos.y + settings.margins.bottom + settings.lineHeight * 2) >= doc.internal.pageSize.height;
             if (newPage) {
-                if (i+1 < rows.length) {
+                if (i + 1 < rows.length) {
                     settings.renderFooter(doc, cellPos, pageCount, settings);
                     doc.addPage();
                     cellPos = {x: settings.margins.left, y: settings.margins.top};
@@ -394,14 +389,30 @@
     }
 
     function getStringWidth(txt, isBold) {
-        if(isBold) {
+        if (isBold) {
             doc.setFontStyle('bold');
         }
         var strWidth = doc.getStringUnitWidth(txt) * doc.internal.getFontSize();
-        if(isBold) {
+        if (isBold) {
             doc.setFontStyle('normal');
         }
         return strWidth;
+    }
+
+    function extend(defaults, options) {
+        var extended = {};
+        var prop;
+        for (prop in defaults) {
+            if (Object.prototype.hasOwnProperty.call(defaults, prop)) {
+                extended[prop] = defaults[prop];
+            }
+        }
+        for (prop in options) {
+            if (Object.prototype.hasOwnProperty.call(options, prop)) {
+                extended[prop] = options[prop];
+            }
+        }
+        return extended;
     }
 
 })(jsPDF.API);
