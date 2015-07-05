@@ -3,7 +3,7 @@ var examples = {};
 // Default - shows what a default table looks like
 examples.auto = function() {
     var doc = new jsPDF('p', 'pt');
-    doc.autoTable(columns, data, {overflowColumns: []});
+    doc.autoTable(columns, data);
     return doc;
 };
 
