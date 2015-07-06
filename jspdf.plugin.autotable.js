@@ -34,27 +34,12 @@
         },
         renderFooter: function (doc, lastCellPos, pageNumber, settings) {
         },
-        renderHeaderCell: function (x, y, width, height, key, value, settings) {
-            doc.setFillColor(52, 73, 94); // Asphalt
-            doc.setTextColor(255, 255, 255);
-            doc.setFontStyle('bold');
-            doc.rect(x, y, width, height, 'F');
-            y += settings.lineHeight / 2 + API.autoTableTextHeight() / 2;
-            doc.text(value, x + settings.padding, y);
-        },
-        renderCell: function (x, y, width, height, key, value, row, settings) {
-            doc.setFillColor(row % 2 === 0 ? 245 : 255);
-            doc.setTextColor(50);
-            doc.rect(x, y, width, height, 'F');
-            y += settings.lineHeight / 2 + API.autoTableTextHeight() / 2 - 2.5;
-            doc.text(value, x + settings.padding, y);
-        },
         margins: {right: 40, left: 40, top: 50, bottom: 40},
         startY: false,
         overflow: 'ellipsize', // false, ellipsize or linebreak (false passes the raw text to renderCell)
         overflowColumns: false, // Specify which colums that gets subjected to the overflow method chosen. false indicates all
         avoidPageSplit: false,
-        extendWidth: true
+        autoWidth: true
     };
 
     /**
@@ -222,6 +207,7 @@
                     column.contentWidth = cellWidth;
                 }
             });
+            column.width = column.contentWidth;
             tableContentWidth += column.contentWidth;
             if (settings.overflowColumns === false ||
                 settings.overflowColumns.indexOf(column.key) !== -1) {
@@ -230,11 +216,12 @@
         });
 
         // Actual width
-        if (settings.extendWidth) {
+        if (settings.autoWidth) {
             var spaceDiff = doc.internal.pageSize.width - tableContentWidth - settings.margins.left - settings.margins.right;
             var diffPart = spaceDiff / dynamicColumns.length;
+            console.log(spaceDiff, diffPart);
             dynamicColumns.forEach(function (col) {
-                col.width = col.contentWidth + diffPart;
+                col.width = col.width + diffPart;
             });
         }
 
@@ -258,19 +245,44 @@
                     console.error("Unrecognized overflow value: " + settings.overflow);
                 }
             });
-            row.height = settings.lineHeight + lineBreakCount + API.autoTableTextHeight();
+            row.height = settings.lineHeight + lineBreakCount * API.autoTableTextHeight();
         });
     }
 
     function printHeader() {
         columns.forEach(function (col, i) {
             var cell = headerRow.cells[col.key];
-            cell.styles = {fillColor: 220, textColor: [0, 0, 255], fontSize: 12, fontStyle: 'normal'};
+            cell.styles = {fillColor: [52, 73, 94], textColor: 255, fontSize: settings.fontSize, fontStyle: 'bold'};
             drawCell(cell, col, headerRow, i);
         });
 
-        cellPos.y += 20;
+        cellPos.y += headerRow.height;
         cellPos.x = settings.margins.left;
+    }
+
+    function printRows() {
+        rows.forEach(function (row, i) {
+            // Render the cell
+            columns.forEach(function (col) {
+                var cell = row.cells[col.key];
+                cell.styles = {fillColor: 255, textColor: 80, fontSize: settings.fontSize, fontStyle: 'normal', alternateRow: {fillColor: 245}};
+                drawCell(cell, col, row, i);
+            });
+
+            // Add a new page if cellPos is at the end of page
+            var newPage = (cellPos.y + settings.margins.bottom) >= doc.internal.pageSize.height;
+            if (newPage) {
+                settings.renderFooter(doc, cellPos, pageCount, settings);
+                doc.addPage();
+                cellPos = {x: settings.margins.left, y: settings.margins.top};
+                pageCount++;
+                settings.renderHeader(doc, pageCount, settings);
+                printHeader();
+            } else {
+                cellPos.y += row.height;
+                cellPos.x = settings.margins.left;
+            }
+        });
     }
 
     function applyStyles(styles, rowIndex) {
@@ -296,37 +308,11 @@
 
     function drawCell(cell, column, row, rowIndex) {
         applyStyles(cell.styles, rowIndex);
-        console.log(cellPos, cell.contentWidth, row.height);
-        doc.rect(cellPos.x, cellPos.y, cell.contentWidth, row.height, 'F');
-        var y = cellPos.y + settings.lineHeight / 2 + API.autoTableTextHeight() / 2;
+        doc.rect(cellPos.x, cellPos.y, column.width, row.height, 'F');
+        var y = cellPos.y + row.height / 2 + cell.styles.fontSize / 2;
         y -= 2; // Offset
         doc.text(cell.text, cellPos.x + settings.padding, y);
-        cellPos.x += cell.contentWidth;
-    }
-
-    function printRows() {
-        rows.forEach(function (row, i) {
-            // Render the cell
-            columns.forEach(function (col) {
-                var cell = row.cells[col.key];
-                cell.styles = {fillColor: '9', textColor: 9, fontSize: 12, fontStyle: 'normal'};
-                drawCell(cell, col, row, i);
-            });
-
-            // Add a new page if cellPos is at the end of page
-            var newPage = (cellPos.y + settings.margins.bottom) >= doc.internal.pageSize.height;
-            if (newPage) {
-                settings.renderFooter(doc, cellPos, pageCount, settings);
-                doc.addPage();
-                cellPos = {x: settings.margins.left, y: settings.margins.top};
-                pageCount++;
-                settings.renderHeader(doc, pageCount, settings);
-                printHeader();
-            } else {
-                cellPos.y += row.height;
-                cellPos.x = settings.margins.left;
-            }
-        });
+        cellPos.x += column.width;
     }
 
     /**
