@@ -131,6 +131,8 @@ var examples = {};
         var doc = new jsPDF('p', 'pt');
         var header = function (doc, pageCount, settings) {
             doc.setFontSize(20);
+            doc.setTextColor(40);
+            doc.setFontStyle('normal');
             doc.text("Report for X", settings.margins.left, 60);
             doc.setFontSize(settings.fontSize);
         };

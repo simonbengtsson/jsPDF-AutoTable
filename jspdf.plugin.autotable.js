@@ -98,7 +98,6 @@
             fontSize: doc.internal.getFontSize(),
             fontStyle: doc.internal.getFont().fontStyle
         };
-        console.log(doc.internal.getFont());
 
         settings = initOptions(options || {});
         var styles = extend(defaultStyles, themes[settings.theme], settings.styles);
