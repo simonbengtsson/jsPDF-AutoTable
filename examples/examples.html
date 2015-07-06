@@ -185,13 +185,13 @@
     </tbody>
 </table>
 
+<script src="//cdn.jsdelivr.net/faker.js/2.1.5/faker.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.6/highlight.min.js"></script>
 <!-- All major versions (0.9, 1.0 and 1.1) should work. In my experience 1.0 is the best one right now, but
 <!-- for extended IE support 0.9 would probably be the easiest to use. 1.1 is a bit buggy as of 26th of june 2015.
 <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.1.135/jspdf.min.js"></script>-->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.0.272/jspdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.0.272/jspdf.debug.js"></script>
 <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/0.9.0/jspdf.min.js"></script>-->
-<script src="data.js"></script>
 <script src="examples.js"></script>
 <script src="../jspdf.plugin.autotable.js"></script>
 <script>hljs.initHighlightingOnLoad();</script>
@@ -201,7 +201,7 @@
         update();
     };
 
-    document.getElementById('download-btn').onclick = function() {
+    document.getElementById('download-btn').onclick = function () {
         update(true)
     };
 

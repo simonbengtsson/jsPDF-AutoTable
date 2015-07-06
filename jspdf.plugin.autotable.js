@@ -8,21 +8,10 @@
 (function (API) {
     'use strict';
 
-    // On every new jsPDF object, clear variables
-    API.events.push(['initialized', function () {
-        doc = undefined;
-        cellPos = undefined;
-        pageCount = 1;
-        settings = undefined;
-        headerRow = undefined;
-        columns = [];
-        rows = [];
-    }], false);
-
     var MIN_COLUMN_WIDTH = 25;
     var FONT_ROW_RATIO = 1.25;
 
-    var doc, cellPos, pageCount = 1, settings, headerRow, columns, rows;
+    var doc, cursor, pageCount = 1, settings, headerRow, columns, rows;
 
     // See README.md or examples for documentation of the options
     // return a new instance every time to avoid references issues
@@ -36,8 +25,8 @@
         },
         margins: {right: 40, left: 40, top: 50, bottom: 40},
         startY: false,
-        overflow: 'ellipsize', // false, ellipsize or linebreak (false passes the raw text to renderCell)
-        overflowColumns: false, // Specify which colums that gets subjected to the overflow method chosen. false indicates all
+        overflow: 'ellipsize', // 'visible', 'hidden', ellipsize or linebreak
+        overflowColumns: false, // Specify which columns that gets subjected to the overflow method chosen. false indicates all
         avoidPageSplit: false,
         autoWidth: true
     };
@@ -53,9 +42,14 @@
         doc = this;
         settings = initOptions(options || {});
 
+        pageCount = 1;
+        headerRow = undefined;
+        columns = [];
+        rows = [];
+
         initData(rawColumns, rawRows);
 
-        cellPos = {
+        cursor = {
             x: settings.margins.left,
             y: settings.startY === false ? settings.margins.top : settings.startY
         };
@@ -65,7 +59,7 @@
         if (settings.startY !== false && settings.avoidPageSplit && tableHeight > doc.internal.pageSize.height) {
             pageCount++;
             doc.addPage();
-            cellPos.y = settings.margins.top;
+            cursor.y = settings.margins.top;
         }
 
         var userFontSize = doc.internal.getFontSize();
@@ -73,10 +67,9 @@
         settings.renderHeader(doc, pageCount, settings);
         printHeader();
         printRows();
-        settings.renderFooter(doc, cellPos, pageCount, settings);
+        settings.renderFooter(doc, cursor, pageCount, settings);
 
         doc.setFontSize(userFontSize);
-
         return this;
     };
 
@@ -85,17 +78,17 @@
      * @returns int
      */
     API.autoTableEndPosY = function () {
-        if (typeof cellPos === 'undefined' || typeof cellPos.y === 'undefined') {
+        if (typeof cursor === 'undefined' || typeof cursor.y === 'undefined') {
             throw new Error("No AutoTable has been drawn and therefore autoTableEndPosY can be called");
         }
-        return cellPos.y;
+        return cursor.y;
     };
 
     /**
      * @deprecated Use autoTableEndPosY()
      */
     API.autoTableEndPos = function () {
-        return cellPos;
+        return cursor;
     };
 
     /**
@@ -140,20 +133,8 @@
         }
     };
 
-    /**
-     * Basically the same as getLineHeight() in 1.0+ versions of jsPDF, however
-     * added here for backwards compatibility with version 0.9
-     *
-     * Export it to make it available in drawCell and drawHeaderCell
-     */
-    API.autoTableTextHeight = function () {
-        // The value 1.15 comes from from the jsPDF source code and looks about right
-        return doc.internal.getFontSize() * 1.15;
-    };
-
     function initOptions(raw) {
         var settings = extend(defaultOptions, raw);
-        doc.setFontSize(settings.fontSize);
 
         // Backwards compatibility
         if (settings.margins.horizontal !== undefined) {
@@ -162,6 +143,10 @@
         } else {
             settings.margins.horizontal = settings.margins.left;
         }
+        if (typeof settings.extendWidth !== 'undefined') {
+            settings.autoWidth = settings.extendWidth;
+        }
+
         return settings;
     }
 
@@ -180,7 +165,7 @@
             cell.contentWidth = settings.padding * 2 + cell.textWidth;
             headerRow.cells[key] = cell;
 
-            var col = new Column(rawHeaders[key], key);
+            var col = new Column(key);
             columns.push(col);
         });
 
@@ -218,8 +203,18 @@
         // Actual width
         if (settings.autoWidth) {
             var spaceDiff = doc.internal.pageSize.width - tableContentWidth - settings.margins.left - settings.margins.right;
-            var diffPart = spaceDiff / dynamicColumns.length;
-            console.log(spaceDiff, diffPart);
+            var i = 0;
+            var diffPart = 0;
+            while (i < dynamicColumns.length) {
+                var col = dynamicColumns[i];
+                diffPart = spaceDiff / dynamicColumns.length;
+                if (col.width + diffPart < MIN_COLUMN_WIDTH) {
+                    dynamicColumns.splice(i, 1);
+                    i = 0;
+                } else {
+                    i++;
+                }
+            }
             dynamicColumns.forEach(function (col) {
                 col.width = col.width + diffPart;
             });
@@ -233,31 +228,37 @@
                 var cell = row.cells[col.key];
                 var textWidth = col.width - settings.padding * 2;
                 if (settings.overflow === 'linebreak') {
-                    cell.text = doc.splitTextToSize(cell.text, textWidth);
-                    if (cell.text.length > lineBreakCount) {
-                        lineBreakCount = cell.text.length;
+                    // Add one pt to textWidth for rounding error
+                    cell.text = doc.splitTextToSize(cell.text, textWidth + 1, {fontSize: settings.fontSize});
+                    var count = cell.text.length - 1;
+                    if (count > lineBreakCount) {
+                        lineBreakCount = count;
                     }
                 } else if (settings.overflow === 'ellipsize') {
                     cell.text = ellipsize(cell.text, textWidth);
+                } else if (settings.overflow === 'visible') {
+                    // Do nothing
+                } else if (settings.overflow === 'hidden') {
+                    console.error('Overflow hidden not supported yet, pull request welcome!');
                 } else if (typeof settings.overflow === 'function') {
                     cell.text = settings.overflow(cell.text, textWidth);
                 } else {
                     console.error("Unrecognized overflow value: " + settings.overflow);
                 }
             });
-            row.height = settings.lineHeight + lineBreakCount * API.autoTableTextHeight();
+            row.height = settings.lineHeight + lineBreakCount * settings.fontSize * FONT_ROW_RATIO;
         });
     }
 
     function printHeader() {
         columns.forEach(function (col, i) {
             var cell = headerRow.cells[col.key];
-            cell.styles = {fillColor: [52, 73, 94], textColor: 255, fontSize: settings.fontSize, fontStyle: 'bold'};
+            cell.styles = {fillColor: [52, 73, 94], textColor: 255, fontSize: settings.fontSize, fontStyle: 'normal'};
             drawCell(cell, col, headerRow, i);
         });
 
-        cellPos.y += headerRow.height;
-        cellPos.x = settings.margins.left;
+        cursor.y += headerRow.height;
+        cursor.x = settings.margins.left;
     }
 
     function printRows() {
@@ -265,22 +266,28 @@
             // Render the cell
             columns.forEach(function (col) {
                 var cell = row.cells[col.key];
-                cell.styles = {fillColor: 255, textColor: 80, fontSize: settings.fontSize, fontStyle: 'normal', alternateRow: {fillColor: 245}};
+                cell.styles = {
+                    fillColor: 255,
+                    textColor: 80,
+                    fontSize: settings.fontSize,
+                    fontStyle: 'normal',
+                    alternateRow: {fillColor: 245}
+                };
                 drawCell(cell, col, row, i);
             });
 
-            // Add a new page if cellPos is at the end of page
-            var newPage = (cellPos.y + settings.margins.bottom) >= doc.internal.pageSize.height;
+            cursor.y += row.height;
+            cursor.x = settings.margins.left;
+
+            // Add a new page if cursor is at the end of page
+            var newPage = rows[i + 1] && (cursor.y + rows[i + 1].height + settings.margins.bottom) >= doc.internal.pageSize.height;
             if (newPage) {
-                settings.renderFooter(doc, cellPos, pageCount, settings);
+                settings.renderFooter(doc, cursor, pageCount, settings);
                 doc.addPage();
-                cellPos = {x: settings.margins.left, y: settings.margins.top};
+                cursor = {x: settings.margins.left, y: settings.margins.top};
                 pageCount++;
                 settings.renderHeader(doc, pageCount, settings);
                 printHeader();
-            } else {
-                cellPos.y += row.height;
-                cellPos.x = settings.margins.left;
             }
         });
     }
@@ -308,11 +315,11 @@
 
     function drawCell(cell, column, row, rowIndex) {
         applyStyles(cell.styles, rowIndex);
-        doc.rect(cellPos.x, cellPos.y, column.width, row.height, 'F');
-        var y = cellPos.y + row.height / 2 + cell.styles.fontSize / 2;
+        doc.rect(cursor.x, cursor.y, column.width, row.height, 'F');
+        var y = cursor.y + settings.lineHeight / 2 + cell.styles.fontSize / 2;
         y -= 2; // Offset
-        doc.text(cell.text, cellPos.x + settings.padding, y);
-        cellPos.x += column.width;
+        doc.text(cell.text, cursor.x + settings.padding, y);
+        cursor.x += column.width;
     }
 
     /**
@@ -334,15 +341,8 @@
         return text;
     }
 
-    function getStringWidth(txt, isBold) {
-        if (isBold) {
-            doc.setFontStyle('bold');
-        }
-        var strWidth = doc.getStringUnitWidth(txt) * doc.internal.getFontSize();
-        if (isBold) {
-            doc.setFontStyle('normal');
-        }
-        return strWidth;
+    function getStringWidth(txt) {
+        return doc.getStringUnitWidth(txt) * settings.fontSize;
     }
 
     function extend(defaults, options) {
@@ -366,6 +366,12 @@
 var Table = function () {
     this.height = 0;
     this.width = 0;
+    this.rows = [];
+    this.columns = [];
+    this.headerRow = null;
+    this.cursor = {x: 0, y: 0};
+    this.pageCount = 1;
+    this.settings = {};
 };
 
 var Row = function (raw) {
@@ -375,14 +381,12 @@ var Row = function (raw) {
 
 var Cell = function (raw, textWidth, contentWidth) {
     this.raw = raw;
-    // 0, false, undefined etc gets wrong format unless converted to strings
-    this.text = typeof raw !== 'undefined' ? '' + raw : '';
+    this.text = typeof raw !== 'undefined' ? '' + raw : ''; // Stringify 0, false, undefined etc
     this.textWidth = textWidth;
     this.contentWidth = contentWidth;
 };
 
-var Column = function (raw, key) {
-    this.raw = raw;
+var Column = function (key) {
     this.key = key;
     this.contentWidth = 0;
     this.width = 0;

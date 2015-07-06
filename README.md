@@ -103,6 +103,11 @@ var columns = [
 
 All the options are used in one or more of the examples (`/examples/examples.js`) in the [demo](https://someatoms.github.io/jsPDF-AutoTable/) so be sure to check them out if in doubt.
 
+### Version 2.0
+- object only initialize removed
+- extendWidth -> autoWidth
+- renderFunctions removed
+
 ### Other libraries
 Below is a list of other plugins and libraries that I have tried. I felt that features were missing for gerating pdf tables and lists in all of them and therefore decided to build a new table plugin for jsPDF.
 
