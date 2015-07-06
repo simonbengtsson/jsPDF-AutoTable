@@ -278,7 +278,7 @@
         var maxRows = 1;
         if (settings.overflow === 'linebreak') {
             // Font style must be the same as in function renderHeaderCell()
-            doc.setFontStyle('bold'); 
+            doc.setFontStyle('bold');
 
             headers.forEach(function (header) {
                 if (isOverflowColumn(header)) {
@@ -291,6 +291,17 @@
             });
         }
         var rowHeight = settings.lineHeight + (maxRows - 1) * API.autoTableTextHeight() + 5;
+
+        // Avoid isolated table headers when drawing multiple tables. Add a new page 
+        // if cellpos would be at the end of page after drawing the header row
+        var newPage = (cellPos.y + settings.margins.bottom + rowHeight * 2) >= doc.internal.pageSize.height;
+        if (newPage) {
+            settings.renderFooter(doc, cellPos, pageCount, settings);
+            doc.addPage();
+            cellPos = {x: settings.margins.left, y: settings.margins.top};
+            pageCount++;
+            settings.renderHeader(doc, pageCount, settings);
+        }
 
         headers.forEach(function (header) {
             var width = columnWidths[header.key] + settings.padding * 2;
@@ -349,7 +360,7 @@
             });
 
             // Add a new page if cellpos is at the end of page
-            var newPage = (cellPos.y + settings.margins.bottom + settings.lineHeight * 2) >= doc.internal.pageSize.height;
+            var newPage = (cellPos.y + settings.margins.bottom + rowHeight * 2) >= doc.internal.pageSize.height;
             if (newPage) {
                 if (i+1 < rows.length) {
                     settings.renderFooter(doc, cellPos, pageCount, settings);
