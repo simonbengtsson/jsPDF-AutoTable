@@ -28,7 +28,14 @@
         overflow: 'ellipsize', // 'visible', 'hidden', ellipsize or linebreak
         overflowColumns: false, // Specify which columns that gets subjected to the overflow method chosen. false indicates all
         avoidPageSplit: false,
-        autoWidth: true
+        autoWidth: true,
+        renderHeaderCell: function (cell, data) {
+            data.settings.renderCell(cell, data);
+        },
+        renderCell: function (cell, data) {
+            doc.rect(cell.rect.x, cell.rect.y, cell.rect.width, cell.rect.height, cell.rect.style);
+            doc.text(cell.text, cell.textPos.x, cell.textPos.y);
+        }
     };
 
     /**
@@ -95,42 +102,23 @@
      * Parses an html table
      *
      * @param table Html table element
-     * @param indexBased Boolean flag if result should be returned as seperate cols and data
-     * @returns []|{} Array of objects with object keys as headers or based on indexes if indexBased is set to true
+     * @returns Object Object with two properties, columns and rows
      */
-    API.autoTableHtmlToJson = function (table, indexBased) {
-        var data = [], headers = {}, header = table.rows[0], i, tableRow, rowData, j;
-        if (indexBased) {
-            headers = [];
-            for (i = 0; i < header.cells.length; i++) {
-                headers.push(header.cells[i] ? header.cells[i].textContent : '');
-            }
-
-            for (i = 1; i < table.rows.length; i++) {
-                tableRow = table.rows[i];
-                rowData = [];
-                for (j = 0; j < header.cells.length; j++) {
-                    rowData.push(tableRow.cells[j] ? tableRow.cells[j].textContent : '');
-                }
-                data.push(rowData);
-            }
-            return {columns: headers, data: data};
-        } else {
-            for (i = 0; i < header.cells.length; i++) {
-                headers[i] = header.cells[i] ? header.cells[i].textContent : '';
-            }
-
-            for (i = 1; i < table.rows.length; i++) {
-                tableRow = table.rows[i];
-                rowData = {};
-                for (j = 0; j < header.cells.length; j++) {
-                    rowData[headers[j]] = tableRow.cells[j] ? tableRow.cells[j].textContent : '';
-                }
-                data.push(rowData);
-            }
-
-            return data;
+    API.autoTableHtmlToJson = function (table) {
+        var data = [], headers = [], header = table.rows[0], i, tableRow, rowData, j;
+        for (i = 0; i < header.cells.length; i++) {
+            headers.push(header.cells[i] ? header.cells[i].textContent : '');
         }
+
+        for (i = 1; i < table.rows.length; i++) {
+            tableRow = table.rows[i];
+            rowData = [];
+            for (j = 0; j < header.cells.length; j++) {
+                rowData.push(tableRow.cells[j] ? tableRow.cells[j].textContent : '');
+            }
+            data.push(rowData);
+        }
+        return {columns: headers, data: data, rows: data};
     };
 
     function initOptions(raw) {
@@ -254,7 +242,7 @@
         columns.forEach(function (col, i) {
             var cell = headerRow.cells[col.key];
             cell.styles = {fillColor: [52, 73, 94], textColor: 255, fontSize: settings.fontSize, fontStyle: 'normal'};
-            drawCell(cell, col, headerRow, i);
+            drawCell(cell, col, headerRow, -1);
         });
 
         cursor.y += headerRow.height;
@@ -315,11 +303,27 @@
 
     function drawCell(cell, column, row, rowIndex) {
         applyStyles(cell.styles, rowIndex);
-        doc.rect(cursor.x, cursor.y, column.width, row.height, 'F');
-        var y = cursor.y + settings.lineHeight / 2 + cell.styles.fontSize / 2;
-        y -= 2; // Offset
-        doc.text(cell.text, cursor.x + settings.padding, y);
-        cursor.x += column.width;
+
+        cell.rect = {x: cursor.x, y: cursor.y, width: column.width, height: row.height, style: 'F'};
+        cell.textPos.y = cursor.y + settings.lineHeight / 2 + cell.styles.fontSize / 2;
+        cell.textPos.y -= 2; // Looks more centered two pt down
+        cell.textPos.x = cursor.x + settings.padding;
+
+        var data = {
+            settings: settings,
+            pageNumber: doc.pageNumber,
+            rowIndex: rowIndex,
+            column: column,
+            row: row
+        };
+
+        if (rowIndex < 0) {
+            settings.renderHeaderCell(cell, data);
+        } else {
+            settings.renderCell(cell, data);
+        }
+
+        cursor.x += cell.rect.width;
     }
 
     /**
@@ -384,6 +388,8 @@ var Cell = function (raw, textWidth, contentWidth) {
     this.text = typeof raw !== 'undefined' ? '' + raw : ''; // Stringify 0, false, undefined etc
     this.textWidth = textWidth;
     this.contentWidth = contentWidth;
+    this.rect = {};
+    this.textPos = {};
 };
 
 var Column = function (key) {
