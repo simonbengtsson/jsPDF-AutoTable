@@ -8,7 +8,6 @@
 (function (API) {
     'use strict';
 
-    var MIN_COLUMN_WIDTH = 25;
     var FONT_ROW_RATIO = 1.25;
 
     var doc, cursor, pageCount = 1, settings, headerRow, columns, rows;
@@ -29,7 +28,7 @@
     };
 
     var themes = {
-        'simple': {
+        'striped': {
             fillColor: 255,
             textColor: 80,
             fontStyle: 'normal',
@@ -42,7 +41,7 @@
             },
             alternateRowStyles: {fillColor: 245}
         },
-        'pro': {
+        'grid': {
             fillColor: 255,
             textColor: 80,
             fontStyle: 'normal',
@@ -63,7 +62,7 @@
     // return a new instance every time to avoid references issues
     var defaultOptions = function () {
         return {
-            theme: 'simple', // 'simple', 'pro' or 'none'
+            theme: 'striped', // 'striped', 'grid' or 'plain'
             styles: {},
             renderHeader: function (doc, pageNumber, settings) {
             },
@@ -244,8 +243,7 @@
             rows.push(row);
         });
 
-        // Optimal width
-        var dynamicColumns = [];
+        // Column and table content width
         var tableContentWidth = 0;
         columns.forEach(function (column) {
             column.contentWidth = headerRow.cells[column.key].contentWidth;
@@ -257,30 +255,39 @@
             });
             column.width = column.contentWidth;
             tableContentWidth += column.contentWidth;
-            if (settings.overflowColumns === false ||
-                settings.overflowColumns.indexOf(column.key) !== -1) {
-                dynamicColumns.push(column);
-            }
         });
 
         // Actual width
         if (settings.autoWidth) {
-            var spaceDiff = doc.internal.pageSize.width - tableContentWidth - settings.margins.left - settings.margins.right;
-            var i = 0;
-            var diffPart = 0;
-            while (i < dynamicColumns.length) {
-                var col = dynamicColumns[i];
-                diffPart = spaceDiff / dynamicColumns.length;
-                if (col.width + diffPart < MIN_COLUMN_WIDTH) {
-                    dynamicColumns.splice(i, 1);
-                    i = 0;
-                } else {
-                    i++;
+
+            var tableWidth = doc.internal.pageSize.width - settings.margins.left - settings.margins.right;
+
+            // Figure out dynamic columns
+            var fairPart = tableWidth / columns.length;
+            var dynamicColumns = [];
+            columns.forEach(function (column) {
+                var overflow = settings.overflowColumns === false || settings.overflowColumns.indexOf(column.key) !== -1;
+                if (overflow && column.contentWidth > fairPart) {
+                    dynamicColumns.push(column);
+                }
+            });
+
+            doc.rect(40, 400, fairPart, 20);
+            var realTableWidth = tableContentWidth;
+            var differ = Math.sign(tableWidth - tableContentWidth);
+            loop1: while (true) {
+                for (var i = 0; i < dynamicColumns.length; i++) {
+                    var col = dynamicColumns[i];
+                    if (col.width + differ > fairPart) {
+                        col.width += differ;
+                        realTableWidth += differ;
+                    }
+                    console.log(tableWidth, realTableWidth, tableWidth - realTableWidth);
+                    if(tableWidth - realTableWidth <= 1 && tableWidth - realTableWidth >= 0) {
+                        break loop1;
+                    }
                 }
             }
-            dynamicColumns.forEach(function (col) {
-                col.width = col.width + diffPart;
-            });
         }
 
         // Row height and text overflow

@@ -37,7 +37,7 @@ var examples = {};
     // Minimal - shows how compact tables can be drawn
     examples.minimal = function () {
         var doc = new jsPDF('p', 'pt');
-        doc.autoTable(columns, getData(), {extendWidth: false, styles: {padding: 2, rowHeight: 12, fontSize: 8, headerStyles: {rowHeight: 15, fontSize: 8, padding: 2}}});
+        doc.autoTable(columns, getData(), {autoWidth: false, styles: {padding: 2, rowHeight: 12, fontSize: 8, headerStyles: {rowHeight: 15, fontSize: 8, padding: 2}}});
         return doc;
     };
 
@@ -158,10 +158,10 @@ var examples = {};
         var doc = new jsPDF('p', 'pt');
         doc.setFontSize(12);
         doc.setFontStyle('bold');
-        doc.text('Theme "simple"', 40, 50);
+        doc.text('Theme "striped"', 40, 50);
         doc.autoTable(columns, getData(), {margins: {top: 60, bottom: 40, right: 40, left: 40}});
-        doc.text('Theme "pro"', 40, doc.autoTableEndPosY() + 30);
-        doc.autoTable(columns, getData(), {margins: {top: 205, bottom: 40, right: 40, left: 40}, theme: 'pro'});
+        doc.text('Theme "grid"', 40, doc.autoTableEndPosY() + 30);
+        doc.autoTable(columns, getData(), {margins: {top: 205, bottom: 40, right: 40, left: 40}, theme: 'grid'});
         doc.text('Theme "plain"', 40, doc.autoTableEndPosY() + 30);
         doc.autoTable(columns, getData(), {margins: {top: 345, bottom: 40, right: 40, left: 40}, styles: {padding: 0}, theme: 'plain'});
         doc.text('Table with custom styles', 40, doc.autoTableEndPosY() + 30);
