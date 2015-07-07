@@ -272,7 +272,6 @@
                 }
             });
 
-            doc.rect(40, 400, fairPart, 20);
             var realTableWidth = tableContentWidth;
             var differ = Math.sign(tableWidth - tableContentWidth);
             loop1: while (true) {
