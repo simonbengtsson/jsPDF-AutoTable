@@ -15,9 +15,10 @@
     var defaultStyles = {
         padding: 5,
         fontSize: 10,
+        font: "helvetica", // helvetica, times, courier
         lineColor: 200,
         lineWidth: 0.1,
-        fontStyle: 'normal',
+        fontStyle: 'normal', // normal, bold, italic, bolditalic
         rowHeight: 20,
         overflow: 'ellipsize', // 'visible', 'hidden', ellipsize or linebreak
         fillColor: 255,
@@ -36,7 +37,7 @@
             headerStyles: {
                 textColor: 255,
                 fillColor: [41, 128, 185],
-                rowHeight: 25,
+                rowHeight: 23,
                 fontStyle: 'bold'
             },
             alternateRowStyles: {fillColor: 245}
@@ -49,7 +50,7 @@
             headerStyles: {
                 textColor: 255,
                 fillColor: [26, 188, 156],
-                rowHeight: 25,
+                rowHeight: 23,
                 fillStyle: 'F',
                 fontStyle: 'bold'
             },
@@ -94,6 +95,7 @@
         doc = this;
 
         var userStyles = {
+            textColor: 30, // Text color can't be fetched from jsPDF
             fontSize: doc.internal.getFontSize(),
             fontStyle: doc.internal.getFont().fontStyle
         };
@@ -281,7 +283,6 @@
                         col.width += differ;
                         realTableWidth += differ;
                     }
-                    console.log(tableWidth, realTableWidth, tableWidth - realTableWidth);
                     if(tableWidth - realTableWidth <= 1 && tableWidth - realTableWidth >= 0) {
                         break loop1;
                     }
@@ -358,6 +359,7 @@
             {func: doc.setFontStyle, value: styles.fontStyle},
             {func: doc.setDrawColor, value: styles.lineColor},
             {func: doc.setLineWidth, value: styles.lineWidth},
+            {func: doc.setFont, value: styles.font},
             {func: doc.setFontSize, value: styles.fontSize}
         ];
         arr.forEach(function (obj) {

@@ -5,6 +5,7 @@ var examples = {};
         {title: "ID", key: "id"},
         {title: "Name", key: "first_name"},
         {title: "Email", key: "email"},
+        {title: "City", key: "city"},
         {title: "Country", key: "country"},
         {title: "Expenses", key: "expenses"}
     ];
@@ -19,7 +20,8 @@ var examples = {};
                 first_name: faker.name.findName(),
                 email: faker.internet.email(),
                 country: faker.address.country(),
-                expenses: '$5',
+                city: faker.address.city(),
+                expenses: '$' + faker.finance.amount(),
                 text: shuffleSentence(sentence),
                 text2: shuffleSentence(sentence)
             });
@@ -157,13 +159,14 @@ var examples = {};
     examples.custom = function () {
         var doc = new jsPDF('p', 'pt');
         doc.setFontSize(12);
+        doc.setTextColor(0);
         doc.setFontStyle('bold');
         doc.text('Theme "striped"', 40, 50);
         doc.autoTable(columns, getData(), {margins: {top: 60, bottom: 40, right: 40, left: 40}});
         doc.text('Theme "grid"', 40, doc.autoTableEndPosY() + 30);
         doc.autoTable(columns, getData(), {margins: {top: 205, bottom: 40, right: 40, left: 40}, theme: 'grid'});
         doc.text('Theme "plain"', 40, doc.autoTableEndPosY() + 30);
-        doc.autoTable(columns, getData(), {margins: {top: 345, bottom: 40, right: 40, left: 40}, styles: {padding: 0}, theme: 'plain'});
+        doc.autoTable(columns, getData(), {margins: {top: 345, bottom: 40, right: 40, left: 40}, theme: 'plain'});
         doc.text('Table with custom styles', 40, doc.autoTableEndPosY() + 30);
         doc.autoTable(columns, getData(), {
             margins: {top: 485, bottom: 40, right: 40, left: 40},

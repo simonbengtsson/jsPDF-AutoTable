@@ -2,23 +2,11 @@
 
 [![Join the chat at https://gitter.im/someatoms/jsPDF-AutoTable](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/someatoms/jsPDF-AutoTable?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-**Generate PDF tables or lists with javascript**
+**Generate PDF tables with javascript**
 
 Check out the [demo](https://someatoms.github.io/jsPDF-AutoTable/) to get an overview of what can be done with this plugin. I have used it for a lot of projects. Everything from startlists and resultslists for various sports to participanttables of business meetings and events. The goal is to support all kinds of tables and lists.
 
-### Features
-- Auto width (100% of page width or only as much as required)
-- Multiple pages
-- Custom headers and footers
-- Multiple tables on the same page
-- Custom styling
-- Helper method to parse data from html table
-
-![sample javascript table pdf](sample.png)
-
-![sample javascript table pdf](sample2.png)
-
-See all sample pdf documents in `/samples`
+![sample javascript table pdf](samples.png)
 
 ### Install
 - Download `jspdf.plugin.autotable.js` or install with bower  `bower install jspdf-autotable`
@@ -29,43 +17,44 @@ See all sample pdf documents in `/samples`
 <script src="bower_components/jspdf-autotable/jspdf.plugin.autotable.js"></script>
 ```
 
-### Install within a [Meteor project](http://meteor.com)
+Install within a [Meteor project](http://meteor.com)
 
 [Review the documentation on Atmosphere for the most recent details on this
 package](https://atmospherejs.com/jspdf/autotable).
 
     meteor add jspdf:autotable
 
-### Basic example
+### Usage
+See more advanced examples in `/examples/examples.js` which is the source code for the [demo](https://someatoms.github.io/jsPDF-AutoTable/) documents.
 
 ```javascript
 var columns = [
     {title: "ID", key: "id"},
     {title: "Name", key: "name"}, 
     {title: "Country", key: "country"}, 
-    {title: "Email", key: "email"}
+    ...
 ];
-var data = [
-    {"id": 1, "name": "Shaw", "country": "Tanzania", "email": "abrown@avamba.info"},
-    {"id": 2, "name": "Nelson", "country": "Kazakhstan", "email": "jjordan@agivu.com"},
-    {"id": 3, "name": "Garcia", "country": "Madagascar", "email": "jdean@skinte.biz"},
+var rows = [
+    {"id": 1, "name": "Shaw", "country": "Tanzania", ...},
+    {"id": 2, "name": "Nelson", "country": "Kazakhstan", ...},
+    {"id": 3, "name": "Garcia", "country": "Madagascar", ...},
     ...
 ];
 
 var doc = new jsPDF('p', 'pt');
-doc.autoTable(columns, data, {});
+var options = {}
+doc.autoTable(columns, rows, options);
 doc.save('table.pdf');
 ```
 
-See more advanced examples in `/examples/examples.js` which is the source code for the [demo](https://someatoms.github.io/jsPDF-AutoTable/) documents.
-
 ### Default options
+All the options are used in one or more of the examples (`/examples/examples.js`) in the [demo](https://someatoms.github.io/jsPDF-AutoTable/) so be sure to check them out if in doubt.
 
 ```javascript
 var options = {
-    padding: 3, // Horizontal cell padding
-    fontSize: 12,
-    lineHeight: 20,
+    theme: 'striped', // striped, grid or plain
+    styles: {},
+    columnStyles: {},
     renderHeader: function (doc, pageNumber, settings) {}, // Called before every page
     renderFooter: function (doc, lastCellPos, pageNumber, settings) {}, // Called at the end of every page
     renderHeaderCell: function (x, y, width, height, key, value, settings) {
@@ -84,14 +73,13 @@ var options = {
     },
     margins: { right: 40, left: 40, top: 50, bottom: 40 }, // How much space around the table
     startY: false // The start Y position on the first page. If set to false, top margin is used
-    overflow: 'ellipsize', // false, ellipsize or linebreak (false passes the raw text to renderCell)
     overflowColumns: false, // Specify which colums that gets subjected to the overflow method chosen. false indicates all
     avoidPageSplit: false, // Avoid splitting table over multiple pages (starts drawing table on fresh page instead). Only relevant if startY option is set.
-    extendWidth: true // If true, the table will span 100% of page width minus horizontal margins.
+    autoWidth: true // If true, the table will span 100% of page width minus horizontal margins.
  };
 ```
 
-You can also specify a custom column width by adding a width property on a column. Like so:
+You can also specify fixed column widths by adding a width property on a column. Like so:
 
 ```javascript
 var columns = [
@@ -101,28 +89,32 @@ var columns = [
 ];
 ```
 
-All the options are used in one or more of the examples (`/examples/examples.js`) in the [demo](https://someatoms.github.io/jsPDF-AutoTable/) so be sure to check them out if in doubt.
+### CDN (for testing only!)
+- Experimental: https://rawgit.com/someatoms/jsPDF-AutoTable/v2/jspdf.plugin.autotable.js
+- Stable: https://rawgit.com/someatoms/jsPDF-AutoTable/master/jspdf.plugin.autotable.js
 
-### Version 2.0
-- autoTableHtmlToJson now always returns an object (Use like this .
-- Object only initialize removed (Use it like this 
-- The options `renderCell` and `renderHeaderCell` is simplified (prefer using themes, custom styles and row/col spans instead however)
+### Upgrade to Version 2.0
+- autoTableHtmlToJson now always returns an object
+- Object only initialize removed
+- Use styles and themes instead of `renderCell` and `renderHeaderCell` where possible
+- The callbacks `renderCell` and `renderHeaderCell` are simplified
 
-### Other libraries
-Below is a list of other plugins and libraries that I have tried. I felt that features were missing for gerating pdf tables and lists in all of them and therefore decided to build a new table plugin for jsPDF.
+### Other pdf libraries worth mentioning
 
-- [Included jsPDF table plugin](https://github.com/MrRio/jsPDF/blob/master/jspdf.plugin.cell.js)
-- [jsPdfTablePlugin (jsPDF)](https://github.com/Prashanth-Nelli/jsPdfTablePlugin)
-- [pdfmake (javascript)](https://github.com/bpampuch/pdfmake)
-- [fpdf (php)](http://www.fpdf.org/)
-- [pdfbox (java)](https://pdfbox.apache.org/) 
+#### [Included jsPDF table plugin](https://github.com/MrRio/jsPDF/blob/master/jspdf.plugin.cell.js)
+No up to date documentation of how to use it (?) and has bugs. Might be useful for some simple tables however.
 
-### Contributions and feature requests
-If you would like any new features, feel free to post issues or make pull request.
+#### [pdfmake (javascript)](https://github.com/bpampuch/pdfmake)
+I much prefer the coding style of jspdf over pdfmake, however the tables features of pdfmake are great.
+ 
+#### [fpdf (php)](http://www.fpdf.org/) and [pdfbox (java)](https://pdfbox.apache.org/) 
+No real table features and have to be used server side.
+
+
+### Issues, feature requests, contributions
+Feature requests, bug reports and pull requests are welcome as issues. Keep in mind that it is much easier to understand a problem with pdf and code attached. Best case scenario is to fork this [codepen](http://codepen.io/someatoms/pen/EjwPEb) and reproduce the issue there.
 
 Planned features:
 - Support more units (now only supports pt)
-- Add more overflow options (linebreak, hidden, center ellipsis)
 - Columnspan and rowspan
-- A wiki describing the options, api methods and different initalization formats
-- Missing something? Let me know by posting an issue.
+- A wiki describing the options and api methods
