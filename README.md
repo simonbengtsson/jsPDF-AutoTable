@@ -98,6 +98,17 @@ var columns = [
 - Object only initialize removed
 - Use styles and themes instead of `renderCell` and `renderHeaderCell` where possible
 - The callbacks `renderCell` and `renderHeaderCell` are simplified
+- Api method API.autoTableEndPos removed, use API.autoTableEndPosY
+- tableWidth option added instead of extendWidth and it's now possible to set a custom table width
+
+Pros with ids
+- Easy to style a specific column
+- Force ppl to 
+
+Pros with data
+- Don't need parse function
+- More like dataTables, like pull request
+- 
 
 ### Other pdf libraries worth mentioning
 

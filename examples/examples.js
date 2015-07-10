@@ -12,7 +12,7 @@ var examples = {};
 
     function getData(rowCount) {
         rowCount = rowCount || 4;
-        var sentence = faker.lorem.words(9);
+        var sentence = faker.lorem.words(12);
         var data = [];
         for (var j = 1; j <= rowCount; j++) {
             data.push({
@@ -39,15 +39,15 @@ var examples = {};
     // Minimal - shows how compact tables can be drawn
     examples.minimal = function () {
         var doc = new jsPDF('p', 'pt');
-        doc.autoTable(columns, getData(), {autoWidth: false, styles: {padding: 2, rowHeight: 12, fontSize: 8, headerStyles: {rowHeight: 15, fontSize: 8, padding: 2}}});
+        doc.autoTable(columns, getData(), {tableWidth: 'wrap', styles: {padding: 2, rowHeight: 12, fontSize: 8}, headerStyles: {rowHeight: 15, fontSize: 8, padding: 2}});
         return doc;
     };
 
     // Long data - shows how the overflow features looks and can be used
     examples.long = function () {
         var columnsLong = columns.concat([
-            {title: "Text (" + shuffleSentence() + ')', key: "text"},
-            {title: "Text2", key: "text2"}
+            {title: shuffleSentence(), key: "text"},
+            {title: "More text", key: "text2"}
         ]);
 
         var doc = new jsPDF('l', 'pt');
@@ -63,9 +63,7 @@ var examples = {};
         doc.autoTable(columnsLong, getData(3), {
             margins: {left: 10, right: 10, top: 40, bottom: 40},
             startY: 350,
-            styles: {
-                overflow: 'linebreak'
-            },
+            styles: { overflow: 'linebreak' },
             overflowColumns: ['text', 'text2']
         });
         return doc;
@@ -170,7 +168,7 @@ var examples = {};
         doc.text('Table with custom styles', 40, doc.autoTableEndPosY() + 30);
         doc.autoTable(columns, getData(), {
             margins: {top: 485, bottom: 40, right: 40, left: 40},
-            styles: {headerStyles: {fillColor: [231, 76, 60]}}
+            headerStyles: {fillColor: [231, 76, 60]}
         });
         return doc;
     };
