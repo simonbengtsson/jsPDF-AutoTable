@@ -82,7 +82,7 @@ var examples = {};
             createdCell: function(cell, data) {
                 if (data.column.id === 'expenses') {
                     cell.styles.textAlign = 'right';
-                    if(parseInt(cell.text.replace('$', '')) > 600) {
+                    if(parseInt(cell.text[0].replace('$', '')) > 600) {
                         cell.styles.textColor = [255, 100, 100];
                     }
                 }
@@ -91,7 +91,8 @@ var examples = {};
                 }
             }
         };
-        doc.autoTable(columns, getData(40), options);
+
+        doc.autoTable(columns.splice(2, 4), getData(40), options);
         doc.text(splitTitle, 40, doc.autoTableEndPosY() + 30);
         return doc;
     };
