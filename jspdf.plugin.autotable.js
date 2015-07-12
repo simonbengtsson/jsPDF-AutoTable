@@ -77,13 +77,13 @@
             columnOptions: {},
             pageBreak: 'auto', // auto, avoid, always
             tableWidth: 'auto',
-            createdCell: function(cell, data) {},
+            createdCell: function (cell, data) {},
             renderHeaderCell: function (cell, data) {
                 data.settings.renderCell(cell, data);
             },
             renderCell: function (cell, data) {
                 doc.rect(cell.rect.x, cell.rect.y, cell.rect.width, cell.rect.height, cell.styles.fillStyle);
-                doc.text(cell.text, cell.textPos.x, cell.textPos.y);
+                doc.textEx(cell.text, cell.textPos.x, cell.textPos.y, cell.styles.textAlign, 'middle');
             }
         }
     };
@@ -123,7 +123,7 @@
         // Page break
         var firstRowsHeight = rows[0] && settings.pageBreak === 'auto' ? rows[0].height : 0; // Page break if place for only the first data row
         var tableEndPosY = settings.startY + settings.margins.bottom + headerRow.height + firstRowsHeight;
-        if(settings.pageBreak === 'avoid') tableEndPosY += table.height;
+        if (settings.pageBreak === 'avoid') tableEndPosY += table.height;
         if ((settings.pageBreak === 'always' && settings.startY !== false) ||
             (settings.startY !== false && tableEndPosY > doc.internal.pageSize.height)) {
             doc.addPage();
@@ -147,7 +147,8 @@
      */
     API.autoTableEndPosY = function () {
         if (typeof cursor === 'undefined' || typeof cursor.y === 'undefined') {
-            throw new Error("No AutoTable has been drawn and therefore autoTableEndPosY can't be called");
+            console.error("autoTableEndPosY() called without autoTable() being called first");
+            return 0;
         }
         return cursor.y;
     };
@@ -240,6 +241,7 @@
             cell.styles = headerRow.styles;
             cell.text = '' + col.parse(cell, {column: col, row: headerRow, settings: settings});
             cell.contentWidth = cell.styles.padding * 2 + getStringWidth(cell.text, cell.styles);
+            cell.text = [cell.text];
             headerRow.cells[key] = cell;
         });
 
@@ -255,6 +257,7 @@
                 cell.styles = extend(row.styles, column.styles);
                 cell.text = '' + column.parse(cell, {column: column, row: headerRow, settings: settings});
                 cell.contentWidth = cell.styles.padding * 2 + getStringWidth(cell.text, cell.styles);
+                cell.text = [cell.text];
                 row.cells[column.key] = cell;
                 settings.createdCell(cell, {column: column, row: row, settings: settings});
             });
@@ -287,25 +290,24 @@
             // Figure out dynamic columns
             var fairPart = tableWidth / columns.length;
             var flexibleColumns = [];
-            var flexibleWidth = tableWidth;
+            var flexibleColumnsWidth = tableWidth;
             columns.forEach(function (column) {
                 if (column.widthSetting === 'auto' && column.contentWidth > fairPart) {
                     flexibleColumns.push(column);
                 } else {
-                    flexibleWidth -= column.contentWidth;
+                    flexibleColumnsWidth -= column.contentWidth;
                 }
             });
 
             // First increase or decrease the column by as much as needed
-            var flexiblePart = flexibleWidth / flexibleColumns.length;
+            var newColumnWidth = flexibleColumnsWidth / flexibleColumns.length;
             flexibleColumns.forEach(function (column, i) {
-                var newWidth = column.contentWidth - flexiblePart;
-                if (newWidth < fairPart) {
+                if (newColumnWidth < fairPart) {
                     flexibleColumns.slice(i, 1);
                     column.width = fairPart;
-                    flexiblePart += fairPart - newWidth / flexibleColumns.length;
+                    newColumnWidth += fairPart - newColumnWidth / flexibleColumns.length;
                 } else {
-                    column.width = newWidth;
+                    column.width = newColumnWidth;
                 }
             });
         }
@@ -337,7 +339,6 @@
                 } else {
                     console.error("Unrecognized overflow value: " + cell.styles.overflow);
                 }
-                cell.textWidth = getStringWidth(cell.text, cell.styles);
             });
             row.height = row.styles.rowHeight + lineBreakCount * row.styles.fontSize * FONT_ROW_RATIO;
             table.height += row.height;
@@ -400,12 +401,11 @@
         applyStyles(cell.styles);
 
         cell.rect = {x: cursor.x, y: cursor.y, width: column.width, height: row.height};
-        cell.textPos.y = cursor.y + row.styles.rowHeight / 2 + cell.styles.fontSize / 2;
-        cell.textPos.y -= 2; // Looks more centered two pt down
+        cell.textPos.y = cursor.y + row.height / 2;
         if (cell.styles.textAlign === 'right') {
-            cell.textPos.x = cursor.x + cell.rect.width - cell.textWidth - cell.styles.padding;
-        } else if(cell.styles.textAlign === 'center') {
-            cell.textPos.x = cursor.x + cell.rect.width / 2 - cell.textWidth / 2;
+            cell.textPos.x = cursor.x + cell.rect.width - cell.styles.padding;
+        } else if (cell.styles.textAlign === 'center') {
+            cell.textPos.x = cursor.x + cell.rect.width / 2;
         } else {
             cell.textPos.x = cursor.x + cell.styles.padding;
         }
@@ -433,6 +433,10 @@
     function ellipsize(text, width, styles, ellipsizeStr) {
         ellipsizeStr = typeof  ellipsizeStr !== 'undefined' ? ellipsizeStr : '...';
 
+        if (Array.isArray(text)) {
+            text = text[0];
+        }
+
         if (width >= getStringWidth(text, styles)) {
             return text;
         }
@@ -447,7 +451,8 @@
 
     function getStringWidth(text, styles) {
         applyStyles(styles);
-        return doc.getStringUnitWidth(text) * styles.fontSize;
+        var w = doc.getStringUnitWidth(text);
+        return w * styles.fontSize;
     }
 
     function extend(defaults) {
@@ -499,7 +504,6 @@ var Cell = function (raw) {
     this.raw = raw;
     this.styles = {};
     this.text = '';
-    this.textWidth = -1;
     this.contentWidth = -1;
     this.rect = {};
     this.textPos = {};
@@ -516,4 +520,46 @@ var Column = function (id) {
         return typeof cell.raw !== 'undefined' ? '' + cell.raw : '';
     };
     this.widthSetting = 'auto';
+};
+
+var splitRegex = /\r\n|\r|\n/g;
+jsPDF.API.textEx = function (text, x, y, hAlign, vAlign) {
+    var fontSize = this.internal.getFontSize() / this.internal.scaleFactor;
+
+    // As defined in jsPDF source code
+    var lineHeightProportion = 1.15;
+
+    var splittedText = null;
+    var lineCount = 1;
+    if (vAlign === 'middle' || vAlign === 'bottom' || hAlign === 'center' || hAlign === 'right') {
+        splittedText = typeof text === 'string' ? text.split(splitRegex) : text;
+
+        lineCount = splittedText.length || 1;
+    }
+
+    // Align the top
+    y += fontSize * (2 - lineHeightProportion);
+
+    if (vAlign === 'middle')
+        y -= (lineCount / 2) * fontSize;
+    else if (vAlign === 'bottom')
+        y -= lineCount * fontSize;
+
+    if (hAlign === 'center' || hAlign === 'right') {
+        var alignSize = fontSize;
+        if (hAlign === 'center')
+            alignSize *= 0.5;
+
+        if (lineCount >= 1) {
+            for (var iLine = 0; iLine < splittedText.length; iLine++) {
+                this.text(splittedText[iLine], x - this.getStringUnitWidth(splittedText[iLine]) * alignSize, y);
+                y += fontSize;
+            }
+            return this;
+        }
+        x -= this.getStringUnitWidth(text) * alignSize;
+    }
+
+    this.text(text, x, y);
+    return this;
 };
