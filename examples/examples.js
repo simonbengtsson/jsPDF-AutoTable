@@ -1,14 +1,16 @@
 var examples = {};
 
 +function () {
-    var columns = [
-        {title: "ID", key: "id"},
-        {title: "Name", key: "first_name"},
-        {title: "Email", key: "email"},
-        {title: "City", key: "city"},
-        {title: "Country", key: "country"},
-        {title: "Expenses", key: "expenses"}
-    ];
+    var getColumns = function() {
+        return [
+            {title: "ID", key: "id"},
+            {title: "Name", key: "first_name"},
+            {title: "Email", key: "email"},
+            {title: "City", key: "city"},
+            {title: "Country", key: "country"},
+            {title: "Expenses", key: "expenses"}
+        ];
+    };
 
     function getData(rowCount) {
         rowCount = rowCount || 4;
@@ -32,20 +34,20 @@ var examples = {};
     // Default - shows what a default table looks like
     examples.auto = function () {
         var doc = new jsPDF('p', 'pt');
-        doc.autoTable(columns, getData());
+        doc.autoTable(getColumns(), getData());
         return doc;
     };
 
     // Minimal - shows how compact tables can be drawn
     examples.minimal = function () {
         var doc = new jsPDF('p', 'pt');
-        doc.autoTable(columns, getData(), {tableWidth: 'wrap', styles: {padding: 2, rowHeight: 12, fontSize: 8}, headerStyles: {rowHeight: 15, fontSize: 8, padding: 2}});
+        doc.autoTable(getColumns(), getData(), {tableWidth: 'wrap', styles: {padding: 2, rowHeight: 12, fontSize: 8}, headerStyles: {rowHeight: 15, fontSize: 8, padding: 2}});
         return doc;
     };
 
     // Long data - shows how the overflow features looks and can be used
     examples.long = function () {
-        var columnsLong = columns.concat([
+        var columnsLong = getColumns().concat([
             {title: shuffleSentence(), key: "text"},
             {title: "More text", key: "text2"}
         ]);
@@ -81,18 +83,19 @@ var examples = {};
             startY: 150,
             createdCell: function(cell, data) {
                 if (data.column.id === 'expenses') {
-                    cell.styles.textAlign = 'right';
+                    cell.styles.halign = 'right';
                     if(parseInt(cell.text[0].replace('$', '')) > 600) {
                         cell.styles.textColor = [255, 100, 100];
                     }
                 }
                 if (data.column.id === 'country') {
-                    cell.styles.textAlign = 'center';
+                    cell.styles.halign = 'center';
                 }
             }
         };
-
-        doc.autoTable(columns.splice(2, 4), getData(40), options);
+        var cols = getColumns();
+        cols.splice(0, 2);
+        doc.autoTable(cols, getData(40), options);
         doc.text(splitTitle, 40, doc.autoTableEndPosY() + 30);
         return doc;
     };
@@ -104,20 +107,20 @@ var examples = {};
         doc.text("Multiple tables", 40, 60);
         doc.setFontSize(12);
 
-        doc.autoTable(columns.slice(0, 3), getData(), {
+        doc.autoTable(getColumns().slice(0, 3), getData(), {
             startY: 90,
             pageBreak: 'avoid',
             margins: {left: 40, right: 305, top: 60, bottom: 40}
         });
 
-        doc.autoTable(columns.slice(0, 3), getData(), {
+        doc.autoTable(getColumns().slice(0, 3), getData(), {
             startY: 90,
             pageBreak: 'avoid',
             margins: {left: 305, right: 40, top: 60, bottom: 40}
         });
 
         for (var j = 0; j < 6; j++) {
-            doc.autoTable(columns, getData(9), {
+            doc.autoTable(getColumns(), getData(9), {
                 startY: doc.autoTableEndPosY() + 30,
                 pageBreak: 'avoid',
                 margins: {left: 40, right: 40, top: 60, bottom: 40}
@@ -158,7 +161,7 @@ var examples = {};
             doc.text(str, options.margins.left, doc.internal.pageSize.height - 30);
         };
         var options = {renderHeader: header, renderFooter: footer, margins: {left: 40, right: 40, top: 80, bottom: 50}};
-        doc.autoTable(columns, getData(40), options);
+        doc.autoTable(getColumns(), getData(40), options);
         // Total page number plugin only available in jspdf v1.0+
         if (typeof doc.putTotalPages === 'function') {
             doc.putTotalPages(totalPagesExp);
@@ -173,13 +176,13 @@ var examples = {};
         doc.setTextColor(0);
         doc.setFontStyle('bold');
         doc.text('Theme "striped"', 40, 50);
-        doc.autoTable(columns, getData(), {margins: {top: 60, bottom: 40, right: 40, left: 40}});
+        doc.autoTable(getColumns(), getData(), {margins: {top: 60, bottom: 40, right: 40, left: 40}});
         doc.text('Theme "grid"', 40, doc.autoTableEndPosY() + 30);
-        doc.autoTable(columns, getData(), {margins: {top: 205, bottom: 40, right: 40, left: 40}, theme: 'grid'});
+        doc.autoTable(getColumns(), getData(), {margins: {top: 205, bottom: 40, right: 40, left: 40}, theme: 'grid'});
         doc.text('Theme "plain"', 40, doc.autoTableEndPosY() + 30);
-        doc.autoTable(columns, getData(), {margins: {top: 345, bottom: 40, right: 40, left: 40}, theme: 'plain'});
+        doc.autoTable(getColumns(), getData(), {margins: {top: 345, bottom: 40, right: 40, left: 40}, theme: 'plain'});
         doc.text('Table with custom styles', 40, doc.autoTableEndPosY() + 30);
-        doc.autoTable(columns, getData(), {
+        doc.autoTable(getColumns(), getData(), {
             margins: {top: 485, bottom: 40, right: 40, left: 40},
             headerStyles: {fillColor: [231, 76, 60]}
         });

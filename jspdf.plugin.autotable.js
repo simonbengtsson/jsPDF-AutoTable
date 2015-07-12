@@ -23,7 +23,8 @@
         overflow: 'ellipsize', // 'visible', 'hidden', ellipsize or linebreak
         fillColor: 255,
         textColor: 20,
-        textAlign: 'left',
+        halign: 'left', // left, center, right
+        valign: 'top', // top, middle, bottom
         fillStyle: 'F' // 'S', 'F' or 'DF' (stroke, fill or fill then stroke)
     };
 
@@ -83,7 +84,7 @@
             },
             renderCell: function (cell, data) {
                 doc.rect(cell.rect.x, cell.rect.y, cell.rect.width, cell.rect.height, cell.styles.fillStyle);
-                doc.autoTableText(cell.text, cell.textPos.x, cell.textPos.y, cell.styles.textAlign, 'middle');
+                doc.autoTableText(cell.text, cell.textPos.x, cell.textPos.y, cell.styles.halign, cell.styles.valign);
             }
         }
     };
@@ -447,10 +448,18 @@
         applyStyles(cell.styles);
 
         cell.rect = {x: cursor.x, y: cursor.y, width: column.width, height: row.height};
-        cell.textPos.y = cursor.y + row.height / 2;
-        if (cell.styles.textAlign === 'right') {
+
+        if (cell.styles.valign === 'top') {
+            cell.textPos.y = cursor.y + cell.styles.padding;
+        } else if (cell.styles.valign === 'bottom') {
+            cell.textPos.y = cursor.y + row.height - cell.styles.padding;
+        } else {
+            cell.textPos.y = cursor.y + row.height / 2;
+        }
+
+        if (cell.styles.halign === 'right') {
             cell.textPos.x = cursor.x + cell.rect.width - cell.styles.padding;
-        } else if (cell.styles.textAlign === 'center') {
+        } else if (cell.styles.halign === 'center') {
             cell.textPos.x = cursor.x + cell.rect.width / 2;
         } else {
             cell.textPos.x = cursor.x + cell.styles.padding;
