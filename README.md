@@ -100,6 +100,9 @@ var columns = [
 - The callbacks `renderCell` and `renderHeaderCell` are simplified
 - Api method API.autoTableEndPos removed, use API.autoTableEndPosY
 - tableWidth option added instead of extendWidth and it's now possible to set a custom table width
+- Parse function
+- OverflowColumns -> columnOptions 
+- avoidPageSplit -> pagePreak (auto, avoid, always)
 
 Pros with ids
 - Easy to style a specific column

@@ -51,20 +51,19 @@ var examples = {};
         ]);
 
         var doc = new jsPDF('l', 'pt');
-        doc.text("All columns ellipsized", 10, 40);
+        doc.text("Overflow 'ellipsize' (default)", 10, 40);
         doc.autoTable(columnsLong, getData(), {margins: {right: 10, left: 10, top: 40, bottom: 40}, startY: 55});
-        doc.text("Only text columns ellipsized", 10, doc.autoTableEndPosY() + 30);
+        doc.text("Overflow 'hidden'", 10, doc.autoTableEndPosY() + 30);
         doc.autoTable(columnsLong, getData(), {
             margins: {left: 10, right: 10, top: 40, bottom: 40},
             startY: 200,
-            overflowColumns: ['text', 'text2']
+            styles: {overflow: 'hidden'}
         });
-        doc.text("Overflow linebreak", 10, doc.autoTableEndPosY() + 30);
+        doc.text("Overflow 'linebreak'", 10, doc.autoTableEndPosY() + 30);
         doc.autoTable(columnsLong, getData(3), {
             margins: {left: 10, right: 10, top: 40, bottom: 40},
             startY: 350,
-            styles: { overflow: 'linebreak' },
-            overflowColumns: ['text', 'text2']
+            styles: { overflow: 'linebreak' }
         });
         return doc;
     };
@@ -78,7 +77,21 @@ var examples = {};
         doc.setTextColor(100);
         var splitTitle = doc.splitTextToSize(shuffleSentence(faker.lorem.words(55)) + '.', doc.internal.pageSize.width - 80, {});
         doc.text(splitTitle, 40, 80);
-        doc.autoTable(columns, getData(40), {startY: 150});
+        var options = {
+            startY: 150,
+            createdCell: function(cell, data) {
+                if (data.column.id === 'expenses') {
+                    cell.styles.textAlign = 'right';
+                    if(parseInt(cell.text.replace('$', '')) > 600) {
+                        cell.styles.textColor = [255, 100, 100];
+                    }
+                }
+                if (data.column.id === 'country') {
+                    cell.styles.textAlign = 'center';
+                }
+            }
+        };
+        doc.autoTable(columns, getData(40), options);
         doc.text(splitTitle, 40, doc.autoTableEndPosY() + 30);
         return doc;
     };
@@ -89,24 +102,23 @@ var examples = {};
         doc.setFontSize(22);
         doc.text("Multiple tables", 40, 60);
         doc.setFontSize(12);
-        doc.text("The tables avoid being split into multiple pages.", 40, 80);
 
         doc.autoTable(columns.slice(0, 3), getData(), {
-            startY: 120,
-            avoidPageSplit: true,
-            margins: {left: 40, right: 305, top: 60, bottom: 40},
+            startY: 90,
+            pageBreak: 'avoid',
+            margins: {left: 40, right: 305, top: 60, bottom: 40}
         });
 
         doc.autoTable(columns.slice(0, 3), getData(), {
-            startY: 120,
-            avoidPageSplit: true,
-            margins: {left: 305, right: 40, top: 60, bottom: 40},
+            startY: 90,
+            pageBreak: 'avoid',
+            margins: {left: 305, right: 40, top: 60, bottom: 40}
         });
 
-        for (var j = 0; j < 4; j++) {
-            doc.autoTable(columns, getData(10), {
-                startY: doc.autoTableEndPosY() + 50,
-                avoidPageSplit: true,
+        for (var j = 0; j < 6; j++) {
+            doc.autoTable(columns, getData(9), {
+                startY: doc.autoTableEndPosY() + 30,
+                pageBreak: 'avoid',
                 margins: {left: 40, right: 40, top: 60, bottom: 40}
             });
         }

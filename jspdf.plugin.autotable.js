@@ -23,6 +23,7 @@
         overflow: 'ellipsize', // 'visible', 'hidden', ellipsize or linebreak
         fillColor: 255,
         textColor: 20,
+        textAlign: 'left',
         fillStyle: 'F' // 'S', 'F' or 'DF' (stroke, fill or fill then stroke)
     };
 
@@ -73,10 +74,10 @@
             renderFooter: function (doc, lastCellPos, pageNumber, settings) {},
             margins: {right: 40, left: 40, top: 50, bottom: 40},
             startY: false,
-            overflowColumns: false, // Specify which columns that gets subjected to the overflow method chosen. false indicates all
-            columnOptions: {'id': {'styles': {}, 'title': 'Title', 'width': 'wrap'}},
-            avoidPageSplit: false,
+            columnOptions: {},
+            pageBreak: 'auto', // auto, avoid, always
             tableWidth: 'auto',
+            createdCell: function(cell, data) {},
             renderHeaderCell: function (cell, data) {
                 data.settings.renderCell(cell, data);
             },
@@ -119,11 +120,14 @@
             y: settings.startY === false ? settings.margins.top : settings.startY
         };
 
-        // Avoid page break
-        var tableHeight = settings.margins.bottom + settings.margins.top + table.styles.rowHeight * (rows.length + 1) + 5 + settings.startY;
-        if (settings.startY !== false && settings.avoidPageSplit && tableHeight > doc.internal.pageSize.height) {
-            pageCount++;
+        // Page break
+        var firstRowsHeight = rows[0] && settings.pageBreak === 'auto' ? rows[0].height : 0; // Page break if place for only the first data row
+        var tableEndPosY = settings.startY + settings.margins.bottom + headerRow.height + firstRowsHeight;
+        if(settings.pageBreak === 'avoid') tableEndPosY += table.height;
+        if ((settings.pageBreak === 'always' && settings.startY !== false) ||
+            (settings.startY !== false && tableEndPosY > doc.internal.pageSize.height)) {
             doc.addPage();
+            pageCount++;
             cursor.y = settings.margins.top;
         }
 
@@ -211,6 +215,8 @@
      * Create models from input data
      */
     function initData(rawHeaders, rawRows) {
+
+
         // Header row and columns
         headerRow = new Row(rawHeaders);
         headerRow.styles = extend(table.styles, themes[settings.theme].header, settings.headerStyles);
@@ -219,29 +225,38 @@
 
             var col = new Column(key);
             var colOptions = settings.columnOptions[col.key];
-            col.widthSetting = typeof colOptions !== 'undefined' && typeof colOptions.width !== 'undefined' ? colOptions.width : 'auto';
-            col.styles = extend(table.styles, settings.columnOptions[col.key]);
+            var colOptionsStyles = {};
+            if (typeof colOptions !== 'undefined') {
+                if (typeof colOptions.styles !== 'undefined') colOptionsStyles = colOptions.styles;
+                if (typeof colOptions.width !== 'undefined') col.widthSetting = colOptions.width;
+                if (typeof colOptions.parse !== 'undefined') col.parse = colOptions.parse;
+                if (typeof colOptions.title !== 'undefined') col.title = colOptions.title;
+            }
+            col.styles = colOptionsStyles;
             columns.push(col);
 
-            var cell = new Cell(typeof value === 'object' ? value.title : value);
+            var cell = new Cell();
+            cell.raw = typeof value === 'object' ? value.title : value;
             cell.styles = headerRow.styles;
-            cell.textWidth = getStringWidth(cell.text, cell.styles);
-            cell.contentWidth = cell.styles.padding * 2 + cell.textWidth;
+            cell.text = '' + col.parse(cell, {column: col, row: headerRow, settings: settings});
+            cell.contentWidth = cell.styles.padding * 2 + getStringWidth(cell.text, cell.styles);
             headerRow.cells[key] = cell;
         });
 
         // Rows
         rawRows.forEach(function (rawRow, i) {
             var row = new Row(rawRow);
-                applyStyles(settings.alternateRowStyles);
-            var isAlternate = i % 2 !== 0;
+            applyStyles(settings.alternateRowStyles);
+            var isAlternate = i % 2 === 0;
             row.styles = extend(table.styles, isAlternate ? themes[settings.theme].alternateRow : {}, isAlternate ? settings.alternateRowStyles : {});
             columns.forEach(function (column) {
-                var cell = new Cell(rawRow[column.key]);
-                cell.styles = row.styles;
-                cell.textWidth = getStringWidth(cell.text, cell.styles);
-                cell.contentWidth = cell.styles.padding * 2 + cell.textWidth;
+                var cell = new Cell();
+                cell.raw = rawRow[column.key];
+                cell.styles = extend(row.styles, column.styles);
+                cell.text = '' + column.parse(cell, {column: column, row: headerRow, settings: settings});
+                cell.contentWidth = cell.styles.padding * 2 + getStringWidth(cell.text, cell.styles);
                 row.cells[column.key] = cell;
+                settings.createdCell(cell, {column: column, row: row, settings: settings});
             });
             rows.push(row);
         });
@@ -265,64 +280,67 @@
 
             var tableWidth = doc.internal.pageSize.width - settings.margins.left - settings.margins.right;
             if (settings.tableWidth !== 'auto') {
-                // If not auto or wrap, should be number
+                // If not auto or wrap it should be a number
                 tableWidth = settings.tableWidth;
             }
 
             // Figure out dynamic columns
             var fairPart = tableWidth / columns.length;
-            var dynamicColumns = [];
+            var flexibleColumns = [];
+            var flexibleWidth = tableWidth;
             columns.forEach(function (column) {
-                var overflow = settings.overflowColumns === false || settings.overflowColumns.indexOf(column.key) !== -1;
-                if (overflow && column.contentWidth > fairPart) {
-                    dynamicColumns.push(column);
+                if (column.widthSetting === 'auto' && column.contentWidth > fairPart) {
+                    flexibleColumns.push(column);
+                } else {
+                    flexibleWidth -= column.contentWidth;
                 }
             });
 
-            var realTableWidth = tableContentWidth;
-            var differ = Math.sign(tableWidth - tableContentWidth);
-            loop1: while (true) {
-                for (var i = 0; i < dynamicColumns.length; i++) {
-                    var col = dynamicColumns[i];
-                    if (col.width + differ > fairPart) {
-                        col.width += differ;
-                        realTableWidth += differ;
-                    }
-                    if (tableWidth - realTableWidth <= 1 && tableWidth - realTableWidth >= 0) {
-                        break loop1;
-                    }
+            // First increase or decrease the column by as much as needed
+            var flexiblePart = flexibleWidth / flexibleColumns.length;
+            flexibleColumns.forEach(function (column, i) {
+                var newWidth = column.contentWidth - flexiblePart;
+                if (newWidth < fairPart) {
+                    flexibleColumns.slice(i, 1);
+                    column.width = fairPart;
+                    flexiblePart += fairPart - newWidth / flexibleColumns.length;
+                } else {
+                    column.width = newWidth;
                 }
-            }
+            });
         }
 
-        // Row height and text overflow
+        // Row height, table height and text overflow
+        table.height = 0;
         var all = rows.concat(headerRow);
         all.forEach(function (row, i) {
             var lineBreakCount = 0;
             columns.forEach(function (col) {
                 var cell = row.cells[col.key];
                 applyStyles(cell.styles);
-                var textWidth = col.width - cell.styles.padding * 2;
+                var textSpace = col.width - cell.styles.padding * 2;
                 if (cell.styles.overflow === 'linebreak') {
-                    // Add one pt to textWidth to fix rounding error
-                    cell.text = doc.splitTextToSize(cell.text, textWidth + 1, {fontSize: cell.styles.fontSize});
+                    // Add one pt to textSpace to fix rounding error
+                    cell.text = doc.splitTextToSize(cell.text, textSpace + 1, {fontSize: cell.styles.fontSize});
                     var count = cell.text.length - 1;
                     if (count > lineBreakCount) {
                         lineBreakCount = count;
                     }
                 } else if (cell.styles.overflow === 'ellipsize') {
-                    cell.text = ellipsize(cell.text, textWidth, cell.styles);
+                    cell.text = ellipsize(cell.text, textSpace, cell.styles);
                 } else if (cell.styles.overflow === 'visible') {
                     // Do nothing
                 } else if (cell.styles.overflow === 'hidden') {
-                    console.error('Overflow hidden not supported yet, pull request welcome!');
+                    cell.text = ellipsize(cell.text, textSpace, cell.styles, '');
                 } else if (typeof cell.styles.overflow === 'function') {
-                    cell.text = cell.styles.overflow(cell.text, textWidth);
+                    cell.text = cell.styles.overflow(cell.text, textSpace);
                 } else {
                     console.error("Unrecognized overflow value: " + cell.styles.overflow);
                 }
+                cell.textWidth = getStringWidth(cell.text, cell.styles);
             });
             row.height = row.styles.rowHeight + lineBreakCount * row.styles.fontSize * FONT_ROW_RATIO;
+            table.height += row.height;
         });
     }
 
@@ -384,7 +402,13 @@
         cell.rect = {x: cursor.x, y: cursor.y, width: column.width, height: row.height};
         cell.textPos.y = cursor.y + row.styles.rowHeight / 2 + cell.styles.fontSize / 2;
         cell.textPos.y -= 2; // Looks more centered two pt down
-        cell.textPos.x = cursor.x + cell.styles.padding;
+        if (cell.styles.textAlign === 'right') {
+            cell.textPos.x = cursor.x + cell.rect.width - cell.textWidth - cell.styles.padding;
+        } else if(cell.styles.textAlign === 'center') {
+            cell.textPos.x = cursor.x + cell.rect.width / 2 - cell.textWidth / 2;
+        } else {
+            cell.textPos.x = cursor.x + cell.styles.padding;
+        }
 
         var data = {
             settings: settings,
@@ -406,17 +430,19 @@
     /**
      * Ellipsize the text to fit in the width
      */
-    function ellipsize(text, width, styles) {
+    function ellipsize(text, width, styles, ellipsizeStr) {
+        ellipsizeStr = typeof  ellipsizeStr !== 'undefined' ? ellipsizeStr : '...';
+
         if (width >= getStringWidth(text, styles)) {
             return text;
         }
-        while (width < getStringWidth(text + '...', styles)) {
+        while (width < getStringWidth(text + ellipsizeStr, styles)) {
             if (text.length < 2) {
                 break;
             }
             text = text.substring(0, text.length - 1);
         }
-        return text.trim() + '...';
+        return text.trim() + ellipsizeStr;
     }
 
     function getStringWidth(text, styles) {
@@ -466,22 +492,28 @@ var Row = function (raw) {
     this.raw = raw;
     this.styles = {};
     this.cells = {};
+    this.height = -1;
 };
 
-var Cell = function (raw, textWidth, contentWidth) {
+var Cell = function (raw) {
     this.raw = raw;
     this.styles = {};
-    this.text = typeof raw !== 'undefined' ? '' + raw : ''; // Stringify 0, false, undefined etc
-    this.textWidth = textWidth;
-    this.contentWidth = contentWidth;
+    this.text = '';
+    this.textWidth = -1;
+    this.contentWidth = -1;
     this.rect = {};
     this.textPos = {};
 };
 
-var Column = function (key) {
-    this.key = key;
+var Column = function (id) {
+    this.key = id;
+    this.id = id;
     this.styles = {};
-    this.contentWidth = 0;
-    this.width = 0;
+    this.contentWidth = -1;
+    this.width = -1;
+    this.parse = function (cell, data) {
+        // Stringify 0 and false, but not undefined
+        return typeof cell.raw !== 'undefined' ? '' + cell.raw : '';
+    };
     this.widthSetting = 'auto';
 };
