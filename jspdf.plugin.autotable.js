@@ -83,7 +83,7 @@
             },
             renderCell: function (cell, data) {
                 doc.rect(cell.rect.x, cell.rect.y, cell.rect.width, cell.rect.height, cell.styles.fillStyle);
-                doc.textEx(cell.text, cell.textPos.x, cell.textPos.y, cell.styles.textAlign, 'middle');
+                doc.autoTableText(cell.text, cell.textPos.x, cell.textPos.y, cell.styles.textAlign, 'middle');
             }
         }
     };
@@ -174,6 +174,52 @@
             data.push(rowData);
         }
         return {columns: headers, data: data, rows: data};
+    };
+
+    /**
+     * Improved text function with halign and valign support
+     * Inspiration from: http://stackoverflow.com/questions/28327510/align-text-right-using-jspdf/28433113#28433113
+     */
+    API.autoTableText = function (text, x, y, hAlign, vAlign) {
+        var fontSize = doc.internal.getFontSize() / doc.internal.scaleFactor;
+
+        // As defined in jsPDF source code
+        var lineHeightProportion = 1.15;
+
+        var splitRegex = /\r\n|\r|\n/g;
+        var splittedText = null;
+        var lineCount = 1;
+        if (vAlign === 'middle' || vAlign === 'bottom' || hAlign === 'center' || hAlign === 'right') {
+            splittedText = typeof text === 'string' ? text.split(splitRegex) : text;
+
+            lineCount = splittedText.length || 1;
+        }
+
+        // Align the top
+        y += fontSize * (2 - lineHeightProportion);
+
+        if (vAlign === 'middle')
+            y -= (lineCount / 2) * fontSize;
+        else if (vAlign === 'bottom')
+            y -= lineCount * fontSize;
+
+        if (hAlign === 'center' || hAlign === 'right') {
+            var alignSize = fontSize;
+            if (hAlign === 'center')
+                alignSize *= 0.5;
+
+            if (lineCount >= 1) {
+                for (var iLine = 0; iLine < splittedText.length; iLine++) {
+                    doc.text(splittedText[iLine], x - doc.getStringUnitWidth(splittedText[iLine]) * alignSize, y);
+                    y += fontSize;
+                }
+                return doc;
+            }
+            x -= doc.getStringUnitWidth(text) * alignSize;
+        }
+
+        doc.text(text, x, y);
+        return doc;
     };
 
     function initOptions(raw) {
@@ -520,46 +566,4 @@ var Column = function (id) {
         return typeof cell.raw !== 'undefined' ? '' + cell.raw : '';
     };
     this.widthSetting = 'auto';
-};
-
-var splitRegex = /\r\n|\r|\n/g;
-jsPDF.API.textEx = function (text, x, y, hAlign, vAlign) {
-    var fontSize = this.internal.getFontSize() / this.internal.scaleFactor;
-
-    // As defined in jsPDF source code
-    var lineHeightProportion = 1.15;
-
-    var splittedText = null;
-    var lineCount = 1;
-    if (vAlign === 'middle' || vAlign === 'bottom' || hAlign === 'center' || hAlign === 'right') {
-        splittedText = typeof text === 'string' ? text.split(splitRegex) : text;
-
-        lineCount = splittedText.length || 1;
-    }
-
-    // Align the top
-    y += fontSize * (2 - lineHeightProportion);
-
-    if (vAlign === 'middle')
-        y -= (lineCount / 2) * fontSize;
-    else if (vAlign === 'bottom')
-        y -= lineCount * fontSize;
-
-    if (hAlign === 'center' || hAlign === 'right') {
-        var alignSize = fontSize;
-        if (hAlign === 'center')
-            alignSize *= 0.5;
-
-        if (lineCount >= 1) {
-            for (var iLine = 0; iLine < splittedText.length; iLine++) {
-                this.text(splittedText[iLine], x - this.getStringUnitWidth(splittedText[iLine]) * alignSize, y);
-                y += fontSize;
-            }
-            return this;
-        }
-        x -= this.getStringUnitWidth(text) * alignSize;
-    }
-
-    this.text(text, x, y);
-    return this;
 };
