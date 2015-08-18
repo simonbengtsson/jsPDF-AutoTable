@@ -8,26 +8,32 @@
 (function (API) {
     'use strict';
 
+    // Ratio between font size and font height, number comes from jspdf source code
     var FONT_ROW_RATIO = 1.25;
 
-    var doc, cursor, pageCount = 1, settings, headerRow, columns, rows, table;
+    var doc, // The current jspdf instance
+        cursor, // An object keeping track of the x and y position of the next table cell to draw
+        settings, // Default options merged with user options
+        table; // The current Table instance
 
+    // Base style for all themes
     var defaultStyles = {
-        padding: 5,
+        cellPadding: 5,
         fontSize: 10,
         font: "helvetica", // helvetica, times, courier
         lineColor: 200,
         lineWidth: 0.1,
         fontStyle: 'normal', // normal, bold, italic, bolditalic
         rowHeight: 20,
-        overflow: 'ellipsize', // 'visible', 'hidden', ellipsize or linebreak
+        overflow: 'ellipsize', // visible, hidden, ellipsize or linebreak
         fillColor: 255,
         textColor: 20,
         halign: 'left', // left, center, right
-        valign: 'top', // top, middle, bottom
+        valign: 'middle', // top, middle, bottom
         fillStyle: 'F' // 'S', 'F' or 'DF' (stroke, fill or fill then stroke)
     };
 
+    // Styles for the themes
     var themes = {
         'striped': {
             table: {
@@ -49,7 +55,8 @@
                 fillColor: 255,
                 textColor: 80,
                 fontStyle: 'normal',
-                fillStyle: 'DF'
+                lineWidth: 0.1,
+                fillStyle: 'S'
             },
             header: {
                 textColor: 255,
@@ -63,8 +70,7 @@
         'plain': {header: {fontStyle: 'bold'}}
     };
 
-    // See README.md or examples for documentation of the options
-    // return a new instance every time to avoid references issues
+    // See README.md or examples.js for documentation of the options
     var defaultOptions = function () {
         return {
             theme: 'striped', // 'striped', 'grid' or 'plain'
@@ -78,13 +84,15 @@
             columnOptions: {},
             pageBreak: 'auto', // auto, avoid, always
             tableWidth: 'auto',
+            createdHeaderCell: function (cell, data) {},
             createdCell: function (cell, data) {},
             renderHeaderCell: function (cell, data) {
-                data.settings.renderCell(cell, data);
+                doc.rect(cell.x, cell.y, cell.width, cell.height, cell.styles.fillStyle);
+                doc.autoTableText(cell.text, cell.textPos.x, cell.textPos.y,  {halign: cell.styles.halign, valign: cell.styles.valign});
             },
             renderCell: function (cell, data) {
-                doc.rect(cell.rect.x, cell.rect.y, cell.rect.width, cell.rect.height, cell.styles.fillStyle);
-                doc.autoTableText(cell.text, cell.textPos.x, cell.textPos.y, cell.styles.halign, cell.styles.valign);
+                doc.rect(cell.x, cell.y, cell.width, cell.height, cell.styles.fillStyle);
+                doc.autoTableText(cell.text, cell.textPos.x, cell.textPos.y,  {halign: cell.styles.halign, valign: cell.styles.valign});
             }
         }
     };
@@ -92,54 +100,58 @@
     /**
      * Create a table from a set of rows and columns.
      *
-     * @param {Object[]|String[]} rawColumns Either as an array of objects or array of strings
-     * @param {Object[][]|String[][]} rawRows Either as an array of objects or array of strings
-     * @param {Object} [options={}] Options that will override the default ones (above)
+     * @param {Object[]|String[]} headers Either as an array of objects or array of strings
+     * @param {Object[][]|String[][]} data Either as an array of objects or array of strings
+     * @param {Object} [options={}] Options that will override the default ones
      */
-    API.autoTable = function (rawColumns, rawRows, options) {
-        table = new Table();
+    API.autoTable = function (headers, data, options) {
         doc = this;
-
-        var userStyles = {
-            textColor: 30, // Text color can't be fetched from jsPDF
-            fontSize: doc.internal.getFontSize(),
-            fontStyle: doc.internal.getFont().fontStyle
-        };
-
         settings = initOptions(options || {});
-        table.styles = extend(defaultStyles, themes[settings.theme].table, settings.styles);
-
-        pageCount = 1;
-        headerRow = undefined;
-        columns = [];
-        rows = [];
-
-        initData(rawColumns, rawRows);
-
         cursor = {
             x: settings.margins.left,
             y: settings.startY === false ? settings.margins.top : settings.startY
         };
 
-        // Page break
-        var firstRowsHeight = rows[0] && settings.pageBreak === 'auto' ? rows[0].height : 0; // Page break if place for only the first data row
-        var tableEndPosY = settings.startY + settings.margins.bottom + headerRow.height + firstRowsHeight;
-        if (settings.pageBreak === 'avoid') tableEndPosY += table.height;
+        var userStyles = {
+            textColor: 30, // Setting text color to dark gray as it can't be obtained from jsPDF
+            fontSize: doc.internal.getFontSize(),
+            fontStyle: doc.internal.getFont().fontStyle
+        };
+
+        // Create the table model with its columns, rows and cells
+        createModels(headers, data);
+        calculateWidths();
+
+        // Page break if there is room for only the first data row
+        var firstRowHeight = table.rows[0] && settings.pageBreak === 'auto' ? table.rows[0].height : 0;
+        var minTableBottomPos = settings.startY + settings.margins.bottom + table.headerRow.height + firstRowHeight;
+        if (settings.pageBreak === 'avoid') {
+            minTableBottomPos += table.height;
+        }
         if ((settings.pageBreak === 'always' && settings.startY !== false) ||
-            (settings.startY !== false && tableEndPosY > doc.internal.pageSize.height)) {
+            (settings.startY !== false && minTableBottomPos > doc.internal.pageSize.height)) {
             doc.addPage();
-            pageCount++;
+            table.pageCount++;
             cursor.y = settings.margins.top;
         }
 
-        settings.renderHeader(doc, pageCount, settings);
+        settings.renderHeader(doc, table.pageCount, settings);
         printHeader();
         printRows();
-        settings.renderFooter(doc, cursor, pageCount, settings);
+        settings.renderFooter(doc, cursor, table.pageCount, settings);
 
         applyStyles(userStyles);
 
         return this;
+    };
+
+    /**
+     *
+     * @param hook string|string[] renderCell, createdCell, beforePageContent, afterPageContent
+     * @param handler The function to be called
+     */
+    API.autoTableAddHook = function (hook, handler) {
+
     };
 
     /**
@@ -181,7 +193,7 @@
      * Improved text function with halign and valign support
      * Inspiration from: http://stackoverflow.com/questions/28327510/align-text-right-using-jspdf/28433113#28433113
      */
-    API.autoTableText = function (text, x, y, hAlign, vAlign) {
+    API.autoTableText = function (text, x, y, styles) {
         var fontSize = doc.internal.getFontSize() / doc.internal.scaleFactor;
 
         // As defined in jsPDF source code
@@ -190,7 +202,7 @@
         var splitRegex = /\r\n|\r|\n/g;
         var splittedText = null;
         var lineCount = 1;
-        if (vAlign === 'middle' || vAlign === 'bottom' || hAlign === 'center' || hAlign === 'right') {
+        if (styles.valign === 'middle' || styles.valign === 'bottom' || styles.halign === 'center' || styles.halign === 'right') {
             splittedText = typeof text === 'string' ? text.split(splitRegex) : text;
 
             lineCount = splittedText.length || 1;
@@ -199,14 +211,14 @@
         // Align the top
         y += fontSize * (2 - lineHeightProportion);
 
-        if (vAlign === 'middle')
+        if (styles.valign  === 'middle')
             y -= (lineCount / 2) * fontSize;
-        else if (vAlign === 'bottom')
+        else if (styles.valign  === 'bottom')
             y -= lineCount * fontSize;
 
-        if (hAlign === 'center' || hAlign === 'right') {
+        if (styles.halign === 'center' || styles.halign  === 'right') {
             var alignSize = fontSize;
-            if (hAlign === 'center')
+            if (styles.halign === 'center')
                 alignSize *= 0.5;
 
             if (lineCount >= 1) {
@@ -223,8 +235,8 @@
         return doc;
     };
 
-    function initOptions(raw) {
-        var settings = extend(defaultOptions(), raw);
+    function initOptions(userOptions) {
+        var settings = extend(defaultOptions(), userOptions);
 
         // Backwards compatibility
         if (settings.margins.horizontal !== undefined) {
@@ -234,14 +246,16 @@
         } else {
             settings.margins.horizontal = settings.margins.left;
         }
+
         if (typeof settings.extendWidth !== 'undefined') {
             settings.tableWidth = settings.extendWidth ? 'auto' : 'wrap';
+            console.error("Use of deprecated option: extendWidth, use tableWidth instead.");
         }
 
         // Styles
         if (typeof settings.padding !== 'undefined') {
-            settings.styles.padding = settings.padding;
-            console.error("Use of deprecated option: padding, use styles.padding instead.");
+            settings.styles.cellPadding = settings.padding;
+            console.error("Use of deprecated option: padding, use styles.cellPadding instead.");
         }
         if (typeof settings.lineHeight !== 'undefined') {
             settings.styles.rowHeight = settings.lineHeight;
@@ -260,16 +274,25 @@
     }
 
     /**
-     * Create models from input data
+     * Create models from the user input
+     *
+     * @param inputHeaders
+     * @param inputData
      */
-    function initData(rawHeaders, rawRows) {
-
+    function createModels(inputHeaders, inputData) {
+        table = new Table();
+        table.pageCount = 1;
 
         // Header row and columns
-        headerRow = new Row(rawHeaders);
-        headerRow.styles = extend(table.styles, themes[settings.theme].header, settings.headerStyles);
-        rawHeaders.forEach(function (value, key) {
-            if (typeof value === 'object' && typeof value.key !== 'undefined') key = value.key;
+        var headerRow = new Row();
+        headerRow.raw = inputHeaders;
+        headerRow.styles = extend(defaultStyles, themes[settings.theme].table, themes[settings.theme].header, settings.headerStyles);
+
+        // Columns and header row
+        inputHeaders.forEach(function (value, key) {
+            if (typeof value === 'object' && typeof value.key !== 'undefined') {
+                key = value.key;
+            }
 
             var col = new Column(key);
             var colOptions = settings.columnOptions[col.key];
@@ -277,45 +300,51 @@
             if (typeof colOptions !== 'undefined') {
                 if (typeof colOptions.styles !== 'undefined') colOptionsStyles = colOptions.styles;
                 if (typeof colOptions.width !== 'undefined') col.widthSetting = colOptions.width;
-                if (typeof colOptions.parse !== 'undefined') col.parse = colOptions.parse;
                 if (typeof colOptions.title !== 'undefined') col.title = colOptions.title;
             }
             col.styles = colOptionsStyles;
-            columns.push(col);
+            table.columns.push(col);
 
             var cell = new Cell();
             cell.raw = typeof value === 'object' ? value.title : value;
             cell.styles = headerRow.styles;
-            cell.text = '' + col.parse(cell, {column: col, row: headerRow, settings: settings});
-            cell.contentWidth = cell.styles.padding * 2 + getStringWidth(cell.text, cell.styles);
+            cell.text = '' + cell.raw;
+            cell.contentWidth = cell.styles.cellPadding * 2 + getStringWidth(cell.text, cell.styles);
             cell.text = [cell.text];
             headerRow.cells[key] = cell;
+            settings.createdHeaderCell(cell, {column: col, row: headerRow, settings: settings});
         });
+        table.headerRow = headerRow;
 
-        // Rows
-        rawRows.forEach(function (rawRow, i) {
+        // Rows och cells
+        inputData.forEach(function (rawRow, i) {
             var row = new Row(rawRow);
-            applyStyles(settings.alternateRowStyles);
             var isAlternate = i % 2 === 0;
-            row.styles = extend(table.styles, isAlternate ? themes[settings.theme].alternateRow : {}, isAlternate ? settings.alternateRowStyles : {});
-            columns.forEach(function (column) {
+            var themeStyles = extend(defaultStyles, themes[settings.theme].table, isAlternate ? themes[settings.theme].alternateRow : {});
+            row.styles = extend(themeStyles, settings.styles, isAlternate ? settings.alternateRowStyles : {});
+            table.columns.forEach(function (column) {
                 var cell = new Cell();
                 cell.raw = rawRow[column.key];
                 cell.styles = extend(row.styles, column.styles);
-                cell.text = '' + column.parse(cell, {column: column, row: headerRow, settings: settings});
-                cell.contentWidth = cell.styles.padding * 2 + getStringWidth(cell.text, cell.styles);
-                cell.text = [cell.text];
+                cell.text = typeof cell.raw !== 'undefined' ? '' + cell.raw : ''; // Stringify 0 and false, but not undefined
                 row.cells[column.key] = cell;
                 settings.createdCell(cell, {column: column, row: row, settings: settings});
+                cell.contentWidth = cell.styles.cellPadding * 2 + getStringWidth(cell.text, cell.styles);
+                cell.text = [cell.text];
             });
-            rows.push(row);
+            table.rows.push(row);
         });
+    }
 
+    /**
+     * Calculate the column widths
+     */
+    function calculateWidths() {
         // Column and table content width
         var tableContentWidth = 0;
-        columns.forEach(function (column) {
-            column.contentWidth = headerRow.cells[column.key].contentWidth;
-            rows.forEach(function (row) {
+        table.columns.forEach(function (column) {
+            column.contentWidth = table.headerRow.cells[column.key].contentWidth;
+            table.rows.forEach(function (row) {
                 var cellWidth = row.cells[column.key].contentWidth;
                 if (cellWidth > column.contentWidth) {
                     column.contentWidth = cellWidth;
@@ -324,6 +353,8 @@
             column.width = column.contentWidth;
             tableContentWidth += column.contentWidth;
         });
+        table.contentWidth = tableContentWidth;
+        table.width = table.contentWidth;
 
         // Actual width
         if (settings.tableWidth !== 'wrap') {
@@ -333,12 +364,13 @@
                 // If not auto or wrap it should be a number
                 tableWidth = settings.tableWidth;
             }
+            table.width = tableWidth;
 
             // Figure out dynamic columns
-            var fairPart = tableWidth / columns.length;
+            var fairPart = tableWidth / table.columns.length;
             var flexibleColumns = [];
             var flexibleColumnsWidth = tableWidth;
-            columns.forEach(function (column) {
+            table.columns.forEach(function (column) {
                 if (column.widthSetting === 'auto' && column.contentWidth > fairPart) {
                     flexibleColumns.push(column);
                 } else {
@@ -361,13 +393,13 @@
 
         // Row height, table height and text overflow
         table.height = 0;
-        var all = rows.concat(headerRow);
+        var all = table.rows.concat(table.headerRow);
         all.forEach(function (row, i) {
             var lineBreakCount = 0;
-            columns.forEach(function (col) {
+            table.columns.forEach(function (col) {
                 var cell = row.cells[col.key];
                 applyStyles(cell.styles);
-                var textSpace = col.width - cell.styles.padding * 2;
+                var textSpace = col.width - cell.styles.cellPadding * 2;
                 if (cell.styles.overflow === 'linebreak') {
                     // Add one pt to textSpace to fix rounding error
                     cell.text = doc.splitTextToSize(cell.text, textSpace + 1, {fontSize: cell.styles.fontSize});
@@ -384,7 +416,7 @@
                 } else if (typeof cell.styles.overflow === 'function') {
                     cell.text = cell.styles.overflow(cell.text, textSpace);
                 } else {
-                    console.error("Unrecognized overflow value: " + cell.styles.overflow);
+                    console.error("Unrecognized overflow type: " + cell.styles.overflow);
                 }
             });
             row.height = row.styles.rowHeight + lineBreakCount * row.styles.fontSize * FONT_ROW_RATIO;
@@ -393,17 +425,17 @@
     }
 
     function printHeader() {
-        columns.forEach(function (col, i) {
-            drawCell(headerRow.cells[col.key], col, headerRow, -1);
+        table.columns.forEach(function (col, i) {
+            drawCell(table.headerRow.cells[col.key], col, table.headerRow, -1);
         });
 
-        cursor.y += headerRow.height;
+        cursor.y += table.headerRow.height;
         cursor.x = settings.margins.left;
     }
 
     function printRows() {
-        rows.forEach(function (row, i) {
-            columns.forEach(function (col) {
+        table.rows.forEach(function (row, i) {
+            table.columns.forEach(function (col) {
                 drawCell(row.cells[col.key], col, row, i);
             });
 
@@ -411,13 +443,13 @@
             cursor.x = settings.margins.left;
 
             // Add a new page if cursor is at the end of page
-            var newPage = rows[i + 1] && (cursor.y + rows[i + 1].height + settings.margins.bottom) >= doc.internal.pageSize.height;
+            var newPage = table.rows[i + 1] && (cursor.y + table.rows[i + 1].height + settings.margins.bottom) >= doc.internal.pageSize.height;
             if (newPage) {
-                settings.renderFooter(doc, cursor, pageCount, settings);
+                settings.renderFooter(doc, cursor, table.pageCount, settings);
                 doc.addPage();
                 cursor = {x: settings.margins.left, y: settings.margins.top};
-                pageCount++;
-                settings.renderHeader(doc, pageCount, settings);
+                table.pageCount++;
+                settings.renderHeader(doc, table.pageCount, settings);
                 printHeader();
             }
         });
@@ -447,26 +479,31 @@
     function drawCell(cell, column, row, rowIndex) {
         applyStyles(cell.styles);
 
-        cell.rect = {x: cursor.x, y: cursor.y, width: column.width, height: row.height};
+        cell.x = cursor.x;
+        cell.y = cursor.y;
+        cell.height = row.height;
+        cell.width = column.width;
 
         if (cell.styles.valign === 'top') {
-            cell.textPos.y = cursor.y + cell.styles.padding;
+            cell.textPos.y = cursor.y + cell.styles.cellPadding;
         } else if (cell.styles.valign === 'bottom') {
-            cell.textPos.y = cursor.y + row.height - cell.styles.padding;
+            cell.textPos.y = cursor.y + row.height - cell.styles.cellPadding;
         } else {
             cell.textPos.y = cursor.y + row.height / 2;
         }
 
         if (cell.styles.halign === 'right') {
-            cell.textPos.x = cursor.x + cell.rect.width - cell.styles.padding;
+            cell.textPos.x = cursor.x + cell.width - cell.styles.cellPadding;
         } else if (cell.styles.halign === 'center') {
-            cell.textPos.x = cursor.x + cell.rect.width / 2;
+            cell.textPos.x = cursor.x + cell.width / 2;
         } else {
-            cell.textPos.x = cursor.x + cell.styles.padding;
+            cell.textPos.x = cursor.x + cell.styles.cellPadding;
         }
 
         var data = {
             settings: settings,
+            table: table,
+            cursor: cursor,
             pageNumber: doc.pageNumber,
             rowIndex: rowIndex,
             column: column,
@@ -479,7 +516,7 @@
             settings.renderCell(cell, data);
         }
 
-        cursor.x += cell.rect.width;
+        cursor.x += cell.width;
     }
 
     /**
@@ -539,17 +576,17 @@
 var Table = function () {
     this.height = 0;
     this.width = 0;
+    this.contentWidth = 0;
     this.rows = [];
     this.columns = [];
     this.headerRow = null;
     this.cursor = {x: 0, y: 0};
-    this.pageCount = 1;
     this.settings = {};
-    this.styles = {}
+    this.pageCount = 0;
 };
 
-var Row = function (raw) {
-    this.raw = raw;
+var Row = function () {
+    this.raw = {};
     this.styles = {};
     this.cells = {};
     this.height = -1;
@@ -560,8 +597,11 @@ var Cell = function (raw) {
     this.styles = {};
     this.text = '';
     this.contentWidth = -1;
-    this.rect = {};
     this.textPos = {};
+    this.height = 0;
+    this.width = 0;
+    this.x = 0;
+    this.y = 0;
 };
 
 var Column = function (id) {
@@ -570,9 +610,5 @@ var Column = function (id) {
     this.styles = {};
     this.contentWidth = -1;
     this.width = -1;
-    this.parse = function (cell, data) {
-        // Stringify 0 and false, but not undefined
-        return typeof cell.raw !== 'undefined' ? '' + cell.raw : '';
-    };
     this.widthSetting = 'auto';
 };
