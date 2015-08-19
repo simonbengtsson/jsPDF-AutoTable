@@ -14,6 +14,7 @@
     var doc, // The current jspdf instance
         cursor, // An object keeping track of the x and y position of the next table cell to draw
         settings, // Default options merged with user options
+        pageCount,
         table; // The current Table instance
 
     // Base style for all themes
@@ -73,27 +74,28 @@
     // See README.md or examples.js for documentation of the options
     var defaultOptions = function () {
         return {
+            // Styling
             theme: 'striped', // 'striped', 'grid' or 'plain'
             styles: {},
             headerStyles: {},
             alternateRowStyles: {},
-            renderHeader: function (doc, pageNumber, settings) {},
-            renderFooter: function (doc, lastCellPos, pageNumber, settings) {},
-            margins: {right: 40, left: 40, top: 50, bottom: 40},
+
+            // Properties
             startY: false,
-            columnOptions: {},
+            margins: {right: 40, left: 40, top: 50, bottom: 40},
             pageBreak: 'auto', // auto, avoid, always
             tableWidth: 'auto',
-            createdHeaderCell: function (cell, data) {},
-            createdCell: function (cell, data) {},
-            renderHeaderCell: function (cell, data) {
-                doc.rect(cell.x, cell.y, cell.width, cell.height, cell.styles.fillStyle);
-                doc.autoTableText(cell.text, cell.textPos.x, cell.textPos.y,  {halign: cell.styles.halign, valign: cell.styles.valign});
-            },
-            renderCell: function (cell, data) {
-                doc.rect(cell.x, cell.y, cell.width, cell.height, cell.styles.fillStyle);
-                doc.autoTableText(cell.text, cell.textPos.x, cell.textPos.y,  {halign: cell.styles.halign, valign: cell.styles.valign});
-            }
+            columnOptions: {},
+
+            // Hooks
+            createdHeaderCell: function(cell, data) {},
+            createdCell: function(cell, data) {},
+            drawHeaderRow: function(row, data) {},
+            drawRow: function(row, data) {},
+            drawHeaderCell: function(cell, data) {},
+            drawCell: function(cell, data) {},
+            beforePageContent: function(cell, data) {},
+            afterPageContent: function(cell, data) {}
         }
     };
 
@@ -107,6 +109,7 @@
     API.autoTable = function (headers, data, options) {
         doc = this;
         settings = initOptions(options || {});
+        pageCount = 1;
         cursor = {
             x: settings.margins.left,
             y: settings.startY === false ? settings.margins.top : settings.startY
@@ -131,27 +134,21 @@
         if ((settings.pageBreak === 'always' && settings.startY !== false) ||
             (settings.startY !== false && minTableBottomPos > doc.internal.pageSize.height)) {
             doc.addPage();
-            table.pageCount++;
             cursor.y = settings.margins.top;
         }
 
-        settings.renderHeader(doc, table.pageCount, settings);
-        printHeader();
+        applyStyles(userStyles);
+        settings.beforePageContent(hooksData());
+        if(settings.drawHeaderRow(table.headerRow, hooksData({row: table.headerRow})) !== false) {
+            printRow(table.headerRow, settings.drawHeaderCell);
+        }
+        applyStyles(userStyles);
         printRows();
-        settings.renderFooter(doc, cursor, table.pageCount, settings);
+        settings.afterPageContent(hooksData());
 
         applyStyles(userStyles);
 
         return this;
-    };
-
-    /**
-     *
-     * @param hook string|string[] renderCell, createdCell, beforePageContent, afterPageContent
-     * @param handler The function to be called
-     */
-    API.autoTableAddHook = function (hook, handler) {
-
     };
 
     /**
@@ -281,11 +278,11 @@
      */
     function createModels(inputHeaders, inputData) {
         table = new Table();
-        table.pageCount = 1;
 
         // Header row and columns
         var headerRow = new Row();
         headerRow.raw = inputHeaders;
+        headerRow.index = -1;
         headerRow.styles = extend(defaultStyles, themes[settings.theme].table, themes[settings.theme].header, settings.headerStyles);
 
         // Columns and header row
@@ -311,6 +308,7 @@
             cell.text = '' + cell.raw;
             cell.contentWidth = cell.styles.cellPadding * 2 + getStringWidth(cell.text, cell.styles);
             cell.text = [cell.text];
+
             headerRow.cells[key] = cell;
             settings.createdHeaderCell(cell, {column: col, row: headerRow, settings: settings});
         });
@@ -322,15 +320,16 @@
             var isAlternate = i % 2 === 0;
             var themeStyles = extend(defaultStyles, themes[settings.theme].table, isAlternate ? themes[settings.theme].alternateRow : {});
             row.styles = extend(themeStyles, settings.styles, isAlternate ? settings.alternateRowStyles : {});
+            row.index = i;
             table.columns.forEach(function (column) {
                 var cell = new Cell();
                 cell.raw = rawRow[column.key];
                 cell.styles = extend(row.styles, column.styles);
                 cell.text = typeof cell.raw !== 'undefined' ? '' + cell.raw : ''; // Stringify 0 and false, but not undefined
                 row.cells[column.key] = cell;
-                settings.createdCell(cell, {column: column, row: row, settings: settings});
                 cell.contentWidth = cell.styles.cellPadding * 2 + getStringWidth(cell.text, cell.styles);
                 cell.text = [cell.text];
+                settings.createdCell(cell, {column: column, row: row, settings: settings});
             });
             table.rows.push(row);
         });
@@ -424,35 +423,65 @@
         });
     }
 
-    function printHeader() {
-        table.columns.forEach(function (col, i) {
-            drawCell(table.headerRow.cells[col.key], col, table.headerRow, -1);
-        });
-
-        cursor.y += table.headerRow.height;
-        cursor.x = settings.margins.left;
-    }
-
     function printRows() {
         table.rows.forEach(function (row, i) {
-            table.columns.forEach(function (col) {
-                drawCell(row.cells[col.key], col, row, i);
-            });
-
-            cursor.y += row.height;
-            cursor.x = settings.margins.left;
-
             // Add a new page if cursor is at the end of page
-            var newPage = table.rows[i + 1] && (cursor.y + table.rows[i + 1].height + settings.margins.bottom) >= doc.internal.pageSize.height;
+            var newPage = table.rows[i] && (cursor.y + table.rows[i].height + settings.margins.bottom) >= doc.internal.pageSize.height;
             if (newPage) {
-                settings.renderFooter(doc, cursor, table.pageCount, settings);
+                settings.afterPageContent(hooksData());
                 doc.addPage();
+                pageCount++;
                 cursor = {x: settings.margins.left, y: settings.margins.top};
-                table.pageCount++;
-                settings.renderHeader(doc, table.pageCount, settings);
-                printHeader();
+                settings.beforePageContent(hooksData());
+                if(settings.drawHeaderRow(row, hooksData({row: row})) !== false) {
+                    printRow(row, settings.drawHeaderCell);
+                }
+            }
+            row.y = cursor.y;
+            doc.setTextColor(0);
+            if(settings.drawRow(row, hooksData({row: row})) !== false) {
+                printRow(row, settings.drawCell);
             }
         });
+    }
+
+    function printRow(row, hookHandler) {
+        table.columns.forEach(function (column) {
+            var cell = row.cells[column.id];
+            applyStyles(cell.styles);
+
+            cell.x = cursor.x;
+            cell.y = cursor.y;
+            cell.height = row.height;
+            cell.width = column.width;
+
+            if (cell.styles.valign === 'top') {
+                cell.textPos.y = cursor.y + cell.styles.cellPadding;
+            } else if (cell.styles.valign === 'bottom') {
+                cell.textPos.y = cursor.y + row.height - cell.styles.cellPadding;
+            } else {
+                cell.textPos.y = cursor.y + row.height / 2;
+            }
+
+            if (cell.styles.halign === 'right') {
+                cell.textPos.x = cursor.x + cell.width - cell.styles.cellPadding;
+            } else if (cell.styles.halign === 'center') {
+                cell.textPos.x = cursor.x + cell.width / 2;
+            } else {
+                cell.textPos.x = cursor.x + cell.styles.cellPadding;
+            }
+
+            var data = hooksData({column: column, row: row});
+            if (hookHandler(cell, data) !== false) {
+                doc.rect(cell.x, cell.y, cell.width, cell.height, cell.styles.fillStyle);
+                doc.autoTableText(cell.text, cell.textPos.x, cell.textPos.y,  {halign: cell.styles.halign, valign: cell.styles.valign});
+            }
+
+            cursor.x += cell.width;
+        });
+
+        cursor.y += row.height;
+        cursor.x = settings.margins.left;
     }
 
     function applyStyles(styles) {
@@ -476,47 +505,20 @@
         });
     }
 
-    function drawCell(cell, column, row, rowIndex) {
-        applyStyles(cell.styles);
-
-        cell.x = cursor.x;
-        cell.y = cursor.y;
-        cell.height = row.height;
-        cell.width = column.width;
-
-        if (cell.styles.valign === 'top') {
-            cell.textPos.y = cursor.y + cell.styles.cellPadding;
-        } else if (cell.styles.valign === 'bottom') {
-            cell.textPos.y = cursor.y + row.height - cell.styles.cellPadding;
-        } else {
-            cell.textPos.y = cursor.y + row.height / 2;
-        }
-
-        if (cell.styles.halign === 'right') {
-            cell.textPos.x = cursor.x + cell.width - cell.styles.cellPadding;
-        } else if (cell.styles.halign === 'center') {
-            cell.textPos.x = cursor.x + cell.width / 2;
-        } else {
-            cell.textPos.x = cursor.x + cell.styles.cellPadding;
-        }
-
+    function hooksData(additionalData) {
+        additionalData = additionalData || {};
         var data = {
+            pageCount: pageCount,
             settings: settings,
             table: table,
-            cursor: cursor,
-            pageNumber: doc.pageNumber,
-            rowIndex: rowIndex,
-            column: column,
-            row: row
+            cursor: cursor
         };
-
-        if (rowIndex < 0) {
-            settings.renderHeaderCell(cell, data);
-        } else {
-            settings.renderCell(cell, data);
+        for (var prop in additionalData) {
+            if (additionalData.hasOwnProperty(prop)) {
+                data[prop] = additionalData[prop];
+            }
         }
-
-        cursor.x += cell.width;
+        return data;
     }
 
     /**
@@ -580,16 +582,16 @@ var Table = function () {
     this.rows = [];
     this.columns = [];
     this.headerRow = null;
-    this.cursor = {x: 0, y: 0};
     this.settings = {};
-    this.pageCount = 0;
 };
 
 var Row = function () {
     this.raw = {};
+    this.index = 0;
     this.styles = {};
     this.cells = {};
     this.height = -1;
+    this.y = 0;
 };
 
 var Cell = function (raw) {
@@ -602,6 +604,13 @@ var Cell = function (raw) {
     this.width = 0;
     this.x = 0;
     this.y = 0;
+
+    this.get = function(prop) {
+        if(typeof this[prop] === 'undefined') {
+            console.error("Cell not initialized correctly");
+        }
+        return this[prop];
+    }
 };
 
 var Column = function (id) {

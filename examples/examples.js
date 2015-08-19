@@ -137,17 +137,16 @@ examples.html = function () {
 examples['header-footer'] = function () {
     var doc = new jsPDF('p', 'pt');
 
-    var header = function (doc, pageCount, settings) {
+    var header = function (data) {
         doc.setFontSize(20);
         doc.setTextColor(40);
         doc.setFontStyle('normal');
-        doc.text("Report for X", settings.margins.left, 60);
-        doc.setFontSize(settings.fontSize);
+        doc.text("Report for X", data.settings.margins.left, 60);
     };
 
     var totalPagesExp = "{total_pages_count_string}";
-    var footer = function (doc, lastCellPos, pageCount, options) {
-        var str = "Page " + pageCount;
+    var footer = function (data) {
+        var str = "Page " + data.pageCount;
         // Total page number plugin only available in jspdf v1.0+
         if (typeof doc.putTotalPages === 'function') {
             str = str + " of " + totalPagesExp;
@@ -155,7 +154,7 @@ examples['header-footer'] = function () {
         doc.text(str, options.margins.left, doc.internal.pageSize.height - 30);
     };
 
-    var options = {renderHeader: header, renderFooter: footer, margins: {left: 40, right: 40, top: 80, bottom: 50}};
+    var options = {beforePageContent: header, afterPageContent: footer, margins: {left: 40, right: 40, top: 80, bottom: 50}};
     doc.autoTable(getColumns(), getData(40), options);
 
     // Total page number plugin only available in jspdf v1.0+
@@ -239,35 +238,35 @@ examples.spans = function () {
     doc.text('Col and row span', 40, 50);
     var data = getData(20);
     data.sort(function(a, b) {
-        return parseFloat(a.year) - parseFloat(b.year);
+        return parseFloat(b.expenses) - parseFloat(a.expenses);
     });
     doc.autoTable(getColumns(), data, {
         theme: 'grid',
         startY: 60,
-        renderCell: function (cell, data) {
+        drawRow: function(row, data) {
             // Colspan
-            if (data.rowIndex % 5 === 0 && data.column.id === 'id') {
-                doc.rect(cell.x, cell.y, data.table.width, cell.height, 'S');
-                doc.setFontStyle('bold');
-                doc.autoTableText("201" + data.rowIndex / 5, cell.textPos.x + data.table.width / 2, cell.textPos.y, {halign: 'center', valign: 'middle'});
-                doc.setFontStyle('normal');
+            doc.setFontStyle('bold');
+            doc.setFontSize(10);
+            if (row.index === 0) {
+                doc.setTextColor(200, 0, 0);
+                doc.rect(data.settings.margins.left, row.y, data.table.width, 20, 'S');
+                doc.autoTableText("Priority Group", data.settings.margins.left + data.table.width / 2, row.y + row.height / 2, {halign: 'center', valign: 'middle'});
                 data.cursor.y += 20;
-                cell.y += 20;
-                cell.textPos.y += 20;
+            } else if (row.index === 5) {
+                doc.rect(data.settings.margins.left, row.y, data.table.width, 20, 'S');
+                doc.autoTableText("Other Groups", data.settings.margins.left + data.table.width / 2, row.y + row.height / 2, {halign: 'center', valign: 'middle'});
+                data.cursor.y += 20;
             }
-
+        },
+        drawCell: function (cell, data) {
             // Rowspan
             if (data.column.id === 'id') {
-                if (data.rowIndex % 5 === 0) {
+                if (data.row.index % 5 === 0) {
                     doc.rect(cell.x, cell.y, data.table.width, cell.height * 5, 'S');
-                    doc.autoTableText(data.rowIndex / 5 + 1 + '', cell.x + cell.width / 2, cell.y + cell.height * 5 / 2, {halign: 'center', valign: 'middle'});
+                    doc.autoTableText(data.row.index / 5 + 1 + '', cell.x + cell.width / 2, cell.y + cell.height * 5 / 2, {halign: 'center', valign: 'middle'});
                 }
-                return;
+                return false;
             }
-
-            // Default cell rendering
-            doc.rect(cell.x, cell.y, cell.width, cell.height, cell.styles.fillStyle);
-            doc.autoTableText(cell.text, cell.textPos.x, cell.textPos.y, {halign: cell.styles.halign, valign: cell.styles.valign});
         }
     });
     return doc;
