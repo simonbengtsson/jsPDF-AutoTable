@@ -49,6 +49,7 @@
                 rowHeight: 23,
                 fontStyle: 'bold'
             },
+            body: {},
             alternateRow: {fillColor: 245}
         },
         'grid': {
@@ -66,6 +67,7 @@
                 fillStyle: 'F',
                 fontStyle: 'bold'
             },
+            body: {},
             alternateRow: {}
         },
         'plain': {header: {fontStyle: 'bold'}}
@@ -78,6 +80,7 @@
             theme: 'striped', // 'striped', 'grid' or 'plain'
             styles: {},
             headerStyles: {},
+            bodyStyles: {},
             alternateRowStyles: {},
 
             // Properties
@@ -94,8 +97,8 @@
             drawRow: function(row, data) {},
             drawHeaderCell: function(cell, data) {},
             drawCell: function(cell, data) {},
-            beforePageContent: function(cell, data) {},
-            afterPageContent: function(cell, data) {}
+            beforePageContent: function(data) {},
+            afterPageContent: function(data) {}
         }
     };
 
@@ -283,7 +286,9 @@
         var headerRow = new Row();
         headerRow.raw = inputHeaders;
         headerRow.index = -1;
-        headerRow.styles = extend(defaultStyles, themes[settings.theme].table, themes[settings.theme].header, settings.headerStyles);
+
+        var themeStyles = extend(defaultStyles, themes[settings.theme].table, themes[settings.theme].header);
+        headerRow.styles = extend(themeStyles, settings.styles, settings.headerStyles);
 
         // Columns and header row
         inputHeaders.forEach(function (value, key) {
@@ -319,7 +324,8 @@
             var row = new Row(rawRow);
             var isAlternate = i % 2 === 0;
             var themeStyles = extend(defaultStyles, themes[settings.theme].table, isAlternate ? themes[settings.theme].alternateRow : {});
-            row.styles = extend(themeStyles, settings.styles, isAlternate ? settings.alternateRowStyles : {});
+            var userStyles = extend(settings.styles, settings.bodyStyles, isAlternate ? settings.alternateRowStyles : {});
+            row.styles = extend(themeStyles, userStyles);
             row.index = i;
             table.columns.forEach(function (column) {
                 var cell = new Cell();
@@ -327,9 +333,9 @@
                 cell.styles = extend(row.styles, column.styles);
                 cell.text = typeof cell.raw !== 'undefined' ? '' + cell.raw : ''; // Stringify 0 and false, but not undefined
                 row.cells[column.key] = cell;
+                settings.createdCell(cell, {column: column, row: row, settings: settings});
                 cell.contentWidth = cell.styles.cellPadding * 2 + getStringWidth(cell.text, cell.styles);
                 cell.text = [cell.text];
-                settings.createdCell(cell, {column: column, row: row, settings: settings});
             });
             table.rows.push(row);
         });
@@ -353,40 +359,49 @@
             tableContentWidth += column.contentWidth;
         });
         table.contentWidth = tableContentWidth;
-        table.width = table.contentWidth;
 
-        // Actual width
-        if (settings.tableWidth !== 'wrap') {
+        var maxTableWidth = doc.internal.pageSize.width - settings.margins.left - settings.margins.right;
+        var preferredTableWidth = maxTableWidth; // settings.tableWidth === 'auto'
+        if (typeof settings.tableWidth === 'number') {
+            preferredTableWidth = settings.tableWidth;
+        } else if (settings.tableWidth === 'wrap') {
+            preferredTableWidth = table.contentWidth;
+        }
+        table.width = preferredTableWidth < maxTableWidth ? preferredTableWidth : maxTableWidth;
 
-            var tableWidth = doc.internal.pageSize.width - settings.margins.left - settings.margins.right;
-            if (settings.tableWidth !== 'auto') {
-                // If not auto or wrap it should be a number
-                tableWidth = settings.tableWidth;
-            }
-            table.width = tableWidth;
-
-            // Figure out dynamic columns
-            var fairPart = tableWidth / table.columns.length;
-            var flexibleColumns = [];
-            var flexibleColumnsWidth = tableWidth;
+        if (table.contentWidth <= table.width) {
+            // If extra available space exist, distribute it equally
+            var availableExtraWidth = table.width - table.contentWidth;
+            table.columns.forEach(function (col) {
+                // Give more extra width to columns with long content
+                var ratio = col.contentWidth / table.contentWidth;
+                col.width = col.contentWidth + availableExtraWidth * ratio;
+            });
+        } else {
+            // To avoid subjecting columns with little content with the chosen overflow method,
+            // never shrink a column more than the table divided by column count (its "fair part")
+            var shrinkableColumns = [];
+            var shrinkableColumnsContentWidth = 0;
+            var fairWidth = table.width / table.columns.length;
             table.columns.forEach(function (column) {
-                if (column.widthSetting === 'auto' && column.contentWidth > fairPart) {
-                    flexibleColumns.push(column);
-                } else {
-                    flexibleColumnsWidth -= column.contentWidth;
+                if (column.widthSetting === 'wrap') {
+                    column.width = column.contentWidth;
+                } else if (typeof column.widthSetting === 'number') {
+                    column.width = column.widthSetting;
+                } else if (column.widthSetting === 'auto' || true) {
+                    if (column.contentWidth <= fairWidth) {
+                        column.width = column.contentWidth;
+                    } else {
+                        shrinkableColumns.push(column);
+                        shrinkableColumnsContentWidth += column.contentWidth;
+                    }
                 }
             });
 
-            // First increase or decrease the column by as much as needed
-            var newColumnWidth = flexibleColumnsWidth / flexibleColumns.length;
-            flexibleColumns.forEach(function (column, i) {
-                if (newColumnWidth < fairPart) {
-                    flexibleColumns.slice(i, 1);
-                    column.width = fairPart;
-                    newColumnWidth += fairPart - newColumnWidth / flexibleColumns.length;
-                } else {
-                    column.width = newColumnWidth;
-                }
+            var extraWidth = table.contentWidth - table.width;
+            shrinkableColumns.forEach(function (col) {
+                var ratio = col.contentWidth / shrinkableColumnsContentWidth;
+                col.width = col.contentWidth - extraWidth * ratio;
             });
         }
 

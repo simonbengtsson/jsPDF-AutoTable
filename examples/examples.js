@@ -7,7 +7,7 @@
  | ´examples.html´ or go to http://someatoms.github.io/jsPDF-AutoTable.
  |
  | To make it possible to view each example in examples.html some extra code
- | is added to the examples below. For example they return their jspdf
+ | are added to the examples below. For example they return their jspdf
  | doc instance and gets generated data from the library faker.js. However you
  | can of course use this plugin how you wish and the simplest first example
  | below would look like this without any extras:
@@ -40,8 +40,8 @@ examples.minimal = function () {
     var doc = new jsPDF('p', 'pt');
     doc.autoTable(getColumns(), getData(), {
         tableWidth: 'wrap',
-        styles: {padding: 2, rowHeight: 12, fontSize: 8},
-        headerStyles: {rowHeight: 15, fontSize: 8, padding: 2}
+        styles: {cellPadding: 2, rowHeight: 12, fontSize: 8},
+        headerStyles: {rowHeight: 15, fontSize: 8, cellPadding: 2}
     });
     return doc;
 };
@@ -76,7 +76,7 @@ examples.long = function () {
 
 // Content - shows how tables can be integrated with any other pdf content
 examples.content = function () {
-    var doc = new jsPDF('p', 'pt');
+    var doc = new jsPDF({unit: 'pt', lineHeight: 1.5, orientation: 'p'});
 
     doc.setFontSize(18);
     doc.text('A story about Miusov', 40, 60);
