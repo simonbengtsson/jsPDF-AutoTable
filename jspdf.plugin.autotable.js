@@ -30,7 +30,7 @@
         fillColor: 255,
         textColor: 20,
         halign: 'left', // left, center, right
-        valign: 'middle', // top, middle, bottom
+        valign: 'top', // top, middle, bottom
         fillStyle: 'F' // 'S', 'F' or 'DF' (stroke, fill or fill then stroke)
     };
 
@@ -85,7 +85,7 @@
 
             // Properties
             startY: false,
-            margins: {right: 40, left: 40, top: 50, bottom: 40},
+            margin: {right: 40, left: 40, top: 50, bottom: 40},
             pageBreak: 'auto', // auto, avoid, always
             tableWidth: 'auto',
             columnOptions: {},
@@ -114,8 +114,8 @@
         settings = initOptions(options || {});
         pageCount = 1;
         cursor = {
-            x: settings.margins.left,
-            y: settings.startY === false ? settings.margins.top : settings.startY
+            x: settings.margin.left,
+            y: settings.startY === false ? settings.margin.top : settings.startY
         };
 
         var userStyles = {
@@ -130,14 +130,14 @@
 
         // Page break if there is room for only the first data row
         var firstRowHeight = table.rows[0] && settings.pageBreak === 'auto' ? table.rows[0].height : 0;
-        var minTableBottomPos = settings.startY + settings.margins.bottom + table.headerRow.height + firstRowHeight;
+        var minTableBottomPos = settings.startY + settings.margin.bottom + table.headerRow.height + firstRowHeight;
         if (settings.pageBreak === 'avoid') {
             minTableBottomPos += table.height;
         }
         if ((settings.pageBreak === 'always' && settings.startY !== false) ||
             (settings.startY !== false && minTableBottomPos > doc.internal.pageSize.height)) {
             doc.addPage();
-            cursor.y = settings.margins.top;
+            cursor.y = settings.margin.top;
         }
 
         applyStyles(userStyles);
@@ -238,18 +238,14 @@
     function initOptions(userOptions) {
         var settings = extend(defaultOptions(), userOptions);
 
-        // Backwards compatibility
-        if (settings.margins.horizontal !== undefined) {
-            settings.margins.left = settings.margins.horizontal;
-            settings.margins.right = settings.margins.horizontal;
-            console.error("Use of deprecated option: margins.horizontal. Use margins.left and margins.right instead.");
-        } else {
-            settings.margins.horizontal = settings.margins.left;
-        }
-
+        // Options
         if (typeof settings.extendWidth !== 'undefined') {
             settings.tableWidth = settings.extendWidth ? 'auto' : 'wrap';
             console.error("Use of deprecated option: extendWidth, use tableWidth instead.");
+        }
+        if (typeof settings.margins !== 'undefined') {
+            if (typeof settings.margin === 'undefined') settings.margin = settings.margins;
+            console.error("Use of deprecated option: margins, use margin instead.");
         }
 
         // Styles
@@ -268,6 +264,25 @@
         if (typeof settings.overflow !== 'undefined') {
             settings.styles.overflow = settings.overflow;
             console.error("Use of deprecated option: overflow, use styles.overflow instead.");
+        }
+
+        // Unifying
+        if (typeof settings.margin === 'number') {
+            settings.margin = {top: settings.margin, right: settings.margin, bottom: settings.margin, left: settings.margin};
+        } else if (settings.margin.constructor === Array) {
+            settings.margin = {top: settings.margin[0], right: settings.margin[1], bottom: settings.margin[2], left: settings.margin[3]};
+        } else {
+            if (typeof settings.margin.horizontal === 'number') {
+                settings.margin.right = settings.margin.horizontal;
+                settings.margin.left = settings.margin.horizontal;
+            }
+            if (typeof settings.margin.vertical === 'number') {
+                settings.margin.top = settings.margin.vertical;
+                settings.margin.bottom = settings.margin.vertical;
+            }
+            ['top', 'right', 'bottom', 'left'].forEach(function(dir, i){
+                settings.margin[dir] = typeof settings.margin[dir] === 'number' ? settings.margin[dir] : 40;
+            });
         }
 
         return settings;
@@ -297,14 +312,9 @@
             }
 
             var col = new Column(key);
-            var colOptions = settings.columnOptions[col.key];
-            var colOptionsStyles = {};
-            if (typeof colOptions !== 'undefined') {
-                if (typeof colOptions.styles !== 'undefined') colOptionsStyles = colOptions.styles;
-                if (typeof colOptions.width !== 'undefined') col.widthSetting = colOptions.width;
-                if (typeof colOptions.title !== 'undefined') col.title = colOptions.title;
-            }
-            col.styles = colOptionsStyles;
+            col.options = settings.columnOptions[col.key] || {};
+            col.options.bodyStyles = col.options.bodyStyles || {};
+            col.options.width = col.options.width || 'auto';
             table.columns.push(col);
 
             var cell = new Cell();
@@ -330,7 +340,7 @@
             table.columns.forEach(function (column) {
                 var cell = new Cell();
                 cell.raw = rawRow[column.key];
-                cell.styles = extend(row.styles, column.styles);
+                cell.styles = extend(row.styles, column.options.bodyStyles);
                 cell.text = typeof cell.raw !== 'undefined' ? '' + cell.raw : ''; // Stringify 0 and false, but not undefined
                 row.cells[column.key] = cell;
                 settings.createdCell(cell, {column: column, row: row, settings: settings});
@@ -360,7 +370,7 @@
         });
         table.contentWidth = tableContentWidth;
 
-        var maxTableWidth = doc.internal.pageSize.width - settings.margins.left - settings.margins.right;
+        var maxTableWidth = doc.internal.pageSize.width - settings.margin.left - settings.margin.right;
         var preferredTableWidth = maxTableWidth; // settings.tableWidth === 'auto'
         if (typeof settings.tableWidth === 'number') {
             preferredTableWidth = settings.tableWidth;
@@ -369,41 +379,31 @@
         }
         table.width = preferredTableWidth < maxTableWidth ? preferredTableWidth : maxTableWidth;
 
-        if (table.contentWidth <= table.width) {
-            // If extra available space exist, distribute it equally
-            var availableExtraWidth = table.width - table.contentWidth;
-            table.columns.forEach(function (col) {
-                // Give more extra width to columns with long content
-                var ratio = col.contentWidth / table.contentWidth;
-                col.width = col.contentWidth + availableExtraWidth * ratio;
-            });
-        } else {
-            // To avoid subjecting columns with little content with the chosen overflow method,
-            // never shrink a column more than the table divided by column count (its "fair part")
-            var shrinkableColumns = [];
-            var shrinkableColumnsContentWidth = 0;
-            var fairWidth = table.width / table.columns.length;
-            table.columns.forEach(function (column) {
-                if (column.widthSetting === 'wrap') {
+        // To avoid subjecting columns with little content with the chosen overflow method,
+        // never shrink a column more than the table divided by column count (its "fair part")
+        var dynamicColumns = [];
+        var dynamicColumnsContentWidth = 0;
+        var fairWidth = table.width / table.columns.length;
+        var staticWidth = 0;
+        table.columns.forEach(function (column) {
+            if (column.options.width === 'wrap') {
+                column.width = column.contentWidth;
+            } else if (typeof column.options.width === 'number') {
+                column.width = column.options.width;
+            } else if (column.options.width === 'auto' || true) {
+                if (column.contentWidth <= fairWidth && table.contentWidth > table.width) {
                     column.width = column.contentWidth;
-                } else if (typeof column.widthSetting === 'number') {
-                    column.width = column.widthSetting;
-                } else if (column.widthSetting === 'auto' || true) {
-                    if (column.contentWidth <= fairWidth) {
-                        column.width = column.contentWidth;
-                    } else {
-                        shrinkableColumns.push(column);
-                        shrinkableColumnsContentWidth += column.contentWidth;
-                    }
+                } else {
+                    dynamicColumns.push(column);
+                    dynamicColumnsContentWidth += column.contentWidth;
+                    column.width = 0;
                 }
-            });
+            }
+            staticWidth += column.width;
+        });
 
-            var extraWidth = table.contentWidth - table.width;
-            shrinkableColumns.forEach(function (col) {
-                var ratio = col.contentWidth / shrinkableColumnsContentWidth;
-                col.width = col.contentWidth - extraWidth * ratio;
-            });
-        }
+        // Distributes extra width or trims columns down to fit
+        distributeWidth(dynamicColumns, staticWidth, dynamicColumnsContentWidth, fairWidth);
 
         // Row height, table height and text overflow
         table.height = 0;
@@ -438,23 +438,43 @@
         });
     }
 
+    function distributeWidth(dynamicColumns, staticWidth, dynamicColumnsContentWidth, fairWidth) {
+        var extraWidth = table.width - staticWidth - dynamicColumnsContentWidth;
+        for (var i = 0; i < dynamicColumns.length; i++) {
+            var col = dynamicColumns[i];
+            var ratio = col.contentWidth / dynamicColumnsContentWidth;
+            // A column turned out to be none dynamic, start over recursively
+            var isNoneDynamic = col.contentWidth + extraWidth * ratio < fairWidth;
+            if (extraWidth < 0 && isNoneDynamic) {
+                dynamicColumns.splice(i, 1);
+                dynamicColumnsContentWidth -= col.contentWidth;
+                col.width = fairWidth;
+                staticWidth += col.width;
+                distributeWidth(dynamicColumns, staticWidth, dynamicColumnsContentWidth, fairWidth);
+                break;
+            } else {
+                col.width = col.contentWidth + extraWidth * ratio;
+            }
+        }
+    }
+
     function printRows() {
         table.rows.forEach(function (row, i) {
             // Add a new page if cursor is at the end of page
-            var newPage = table.rows[i] && (cursor.y + table.rows[i].height + settings.margins.bottom) >= doc.internal.pageSize.height;
+            var newPage = table.rows[i] && (cursor.y + table.rows[i].height + settings.margin.bottom) >= doc.internal.pageSize.height;
             if (newPage) {
                 settings.afterPageContent(hooksData());
                 doc.addPage();
                 pageCount++;
-                cursor = {x: settings.margins.left, y: settings.margins.top};
+                cursor = {x: settings.margin.left, y: settings.margin.top};
                 settings.beforePageContent(hooksData());
-                if(settings.drawHeaderRow(row, hooksData({row: row})) !== false) {
-                    printRow(row, settings.drawHeaderCell);
+                if (settings.drawHeaderRow(row, hooksData({row: row})) !== false) {
+                    printRow(table.headerRow, settings.drawHeaderCell);
                 }
             }
             row.y = cursor.y;
             doc.setTextColor(0);
-            if(settings.drawRow(row, hooksData({row: row})) !== false) {
+            if (settings.drawRow(row, hooksData({row: row})) !== false) {
                 printRow(row, settings.drawCell);
             }
         });
@@ -496,7 +516,7 @@
         });
 
         cursor.y += row.height;
-        cursor.x = settings.margins.left;
+        cursor.x = settings.margin.left;
     }
 
     function applyStyles(styles) {
@@ -631,8 +651,7 @@ var Cell = function (raw) {
 var Column = function (id) {
     this.key = id;
     this.id = id;
-    this.styles = {};
+    this.options = {};
     this.contentWidth = -1;
     this.width = -1;
-    this.widthSetting = 'auto';
 };

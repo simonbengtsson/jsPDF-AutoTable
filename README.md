@@ -94,15 +94,14 @@ var columns = [
 - Stable: https://rawgit.com/someatoms/jsPDF-AutoTable/master/jspdf.plugin.autotable.js
 
 ### Upgrade to Version 2.0
-- autoTableHtmlToJson now always returns an object
+- Use the hooks (or  styles and themes) instead of `renderCell`, `renderHeaderCell`, `renderFooter`and `renderHeader`
+- Use `tableWidth` instead of `extendWidth`
+- Use `columnOptions` instead of `overflowColumns` 
+- Use `pageBreak` instead of `avoidPageSplit`
+- Use `margin` instead of `margins`
+- `autoTableHtmlToJson` now always returns an object
 - Object only initialize removed
-- Use styles and themes instead of `renderCell` and `renderHeaderCell` where possible
-- The callbacks `renderCell` and `renderHeaderCell` are simplified
-- Api method API.autoTableEndPos removed, use API.autoTableEndPosY
-- tableWidth option added instead of extendWidth and it's now possible to set a custom table width
-- Parse function
-- OverflowColumns -> columnOptions 
-- avoidPageSplit -> pagePreak (auto, avoid, always)
+- Use `API.autoTableEndPosY()` instead of `API.autoTableEndPos()`
 
 Pros with ids
 - Easy to style a specific column
@@ -111,7 +110,6 @@ Pros with ids
 Pros with data
 - Don't need parse function
 - More like dataTables, like pull request
-- 
 
 ### Other pdf libraries worth mentioning
 

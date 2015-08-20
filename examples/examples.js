@@ -55,20 +55,26 @@ examples.long = function () {
     ]);
 
     doc.text("Overflow 'ellipsize' (default)", 10, 40);
-    doc.autoTable(columnsLong, getData(), {margins: {right: 10, left: 10, top: 40, bottom: 40}, startY: 55});
+    doc.autoTable(columnsLong, getData(), {
+        startY: 55,
+        margin: {horizontal: 10},
+        columnOptions: {email: {width: 160}}
+    });
 
     doc.text("Overflow 'hidden'", 10, doc.autoTableEndPosY() + 30);
     doc.autoTable(columnsLong, getData(), {
-        margins: {left: 10, right: 10, top: 40, bottom: 40},
         startY: 200,
-        styles: {overflow: 'hidden'}
+        margin: {horizontal: 10},
+        styles: {overflow: 'hidden'},
+        columnOptions: {email: {width: 160}}
     });
 
     doc.text("Overflow 'linebreak'", 10, doc.autoTableEndPosY() + 30);
     doc.autoTable(columnsLong, getData(3), {
-        margins: {left: 10, right: 10, top: 40, bottom: 40},
         startY: 350,
-        styles: {overflow: 'linebreak'}
+        margin: {horizontal: 10},
+        styles: {overflow: 'linebreak'},
+        columnOptions: {email: {width: 'wrap'}}
     });
 
     return doc;
@@ -104,20 +110,19 @@ examples.multiple = function () {
     doc.autoTable(getColumns().slice(0, 3), getData(), {
         startY: 90,
         pageBreak: 'avoid',
-        margins: {left: 40, right: 305, top: 60, bottom: 40}
+        margin: {right: 305}
     });
 
     doc.autoTable(getColumns().slice(0, 3), getData(), {
         startY: 90,
         pageBreak: 'avoid',
-        margins: {left: 305, right: 40, top: 60, bottom: 40}
+        margin: {left: 305}
     });
 
     for (var j = 0; j < 6; j++) {
         doc.autoTable(getColumns(), getData(9), {
             startY: doc.autoTableEndPosY() + 30,
             pageBreak: 'avoid',
-            margins: {left: 40, right: 40, top: 60, bottom: 40}
         });
     }
 
@@ -141,7 +146,7 @@ examples['header-footer'] = function () {
         doc.setFontSize(20);
         doc.setTextColor(40);
         doc.setFontStyle('normal');
-        doc.text("Report for X", data.settings.margins.left, 60);
+        doc.text("Report for X", data.settings.margin.left, 60);
     };
 
     var totalPagesExp = "{total_pages_count_string}";
@@ -151,10 +156,14 @@ examples['header-footer'] = function () {
         if (typeof doc.putTotalPages === 'function') {
             str = str + " of " + totalPagesExp;
         }
-        doc.text(str, options.margins.left, doc.internal.pageSize.height - 30);
+        doc.text(str, options.margin.left, doc.internal.pageSize.height - 30);
     };
 
-    var options = {beforePageContent: header, afterPageContent: footer, margins: {left: 40, right: 40, top: 80, bottom: 50}};
+    var options = {
+        beforePageContent: header,
+        afterPageContent: footer,
+        margin: {top: 80}
+    };
     doc.autoTable(getColumns(), getData(40), options);
 
     // Total page number plugin only available in jspdf v1.0+
@@ -172,13 +181,13 @@ examples.themes = function () {
     doc.setFontStyle('bold');
 
     doc.text('Theme "striped"', 40, 50);
-    doc.autoTable(getColumns(), getData(), {margins: {top: 60, bottom: 40, right: 40, left: 40}});
+    doc.autoTable(getColumns(), getData(), {startY: 60});
 
     doc.text('Theme "grid"', 40, doc.autoTableEndPosY() + 30);
-    doc.autoTable(getColumns(), getData(), {margins: {top: 205, bottom: 40, right: 40, left: 40}, theme: 'grid'});
+    doc.autoTable(getColumns(), getData(), {startY: doc.autoTableEndPosY() + 40, theme: 'grid'});
 
     doc.text('Theme "plain"', 40, doc.autoTableEndPosY() + 30);
-    doc.autoTable(getColumns(), getData(), {margins: {top: 345, bottom: 40, right: 40, left: 40}, theme: 'plain'});
+    doc.autoTable(getColumns(), getData(), {startY: doc.autoTableEndPosY() + 40, theme: 'plain'});
 
     return doc;
 };
@@ -190,27 +199,24 @@ examples.custom = function () {
         headerStyles: {
             fillColor: [44, 62, 80],
             fontSize: 15,
-            rowHeight: 30,
-            lineWidth: 2,
-            lineColor: [44, 62, 80],
-            fillStyle: 'DF'
+            rowHeight: 30
+        },
+        bodyStyles: {
+            fillColor: [52, 73, 94],
+            textColor: 240
         },
         styles: {
-            fillColor: [52, 73, 94],
-            textColor: 240,
-            lineWidth: 2,
-            lineColor: [44, 62, 80],
             font: 'courier',
-            fillStyle: 'DF'
+            fillStyle: 'DF',
+            lineColor: [44, 62, 80],
+            lineWidth: 2
         },
         alternateRowStyles: {
             fillColor: [74, 96, 117]
         },
         columnOptions: {
             email: {
-                styles: {
-                    fontStyle: 'bold'
-                }
+                bodyStyles: {fontStyle: 'bold'}
             }
         },
         createdCell: function (cell, data) {
@@ -237,24 +243,30 @@ examples.spans = function () {
     doc.setFontStyle('bold');
     doc.text('Col and row span', 40, 50);
     var data = getData(20);
-    data.sort(function(a, b) {
+    data.sort(function (a, b) {
         return parseFloat(b.expenses) - parseFloat(a.expenses);
     });
     doc.autoTable(getColumns(), data, {
         theme: 'grid',
         startY: 60,
-        drawRow: function(row, data) {
+        drawRow: function (row, data) {
             // Colspan
             doc.setFontStyle('bold');
             doc.setFontSize(10);
             if (row.index === 0) {
                 doc.setTextColor(200, 0, 0);
-                doc.rect(data.settings.margins.left, row.y, data.table.width, 20, 'S');
-                doc.autoTableText("Priority Group", data.settings.margins.left + data.table.width / 2, row.y + row.height / 2, {halign: 'center', valign: 'middle'});
+                doc.rect(data.settings.margin.left, row.y, data.table.width, 20, 'S');
+                doc.autoTableText("Priority Group", data.settings.margin.left + data.table.width / 2, row.y + row.height / 2, {
+                    halign: 'center',
+                    valign: 'middle'
+                });
                 data.cursor.y += 20;
             } else if (row.index === 5) {
-                doc.rect(data.settings.margins.left, row.y, data.table.width, 20, 'S');
-                doc.autoTableText("Other Groups", data.settings.margins.left + data.table.width / 2, row.y + row.height / 2, {halign: 'center', valign: 'middle'});
+                doc.rect(data.settings.margin.left, row.y, data.table.width, 20, 'S');
+                doc.autoTableText("Other Groups", data.settings.margin.left + data.table.width / 2, row.y + row.height / 2, {
+                    halign: 'center',
+                    valign: 'middle'
+                });
                 data.cursor.y += 20;
             }
         },
@@ -263,7 +275,10 @@ examples.spans = function () {
             if (data.column.id === 'id') {
                 if (data.row.index % 5 === 0) {
                     doc.rect(cell.x, cell.y, data.table.width, cell.height * 5, 'S');
-                    doc.autoTableText(data.row.index / 5 + 1 + '', cell.x + cell.width / 2, cell.y + cell.height * 5 / 2, {halign: 'center', valign: 'middle'});
+                    doc.autoTableText(data.row.index / 5 + 1 + '', cell.x + cell.width / 2, cell.y + cell.height * 5 / 2, {
+                        halign: 'center',
+                        valign: 'middle'
+                    });
                 }
                 return false;
             }
