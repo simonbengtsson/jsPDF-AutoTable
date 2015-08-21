@@ -40,8 +40,9 @@ examples.minimal = function () {
     var doc = new jsPDF('p', 'pt');
     doc.autoTable(getColumns(), getData(), {
         tableWidth: 'wrap',
-        styles: {cellPadding: 2, rowHeight: 12, fontSize: 8},
-        headerStyles: {rowHeight: 15, fontSize: 8, cellPadding: 2}
+        styles: {cellPadding: 2},
+        headerStyles: {cellHeight: 15, fontSize: 8},
+        bodyStyles: {cellHeight: 12, fontSize: 8, valign: 'middle'}
     });
     return doc;
 };
@@ -51,7 +52,7 @@ examples.long = function () {
     var doc = new jsPDF('l', 'pt');
     var columnsLong = getColumns().concat([
         {title: shuffleSentence(), key: "text"},
-        {title: "More text", key: "text2"}
+        {title: "Text with a\nlinebreak", key: "text2"}
     ]);
 
     doc.text("Overflow 'ellipsize' (default)", 10, 40);
@@ -63,7 +64,7 @@ examples.long = function () {
 
     doc.text("Overflow 'hidden'", 10, doc.autoTableEndPosY() + 30);
     doc.autoTable(columnsLong, getData(), {
-        startY: 200,
+        startY: doc.autoTableEndPosY() + 45,
         margin: {horizontal: 10},
         styles: {overflow: 'hidden'},
         columnOptions: {email: {width: 160}}
@@ -71,7 +72,7 @@ examples.long = function () {
 
     doc.text("Overflow 'linebreak'", 10, doc.autoTableEndPosY() + 30);
     doc.autoTable(columnsLong, getData(3), {
-        startY: 350,
+        startY: doc.autoTableEndPosY() + 45,
         margin: {horizontal: 10},
         styles: {overflow: 'linebreak'},
         columnOptions: {email: {width: 'wrap'}}
@@ -199,7 +200,7 @@ examples.custom = function () {
         headerStyles: {
             fillColor: [44, 62, 80],
             fontSize: 15,
-            rowHeight: 30
+            cellHeight: 30
         },
         bodyStyles: {
             fillColor: [52, 73, 94],
@@ -313,7 +314,6 @@ function getData(rowCount) {
     for (var j = 1; j <= rowCount; j++) {
         data.push({
             id: j,
-            year: faker.date.between(50, new Date("Sat Sep 20 1992 21:35:02 GMT+0200 (CEST)")),
             first_name: faker.name.findName(),
             email: faker.internet.email(),
             country: faker.address.country(),

@@ -9,7 +9,7 @@
     'use strict';
 
     // Ratio between font size and font height, number comes from jspdf source code
-    var FONT_ROW_RATIO = 1.25;
+    var FONT_ROW_RATIO = 1.15;
 
     var doc, // The current jspdf instance
         cursor, // An object keeping track of the x and y position of the next table cell to draw
@@ -25,7 +25,7 @@
         lineColor: 200,
         lineWidth: 0.1,
         fontStyle: 'normal', // normal, bold, italic, bolditalic
-        rowHeight: 20,
+        cellHeight: 20,
         overflow: 'ellipsize', // visible, hidden, ellipsize or linebreak
         fillColor: 255,
         textColor: 20,
@@ -46,7 +46,7 @@
             header: {
                 textColor: 255,
                 fillColor: [41, 128, 185],
-                rowHeight: 23,
+                cellHeight: 23,
                 fontStyle: 'bold'
             },
             body: {},
@@ -63,7 +63,7 @@
             header: {
                 textColor: 255,
                 fillColor: [26, 188, 156],
-                rowHeight: 23,
+                cellHeight: 23,
                 fillStyle: 'F',
                 fontStyle: 'bold'
             },
@@ -197,7 +197,7 @@
         var fontSize = doc.internal.getFontSize() / doc.internal.scaleFactor;
 
         // As defined in jsPDF source code
-        var lineHeightProportion = 1.15;
+        var lineHeightProportion = FONT_ROW_RATIO;
 
         var splitRegex = /\r\n|\r|\n/g;
         var splittedText = null;
@@ -248,23 +248,16 @@
             console.error("Use of deprecated option: margins, use margin instead.");
         }
 
-        // Styles
-        if (typeof settings.padding !== 'undefined') {
-            settings.styles.cellPadding = settings.padding;
-            console.error("Use of deprecated option: padding, use styles.cellPadding instead.");
-        }
-        if (typeof settings.lineHeight !== 'undefined') {
-            settings.styles.rowHeight = settings.lineHeight;
-            console.error("Use of deprecated option: lineHeight, use styles.rowHeight instead.");
-        }
-        if (typeof settings.fontSize !== 'undefined') {
-            settings.styles.fontSize = settings.fontSize;
-            console.error("Use of deprecated option: fontSize, use styles.fontSize instead.");
-        }
-        if (typeof settings.overflow !== 'undefined') {
-            settings.styles.overflow = settings.overflow;
-            console.error("Use of deprecated option: overflow, use styles.overflow instead.");
-        }
+        [['padding', 'cellPadding'], ['lineHeight', 'cellHeight'], 'fontSize', 'overflow'].forEach(function (o) {
+            var deprecatedOption = typeof o === 'string' ? o : o[0];
+            var style = typeof o === 'string' ? o : o[1];
+            if (typeof settings[deprecatedOption] !== 'undefined') {
+                if (typeof settings.styles[style] === 'undefined') {
+                    settings.styles[style] = settings[deprecatedOption];
+                }
+                console.error("Use of deprecated option: " + deprecatedOption + ", use the style " + style + " instead.");
+            }
+        });
 
         // Unifying
         if (typeof settings.margin === 'number') {
@@ -280,7 +273,7 @@
                 settings.margin.top = settings.margin.vertical;
                 settings.margin.bottom = settings.margin.vertical;
             }
-            ['top', 'right', 'bottom', 'left'].forEach(function(dir, i){
+            ['top', 'right', 'bottom', 'left'].forEach(function(dir){
                 settings.margin[dir] = typeof settings.margin[dir] === 'number' ? settings.margin[dir] : 40;
             });
         }
@@ -296,6 +289,8 @@
      */
     function createModels(inputHeaders, inputData) {
         table = new Table();
+
+        var splitRegex = /\r\n|\r|\n/g;
 
         // Header row and columns
         var headerRow = new Row();
@@ -322,7 +317,7 @@
             cell.styles = headerRow.styles;
             cell.text = '' + cell.raw;
             cell.contentWidth = cell.styles.cellPadding * 2 + getStringWidth(cell.text, cell.styles);
-            cell.text = [cell.text];
+            cell.text = cell.text.split(splitRegex);
 
             headerRow.cells[key] = cell;
             settings.createdHeaderCell(cell, {column: col, row: headerRow, settings: settings});
@@ -345,7 +340,7 @@
                 row.cells[column.key] = cell;
                 settings.createdCell(cell, {column: column, row: row, settings: settings});
                 cell.contentWidth = cell.styles.cellPadding * 2 + getStringWidth(cell.text, cell.styles);
-                cell.text = [cell.text];
+                cell.text = cell.text.split(splitRegex);
             });
             table.rows.push(row);
         });
@@ -417,10 +412,6 @@
                 if (cell.styles.overflow === 'linebreak') {
                     // Add one pt to textSpace to fix rounding error
                     cell.text = doc.splitTextToSize(cell.text, textSpace + 1, {fontSize: cell.styles.fontSize});
-                    var count = cell.text.length - 1;
-                    if (count > lineBreakCount) {
-                        lineBreakCount = count;
-                    }
                 } else if (cell.styles.overflow === 'ellipsize') {
                     cell.text = ellipsize(cell.text, textSpace, cell.styles);
                 } else if (cell.styles.overflow === 'visible') {
@@ -432,8 +423,12 @@
                 } else {
                     console.error("Unrecognized overflow type: " + cell.styles.overflow);
                 }
+                var count = Array.isArray(cell.text) ? cell.text.length - 1 : 0;
+                if (count > lineBreakCount) {
+                    lineBreakCount = count;
+                }
             });
-            row.height = row.styles.rowHeight + lineBreakCount * row.styles.fontSize * FONT_ROW_RATIO;
+            row.height = row.styles.cellHeight + lineBreakCount * row.styles.fontSize * FONT_ROW_RATIO;
             table.height += row.height;
         });
     }
@@ -563,7 +558,10 @@
         ellipsizeStr = typeof  ellipsizeStr !== 'undefined' ? ellipsizeStr : '...';
 
         if (Array.isArray(text)) {
-            text = text[0];
+            text.forEach(function(str, i) {
+                text[i] = ellipsize(str, width, styles, ellipsizeStr);
+            });
+            return text;
         }
 
         if (width >= getStringWidth(text, styles)) {
