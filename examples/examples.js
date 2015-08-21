@@ -75,6 +75,7 @@ examples.long = function () {
         startY: doc.autoTableEndPosY() + 45,
         margin: {horizontal: 10},
         styles: {overflow: 'linebreak'},
+        bodyStyles: {valign: 'top'},
         columnOptions: {email: {width: 'wrap'}}
     });
 

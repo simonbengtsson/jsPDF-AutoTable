@@ -30,7 +30,7 @@
         fillColor: 255,
         textColor: 20,
         halign: 'left', // left, center, right
-        valign: 'top', // top, middle, bottom
+        valign: 'middle', // top, middle, bottom
         fillStyle: 'F' // 'S', 'F' or 'DF' (stroke, fill or fill then stroke)
     };
 
@@ -85,20 +85,20 @@
 
             // Properties
             startY: false,
-            margin: {right: 40, left: 40, top: 50, bottom: 40},
+            margin: 40,
             pageBreak: 'auto', // auto, avoid, always
             tableWidth: 'auto',
             columnOptions: {},
 
             // Hooks
-            createdHeaderCell: function(cell, data) {},
-            createdCell: function(cell, data) {},
-            drawHeaderRow: function(row, data) {},
-            drawRow: function(row, data) {},
-            drawHeaderCell: function(cell, data) {},
-            drawCell: function(cell, data) {},
-            beforePageContent: function(data) {},
-            afterPageContent: function(data) {}
+            createdHeaderCell: function (cell, data) {},
+            createdCell: function (cell, data) {},
+            drawHeaderRow: function (row, data) {},
+            drawRow: function (row, data) {},
+            drawHeaderCell: function (cell, data) {},
+            drawCell: function (cell, data) {},
+            beforePageContent: function (data) {},
+            afterPageContent: function (data) {}
         }
     };
 
@@ -142,7 +142,7 @@
 
         applyStyles(userStyles);
         settings.beforePageContent(hooksData());
-        if(settings.drawHeaderRow(table.headerRow, hooksData({row: table.headerRow})) !== false) {
+        if (settings.drawHeaderRow(table.headerRow, hooksData({row: table.headerRow})) !== false) {
             printRow(table.headerRow, settings.drawHeaderCell);
         }
         applyStyles(userStyles);
@@ -211,12 +211,12 @@
         // Align the top
         y += fontSize * (2 - lineHeightProportion);
 
-        if (styles.valign  === 'middle')
+        if (styles.valign === 'middle')
             y -= (lineCount / 2) * fontSize;
-        else if (styles.valign  === 'bottom')
+        else if (styles.valign === 'bottom')
             y -= lineCount * fontSize;
 
-        if (styles.halign === 'center' || styles.halign  === 'right') {
+        if (styles.halign === 'center' || styles.halign === 'right') {
             var alignSize = fontSize;
             if (styles.halign === 'center')
                 alignSize *= 0.5;
@@ -260,23 +260,24 @@
         });
 
         // Unifying
-        if (typeof settings.margin === 'number') {
-            settings.margin = {top: settings.margin, right: settings.margin, bottom: settings.margin, left: settings.margin};
-        } else if (settings.margin.constructor === Array) {
-            settings.margin = {top: settings.margin[0], right: settings.margin[1], bottom: settings.margin[2], left: settings.margin[3]};
-        } else {
-            if (typeof settings.margin.horizontal === 'number') {
-                settings.margin.right = settings.margin.horizontal;
-                settings.margin.left = settings.margin.horizontal;
-            }
-            if (typeof settings.margin.vertical === 'number') {
-                settings.margin.top = settings.margin.vertical;
-                settings.margin.bottom = settings.margin.vertical;
-            }
-            ['top', 'right', 'bottom', 'left'].forEach(function(dir){
-                settings.margin[dir] = typeof settings.margin[dir] === 'number' ? settings.margin[dir] : 40;
-            });
+        var marginSetting = settings.margin;
+        settings.margin = {};
+        if (typeof marginSetting.horizontal === 'number') {
+            marginSetting.right = marginSetting.horizontal;
+            marginSetting.left = marginSetting.horizontal;
         }
+        if (typeof marginSetting.vertical === 'number') {
+            marginSetting.top = marginSetting.vertical;
+            marginSetting.bottom = marginSetting.vertical;
+        }
+        ['top', 'right', 'bottom', 'left'].forEach(function (side, i) {
+            if (typeof marginSetting === 'number') {
+                settings.margin[side] = marginSetting;
+            } else {
+                var key = Array.isArray(marginSetting) ? i : side;
+                settings.margin[side] = typeof marginSetting[key] === 'number' ? marginSetting[key] : 40;
+            }
+        });
 
         return settings;
     }
@@ -504,7 +505,10 @@
             var data = hooksData({column: column, row: row});
             if (hookHandler(cell, data) !== false) {
                 doc.rect(cell.x, cell.y, cell.width, cell.height, cell.styles.fillStyle);
-                doc.autoTableText(cell.text, cell.textPos.x, cell.textPos.y,  {halign: cell.styles.halign, valign: cell.styles.valign});
+                doc.autoTableText(cell.text, cell.textPos.x, cell.textPos.y, {
+                    halign: cell.styles.halign,
+                    valign: cell.styles.valign
+                });
             }
 
             cursor.x += cell.width;
@@ -558,7 +562,7 @@
         ellipsizeStr = typeof  ellipsizeStr !== 'undefined' ? ellipsizeStr : '...';
 
         if (Array.isArray(text)) {
-            text.forEach(function(str, i) {
+            text.forEach(function (str, i) {
                 text[i] = ellipsize(str, width, styles, ellipsizeStr);
             });
             return text;
@@ -637,13 +641,6 @@ var Cell = function (raw) {
     this.width = 0;
     this.x = 0;
     this.y = 0;
-
-    this.get = function(prop) {
-        if(typeof this[prop] === 'undefined') {
-            console.error("Cell not initialized correctly");
-        }
-        return this[prop];
-    }
 };
 
 var Column = function (id) {

@@ -89,6 +89,16 @@ var columns = [
 ];
 ```
 
+### Other initialize formats
+
+Object initialize is to be preferred for everything but trivial tables. 
+It makes it easier to reference a specific column in the options and
+also connects headers with its data which prevents headers and data to
+get out of sync.
+
+You can also initialize the table from only an object with headers as 
+keys. This can be done something like this doc.autoTable(Object.keys(data), data);
+
 ### CDN (for testing only!)
 - Experimental: https://rawgit.com/someatoms/jsPDF-AutoTable/v2/jspdf.plugin.autotable.js
 - Stable: https://rawgit.com/someatoms/jsPDF-AutoTable/master/jspdf.plugin.autotable.js
