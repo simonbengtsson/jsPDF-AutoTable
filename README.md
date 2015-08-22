@@ -105,6 +105,7 @@ keys. This can be done something like this doc.autoTable(Object.keys(data), data
 
 ### Upgrade to Version 2.0
 - Use the hooks (or  styles and themes) instead of `renderCell`, `renderHeaderCell`, `renderFooter`and `renderHeader`
+- Custom width now 
 - Use `tableWidth` instead of `extendWidth`
 - Use `columnOptions` instead of `overflowColumns` 
 - Use `pageBreak` instead of `avoidPageSplit`

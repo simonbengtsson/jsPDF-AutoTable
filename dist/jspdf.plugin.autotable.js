@@ -14,7 +14,7 @@
     var doc, // The current jspdf instance
         cursor, // An object keeping track of the x and y position of the next table cell to draw
         settings, // Default options merged with user options
-        pageCount,
+        pageCount, // The  page count the current table spans
         table; // The current Table instance
 
     // Base style for all themes
@@ -25,13 +25,14 @@
         lineColor: 200,
         lineWidth: 0.1,
         fontStyle: 'normal', // normal, bold, italic, bolditalic
-        cellHeight: 20,
         overflow: 'ellipsize', // visible, hidden, ellipsize or linebreak
         fillColor: 255,
         textColor: 20,
         halign: 'left', // left, center, right
         valign: 'middle', // top, middle, bottom
-        fillStyle: 'F' // 'S', 'F' or 'DF' (stroke, fill or fill then stroke)
+        fillStyle: 'F', // 'S', 'F' or 'DF' (stroke, fill or fill then stroke)
+        rowHeight: 20,
+        columnWidth: 'auto'
     };
 
     // Styles for the themes
@@ -46,7 +47,7 @@
             header: {
                 textColor: 255,
                 fillColor: [41, 128, 185],
-                cellHeight: 23,
+                rowHeight: 23,
                 fontStyle: 'bold'
             },
             body: {},
@@ -63,7 +64,7 @@
             header: {
                 textColor: 255,
                 fillColor: [26, 188, 156],
-                cellHeight: 23,
+                rowHeight: 23,
                 fillStyle: 'F',
                 fontStyle: 'bold'
             },
@@ -82,13 +83,13 @@
             headerStyles: {},
             bodyStyles: {},
             alternateRowStyles: {},
+            columnStyles: {},
 
             // Properties
             startY: false,
             margin: 40,
-            pageBreak: 'auto', // auto, avoid, always
-            tableWidth: 'auto',
-            columnOptions: {},
+            pageBreak: 'auto', // 'auto', 'avoid', 'always'
+            tableWidth: 'auto', // number, 'auto', 'wrap'
 
             // Hooks
             createdHeaderCell: function (cell, data) {},
@@ -173,16 +174,23 @@
      * @returns Object Object with two properties, columns and rows
      */
     API.autoTableHtmlToJson = function (table) {
-        var data = [], headers = [], header = table.rows[0], i, tableRow, rowData, j;
+        var data = [],
+            headers = [],
+            header = table.rows[0],
+            tableRow,
+            rowData,
+            i,
+            j;
+
         for (i = 0; i < header.cells.length; i++) {
-            headers.push(header.cells[i] ? header.cells[i].textContent : '');
+            headers.push(typeof header.cells[i] !== 'undefined' ? header.cells[i].textContent : '');
         }
 
         for (i = 1; i < table.rows.length; i++) {
             tableRow = table.rows[i];
             rowData = [];
             for (j = 0; j < header.cells.length; j++) {
-                rowData.push(tableRow.cells[j] ? tableRow.cells[j].textContent : '');
+                rowData.push(typeof tableRow.cells[j] !== 'undefined' ? tableRow.cells[j].textContent : '');
             }
             data.push(rowData);
         }
@@ -194,6 +202,9 @@
      * Inspiration from: http://stackoverflow.com/questions/28327510/align-text-right-using-jspdf/28433113#28433113
      */
     API.autoTableText = function (text, x, y, styles) {
+        if (typeof x !== 'number' || typeof y !== 'number') {
+            console.error('The x and y parameters are required. Missing for the text: ', text);
+        }
         var fontSize = doc.internal.getFontSize() / doc.internal.scaleFactor;
 
         // As defined in jsPDF source code
@@ -248,7 +259,7 @@
             console.error("Use of deprecated option: margins, use margin instead.");
         }
 
-        [['padding', 'cellPadding'], ['lineHeight', 'cellHeight'], 'fontSize', 'overflow'].forEach(function (o) {
+        [['padding', 'cellPadding'], ['lineHeight', 'rowHeight'], 'fontSize', 'overflow'].forEach(function (o) {
             var deprecatedOption = typeof o === 'string' ? o : o[0];
             var style = typeof o === 'string' ? o : o[1];
             if (typeof settings[deprecatedOption] !== 'undefined') {
@@ -302,25 +313,28 @@
         headerRow.styles = extend(themeStyles, settings.styles, settings.headerStyles);
 
         // Columns and header row
-        inputHeaders.forEach(function (value, key) {
-            if (typeof value === 'object' && typeof value.key !== 'undefined') {
-                key = value.key;
+        inputHeaders.forEach(function (rawColumn, dataKey) {
+            if (typeof rawColumn === 'object') {
+                dataKey = typeof rawColumn.dataKey !== 'undefined' ? rawColumn.dataKey : rawColumn.key;
             }
 
-            var col = new Column(key);
-            col.options = settings.columnOptions[col.key] || {};
-            col.options.bodyStyles = col.options.bodyStyles || {};
-            col.options.width = col.options.width || 'auto';
+            if (typeof rawColumn.width !== 'undefined') {
+                console.error("Use of deprecated option: column.width, use column.styles.columnWidth instead.");
+            }
+
+            var col = new Column(dataKey);
+            col.styles = {};
+            if (typeof col.styles.columnWidth === 'undefined') col.styles.columnWidth = 'auto';
             table.columns.push(col);
 
             var cell = new Cell();
-            cell.raw = typeof value === 'object' ? value.title : value;
+            cell.raw = typeof rawColumn === 'object' ? rawColumn.title : rawColumn;
             cell.styles = headerRow.styles;
             cell.text = '' + cell.raw;
             cell.contentWidth = cell.styles.cellPadding * 2 + getStringWidth(cell.text, cell.styles);
             cell.text = cell.text.split(splitRegex);
 
-            headerRow.cells[key] = cell;
+            headerRow.cells[dataKey] = cell;
             settings.createdHeaderCell(cell, {column: col, row: headerRow, settings: settings});
         });
         table.headerRow = headerRow;
@@ -335,10 +349,10 @@
             row.index = i;
             table.columns.forEach(function (column) {
                 var cell = new Cell();
-                cell.raw = rawRow[column.key];
-                cell.styles = extend(row.styles, column.options.bodyStyles);
+                cell.raw = rawRow[column.dataKey];
+                cell.styles = extend(row.styles, column.styles);
                 cell.text = typeof cell.raw !== 'undefined' ? '' + cell.raw : ''; // Stringify 0 and false, but not undefined
-                row.cells[column.key] = cell;
+                row.cells[column.dataKey] = cell;
                 settings.createdCell(cell, {column: column, row: row, settings: settings});
                 cell.contentWidth = cell.styles.cellPadding * 2 + getStringWidth(cell.text, cell.styles);
                 cell.text = cell.text.split(splitRegex);
@@ -354,9 +368,9 @@
         // Column and table content width
         var tableContentWidth = 0;
         table.columns.forEach(function (column) {
-            column.contentWidth = table.headerRow.cells[column.key].contentWidth;
+            column.contentWidth = table.headerRow.cells[column.dataKey].contentWidth;
             table.rows.forEach(function (row) {
-                var cellWidth = row.cells[column.key].contentWidth;
+                var cellWidth = row.cells[column.dataKey].contentWidth;
                 if (cellWidth > column.contentWidth) {
                     column.contentWidth = cellWidth;
                 }
@@ -382,11 +396,11 @@
         var fairWidth = table.width / table.columns.length;
         var staticWidth = 0;
         table.columns.forEach(function (column) {
-            if (column.options.width === 'wrap') {
+            if (column.styles.columnWidth === 'wrap') {
                 column.width = column.contentWidth;
-            } else if (typeof column.options.width === 'number') {
-                column.width = column.options.width;
-            } else if (column.options.width === 'auto' || true) {
+            } else if (typeof column.styles.columnWidth === 'number') {
+                column.width = column.styles.columnWidth;
+            } else if (column.styles.columnWidth === 'auto' || true) {
                 if (column.contentWidth <= fairWidth && table.contentWidth > table.width) {
                     column.width = column.contentWidth;
                 } else {
@@ -407,7 +421,7 @@
         all.forEach(function (row, i) {
             var lineBreakCount = 0;
             table.columns.forEach(function (col) {
-                var cell = row.cells[col.key];
+                var cell = row.cells[col.dataKey];
                 applyStyles(cell.styles);
                 var textSpace = col.width - cell.styles.cellPadding * 2;
                 if (cell.styles.overflow === 'linebreak') {
@@ -429,7 +443,7 @@
                     lineBreakCount = count;
                 }
             });
-            row.height = row.styles.cellHeight + lineBreakCount * row.styles.fontSize * FONT_ROW_RATIO;
+            row.height = row.styles.rowHeight + lineBreakCount * row.styles.fontSize * FONT_ROW_RATIO;
             table.height += row.height;
         });
     }
@@ -478,7 +492,7 @@
 
     function printRow(row, hookHandler) {
         table.columns.forEach(function (column) {
-            var cell = row.cells[column.id];
+            var cell = row.cells[column.dataKey];
             applyStyles(cell.styles);
 
             cell.x = cursor.x;
@@ -643,10 +657,10 @@ var Cell = function (raw) {
     this.y = 0;
 };
 
-var Column = function (id) {
-    this.key = id;
-    this.id = id;
+var Column = function (dataKey) {
+    this.dataKey = dataKey;
     this.options = {};
+    this.styles = {};
     this.contentWidth = -1;
     this.width = -1;
 };

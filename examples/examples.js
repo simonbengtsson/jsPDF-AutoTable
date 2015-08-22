@@ -41,8 +41,8 @@ examples.minimal = function () {
     doc.autoTable(getColumns(), getData(), {
         tableWidth: 'wrap',
         styles: {cellPadding: 2},
-        headerStyles: {cellHeight: 15, fontSize: 8},
-        bodyStyles: {cellHeight: 12, fontSize: 8, valign: 'middle'}
+        headerStyles: {rowHeight: 15, fontSize: 8},
+        bodyStyles: {rowHeight: 12, fontSize: 8, valign: 'middle'}
     });
     return doc;
 };
@@ -51,15 +51,15 @@ examples.minimal = function () {
 examples.long = function () {
     var doc = new jsPDF('l', 'pt');
     var columnsLong = getColumns().concat([
-        {title: shuffleSentence(), key: "text"},
-        {title: "Text with a\nlinebreak", key: "text2"}
+        {title: shuffleSentence(), dataKey: "text"},
+        {title: "Text with a\nlinebreak", dataKey: "text2"}
     ]);
 
     doc.text("Overflow 'ellipsize' (default)", 10, 40);
     doc.autoTable(columnsLong, getData(), {
         startY: 55,
         margin: {horizontal: 10},
-        columnOptions: {email: {width: 160}}
+        columnStyles: {email: {columnWidth: 160}}
     });
 
     doc.text("Overflow 'hidden'", 10, doc.autoTableEndPosY() + 30);
@@ -67,7 +67,7 @@ examples.long = function () {
         startY: doc.autoTableEndPosY() + 45,
         margin: {horizontal: 10},
         styles: {overflow: 'hidden'},
-        columnOptions: {email: {width: 160}}
+        columnStyles: {email: {columnWidth: 160}}
     });
 
     doc.text("Overflow 'linebreak'", 10, doc.autoTableEndPosY() + 30);
@@ -76,7 +76,7 @@ examples.long = function () {
         margin: {horizontal: 10},
         styles: {overflow: 'linebreak'},
         bodyStyles: {valign: 'top'},
-        columnOptions: {email: {width: 'wrap'}}
+        columnStyles: {email: {columnWidth: 'wrap'}},
     });
 
     return doc;
@@ -158,7 +158,7 @@ examples['header-footer'] = function () {
         if (typeof doc.putTotalPages === 'function') {
             str = str + " of " + totalPagesExp;
         }
-        doc.text(str, options.margin.left, doc.internal.pageSize.height - 30);
+        doc.text(str, data.settings.margin.left, doc.internal.pageSize.height - 30);
     };
 
     var options = {
@@ -198,38 +198,38 @@ examples.themes = function () {
 examples.custom = function () {
     var doc = new jsPDF('p', 'pt');
     doc.autoTable(getColumns().slice(2, 6), getData(20), {
-        headerStyles: {
-            fillColor: [44, 62, 80],
-            fontSize: 15,
-            cellHeight: 30
-        },
-        bodyStyles: {
-            fillColor: [52, 73, 94],
-            textColor: 240
-        },
         styles: {
             font: 'courier',
             fillStyle: 'DF',
             lineColor: [44, 62, 80],
             lineWidth: 2
         },
+        headerStyles: {
+            fillColor: [44, 62, 80],
+            fontSize: 15,
+            rowHeight: 30
+        },
+        bodyStyles: {
+            fillColor: [52, 73, 94],
+            textColor: 240
+        },
         alternateRowStyles: {
             fillColor: [74, 96, 117]
         },
-        columnOptions: {
+        columnBodyStyles: {
             email: {
-                bodyStyles: {fontStyle: 'bold'}
+                fontStyle: 'bold'
             }
         },
         createdCell: function (cell, data) {
-            if (data.column.id === 'expenses') {
+            if (data.column.dataKey === 'expenses') {
                 cell.styles.halign = 'right';
                 if (cell.raw > 600) {
                     cell.styles.textColor = [255, 100, 100];
                     cell.styles.fontStyle = 'bolditalic';
                 }
                 cell.text = '$' + cell.text;
-            } else if (data.column.id === 'country') {
+            } else if (data.column.dataKey === 'country') {
                 cell.text = cell.raw.split(' ')[0];
             }
         }
@@ -274,7 +274,7 @@ examples.spans = function () {
         },
         drawCell: function (cell, data) {
             // Rowspan
-            if (data.column.id === 'id') {
+            if (data.column.dataKey === 'id') {
                 if (data.row.index % 5 === 0) {
                     doc.rect(cell.x, cell.y, data.table.width, cell.height * 5, 'S');
                     doc.autoTableText(data.row.index / 5 + 1 + '', cell.x + cell.width / 2, cell.y + cell.height * 5 / 2, {
@@ -298,12 +298,12 @@ examples.spans = function () {
 // Returns a new array each time to avoid pointer issues
 var getColumns = function () {
     return [
-        {title: "ID", key: "id"},
-        {title: "Name", key: "first_name"},
-        {title: "Email", key: "email"},
-        {title: "City", key: "city"},
-        {title: "Country", key: "country"},
-        {title: "Expenses", key: "expenses"}
+        {title: "ID", dataKey: "id"},
+        {title: "Name", dataKey: "first_name"},
+        {title: "Email", dataKey: "email"},
+        {title: "City", dataKey: "city"},
+        {title: "Country", dataKey: "country"},
+        {title: "Expenses", dataKey: "expenses"}
     ];
 };
 
