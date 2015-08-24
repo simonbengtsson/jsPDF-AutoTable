@@ -176,7 +176,7 @@ examples['header-footer'] = function () {
     return doc;
 };
 
-// Custom style - shows how custom styles can be applied to tables
+// Themes - shows how the different themes looks
 examples.themes = function () {
     var doc = new jsPDF('p', 'pt');
     doc.setFontSize(12);

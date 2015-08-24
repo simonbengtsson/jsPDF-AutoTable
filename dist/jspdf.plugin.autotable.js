@@ -74,7 +74,8 @@
         'plain': {header: {fontStyle: 'bold'}}
     };
 
-    // See README.md or examples.js for documentation of the options
+    // See README.md for documentation of the options
+    // See examples.js for usage examples
     var defaultOptions = function () {
         return {
             // Styling
@@ -86,7 +87,7 @@
             columnStyles: {},
 
             // Properties
-            startY: false,
+            startY: false, // false indicates the margin.top value
             margin: 40,
             pageBreak: 'auto', // 'auto', 'avoid', 'always'
             tableWidth: 'auto', // number, 'auto', 'wrap'
