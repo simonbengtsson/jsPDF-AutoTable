@@ -66,8 +66,8 @@ doc.save('table.pdf');
 
 See other examples in `/examples/examples.js` which is also the source code for the [demo](https://someatoms.github.io/jsPDF-AutoTable/) documents.
 
-### All options and their default values
-There are three kinds of options: styling, properties and hooks. You can override the default specified hooks if you want to change data or styles dynamically. For example 
+### Options
+All options below are used in `examples.js` so be sure to check it out if in doubt.
 
 ```javascript
 {
@@ -80,10 +80,10 @@ There are three kinds of options: styling, properties and hooks. You can overrid
     columnStyles: {},
 
     // Properties
-    startY: false, // false indicates the margin top value
-    margin: 40,
+    startY: false, // false (indicates margin top value) or a number
+    margin: 40, a number, array or object
     pageBreak: 'auto', // 'auto', 'avoid' or 'always'
-    tableWidth: 'auto', // a number, 'auto' or 'wrap'
+    tableWidth: 'auto', // 'auto', 'wrap' or a number, 
 
     // Hooks
     createdHeaderCell: function (cell, data) {},
@@ -97,8 +97,8 @@ There are three kinds of options: styling, properties and hooks. You can overrid
  };
 ```
 
-### Default styles
- 
+### Styles
+Styles work similar to css and can be overriden by more specific styles. The overriding order is as follows: Default styles <- theme styles <- `styles` <- `headerStyles` and `bodyStyles` <- `alternateRowStyles` and `columnStyles`. It is also possible to override specific cell or row styles using for example the `createdCell` hook. Checkout the `Custom style` example for more information.
 
 ```javascript
 {
@@ -115,15 +115,31 @@ There are three kinds of options: styling, properties and hooks. You can overrid
     valign: 'middle', // top, middle, bottom
     fillStyle: 'F', // 'S', 'F' or 'DF' (stroke, fill or fill then stroke)
     rowHeight: 20,
-    columnWidth: 'auto'
+    columnWidth: 'auto' // 'auto', 'wrap' or a number
 }
 ```
+All colors can either be specified as a number (255 white and 0 for black) or an array [red, green, blue].
+
+Every style above can be changed on a cell by cell basis. However to have different rowHeights for cells in single row or different columnWidths for cells in the same column would not make much sense and is unsupported.
+
+### Properties
+- `startY` Indicates where the table should start to be drawn on the first page (overriding the margin top value). It can be used for example to draw content before the table. Many examples use this option, but the above use case is presented in the `With content` example.
+- `margin` Similar to margin in css it sets how much spacing it should be around the table on each page. The startY option can be used if the margin top value should be different on the first page. The margin option accepts both a number, an array [top, right, bottom, left] and an object {top: 40, right: 40, bottom: 40, left: 40}. If you want to use the default value and only change one side you can specify it like this: {top: 60}.
+- `pageBreak` This option defines the behavior of the table when it will span more than one page. If set to 'always' each table will always start on a new page. If set to 'avoid' it will start on a new page if there is not enough room to fit the entire table on the current page. If set to 'auto' it will add a new page only when the next row doesn't fit.
+- `tableWidth` This option defines the fixed width of the table if set to a number. If set to 'auto' it will be 100% of width of the pageand if set to 'wrap' it will only be as wide as its content is.  
+
+### Hooks
+There are 8 different hooks that gets called at various times during the drawing of the table. If applicable, information about the current cell, row or column are provided to the hook function. In addition to that the following general information is alaways provided in the `data` parameter:
+- `pageCount` - The number of pages it currently spans
+- `settings` - The user options merged with the default options
+- `table` - Information about the table such as the rows, columns and dimensions
+- `cursor` - The position at which the next table cell will be drawn. This can be assigned new values to create column and row spans. Checkout the Colspan and Rowspan example for more information.
 
 ### CDN (for testing only!)
 - Experimental: https://rawgit.com/someatoms/jsPDF-AutoTable/v2/jspdf.plugin.autotable.js
 - Stable: https://rawgit.com/someatoms/jsPDF-AutoTable/master/jspdf.plugin.autotable.js
 
-### Upgrade to Version 2.0
+### Upgrade to Version 2.0 from 1.x
 - Use the hooks (or  styles and themes) instead of `renderCell`, `renderHeaderCell`, `renderFooter`and `renderHeader`
 - Custom column width now specified with the style columnWidth
 - Use `tableWidth` instead of `extendWidth`
