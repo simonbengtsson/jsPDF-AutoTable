@@ -16,7 +16,10 @@ Download and include [jspdf.plugin.autotable.js](https://raw.githubusercontent.c
 <script src="bower_components/jspdf-autotable/jspdf.plugin.autotable.js"></script>
 ```
 
-You can also get the plugin with bower `bower install jspdf-autotable` and meteor `meteor add jspdf:autotable`.
+You can also get the plugin with a package manager:
+- `bower install jspdf-autotable`
+- `npm install jspdf-autotable` (only client side usage)
+- `meteor add jspdf:autotable`
 
 ### Usage
 
