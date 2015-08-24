@@ -8,7 +8,7 @@
 (function (API) {
     'use strict';
 
-    // Ratio between font size and font height, number comes from jspdf source code
+    // Ratio between font size and font height. The number comes from jspdf's source code
     var FONT_ROW_RATIO = 1.15;
 
     var doc, // The current jspdf instance
