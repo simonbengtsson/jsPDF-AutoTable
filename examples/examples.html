@@ -3,15 +3,11 @@
 <head lang="en">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pure/0.6.0/pure-min.css">
-    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.6/styles/default.min.css">
+    <!--<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pure/0.6.0/pure-min.css">-->
+    <link rel="stylesheet" href="libs/pure-min.css">
 
-    <!--[if lte IE 8]>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pure/0.6.0/grids-responsive-old-ie-min.css">
-    <![endif]-->
-    <!--[if gt IE 8]><!-->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pure/0.6.0/grids-responsive-min.css">
-    <!--<![endif]-->
+    <!--<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pure/0.6.0/grids-responsive-min.css">-->
+    <link rel="stylesheet" href="libs/grids-responsive-min.css">
 
     <title>AutoTable sample</title>
 
@@ -94,9 +90,9 @@
 <header class="navbar">
     <h1>
         AutoTable - Generate PDF tables and lists (jsPDF plugin)
-        <iframe style="display: inline; vertical-align: middle; margin-left: 10px;"
+        <!--<iframe style="display: inline; vertical-align: middle; margin-left: 10px;"
                 src="https://ghbtns.com/github-btn.html?user=someatoms&repo=jsPDF-AutoTable&type=star&count=true&size=medium"
-                frameborder="0" scrolling="0" width="160px" height="20px"></iframe>
+                frameborder="0" scrolling="0" width="160px" height="20px"></iframe>-->
     </h1>
 </header>
 <div class="pure-g" style="padding-top: 50px; height: 100%;">
@@ -109,6 +105,8 @@
             <li><a href="#multiple">Multiple tables</a></li>
             <li><a href="#html">From html</a></li>
             <li><a href="#header-footer">Header and footer</a></li>
+            <li><a href="#spans">Rowspan and colspan</a></li>
+            <li><a href="#themes">Themes</a></li>
             <li><a href="#custom">Custom style</a></li>
         </ul>
 
@@ -185,24 +183,27 @@
     </tbody>
 </table>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.6/highlight.min.js"></script>
 <!-- All major versions (0.9, 1.0 and 1.1) should work. In my experience 1.0 is the best one right now, but
-<!-- for extended IE support 0.9 would probably be the easiest to use. 1.1 is a bit buggy as of 26th of june 2015.
+<!-- for extended IE support 0.9 would probably be the easiest to use. 1.1 is a bit buggy as of 26th of June 2015.
 <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.1.135/jspdf.min.js"></script>-->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.0.272/jspdf.min.js"></script>
+<!--<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.0.272/jspdf.debug.js"></script>-->
 <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/0.9.0/jspdf.min.js"></script>-->
-<script src="data.js"></script>
+<script src="libs/jspdf.min.js"></script>-->
+<script src="../dist/jspdf.plugin.autotable.js"></script>
+
+<!--<script src="https://cdn.jsdelivr.net/faker.js/2.1.5/faker.min.js"></script>-->
+<!--<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.6/highlight.min.js"></script>-->
+<script src="libs/faker.min.js"></script>
 <script src="examples.js"></script>
-<script src="../jspdf.plugin.autotable.js"></script>
-<script>hljs.initHighlightingOnLoad();</script>
 
 <script>
+    //hljs.initHighlightingOnLoad();
     window.onhashchange = function () {
         update();
     };
 
-    document.getElementById('download-btn').onclick = function() {
-        update(true)
+    document.getElementById('download-btn').onclick = function () {
+        update(true);
     };
 
     function update(shouldDownload) {
