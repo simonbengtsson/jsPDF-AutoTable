@@ -118,11 +118,11 @@ Styles work similar to css and can be overriden by more specific styles. The ove
     columnWidth: 'auto' // 'auto', 'wrap' or a number
 }
 ```
+All colors can either be specified as a number (255 white and 0 for black) or an array [red, green, blue].
 
-Notes
-- All colors can either be specified as a number (255 white and 0 for black) or an array [red, green, blue].
-- Every style above can be changed on a cell by cell basis. However to have different rowHeights for cells in the same row or different columnWidths for cells in the same column is unsupported.
-- Many of the styles has a matching jspdf set method. For example `fillStyle` corresponds to `doc.setFillStyle()`. More information about those can be found in the jspdf documentation.
+Every style above can be changed on a cell by cell basis. However to have different rowHeights for cells in the same row or different columnWidths for cells in the same column is unsupported.
+
+Many of the styles has a matching jspdf set method. For example `fillStyle` corresponds to `doc.setFillStyle()`. More information about those can be found in the jspdf documentation.
 
 ### Properties
 - `startY` Indicates where the table should start to be drawn on the first page (overriding the margin top value). It can be used for example to draw content before the table. Many examples use this option, but the above use case is presented in the `With content` example.
