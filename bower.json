@@ -2,11 +2,9 @@
   "name": "jspdf-autotable",
   "homepage": "https://github.com/someatoms/jspdf-autotable",
   "description": "Generate PDF tables or lists with javascript and jsPDF",
-  "main": "jspdf.plugin.autotable.js",
+  "main": "dist/jspdf.plugin.autotable.js",
   "dependencies": {
-    "jspdf": "~1.0.178",
-    "pure": "~0.6.0",
-    "faker": "git@github.com:Marak/faker.js.git"
+    "jspdf": "~1.0.178"
   },
   "moduleType": [
     "globals"
