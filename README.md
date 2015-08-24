@@ -9,7 +9,7 @@ Check out the [demo](https://someatoms.github.io/jsPDF-AutoTable/) to get an ove
 ![sample javascript table pdf](samples.png)
 
 ### Install
-Download and include [jspdf.plugin.autotable.js](https://someatoms.github.io/jsPDF-AutoTable/) and [jspdf.min.js](https://raw.githubusercontent.com/MrRio/jsPDF/master/dist/jspdf.min.js).
+Download and include [jspdf.plugin.autotable.js](https://raw.githubusercontent.com/someatoms/jsPDF-AutoTable/master/dist/jspdf.plugin.autotable.js) and [jspdf.min.js](https://raw.githubusercontent.com/MrRio/jsPDF/master/dist/jspdf.min.js).
 
 ```html
 <script src="bower_components/jspdf/dist/jspdf.min.js"></script>
