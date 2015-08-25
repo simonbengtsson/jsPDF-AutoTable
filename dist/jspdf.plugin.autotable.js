@@ -324,8 +324,7 @@
             }
 
             var col = new Column(dataKey);
-            col.styles = {};
-            if (typeof col.styles.columnWidth === 'undefined') col.styles.columnWidth = 'auto';
+            col.styles = settings.columnStyles[col.dataKey] || {};
             table.columns.push(col);
 
             var cell = new Cell();
@@ -397,11 +396,12 @@
         var fairWidth = table.width / table.columns.length;
         var staticWidth = 0;
         table.columns.forEach(function (column) {
-            if (column.styles.columnWidth === 'wrap') {
+            var colStyles = extend(defaultStyles, themes[settings.theme].table, settings.styles, column.styles);
+            if (colStyles.columnWidth === 'wrap') {
                 column.width = column.contentWidth;
-            } else if (typeof column.styles.columnWidth === 'number') {
-                column.width = column.styles.columnWidth;
-            } else if (column.styles.columnWidth === 'auto' || true) {
+            } else if (typeof colStyles.columnWidth === 'number') {
+                column.width = colStyles.columnWidth;
+            } else if (colStyles.columnWidth === 'auto' || true) {
                 if (column.contentWidth <= fairWidth && table.contentWidth > table.width) {
                     column.width = column.contentWidth;
                 } else {

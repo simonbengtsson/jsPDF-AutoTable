@@ -59,7 +59,7 @@ examples.long = function () {
     doc.autoTable(columnsLong, getData(), {
         startY: 55,
         margin: {horizontal: 10},
-        columnStyles: {email: {columnWidth: 160}}
+        columnStyles: {text: {columnWidth: 250}}
     });
 
     doc.text("Overflow 'hidden'", 10, doc.autoTableEndPosY() + 30);
