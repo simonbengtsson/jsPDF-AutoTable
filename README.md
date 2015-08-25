@@ -21,6 +21,10 @@ You can also get the plugin with a package manager:
 - `npm install jspdf-autotable` (only client side usage)
 - `meteor add jspdf:autotable`
 
+I'm looking into submitting this plugin to CDNJS. In the meantime you can use rawgit (not suitable for production use!)
+
+[https://rawgit.com/someatoms/jsPDF-AutoTable/master/dist/jspdf.plugin.autotable.js](https://rawgit.com/someatoms/jsPDF-AutoTable/master/dist/jspdf.plugin.autotable.js)
+
 ### Usage
 
 ```javascript
@@ -139,10 +143,6 @@ There are 8 different hooks that gets called at various times during the drawing
 - `settings` - The user options merged with the default options
 - `table` - Information about the table such as the rows, columns and dimensions
 - `cursor` - The position at which the next table cell will be drawn. This can be assigned new values to create column and row spans. Checkout the Colspan and Rowspan example for more information.
-
-### CDN (for testing only!)
-- Experimental: https://rawgit.com/someatoms/jsPDF-AutoTable/v2/jspdf.plugin.autotable.js
-- Stable: https://rawgit.com/someatoms/jsPDF-AutoTable/master/jspdf.plugin.autotable.js
 
 ### Upgrade to Version 2.0 from 1.x
 - Use the hooks (or  styles and themes) instead of `renderCell`, `renderHeaderCell`, `renderFooter`and `renderHeader`
