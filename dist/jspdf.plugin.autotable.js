@@ -115,10 +115,9 @@
         doc = this;
         settings = initOptions(options || {});
         pageCount = 1;
-        cursor = {
-            x: settings.margin.left,
-            y: settings.startY === false ? settings.margin.top : settings.startY
-        };
+
+        // Need a cursor y as it needs to be reset after each page (row.y can't do that)
+        cursor = { y: settings.startY === false ? settings.margin.top : settings.startY };
 
         var userStyles = {
             textColor: 30, // Setting text color to dark gray as it can't be obtained from jsPDF
@@ -302,6 +301,7 @@
      */
     function createModels(inputHeaders, inputData) {
         table = new Table();
+        table.x = settings.margin.left;
 
         var splitRegex = /\r\n|\r|\n/g;
 
@@ -421,8 +421,10 @@
         var all = table.rows.concat(table.headerRow);
         all.forEach(function (row, i) {
             var lineBreakCount = 0;
+            var cursorX = table.x;
             table.columns.forEach(function (col) {
                 var cell = row.cells[col.dataKey];
+                col.x = cursorX;
                 applyStyles(cell.styles);
                 var textSpace = col.width - cell.styles.cellPadding * 2;
                 if (cell.styles.overflow === 'linebreak') {
@@ -443,8 +445,12 @@
                 if (count > lineBreakCount) {
                     lineBreakCount = count;
                 }
+                cursorX += col.width;
             });
-            row.height = row.styles.rowHeight + lineBreakCount * row.styles.fontSize * FONT_ROW_RATIO;
+
+            row.heightStyle = row.styles.rowHeight;
+            // TODO Pick the highest row based on font size as well
+            row.height = row.heightStyle + lineBreakCount * row.styles.fontSize * FONT_ROW_RATIO;
             table.height += row.height;
         });
     }
@@ -471,32 +477,64 @@
 
     function printRows() {
         table.rows.forEach(function (row, i) {
-            // Add a new page if cursor is at the end of page
-            var newPage = table.rows[i] && (cursor.y + table.rows[i].height + settings.margin.bottom) >= doc.internal.pageSize.height;
-            if (newPage) {
-                settings.afterPageContent(hooksData());
-                doc.addPage();
-                pageCount++;
-                cursor = {x: settings.margin.left, y: settings.margin.top};
-                settings.beforePageContent(hooksData());
-                if (settings.drawHeaderRow(row, hooksData({row: row})) !== false) {
-                    printRow(table.headerRow, settings.drawHeaderCell);
+            if (isNewPage(row.height)) {
+                var samePageThreshold = 3;
+                if (row.height > row.heightStyle * samePageThreshold) {
+                    var remainingPageSpace = doc.internal.pageSize.height - cursor.y - settings.margin.bottom;
+                    var lineCount = Math.floor(remainingPageSpace / (row.styles.fontSize * FONT_ROW_RATIO));
+                    table.columns.forEach(function(col) {
+                        var arr = row.cells[col.dataKey].text;
+                        if (arr.length > lineCount) {
+                            arr.splice(lineCount - 1, arr.length, "...");
+                        }
+                    });
+
+                    row.height = remainingPageSpace;
+                    if (settings.drawRow(row, hooksData({row: row})) !== false) {
+                        printRow(row, settings.drawCell);
+                    }
+                    row = new Row();
                 }
+                addPage();
             }
             row.y = cursor.y;
-            doc.setTextColor(0);
             if (settings.drawRow(row, hooksData({row: row})) !== false) {
                 printRow(row, settings.drawCell);
             }
         });
     }
 
+    function addPage() {
+        settings.afterPageContent(hooksData());
+        doc.addPage();
+        pageCount++;
+        cursor = {x: settings.margin.left, y: settings.margin.top};
+        settings.beforePageContent(hooksData());
+        if (settings.drawHeaderRow(table.headerRow, hooksData({row: table.headerRow})) !== false) {
+            printRow(table.headerRow, settings.drawHeaderCell);
+        }
+    }
+
+    /**
+     * Add a new page if cursor is at the end of page
+     * @param rowHeight
+     * @returns {boolean}
+     */
+    function isNewPage(rowHeight) {
+        var afterRowPos = cursor.y + rowHeight + settings.margin.bottom;
+        return afterRowPos >= doc.internal.pageSize.height;
+    }
+
     function printRow(row, hookHandler) {
-        table.columns.forEach(function (column) {
+        for (var i = 0; i < table.columns.length; i++) {
+            var column = table.columns[i];
             var cell = row.cells[column.dataKey];
+            if(!cell) {
+                continue;
+            }
             applyStyles(cell.styles);
 
-            cell.x = cursor.x;
+            cell.x = column.x;
             cell.y = cursor.y;
             cell.height = row.height;
             cell.width = column.width;
@@ -510,11 +548,11 @@
             }
 
             if (cell.styles.halign === 'right') {
-                cell.textPos.x = cursor.x + cell.width - cell.styles.cellPadding;
+                cell.textPos.x = cell.x + cell.width - cell.styles.cellPadding;
             } else if (cell.styles.halign === 'center') {
-                cell.textPos.x = cursor.x + cell.width / 2;
+                cell.textPos.x = cell.x + cell.width / 2;
             } else {
-                cell.textPos.x = cursor.x + cell.styles.cellPadding;
+                cell.textPos.x = cell.x + cell.styles.cellPadding;
             }
 
             var data = hooksData({column: column, row: row});
@@ -525,12 +563,9 @@
                     valign: cell.styles.valign
                 });
             }
-
-            cursor.x += cell.width;
-        });
+        }
 
         cursor.y += row.height;
-        cursor.x = settings.margin.left;
     }
 
     function applyStyles(styles) {
@@ -630,6 +665,8 @@
 var Table = function () {
     this.height = 0;
     this.width = 0;
+    this.x = 0;
+    this.y = 0;
     this.contentWidth = 0;
     this.rows = [];
     this.columns = [];
@@ -642,7 +679,7 @@ var Row = function () {
     this.index = 0;
     this.styles = {};
     this.cells = {};
-    this.height = -1;
+    this.height = 0;
     this.y = 0;
 };
 
@@ -650,7 +687,7 @@ var Cell = function (raw) {
     this.raw = raw;
     this.styles = {};
     this.text = '';
-    this.contentWidth = -1;
+    this.contentWidth = 0;
     this.textPos = {};
     this.height = 0;
     this.width = 0;
@@ -662,6 +699,7 @@ var Column = function (dataKey) {
     this.dataKey = dataKey;
     this.options = {};
     this.styles = {};
-    this.contentWidth = -1;
-    this.width = -1;
+    this.contentWidth = 0;
+    this.width = 0;
+    this.x = 0;
 };

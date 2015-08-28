@@ -153,6 +153,7 @@ There are 8 different hooks that gets called at various times during the drawing
 - Use `margin` instead of `margins`
 - `autoTableHtmlToJson` now always returns an object
 - Use `API.autoTableEndPosY()` instead of `API.autoTableEndPos()`
+- Use column.x instead of cursor.x
 
 ### Other pdf libraries
 
