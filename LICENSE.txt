@@ -1,3 +1,5 @@
+The MIT License (MIT)
+
 Copyright (c) 2014 Simon Bengtsson, https://github.com/someatoms/jspdf-autotable
 
 Permission is hereby granted, free of charge, to any person obtaining
