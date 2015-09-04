@@ -195,6 +195,22 @@ examples.themes = function () {
     return doc;
 };
 
+// Horizontal - shows how tables can be drawn with horizontal headers
+examples.horizontal = function () {
+    var doc = new jsPDF('p', 'pt');
+    doc.autoTable(getColumns().splice(1,4), getData(), {
+        drawHeaderRow: function() {
+            // Don't draw header row
+            return false;
+        },
+        columnStyles: {
+            first_name: {fillColor: [41, 128, 185], textColor: 255}
+        }
+    });
+    return doc;
+};
+
+
 // Custom style - shows how custom styles can be applied to tables
 examples.custom = function () {
     var doc = new jsPDF('p', 'pt');

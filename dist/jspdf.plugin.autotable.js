@@ -353,7 +353,7 @@
                 cell.styles = extend(row.styles, column.styles);
                 cell.text = typeof cell.raw !== 'undefined' ? '' + cell.raw : ''; // Stringify 0 and false, but not undefined
                 row.cells[column.dataKey] = cell;
-                settings.createdCell(cell, {column: column, row: row, settings: settings});
+                settings.createdCell(cell, hooksData({column: column, row: row}));
                 cell.contentWidth = cell.styles.cellPadding * 2 + getStringWidth(cell.text, cell.styles);
                 cell.text = cell.text.split(splitRegex);
             });
