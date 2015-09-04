@@ -353,7 +353,7 @@
                 cell.styles = extend(row.styles, column.styles);
                 cell.text = typeof cell.raw !== 'undefined' ? '' + cell.raw : ''; // Stringify 0 and false, but not undefined
                 row.cells[column.dataKey] = cell;
-                settings.createdCell(cell, hooksData({column: column, row: row}));
+                settings.createdCell(cell, {column: column, row: row, settings: settings});
                 cell.contentWidth = cell.styles.cellPadding * 2 + getStringWidth(cell.text, cell.styles);
                 cell.text = cell.text.split(splitRegex);
             });
@@ -479,34 +479,21 @@
         table.rows.forEach(function (row, i) {
             if (isNewPage(row.height)) {
                 var samePageThreshold = 3;
-                var firstRow = row;
-                row = new Row();
-                row.styles = firstRow.styles;
-                row.heightStyle = firstRow.heightStyle;
-                if (firstRow.height > firstRow.heightStyle * samePageThreshold) {
+                if (row.height > row.heightStyle * samePageThreshold) {
                     var remainingPageSpace = doc.internal.pageSize.height - cursor.y - settings.margin.bottom;
-                    var lineCount = remainingPageSpace / (firstRow.styles.fontSize * FONT_ROW_RATIO);
-                    var lineCountInt = Math.floor(lineCount);
-                    row.height = firstRow.height - remainingPageSpace + ((lineCount - lineCountInt) * (firstRow.styles.fontSize * FONT_ROW_RATIO));
-
+                    var lineCount = Math.floor(remainingPageSpace / (row.styles.fontSize * FONT_ROW_RATIO));
                     table.columns.forEach(function(col) {
-                        var firstCell = firstRow.cells[col.dataKey];
-                        if (firstCell.text.length > lineCount) {
-                            var cell = new Cell();
-                            cell.raw = firstCell.raw;
-                            cell.styles = firstCell.styles;
-                            cell.text = firstCell.text.splice(lineCount, firstCell.text.length);
-                            row.cells[col.dataKey] = cell;
-                            settings.createdCell(cell, hooksData({column: col, row: row}));
-                            cell.contentWidth = firstCell.contentWidth;
-                            console.log(cell, firstCell);
+                        var arr = row.cells[col.dataKey].text;
+                        if (arr.length > lineCount) {
+                            arr.splice(lineCount - 1, arr.length, "...");
                         }
                     });
 
-                    firstRow.height = remainingPageSpace;
-                    if (settings.drawRow(firstRow, hooksData({row: firstRow})) !== false) {
-                        printRow(firstRow, settings.drawCell);
+                    row.height = remainingPageSpace;
+                    if (settings.drawRow(row, hooksData({row: row})) !== false) {
+                        printRow(row, settings.drawCell);
                     }
+                    row = new Row();
                 }
                 addPage();
             }
