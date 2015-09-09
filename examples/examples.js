@@ -204,7 +204,7 @@ examples.horizontal = function () {
             return false;
         },
         columnStyles: {
-            first_name: {fillColor: [41, 128, 185], textColor: 255}
+            first_name: {fillColor: [41, 128, 185], textColor: 255, fontStyle: 'bold'}
         }
     });
     return doc;

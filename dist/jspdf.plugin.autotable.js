@@ -59,7 +59,7 @@
                 textColor: 80,
                 fontStyle: 'normal',
                 lineWidth: 0.1,
-                fillStyle: 'S'
+                fillStyle: 'DF'
             },
             header: {
                 textColor: 255,
