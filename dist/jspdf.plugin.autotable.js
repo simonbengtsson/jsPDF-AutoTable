@@ -168,6 +168,19 @@
     };
 
     /**
+     * Resets Y position to zero (0) and returns true if done, false otherwise.
+     * @returns {boolean}
+     */
+    API.resetEndPosY = function() {
+        if (typeof cursor === 'undefined' || typeof cursor.y === 'undefined') {
+            console.error("resetEndPosY() called without autoTable() being called first");
+            return false;
+        }
+        cursor.y = 0;
+        return true;
+    }
+
+    /**
      * Parses an html table
      *
      * @param table Html table element
