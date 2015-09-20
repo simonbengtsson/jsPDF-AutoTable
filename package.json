@@ -12,7 +12,10 @@
     "uglify-js": "^2.4.24"
   },
   "scripts": {
-    "build": "babel src/main.js | uglifyjs -o dist/jspdf.plugin.autotable.js --comments && babel src/main.js > dist/jspdf.plugin.autotable.src.js && node build updateVersion"
+    "build": "babel src/main.js | uglifyjs -o dist/jspdf.plugin.autotable.js --comments && babel src/main.js > dist/jspdf.plugin.autotable.src.js && node build updateVersion",
+    "version": "npm run build && git add -A dist",
+    "deploy": "git push && git push --tags && npm publish",
+    "hosted": "git checkout gh-pages && bower update && git add -A && git commit -m \"Updated to latest version\" && git push"
   },
   "repository": {
     "type": "git",

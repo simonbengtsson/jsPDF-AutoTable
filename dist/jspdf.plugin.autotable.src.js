@@ -1,5 +1,5 @@
 /**
- * jsPDF AutoTable plugin v2.0.2
+ * jsPDF AutoTable plugin v2.0.3
  * Copyright (c) 2014 Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable
  *
  * Licensed under the MIT License.
@@ -669,6 +669,8 @@ var Table = function Table() {
 };
 
 var Row = function Row() {
+    _classCallCheck(this, Row);
+
     this.raw = {};
     this.index = 0;
     this.styles = {};
@@ -678,6 +680,8 @@ var Row = function Row() {
 };
 
 var Cell = function Cell(raw) {
+    _classCallCheck(this, Cell);
+
     this.raw = raw;
     this.styles = {};
     this.text = '';
@@ -690,6 +694,8 @@ var Cell = function Cell(raw) {
 };
 
 var Column = function Column(dataKey) {
+    _classCallCheck(this, Column);
+
     this.dataKey = dataKey;
     this.options = {};
     this.styles = {};
