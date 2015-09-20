@@ -12,13 +12,11 @@ switch(process.argv[2]) {
  * Updates the plugin version in the dist files
  */
 function updateVersion() {
-    var pf = fs.readFileSync('package.json', 'utf8');
-    var v = JSON.parse(pf).version;
-
+    var v = require('./package.json').version;
     var distFiles = ['dist/jspdf.plugin.autotable.js', 'dist/jspdf.plugin.autotable.src.js'];
     for (var file of distFiles) {
         var lf = fs.readFileSync(file, 'utf8');
         lf = lf.replace('__VERSION__', 'v' + v);
-        fs.writeFile(file, lf);
+        fs.writeFileSync(file, lf);
     }
 }
