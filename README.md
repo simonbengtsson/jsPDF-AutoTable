@@ -171,3 +171,10 @@ If you have questions regarding how to use this plugin, please post on stackover
 
 ### Contributions
 Contributions are always welcome, especially on open issues. If have something major you want to add or change, please post an issue about it first.
+
+### Release
+- Update version in `package.json`
+- Build with `npm run build`
+- Manually test by looking over the examples
+- Commit and create a new tag
+- Update hosted examples

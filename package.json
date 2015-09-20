@@ -1,15 +1,18 @@
 {
   "name": "jspdf-autotable",
-  "version": "2.0.0",
+  "version": "2.0.2",
   "description": "Generate PDF tables with jsPDF",
   "main": "dist/jspdf.plugin.autotable.js",
   "directories": {
     "example": "examples"
   },
   "dependencies": {},
-  "devDependencies": {},
+  "devDependencies": {
+    "babel": "^5.8.23",
+    "uglify-js": "^2.4.24"
+  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "babel src/main.js | uglifyjs -o dist/jspdf.plugin.autotable.js --comments && babel src/main.js > dist/jspdf.plugin.autotable.src.js && node build updateVersion"
   },
   "repository": {
     "type": "git",
@@ -20,7 +23,7 @@
     "table",
     "jspdf"
   ],
-  "author": "Simon Bengtsson <simonbengt@gmail.com> (simonbengtsson.com)",
+  "author": "Simon Bengtsson <simongbe@gmail.com> (simonbengtsson.com)",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/someatoms/jsPDF-AutoTable/issues"
