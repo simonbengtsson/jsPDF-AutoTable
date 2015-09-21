@@ -6,7 +6,9 @@
   "directories": {
     "example": "examples"
   },
-  "dependencies": {},
+  "dependencies": {
+    "jspdf": "^1.0.272"
+  },
   "devDependencies": {
     "babel": "^5.8.23",
     "uglify-js": "^2.4.24"
