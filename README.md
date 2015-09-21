@@ -1,15 +1,15 @@
 # AutoTable - Table plugin for jsPDF
 
-[![Join the chat at https://gitter.im/someatoms/jsPDF-AutoTable](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/someatoms/jsPDF-AutoTable?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Join the chat at https://gitter.im/simonbengtsson/jsPDF-AutoTable](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/simonbengtsson/jsPDF-AutoTable?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 **Generate PDF tables with javascript**
 
-Check out the [demo](https://someatoms.github.io/jsPDF-AutoTable/) to get an overview of what can be done with this plugin. Example uses include participant tables, start lists, result lists etc.
+Check out the [demo](https://simonbengtsson.github.io/jsPDF-AutoTable/) to get an overview of what can be done with this plugin. Example uses include participant tables, start lists, result lists etc.
 
 ![sample javascript table pdf](samples.png)
 
 ### Install
-Download and include [jspdf.plugin.autotable.js](https://raw.githubusercontent.com/someatoms/jsPDF-AutoTable/master/dist/jspdf.plugin.autotable.js) and [jspdf.min.js](https://raw.githubusercontent.com/MrRio/jsPDF/master/dist/jspdf.min.js).
+Download and include [jspdf.plugin.autotable.js](https://raw.githubusercontent.com/simonbengtsson/jsPDF-AutoTable/master/dist/jspdf.plugin.autotable.js) and [jspdf.min.js](https://raw.githubusercontent.com/MrRio/jsPDF/master/dist/jspdf.min.js).
 
 ```html
 <script src="bower_components/jspdf/dist/jspdf.min.js"></script>
@@ -23,7 +23,7 @@ You can also get the plugin with a package manager:
 
 I'm looking into submitting this plugin to CDNJS. In the meantime you can use rawgit (not suitable for production use!)
 
-[https://rawgit.com/someatoms/jsPDF-AutoTable/master/dist/jspdf.plugin.autotable.js](https://rawgit.com/someatoms/jsPDF-AutoTable/master/dist/jspdf.plugin.autotable.js)
+[https://rawgit.com/simonbengtsson/jsPDF-AutoTable/master/dist/jspdf.plugin.autotable.js](https://rawgit.com/simonbengtsson/jsPDF-AutoTable/master/dist/jspdf.plugin.autotable.js)
 
 ### Usage
 
@@ -71,7 +71,7 @@ doc.autoTable(columns, rows, {
 doc.save('table.pdf');
 ```
 
-See other examples in `/examples/examples.js` which is also the source code for the [demo](https://someatoms.github.io/jsPDF-AutoTable/) documents.
+See other examples in `/examples/examples.js` which is also the source code for the [demo](https://simonbengtsson.github.io/jsPDF-AutoTable/) documents.
 
 ### Options
 All options below are used in `examples.js` so be sure to check it out if in doubt.

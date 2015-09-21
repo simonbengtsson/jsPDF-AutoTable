@@ -16,12 +16,12 @@
   "scripts": {
     "build": "babel src/main.js | uglifyjs -o dist/jspdf.plugin.autotable.js --comments && babel src/main.js > dist/jspdf.plugin.autotable.src.js && node build updateVersion",
     "version": "npm run build && git add -A dist",
-    "hosted": "git checkout gh-pages && git clean -f -d && npm run build && git add -A && git commit -m \"Updated to latest version\" && git push && git checkout master && git clean -f -d",
+    "hosted": "git checkout gh-pages && npm run build && git add -A && git commit -m \"Updated to latest version\" && git push && git checkout master && git clean -f -d",
     "deploy": "git push && git push --tags && npm publish && npm run hosted"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/someatoms/jsPDF-AutoTable.git"
+    "url": "git+https://github.com/simonbengtsson/jsPDF-AutoTable.git"
   },
   "keywords": [
     "pdf",
@@ -31,7 +31,7 @@
   "author": "Simon Bengtsson <simongbe@gmail.com> (simonbengtsson.com)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/someatoms/jsPDF-AutoTable/issues"
+    "url": "https://github.com/simonbengtsson/jsPDF-AutoTable/issues"
   },
-  "homepage": "https://github.com/someatoms/jsPDF-AutoTable#readme"
+  "homepage": "https://github.com/simonbengtsson/jsPDF-AutoTable#readme"
 }
