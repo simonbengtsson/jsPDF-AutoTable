@@ -163,7 +163,6 @@
      */
     API.autoTableEndPosY = function () {
         if (typeof cursor === 'undefined' || typeof cursor.y === 'undefined') {
-            console.error("autoTableEndPosY() called without autoTable() being called first");
             return 0;
         }
         return cursor.y;
