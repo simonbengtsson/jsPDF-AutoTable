@@ -36,6 +36,7 @@ var rows = [
     ...
 ];
 
+// Only pt supported (not mm or in)
 var doc = new jsPDF('p', 'pt');
 doc.autoTable(columns, rows);
 doc.save('table.pdf');
@@ -57,6 +58,7 @@ var rows = [
     ...
 ];
 
+// Only pt supported (not mm or in)
 var doc = new jsPDF('p', 'pt');
 doc.autoTable(columns, rows, {
     styles: {fillColor: [100, 255, 255]},
@@ -103,6 +105,9 @@ All options below are used in `examples.js` so be sure to check it out if in dou
     afterPageContent: function (data) {}
  };
 ```
+
+### Note on units
+Only pt are supported at this stage. The goal is to support all units supported by jspdf including mm and in but currently there is not timeplan for that.
 
 ### Styles
 Styles work similar to css and can be overriden by more specific styles. The overriding order is as follows: Default styles <- theme styles <- `styles` <- `headerStyles` and `bodyStyles` <- `alternateRowStyles` and `columnStyles`. It is also possible to override specific cell or row styles using for example the `createdCell` hook. Checkout the `Custom style` example for more information.
