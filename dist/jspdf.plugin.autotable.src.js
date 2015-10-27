@@ -1,5 +1,5 @@
 /**
- * jsPDF AutoTable plugin v2.0.12
+ * jsPDF AutoTable plugin v2.0.13
  * Copyright (c) 2014 Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable
  *
  * Licensed under the MIT License.
@@ -479,22 +479,22 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         table.rows.forEach(function (row, i) {
             if (isNewPage(row.height)) {
                 var samePageThreshold = 3;
-                if (row.height > row.heightStyle * samePageThreshold) {
+                // TODO Fix cell height > pageHeight
+                /*if (row.height > row.heightStyle * samePageThreshold) {
                     var remainingPageSpace = doc.internal.pageSize.height - cursor.y - settings.margin.bottom;
                     var lineCount = Math.floor(remainingPageSpace / (row.styles.fontSize * FONT_ROW_RATIO));
-                    table.columns.forEach(function (col) {
+                    table.columns.forEach(function(col) {
                         var arr = row.cells[col.dataKey].text;
                         if (arr.length > lineCount) {
                             arr.splice(lineCount - 1, arr.length, "...");
                         }
                     });
-
-                    row.height = remainingPageSpace;
-                    if (settings.drawRow(row, hooksData({ row: row })) !== false) {
+                     row.height = remainingPageSpace;
+                    if (settings.drawRow(row, hooksData({row: row})) !== false) {
                         printRow(row, settings.drawCell);
                     }
                     row = new Row();
-                }
+                }*/
                 addPage();
             }
             row.y = cursor.y;
