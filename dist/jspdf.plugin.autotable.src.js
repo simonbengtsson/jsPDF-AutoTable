@@ -1,5 +1,5 @@
 /**
- * jsPDF AutoTable plugin v2.0.11
+ * jsPDF AutoTable plugin v2.0.12
  * Copyright (c) 2014 Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable
  *
  * Licensed under the MIT License.
@@ -166,7 +166,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
      */
     API.autoTableEndPosY = function () {
         if (typeof cursor === 'undefined' || typeof cursor.y === 'undefined') {
-            console.error("autoTableEndPosY() called without autoTable() being called first");
             return 0;
         }
         return cursor.y;
