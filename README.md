@@ -175,7 +175,12 @@ No included table features and have to be used server side.
 If you have questions regarding how to use this plugin, please post on stackoverflow with the `jspdf-autotable` tag and I will try to answer them. If you think you have found a problem with the plugin feel free to create an issue on Github. However, try to replicate the issue on `codepen` or some similar service first. Here is a [codepen](http://codepen.io/someatoms/pen/EjwPEb) with `jspdf` and `jspdf-autotable` included that you can fork.
 
 ### Contributions
-Contributions are always welcome, especially on open issues. If have something major you want to add or change, please post an issue about it first.
+Contributions are always welcome, especially on open issues. If you have something major you want to add or change, please post an issue about it first.
+
+- Make your changes in `src/main.js`
+- Build dist files with `npm run build`
+- Test the examples in examples.html to make sure everything looks alright
+- Submit pull request
 
 ### Release
 - Build with `npm version <semver|major|minor|patch> -m <optional-commit-message>`
@@ -185,5 +190,7 @@ Contributions are always welcome, especially on open issues. If have something m
 ### Known issues
 - The style `valign: center` gets inexact when using `overflown: linebreak` and there is around five or more rows
 
-### Future requests
+### Future work
 - Header option `always`, `single`, `none`
+- Improve examples page (especially for firefox and mobile browsers that doesn't embed pdfs)
+- Easier way to add page numbers
