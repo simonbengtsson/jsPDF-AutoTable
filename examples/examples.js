@@ -233,7 +233,7 @@ examples.custom = function () {
         alternateRowStyles: {
             fillColor: [74, 96, 117]
         },
-        columnBodyStyles: {
+        columnStyles: {
             email: {
                 fontStyle: 'bold'
             }

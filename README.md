@@ -173,7 +173,7 @@ If you have questions regarding how to use this plugin, please post on stackover
 Contributions are always welcome, especially on open issues. If have something major you want to add or change, please post an issue about it first.
 
 ### Release
-- Build with `npm version <semver>`
+- Build with `npm version <semver|major|minor|patch> -m <optional-commit-message>`
 - Manually check files and look over the examples
 - Deploy with `npm run deploy`
 
