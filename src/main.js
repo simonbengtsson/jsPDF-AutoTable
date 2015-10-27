@@ -480,7 +480,8 @@
         table.rows.forEach(function (row, i) {
             if (isNewPage(row.height)) {
                 var samePageThreshold = 3;
-                if (row.height > row.heightStyle * samePageThreshold) {
+                // TODO Fix cell height > pageHeight
+                /*if (row.height > row.heightStyle * samePageThreshold) {
                     var remainingPageSpace = doc.internal.pageSize.height - cursor.y - settings.margin.bottom;
                     var lineCount = Math.floor(remainingPageSpace / (row.styles.fontSize * FONT_ROW_RATIO));
                     table.columns.forEach(function(col) {
@@ -495,7 +496,7 @@
                         printRow(row, settings.drawCell);
                     }
                     row = new Row();
-                }
+                }*/
                 addPage();
             }
             row.y = cursor.y;
