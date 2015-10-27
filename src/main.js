@@ -31,7 +31,7 @@
         fillColor: 255,
         textColor: 20,
         halign: 'left', // left, center, right
-        valign: 'middle', // top, middle, bottom
+        valign: 'top', // top, middle, bottom
         fillStyle: 'F', // 'S', 'F' or 'DF' (stroke, fill or fill then stroke)
         rowHeight: 20,
         columnWidth: 'auto'

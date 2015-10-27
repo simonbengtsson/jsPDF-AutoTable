@@ -176,3 +176,9 @@ Contributions are always welcome, especially on open issues. If have something m
 - Build with `npm version <semver>`
 - Manually check files and look over the examples
 - Deploy with `npm run deploy`
+
+### Known issues
+- The style `valign: center` gets inexact when using `overflown: linebreak` and there is around five or more rows
+
+### Future requests
+- Header option `always`, `single`, `none`
