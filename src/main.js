@@ -307,8 +307,7 @@
         var splitRegex = /\r\n|\r|\n/g;
 
         // Header row and columns
-        var headerRow = new Row();
-        headerRow.raw = inputHeaders;
+        var headerRow = new Row(inputHeaders);
         headerRow.index = -1;
 
         var themeStyles = extend(defaultStyles, themes[settings.theme].table, themes[settings.theme].header);
@@ -495,7 +494,7 @@
                     if (settings.drawRow(row, hooksData({row: row})) !== false) {
                         printRow(row, settings.drawCell);
                     }
-                    row = new Row();
+                    row = new Row(rawRow);
                 }*/
                 addPage();
             }
@@ -679,8 +678,8 @@ class Table {
 }
 
 class Row {
-    constructor() {
-        this.raw = {};
+    constructor(raw) {
+        this.raw = raw || {};
         this.index = 0;
         this.styles = {};
         this.cells = {};
