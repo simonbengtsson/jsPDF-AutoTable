@@ -114,6 +114,7 @@
      * @param {Object} [options={}] Options that will override the default ones
      */
     API.autoTable = function (headers, data, options) {
+        validateInput(headers, data, options);
         doc = this;
         settings = initOptions(options || {});
         pageCount = 1;
@@ -246,6 +247,26 @@
         doc.text(text, x, y);
         return doc;
     };
+
+    function validateInput(headers, data, options) {
+        if (!headers || typeof headers !== 'object') {
+            console.error("The headers should be an object or array, is: " + typeof headers);
+        }
+
+        if (!data || typeof data !== 'object') {
+            console.error("The data should be an object or array, is: " + typeof data);
+        }
+
+        if (!!options && typeof options !== 'object') {
+            console.error("The data should be an object or array, is: " + typeof data);
+        }
+
+        if (!Array.prototype.forEach) {
+            console.error("The current browser does not support Array.prototype.forEach which is required for " +
+                "jsPDF-AutoTable. You can try polyfilling it by including this script " +
+                "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/forEach#Polyfill");
+        }
+    }
 
     function initOptions(userOptions) {
         var settings = extend(defaultOptions(), userOptions);
