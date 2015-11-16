@@ -172,31 +172,35 @@
     /**
      * Parses an html table
      *
-     * @param table Html table element
+     * @param tableElem Html table element
+     * @param includeHiddenRows Defaults to false
      * @returns Object Object with two properties, columns and rows
      */
-    API.autoTableHtmlToJson = function (table) {
-        var data = [],
-            headers = [],
-            header = table.rows[0],
-            tableRow,
-            rowData,
-            i,
-            j;
+    API.autoTableHtmlToJson = function (tableElem, includeHiddenRows) {
+        includeHiddenRows = includeHiddenRows || false;
 
-        for (i = 0; i < header.cells.length; i++) {
-            headers.push(typeof header.cells[i] !== 'undefined' ? header.cells[i].textContent : '');
+        var header = tableElem.rows[0];
+        var result = {columns: [], rows: []};
+
+        for (var k = 0; k < header.cells.length; k++) {
+            var cell = header.cells[k];
+            result.columns.push(typeof cell !== 'undefined' ? cell.textContent : '');
         }
 
-        for (i = 1; i < table.rows.length; i++) {
-            tableRow = table.rows[i];
-            rowData = [];
-            for (j = 0; j < header.cells.length; j++) {
-                rowData.push(typeof tableRow.cells[j] !== 'undefined' ? tableRow.cells[j].textContent : '');
+        for (var i = 1; i < tableElem.rows.length; i++) {
+            var tableRow = tableElem.rows[i];
+            var style = window.getComputedStyle(tableRow);
+            if (includeHiddenRows || style.display !== 'none') {
+                var rowData = [];
+                for (var j = 0; j < header.cells.length; j++) {
+                    rowData.push(typeof tableRow.cells[j] !== 'undefined' ? tableRow.cells[j].textContent : '');
+                }
+                result.rows.push(rowData);
             }
-            data.push(rowData);
         }
-        return {columns: headers, data: data, rows: data};
+
+        result.data = result.rows; // Deprecated
+        return result;
     };
 
     /**

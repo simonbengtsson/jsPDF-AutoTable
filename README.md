@@ -149,6 +149,10 @@ There are 8 different hooks that gets called at various times during the drawing
 - `table` - Information about the table such as the rows, columns and dimensions
 - `cursor` - The position at which the next table cell will be drawn. This can be assigned new values to create column and row spans. Checkout the Colspan and Rowspan example for more information.
 
+### Helper functions
+- `autoTableHtmlToJson(tableElem, includeHiddenRows)` Use it to generate the javascript objects required for this library from an html table (see `from html` example)
+- `autoTableEndPosY()` Use it if you want to know where on the page the the last row were drawn (see `multiple tables` example)
+
 ### Upgrade to Version 2.0 from 1.x
 - Use the hooks (or  styles and themes) instead of `renderCell`, `renderHeaderCell`, `renderFooter`and `renderHeader`
 - Custom column width now specified with the style columnWidth
@@ -175,14 +179,14 @@ No included table features and have to be used server side.
 If you have questions regarding how to use this plugin, please post on stackoverflow with the `jspdf-autotable` tag and I will try to answer them. If you think you have found a problem with the plugin feel free to create an issue on Github. However, try to replicate the issue on `codepen` or some similar service first. Here is a [codepen](http://codepen.io/someatoms/pen/EjwPEb) with `jspdf` and `jspdf-autotable` included that you can fork.
 
 ### Contributions
-Contributions are always welcome, especially on open issues. If you have something major you want to add or change, please post an issue about it first.
+Contributions are always welcome, especially on open issues or for items in the future work section below. If you have something major you want to add or change, please post an issue about it first.
 
 - Make your changes in `src/main.js`
 - Build dist files with `npm run build`
 - Test the examples in examples.html to make sure everything looks alright
 - Submit pull request
 
-### Release
+### Release (write access to repo required)
 - Build with `npm version <semver|major|minor|patch> -m <optional-commit-message>`
 - Manually check files and look over the examples
 - Deploy with `npm run deploy`
