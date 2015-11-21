@@ -21,9 +21,10 @@ You can also get the plugin with a package manager:
 - `npm install jspdf-autotable` (only client side usage)
 - `meteor add jspdf:autotable`
 
-I'm looking into submitting this plugin to CDNJS. In the meantime you can use rawgit (not suitable for production use!)
-
-[https://rawgit.com/simonbengtsson/jsPDF-AutoTable/master/dist/jspdf.plugin.autotable.js](https://rawgit.com/simonbengtsson/jsPDF-AutoTable/master/dist/jspdf.plugin.autotable.js)
+It is also available on cdnjs:
+```html
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/2.0.16/jspdf.plugin.autotable.js"></script>
+```
 
 ### Usage
 
