@@ -182,7 +182,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
     API.autoTableHtmlToJson = function (tableElem, includeHiddenRows) {
         includeHiddenRows = includeHiddenRows || false;
 
-        var header = tableElem.rows[0];
+        var header = tableElem.getElementsByTagName('tr')[0];
         var result = { columns: [], rows: [] };
 
         for (var k = 0; k < header.cells.length; k++) {
