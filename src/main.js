@@ -354,7 +354,7 @@
 
             var cell = new Cell();
             cell.raw = typeof rawColumn === 'object' ? rawColumn.title : rawColumn;
-            cell.styles = headerRow.styles;
+            cell.styles = extend(headerRow.styles);
             cell.text = '' + cell.raw;
             cell.contentWidth = cell.styles.cellPadding * 2 + getStringWidth(cell.text, cell.styles);
             cell.text = cell.text.split(splitRegex);
