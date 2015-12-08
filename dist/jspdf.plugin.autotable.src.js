@@ -1,5 +1,5 @@
 /**
- * jsPDF AutoTable plugin v2.0.16
+ * jsPDF AutoTable plugin v2.0.17
  * Copyright (c) 2014 Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable
  *
  * Licensed under the MIT License.
@@ -182,7 +182,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
     API.autoTableHtmlToJson = function (tableElem, includeHiddenRows) {
         includeHiddenRows = includeHiddenRows || false;
 
-        var header = tableElem.getElementsByTagName('tr')[0];
+        var header = tableElem.rows[0];
         var result = { columns: [], rows: [] };
 
         for (var k = 0; k < header.cells.length; k++) {
@@ -351,7 +351,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
             var cell = new Cell();
             cell.raw = typeof rawColumn === 'object' ? rawColumn.title : rawColumn;
-            cell.styles = headerRow.styles;
+            cell.styles = extend(headerRow.styles);
             cell.text = '' + cell.raw;
             cell.contentWidth = cell.styles.cellPadding * 2 + getStringWidth(cell.text, cell.styles);
             cell.text = cell.text.split(splitRegex);
