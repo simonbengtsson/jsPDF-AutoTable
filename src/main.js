@@ -1,4 +1,4 @@
-/**
+/*
  * jsPDF AutoTable plugin __VERSION__
  * Copyright (c) 2014 Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable
  *
@@ -7,6 +7,10 @@
  *
  * @preserve
  */
+
+import {Table, Row, Cell, Column} from './models.js';
+import {extend} from './common.js';
+
 (function (API) {
     'use strict';
 
@@ -631,6 +635,13 @@
         return data;
     }
 
+    function getStringWidth(text, styles) {
+        applyStyles(styles);
+        var w = doc.getStringUnitWidth(text);
+        return w * styles.fontSize;
+    }
+
+
     /**
      * Ellipsize the text to fit in the width
      */
@@ -656,84 +667,4 @@
         return text.trim() + ellipsizeStr;
     }
 
-    function getStringWidth(text, styles) {
-        applyStyles(styles);
-        var w = doc.getStringUnitWidth(text);
-        return w * styles.fontSize;
-    }
-
-    function extend(defaults) {
-        var extended = {};
-        var prop;
-        for (prop in defaults) {
-            if (defaults.hasOwnProperty(prop)) {
-                extended[prop] = defaults[prop];
-            }
-        }
-        for (var i = 1; i < arguments.length; i++) {
-            var options = arguments[i];
-            for (prop in options) {
-                if (options.hasOwnProperty(prop)) {
-                    if (typeof options[prop] === 'object' && !Array.isArray(options[prop])) {
-                        //extended[prop] = extend(extended[prop] || {}, options[prop])
-                        extended[prop] = options[prop];
-                    } else {
-                        extended[prop] = options[prop];
-                    }
-                }
-            }
-        }
-        return extended;
-    }
-
 })(jsPDF.API);
-
-class Table {
-    constructor() {
-        this.height = 0;
-        this.width = 0;
-        this.x = 0;
-        this.y = 0;
-        this.contentWidth = 0;
-        this.rows = [];
-        this.columns = [];
-        this.headerRow = null;
-        this.settings = {};
-    }
-}
-
-class Row {
-    constructor(raw) {
-        this.raw = raw || {};
-        this.index = 0;
-        this.styles = {};
-        this.cells = {};
-        this.height = 0;
-        this.y = 0;
-    }
-}
-
-class Cell {
-    constructor(raw) {
-        this.raw = raw;
-        this.styles = {};
-        this.text = '';
-        this.contentWidth = 0;
-        this.textPos = {};
-        this.height = 0;
-        this.width = 0;
-        this.x = 0;
-        this.y = 0;
-    }
-}
-
-class Column {
-    constructor(dataKey) {
-        this.dataKey = dataKey;
-        this.options = {};
-        this.styles = {};
-        this.contentWidth = 0;
-        this.width = 0;
-        this.x = 0;
-    }
-}
