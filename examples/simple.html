@@ -8,7 +8,7 @@
 <button onclick="generate()">Generate pdf</button>
 
 <script src="libs/jspdf.min.js"></script>
-<script src="../dist/jspdf.plugin.autotable.src.js"></script>
+<script src="libs/jspdf.plugin.autotable.src.js"></script>
 
 <script>
     function generate() {
@@ -22,6 +22,16 @@
         var doc = new jsPDF('p', 'pt');
         doc.autoTable(columns, data);
         doc.save("table.pdf");
+
+        var doc2 = new jsPDF();
+        doc2.autoTable(columns, data, {
+            draw: function(data) {
+                if (data) {
+
+                }
+            }
+        });
+        doc2.save("table.pdf");
     }
 </script>
 </body>
