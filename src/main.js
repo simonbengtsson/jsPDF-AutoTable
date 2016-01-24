@@ -10,105 +10,15 @@
 
 import {Table, Row, Cell, Column} from './models.js';
 import {extend} from './common.js';
+import {Config, themes, FONT_ROW_RATIO} from './config.js';
 
 (function (API) {
     'use strict';
 
-    // Ratio between font size and font height. The number comes from jspdf's source code
-    var FONT_ROW_RATIO = 1.15;
-
     var doc, // The current jspdf instance
         cursor, // An object keeping track of the x and y position of the next table cell to draw
         settings, // Default options merged with user options
-        pageCount, // The  page count the current table spans
         table; // The current Table instance
-
-    // Base style for all themes
-    var defaultStyles = {
-        cellPadding: 5,
-        fontSize: 10,
-        font: "helvetica", // helvetica, times, courier
-        lineColor: 200,
-        lineWidth: 0.1,
-        fontStyle: 'normal', // normal, bold, italic, bolditalic
-        overflow: 'ellipsize', // visible, hidden, ellipsize or linebreak
-        fillColor: 255,
-        textColor: 20,
-        halign: 'left', // left, center, right
-        valign: 'top', // top, middle, bottom
-        fillStyle: 'F', // 'S', 'F' or 'DF' (stroke, fill or fill then stroke)
-        rowHeight: 20,
-        columnWidth: 'auto'
-    };
-
-    // Styles for the themes
-    var themes = {
-        'striped': {
-            table: {
-                fillColor: 255,
-                textColor: 80,
-                fontStyle: 'normal',
-                fillStyle: 'F'
-            },
-            header: {
-                textColor: 255,
-                fillColor: [41, 128, 185],
-                rowHeight: 23,
-                fontStyle: 'bold'
-            },
-            body: {},
-            alternateRow: {fillColor: 245}
-        },
-        'grid': {
-            table: {
-                fillColor: 255,
-                textColor: 80,
-                fontStyle: 'normal',
-                lineWidth: 0.1,
-                fillStyle: 'DF'
-            },
-            header: {
-                textColor: 255,
-                fillColor: [26, 188, 156],
-                rowHeight: 23,
-                fillStyle: 'F',
-                fontStyle: 'bold'
-            },
-            body: {},
-            alternateRow: {}
-        },
-        'plain': {header: {fontStyle: 'bold'}}
-    };
-
-    // See README.md for documentation of the options
-    // See examples.js for usage examples
-    var defaultOptions = function () {
-        return {
-            // Styling
-            theme: 'striped', // 'striped', 'grid' or 'plain'
-            styles: {},
-            headerStyles: {},
-            bodyStyles: {},
-            alternateRowStyles: {},
-            columnStyles: {},
-
-            // Properties
-            startY: false, // false indicates the margin.top value
-            margin: 40,
-            pageBreak: 'auto', // 'auto', 'avoid', 'always'
-            tableWidth: 'auto', // number, 'auto', 'wrap'
-
-            // Hooks
-            createdHeaderCell: function (cell, data) {},
-            createdCell: function (cell, data) {},
-            drawHeaderRow: function (row, data) {},
-            drawRow: function (row, data) {},
-            drawHeaderCell: function (cell, data) {},
-            drawCell: function (cell, data) {},
-            beforePageContent: function (data) {},
-            afterPageContent: function (data) {}
-        }
-    };
 
     /**
      * Create a table from a set of rows and columns.
@@ -120,11 +30,14 @@ import {extend} from './common.js';
     API.autoTable = function (headers, data, options) {
         validateInput(headers, data, options);
         doc = this;
-        settings = initOptions(options || {});
-        pageCount = 1;
+        settings = Config.initSettings(options || {});
 
         // Need a cursor y as it needs to be reset after each page (row.y can't do that)
-        cursor = { y: settings.startY === false ? settings.margin.top : settings.startY };
+        // Also prefer cursor to column.x as the cursor is easier to modify in the hooks
+        cursor = {
+            x: settings.margin.left,
+            y: settings.startY === false ? settings.margin.top : settings.startY
+        };
 
         var userStyles = {
             textColor: 30, // Setting text color to dark gray as it can't be obtained from jsPDF
@@ -276,53 +189,6 @@ import {extend} from './common.js';
         }
     }
 
-    function initOptions(userOptions) {
-        var settings = extend(defaultOptions(), userOptions);
-
-        // Options
-        if (typeof settings.extendWidth !== 'undefined') {
-            settings.tableWidth = settings.extendWidth ? 'auto' : 'wrap';
-            console.error("Use of deprecated option: extendWidth, use tableWidth instead.");
-        }
-        if (typeof settings.margins !== 'undefined') {
-            if (typeof settings.margin === 'undefined') settings.margin = settings.margins;
-            console.error("Use of deprecated option: margins, use margin instead.");
-        }
-
-        [['padding', 'cellPadding'], ['lineHeight', 'rowHeight'], 'fontSize', 'overflow'].forEach(function (o) {
-            var deprecatedOption = typeof o === 'string' ? o : o[0];
-            var style = typeof o === 'string' ? o : o[1];
-            if (typeof settings[deprecatedOption] !== 'undefined') {
-                if (typeof settings.styles[style] === 'undefined') {
-                    settings.styles[style] = settings[deprecatedOption];
-                }
-                console.error("Use of deprecated option: " + deprecatedOption + ", use the style " + style + " instead.");
-            }
-        });
-
-        // Unifying
-        var marginSetting = settings.margin;
-        settings.margin = {};
-        if (typeof marginSetting.horizontal === 'number') {
-            marginSetting.right = marginSetting.horizontal;
-            marginSetting.left = marginSetting.horizontal;
-        }
-        if (typeof marginSetting.vertical === 'number') {
-            marginSetting.top = marginSetting.vertical;
-            marginSetting.bottom = marginSetting.vertical;
-        }
-        ['top', 'right', 'bottom', 'left'].forEach(function (side, i) {
-            if (typeof marginSetting === 'number') {
-                settings.margin[side] = marginSetting;
-            } else {
-                var key = Array.isArray(marginSetting) ? i : side;
-                settings.margin[side] = typeof marginSetting[key] === 'number' ? marginSetting[key] : 40;
-            }
-        });
-
-        return settings;
-    }
-
     /**
      * Create models from the user input
      *
@@ -331,7 +197,6 @@ import {extend} from './common.js';
      */
     function createModels(inputHeaders, inputData) {
         table = new Table();
-        table.x = settings.margin.left;
 
         var splitRegex = /\r\n|\r|\n/g;
 
@@ -339,7 +204,7 @@ import {extend} from './common.js';
         var headerRow = new Row(inputHeaders);
         headerRow.index = -1;
 
-        var themeStyles = extend(defaultStyles, themes[settings.theme].table, themes[settings.theme].header);
+        var themeStyles = Config.styles([themes[settings.theme].table, themes[settings.theme].header]);
         headerRow.styles = extend(themeStyles, settings.styles, settings.headerStyles);
 
         // Columns and header row
@@ -372,7 +237,7 @@ import {extend} from './common.js';
         inputData.forEach(function (rawRow, i) {
             var row = new Row(rawRow);
             var isAlternate = i % 2 === 0;
-            var themeStyles = extend(defaultStyles, themes[settings.theme].table, isAlternate ? themes[settings.theme].alternateRow : {});
+            var themeStyles = Config.styles([themes[settings.theme].table, isAlternate ? themes[settings.theme].alternateRow : {}]);
             var userStyles = extend(settings.styles, settings.bodyStyles, isAlternate ? settings.alternateRowStyles : {});
             row.styles = extend(themeStyles, userStyles);
             row.index = i;
@@ -425,7 +290,7 @@ import {extend} from './common.js';
         var fairWidth = table.width / table.columns.length;
         var staticWidth = 0;
         table.columns.forEach(function (column) {
-            var colStyles = extend(defaultStyles, themes[settings.theme].table, settings.styles, column.styles);
+            var colStyles = Config.styles([themes[settings.theme].table, settings.styles, column.styles]);
             if (colStyles.columnWidth === 'wrap') {
                 column.width = column.contentWidth;
             } else if (typeof colStyles.columnWidth === 'number') {
@@ -450,10 +315,8 @@ import {extend} from './common.js';
         var all = table.rows.concat(table.headerRow);
         all.forEach(function (row, i) {
             var lineBreakCount = 0;
-            var cursorX = table.x;
             table.columns.forEach(function (col) {
                 var cell = row.cells[col.dataKey];
-                col.x = cursorX;
                 applyStyles(cell.styles);
                 var textSpace = col.width - cell.styles.cellPadding * 2;
                 if (cell.styles.overflow === 'linebreak') {
@@ -474,7 +337,6 @@ import {extend} from './common.js';
                 if (count > lineBreakCount) {
                     lineBreakCount = count;
                 }
-                cursorX += col.width;
             });
 
             row.heightStyle = row.styles.rowHeight;
@@ -502,6 +364,27 @@ import {extend} from './common.js';
                 col.width = col.contentWidth + extraWidth * ratio;
             }
         }
+    }
+
+    function addPage() {
+        settings.afterPageContent(hooksData());
+        doc.addPage();
+        table.pageCount++;
+        cursor = {x: settings.margin.left, y: settings.margin.top};
+        settings.beforePageContent(hooksData());
+        if (settings.drawHeaderRow(table.headerRow, hooksData({row: table.headerRow})) !== false) {
+            printRow(table.headerRow, settings.drawHeaderCell);
+        }
+    }
+
+    /**
+     * Add a new page if cursor is at the end of page
+     * @param rowHeight
+     * @returns {boolean}
+     */
+    function isNewPage(rowHeight) {
+        var afterRowPos = cursor.y + rowHeight + settings.margin.bottom;
+        return afterRowPos >= doc.internal.pageSize.height;
     }
 
     function printRows() {
@@ -534,28 +417,8 @@ import {extend} from './common.js';
         });
     }
 
-    function addPage() {
-        settings.afterPageContent(hooksData());
-        doc.addPage();
-        pageCount++;
-        cursor = {x: settings.margin.left, y: settings.margin.top};
-        settings.beforePageContent(hooksData());
-        if (settings.drawHeaderRow(table.headerRow, hooksData({row: table.headerRow})) !== false) {
-            printRow(table.headerRow, settings.drawHeaderCell);
-        }
-    }
-
-    /**
-     * Add a new page if cursor is at the end of page
-     * @param rowHeight
-     * @returns {boolean}
-     */
-    function isNewPage(rowHeight) {
-        var afterRowPos = cursor.y + rowHeight + settings.margin.bottom;
-        return afterRowPos >= doc.internal.pageSize.height;
-    }
-
     function printRow(row, hookHandler) {
+        cursor.x = settings.margin.left;
         for (var i = 0; i < table.columns.length; i++) {
             var column = table.columns[i];
             var cell = row.cells[column.dataKey];
@@ -564,7 +427,7 @@ import {extend} from './common.js';
             }
             applyStyles(cell.styles);
 
-            cell.x = column.x;
+            cell.x = cursor.x;
             cell.y = cursor.y;
             cell.height = row.height;
             cell.width = column.width;
@@ -593,6 +456,7 @@ import {extend} from './common.js';
                     valign: cell.styles.valign
                 });
             }
+            cursor.x += cell.width;
         }
 
         cursor.y += row.height;
@@ -622,7 +486,7 @@ import {extend} from './common.js';
     function hooksData(additionalData) {
         additionalData = additionalData || {};
         var data = {
-            pageCount: pageCount,
+            pageCount: table.pageCount,
             settings: settings,
             table: table,
             cursor: cursor
