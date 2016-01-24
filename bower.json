@@ -11,8 +11,8 @@
   ],
   "keywords": [
     "pdf",
-    "table"
+    "table",
+    "jspdf"
   ],
-  "license": "MIT",
-  "ignore": []
+  "license": "MIT"
 }
