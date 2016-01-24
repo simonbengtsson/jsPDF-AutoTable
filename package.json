@@ -11,12 +11,13 @@
   },
   "devDependencies": {
     "babel": "^5.8.23",
+    "nodemon": "^1.8.1",
     "rollup": "^0.25.1",
-    "rollup-plugin-typescript": "^0.4.1",
+    "rollup-plugin-babel": "^2.3.9",
     "uglify-js": "^2.4.24"
   },
   "scripts": {
-    "start": "babel src/main.js --watch --out-file dist/jspdf.plugin.autotable.src.js",
+    "start": "nodemon --watch src -e js,ts build.js build",
     "build": "babel src/main.js | uglifyjs -o dist/jspdf.plugin.autotable.js --comments && babel src/main.js > dist/jspdf.plugin.autotable.src.js && node build updateVersion",
     "version": "npm run build && git add -A dist",
     "hosted": "git checkout gh-pages && npm run build && git add -A && git commit -m \"Updated to latest version\" && git push && git checkout master && git clean -f -d",

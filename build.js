@@ -1,6 +1,6 @@
 var fs = require('fs');
 var rollup = require('rollup');
-var typescript = require('rollup-plugin-typescript');
+var babel = require('rollup-plugin-babel');
 
 switch (process.argv[2]) {
     case 'updateVersion':
@@ -14,14 +14,14 @@ switch (process.argv[2]) {
 }
 
 /**
- * Build the src version of jspdf-autotabl
+ * Build the src version of jspdf-autotable
  */
 function build() {
     rollup.rollup({
         entry: './src/main.js',
-        plugins: [typescript()]
+        plugins: [babel()]
     }).then(function (bundle) {
-        return bundle.write({format: 'iife', dest: './dist/jspdf.plugin.autotable.src.js'});
+        return bundle.write({format: 'iife', dest: './examples/libs/jspdf.plugin.autotable.src.js'});
     }).then(function(msg) {
         console.log('Done');
     }, function(err) {
