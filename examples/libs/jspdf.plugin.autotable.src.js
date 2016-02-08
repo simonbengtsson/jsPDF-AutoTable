@@ -51,32 +51,6 @@
     }
 
     /**
-     * Specialized deep Object.extend function
-     */
-    function extend(defaults) {
-        var extended = {};
-        var prop;
-        for (prop in defaults) {
-            if (defaults.hasOwnProperty(prop)) {
-                extended[prop] = defaults[prop];
-            }
-        }
-        for (var i = 1; i < arguments.length; i++) {
-            var options = arguments[i];
-            for (prop in options) {
-                if (options.hasOwnProperty(prop)) {
-                    if (typeof options[prop] === 'object' && !Array.isArray(options[prop])) {
-                        extended[prop] = options[prop];
-                    } else {
-                        extended[prop] = options[prop];
-                    }
-                }
-            }
-        }
-        return extended;
-    }
-
-    /**
      * Ratio between font size and font height. The number comes from jspdf's source code
      */
     var FONT_ROW_RATIO = 1.15;
@@ -153,7 +127,7 @@
     class Config {
 
         static initSettings(userOptions) {
-            var settings = extend(getDefaults(), userOptions);
+            var settings = Object.assign({}, getDefaults(), userOptions);
 
             // Options
             if (typeof settings.extendWidth !== 'undefined') {
@@ -201,7 +175,8 @@
 
         static styles(styles) {
             styles.unshift(defaultStyles());
-            return extend.apply(this, styles);
+            styles.unshift({});
+            return Object.assign.apply(this, styles);
         }
     }
 
@@ -210,7 +185,7 @@
 
         var doc, // The current jspdf instance
         cursor, // An object keeping track of the x and y position of the next table cell to draw
-        settings, // Default options merged with user options
+        styleModifiers, pageSize, settings, // Default options merged with user options
         table; // The current Table instance
 
         /**
@@ -223,6 +198,18 @@
         API.autoTable = function (headers, data, options) {
             validateInput(headers, data, options);
             doc = this;
+
+            pageSize = doc.internal.pageSize;
+            styleModifiers = {
+                fillColor: doc.setFillColor,
+                textColor: doc.setTextColor,
+                fontStyle: doc.setFontStyle,
+                lineColor: doc.setDrawColor,
+                lineWidth: doc.setLineWidth,
+                font: doc.setFont,
+                fontSize: doc.setFontSize
+            };
+
             settings = Config.initSettings(options || {});
 
             // Need a cursor y as it needs to be reset after each page (row.y can't do that)
@@ -240,7 +227,7 @@
 
             // Create the table model with its columns, rows and cells
             createModels(headers, data);
-            calculateWidths();
+            calculateWidths(this, pageSize.width);
 
             // Page break if there is room for only the first data row
             var firstRowHeight = table.rows[0] && settings.pageBreak === 'auto' ? table.rows[0].height : 0;
@@ -248,8 +235,8 @@
             if (settings.pageBreak === 'avoid') {
                 minTableBottomPos += table.height;
             }
-            if (settings.pageBreak === 'always' && settings.startY !== false || settings.startY !== false && minTableBottomPos > doc.internal.pageSize.height) {
-                doc.addPage();
+            if (settings.pageBreak === 'always' && settings.startY !== false || settings.startY !== false && minTableBottomPos > pageSize.height) {
+                this.addPage(this.addPage);
                 cursor.y = settings.margin.top;
             }
 
@@ -259,7 +246,7 @@
                 printRow(table.headerRow, settings.drawHeaderCell);
             }
             applyStyles(userStyles);
-            printRows();
+            printRows(this.addPage);
             settings.afterPageContent(hooksData());
 
             applyStyles(userStyles);
@@ -320,7 +307,7 @@
             if (typeof x !== 'number' || typeof y !== 'number') {
                 console.error('The x and y parameters are required. Missing for the text: ', text);
             }
-            var fontSize = doc.internal.getFontSize() / doc.internal.scaleFactor;
+            var fontSize = this.internal.getFontSize() / this.internal.scaleFactor;
 
             // As defined in jsPDF source code
             var lineHeightProportion = FONT_ROW_RATIO;
@@ -345,16 +332,17 @@
 
                 if (lineCount >= 1) {
                     for (var iLine = 0; iLine < splittedText.length; iLine++) {
-                        doc.text(splittedText[iLine], x - doc.getStringUnitWidth(splittedText[iLine]) * alignSize, y);
+                        this.text(splittedText[iLine], x - this.getStringUnitWidth(splittedText[iLine]) * alignSize, y);
                         y += fontSize;
                     }
                     return doc;
                 }
-                x -= doc.getStringUnitWidth(text) * alignSize;
+                x -= this.getStringUnitWidth(text) * alignSize;
             }
 
-            doc.text(text, x, y);
-            return doc;
+            this.text(text, x, y);
+
+            return this;
         };
 
         function validateInput(headers, data, options) {
@@ -391,7 +379,7 @@
             headerRow.index = -1;
 
             var themeStyles = Config.styles([themes[settings.theme].table, themes[settings.theme].header]);
-            headerRow.styles = extend(themeStyles, settings.styles, settings.headerStyles);
+            headerRow.styles = Object.assign({}, themeStyles, settings.styles, settings.headerStyles);
 
             // Columns and header row
             inputHeaders.forEach(function (rawColumn, dataKey) {
@@ -409,7 +397,7 @@
 
                 var cell = new Cell();
                 cell.raw = typeof rawColumn === 'object' ? rawColumn.title : rawColumn;
-                cell.styles = extend(headerRow.styles);
+                cell.styles = Object.assign({}, headerRow.styles);
                 cell.text = '' + cell.raw;
                 cell.contentWidth = cell.styles.cellPadding * 2 + getStringWidth(cell.text, cell.styles);
                 cell.text = cell.text.split(splitRegex);
@@ -424,13 +412,13 @@
                 var row = new Row(rawRow);
                 var isAlternate = i % 2 === 0;
                 var themeStyles = Config.styles([themes[settings.theme].table, isAlternate ? themes[settings.theme].alternateRow : {}]);
-                var userStyles = extend(settings.styles, settings.bodyStyles, isAlternate ? settings.alternateRowStyles : {});
-                row.styles = extend(themeStyles, userStyles);
+                var userStyles = Object.assign({}, settings.styles, settings.bodyStyles, isAlternate ? settings.alternateRowStyles : {});
+                row.styles = Object.assign({}, themeStyles, userStyles);
                 row.index = i;
                 table.columns.forEach(function (column) {
                     var cell = new Cell();
                     cell.raw = rawRow[column.dataKey];
-                    cell.styles = extend(row.styles, column.styles);
+                    cell.styles = Object.assign({}, row.styles, column.styles);
                     cell.text = typeof cell.raw !== 'undefined' ? '' + cell.raw : ''; // Stringify 0 and false, but not undefined
                     row.cells[column.dataKey] = cell;
                     settings.createdCell(cell, hooksData({ column: column, row: row }));
@@ -444,7 +432,7 @@
         /**
          * Calculate the column widths
          */
-        function calculateWidths() {
+        function calculateWidths(doc, pageWidth) {
             // Column and table content width
             var tableContentWidth = 0;
             table.columns.forEach(function (column) {
@@ -460,7 +448,7 @@
             });
             table.contentWidth = tableContentWidth;
 
-            var maxTableWidth = doc.internal.pageSize.width - settings.margin.left - settings.margin.right;
+            var maxTableWidth = pageWidth - settings.margin.left - settings.margin.right;
             var preferredTableWidth = maxTableWidth; // settings.tableWidth === 'auto'
             if (typeof settings.tableWidth === 'number') {
                 preferredTableWidth = settings.tableWidth;
@@ -552,9 +540,9 @@
             }
         }
 
-        function addPage() {
+        function addPage(jspdfAddPage) {
             settings.afterPageContent(hooksData());
-            doc.addPage();
+            jspdfAddPage();
             table.pageCount++;
             cursor = { x: settings.margin.left, y: settings.margin.top };
             settings.beforePageContent(hooksData());
@@ -565,21 +553,19 @@
 
         /**
          * Add a new page if cursor is at the end of page
-         * @param rowHeight
-         * @returns {boolean}
          */
         function isNewPage(rowHeight) {
             var afterRowPos = cursor.y + rowHeight + settings.margin.bottom;
-            return afterRowPos >= doc.internal.pageSize.height;
+            return afterRowPos >= pageSize.height;
         }
 
-        function printRows() {
+        function printRows(jspdfAddPage) {
             table.rows.forEach(function (row, i) {
                 if (isNewPage(row.height)) {
                     var samePageThreshold = 3;
-                    // TODO Fix cell height > pageHeight
+                    // TODO Fix cell height > page height
                     /*if (row.height > row.heightStyle * samePageThreshold) {
-                        var remainingPageSpace = doc.internal.pageSize.height - cursor.y - settings.margin.bottom;
+                        var remainingPageSpace = pageSize.height - cursor.y - settings.margin.bottom;
                         var lineCount = Math.floor(remainingPageSpace / (row.styles.fontSize * FONT_ROW_RATIO));
                         table.columns.forEach(function(col) {
                             var arr = row.cells[col.dataKey].text;
@@ -593,7 +579,7 @@
                         }
                         row = new Row(rawRow);
                     }*/
-                    addPage();
+                    addPage(jspdfAddPage);
                 }
                 row.y = cursor.y;
                 if (settings.drawRow(row, hooksData({ row: row })) !== false) {
@@ -648,32 +634,26 @@
         }
 
         function applyStyles(styles) {
-            var arr = [{ func: doc.setFillColor, value: styles.fillColor }, { func: doc.setTextColor, value: styles.textColor }, { func: doc.setFontStyle, value: styles.fontStyle }, { func: doc.setDrawColor, value: styles.lineColor }, { func: doc.setLineWidth, value: styles.lineWidth }, { func: doc.setFont, value: styles.font }, { func: doc.setFontSize, value: styles.fontSize }];
-            arr.forEach(function (obj) {
-                if (typeof obj.value !== 'undefined') {
-                    if (obj.value.constructor === Array) {
-                        obj.func.apply(this, obj.value);
+            Object.keys(styleModifiers).forEach(function (name) {
+                var style = styles[name];
+                var modifier = styleModifiers[name];
+                if (typeof style !== 'undefined') {
+                    if (style.constructor === Array) {
+                        modifier.apply(this, style);
                     } else {
-                        obj.func(obj.value);
+                        modifier(style);
                     }
                 }
             });
         }
 
         function hooksData(additionalData) {
-            additionalData = additionalData || {};
-            var data = {
+            return Object.assign({
                 pageCount: table.pageCount,
                 settings: settings,
                 table: table,
                 cursor: cursor
-            };
-            for (var prop in additionalData) {
-                if (additionalData.hasOwnProperty(prop)) {
-                    data[prop] = additionalData[prop];
-                }
-            }
-            return data;
+            }, additionalData || {});
         }
 
         function getStringWidth(text, styles) {
@@ -707,5 +687,31 @@
             return text.trim() + ellipsizeStr;
         }
     })(jsPDF.API);
+
+    // Polyfills
+    if (typeof Object.assign != 'function') {
+        (function () {
+            Object.assign = function (target) {
+                'use strict';
+
+                if (target === undefined || target === null) {
+                    throw new TypeError('Cannot convert undefined or null to object');
+                }
+
+                var output = Object(target);
+                for (var index = 1; index < arguments.length; index++) {
+                    var source = arguments[index];
+                    if (source !== undefined && source !== null) {
+                        for (var nextKey in source) {
+                            if (source.hasOwnProperty(nextKey)) {
+                                output[nextKey] = source[nextKey];
+                            }
+                        }
+                    }
+                }
+                return output;
+            };
+        })();
+    }
 
 }());

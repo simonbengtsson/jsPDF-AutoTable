@@ -1,5 +1,3 @@
-import {extend} from './common.js';
-
 /**
  * Ratio between font size and font height. The number comes from jspdf's source code
  */
@@ -77,7 +75,7 @@ function defaultStyles() {
 export class Config {
 
     static initSettings(userOptions) {
-        var settings = extend(getDefaults(), userOptions);
+        var settings = Object.assign({}, getDefaults(), userOptions);
 
         // Options
         if (typeof settings.extendWidth !== 'undefined') {
@@ -125,6 +123,7 @@ export class Config {
 
     static styles(styles) {
         styles.unshift(defaultStyles());
-        return extend.apply(this, styles);
+        styles.unshift({});
+        return Object.assign.apply(this, styles);
     }
 }

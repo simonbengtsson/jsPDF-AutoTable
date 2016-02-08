@@ -21,7 +21,7 @@
     "version": "npm run build && git add -A dist",
     "hosted": "git checkout gh-pages && npm run build && git add -A && git commit -m \"Updated to latest version\" && git push && git checkout master && git clean -f -d",
     "deploy": "git push && git push --tags && npm publish && npm run hosted",
-    "test": "echo 'To test, manually open the examples.html and check that all examples looks good.'"
+    "test": "echo 'To test, manually open the examples/index.html and check that all examples looks good.'"
   },
   "repository": {
     "type": "git",
