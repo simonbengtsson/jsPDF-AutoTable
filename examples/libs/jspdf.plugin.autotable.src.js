@@ -1,54 +1,96 @@
+/** 
+ * jsPDF AutoTable plugin v2.0.18
+ * Copyright (c) 2014 Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable 
+ * 
+ * Licensed under the MIT License. 
+ * http://opensource.org/licenses/mit-license 
+ * 
+ * @preserve 
+ */
 (function () {
     'use strict';
 
-    class Table {
-        constructor() {
-            this.height = 0;
-            this.width = 0;
-            this.contentWidth = 0;
-            this.rows = [];
-            this.columns = [];
-            this.headerRow = null;
-            this.settings = {};
-            this.pageCount = 1;
-        }
-    }
+    var babelHelpers = {};
+    babelHelpers.typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
+      return typeof obj;
+    } : function (obj) {
+      return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj;
+    };
 
-    class Row {
-        constructor(raw) {
-            this.raw = raw || {};
-            this.index = 0;
-            this.styles = {};
-            this.cells = {};
-            this.height = 0;
-            this.y = 0;
-        }
-    }
+    babelHelpers.classCallCheck = function (instance, Constructor) {
+      if (!(instance instanceof Constructor)) {
+        throw new TypeError("Cannot call a class as a function");
+      }
+    };
 
-    class Cell {
-        constructor(raw) {
-            this.raw = raw;
-            this.styles = {};
-            this.text = '';
-            this.contentWidth = 0;
-            this.textPos = {};
-            this.height = 0;
-            this.width = 0;
-            this.x = 0;
-            this.y = 0;
+    babelHelpers.createClass = function () {
+      function defineProperties(target, props) {
+        for (var i = 0; i < props.length; i++) {
+          var descriptor = props[i];
+          descriptor.enumerable = descriptor.enumerable || false;
+          descriptor.configurable = true;
+          if ("value" in descriptor) descriptor.writable = true;
+          Object.defineProperty(target, descriptor.key, descriptor);
         }
-    }
+      }
 
-    class Column {
-        constructor(dataKey) {
-            this.dataKey = dataKey;
-            this.options = {};
-            this.styles = {};
-            this.contentWidth = 0;
-            this.width = 0;
-            this.x = 0;
-        }
-    }
+      return function (Constructor, protoProps, staticProps) {
+        if (protoProps) defineProperties(Constructor.prototype, protoProps);
+        if (staticProps) defineProperties(Constructor, staticProps);
+        return Constructor;
+      };
+    }();
+
+    babelHelpers;
+
+    var Table = function Table() {
+        babelHelpers.classCallCheck(this, Table);
+
+        this.height = 0;
+        this.width = 0;
+        this.contentWidth = 0;
+        this.rows = [];
+        this.columns = [];
+        this.headerRow = null;
+        this.settings = {};
+        this.pageCount = 1;
+    };
+
+    var Row = function Row(raw) {
+        babelHelpers.classCallCheck(this, Row);
+
+        this.raw = raw || {};
+        this.index = 0;
+        this.styles = {};
+        this.cells = {};
+        this.height = 0;
+        this.y = 0;
+    };
+
+    var Cell = function Cell(raw) {
+        babelHelpers.classCallCheck(this, Cell);
+
+        this.raw = raw;
+        this.styles = {};
+        this.text = '';
+        this.contentWidth = 0;
+        this.textPos = {};
+        this.height = 0;
+        this.width = 0;
+        this.x = 0;
+        this.y = 0;
+    };
+
+    var Column = function Column(dataKey) {
+        babelHelpers.classCallCheck(this, Column);
+
+        this.dataKey = dataKey;
+        this.options = {};
+        this.styles = {};
+        this.contentWidth = 0;
+        this.width = 0;
+        this.x = 0;
+    };
 
     /**
      * Ratio between font size and font height. The number comes from jspdf's source code
@@ -93,14 +135,14 @@
             tableWidth: 'auto', // number, 'auto', 'wrap'
 
             // Hooks
-            createdHeaderCell: function (cell, data) {},
-            createdCell: function (cell, data) {},
-            drawHeaderRow: function (row, data) {},
-            drawRow: function (row, data) {},
-            drawHeaderCell: function (cell, data) {},
-            drawCell: function (cell, data) {},
-            beforePageContent: function (data) {},
-            afterPageContent: function (data) {}
+            createdHeaderCell: function createdHeaderCell(cell, data) {},
+            createdCell: function createdCell(cell, data) {},
+            drawHeaderRow: function drawHeaderRow(row, data) {},
+            drawRow: function drawRow(row, data) {},
+            drawHeaderCell: function drawHeaderCell(cell, data) {},
+            drawCell: function drawCell(cell, data) {},
+            beforePageContent: function beforePageContent(data) {},
+            afterPageContent: function afterPageContent(data) {}
         };
     }
 
@@ -124,61 +166,69 @@
         };
     }
 
-    class Config {
+    var Config = function () {
+        function Config() {
+            babelHelpers.classCallCheck(this, Config);
+        }
 
-        static initSettings(userOptions) {
-            var settings = Object.assign({}, getDefaults(), userOptions);
+        babelHelpers.createClass(Config, null, [{
+            key: 'initSettings',
+            value: function initSettings(userOptions) {
+                var settings = Object.assign({}, getDefaults(), userOptions);
 
-            // Options
-            if (typeof settings.extendWidth !== 'undefined') {
-                settings.tableWidth = settings.extendWidth ? 'auto' : 'wrap';
-                console.error("Use of deprecated option: extendWidth, use tableWidth instead.");
-            }
-            if (typeof settings.margins !== 'undefined') {
-                if (typeof settings.margin === 'undefined') settings.margin = settings.margins;
-                console.error("Use of deprecated option: margins, use margin instead.");
-            }
+                // Options
+                if (typeof settings.extendWidth !== 'undefined') {
+                    settings.tableWidth = settings.extendWidth ? 'auto' : 'wrap';
+                    console.error("Use of deprecated option: extendWidth, use tableWidth instead.");
+                }
+                if (typeof settings.margins !== 'undefined') {
+                    if (typeof settings.margin === 'undefined') settings.margin = settings.margins;
+                    console.error("Use of deprecated option: margins, use margin instead.");
+                }
 
-            [['padding', 'cellPadding'], ['lineHeight', 'rowHeight'], 'fontSize', 'overflow'].forEach(function (o) {
-                var deprecatedOption = typeof o === 'string' ? o : o[0];
-                var style = typeof o === 'string' ? o : o[1];
-                if (typeof settings[deprecatedOption] !== 'undefined') {
-                    if (typeof settings.styles[style] === 'undefined') {
-                        settings.styles[style] = settings[deprecatedOption];
+                [['padding', 'cellPadding'], ['lineHeight', 'rowHeight'], 'fontSize', 'overflow'].forEach(function (o) {
+                    var deprecatedOption = typeof o === 'string' ? o : o[0];
+                    var style = typeof o === 'string' ? o : o[1];
+                    if (typeof settings[deprecatedOption] !== 'undefined') {
+                        if (typeof settings.styles[style] === 'undefined') {
+                            settings.styles[style] = settings[deprecatedOption];
+                        }
+                        console.error("Use of deprecated option: " + deprecatedOption + ", use the style " + style + " instead.");
                     }
-                    console.error("Use of deprecated option: " + deprecatedOption + ", use the style " + style + " instead.");
+                });
+
+                // Unifying
+                var marginSetting = settings.margin;
+                settings.margin = {};
+                if (typeof marginSetting.horizontal === 'number') {
+                    marginSetting.right = marginSetting.horizontal;
+                    marginSetting.left = marginSetting.horizontal;
                 }
-            });
-
-            // Unifying
-            var marginSetting = settings.margin;
-            settings.margin = {};
-            if (typeof marginSetting.horizontal === 'number') {
-                marginSetting.right = marginSetting.horizontal;
-                marginSetting.left = marginSetting.horizontal;
-            }
-            if (typeof marginSetting.vertical === 'number') {
-                marginSetting.top = marginSetting.vertical;
-                marginSetting.bottom = marginSetting.vertical;
-            }
-            ['top', 'right', 'bottom', 'left'].forEach(function (side, i) {
-                if (typeof marginSetting === 'number') {
-                    settings.margin[side] = marginSetting;
-                } else {
-                    var key = Array.isArray(marginSetting) ? i : side;
-                    settings.margin[side] = typeof marginSetting[key] === 'number' ? marginSetting[key] : 40;
+                if (typeof marginSetting.vertical === 'number') {
+                    marginSetting.top = marginSetting.vertical;
+                    marginSetting.bottom = marginSetting.vertical;
                 }
-            });
+                ['top', 'right', 'bottom', 'left'].forEach(function (side, i) {
+                    if (typeof marginSetting === 'number') {
+                        settings.margin[side] = marginSetting;
+                    } else {
+                        var key = Array.isArray(marginSetting) ? i : side;
+                        settings.margin[side] = typeof marginSetting[key] === 'number' ? marginSetting[key] : 40;
+                    }
+                });
 
-            return settings;
-        }
-
-        static styles(styles) {
-            styles.unshift(defaultStyles());
-            styles.unshift({});
-            return Object.assign.apply(this, styles);
-        }
-    }
+                return settings;
+            }
+        }, {
+            key: 'styles',
+            value: function styles(_styles) {
+                _styles.unshift(defaultStyles());
+                _styles.unshift({});
+                return Object.assign.apply(this, _styles);
+            }
+        }]);
+        return Config;
+    }();
 
     (function (API) {
         'use strict';
@@ -346,16 +396,16 @@
         };
 
         function validateInput(headers, data, options) {
-            if (!headers || typeof headers !== 'object') {
-                console.error("The headers should be an object or array, is: " + typeof headers);
+            if (!headers || (typeof headers === 'undefined' ? 'undefined' : babelHelpers.typeof(headers)) !== 'object') {
+                console.error("The headers should be an object or array, is: " + (typeof headers === 'undefined' ? 'undefined' : babelHelpers.typeof(headers)));
             }
 
-            if (!data || typeof data !== 'object') {
-                console.error("The data should be an object or array, is: " + typeof data);
+            if (!data || (typeof data === 'undefined' ? 'undefined' : babelHelpers.typeof(data)) !== 'object') {
+                console.error("The data should be an object or array, is: " + (typeof data === 'undefined' ? 'undefined' : babelHelpers.typeof(data)));
             }
 
-            if (!!options && typeof options !== 'object') {
-                console.error("The data should be an object or array, is: " + typeof data);
+            if (!!options && (typeof options === 'undefined' ? 'undefined' : babelHelpers.typeof(options)) !== 'object') {
+                console.error("The data should be an object or array, is: " + (typeof data === 'undefined' ? 'undefined' : babelHelpers.typeof(data)));
             }
 
             if (!Array.prototype.forEach) {
@@ -383,7 +433,7 @@
 
             // Columns and header row
             inputHeaders.forEach(function (rawColumn, dataKey) {
-                if (typeof rawColumn === 'object') {
+                if ((typeof rawColumn === 'undefined' ? 'undefined' : babelHelpers.typeof(rawColumn)) === 'object') {
                     dataKey = typeof rawColumn.dataKey !== 'undefined' ? rawColumn.dataKey : rawColumn.key;
                 }
 
@@ -396,7 +446,7 @@
                 table.columns.push(col);
 
                 var cell = new Cell();
-                cell.raw = typeof rawColumn === 'object' ? rawColumn.title : rawColumn;
+                cell.raw = (typeof rawColumn === 'undefined' ? 'undefined' : babelHelpers.typeof(rawColumn)) === 'object' ? rawColumn.title : rawColumn;
                 cell.styles = Object.assign({}, headerRow.styles);
                 cell.text = '' + cell.raw;
                 cell.contentWidth = cell.styles.cellPadding * 2 + getStringWidth(cell.text, cell.styles);
