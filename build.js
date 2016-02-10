@@ -1,13 +1,14 @@
 var fs = require('fs');
 var rollup = require('rollup');
 var babel = require('rollup-plugin-babel');
+var uglify = require("uglify-js");
 
 switch (process.argv[2]) {
-    case 'updateVersion':
-        updateVersion();
+    case 'develop':
+        build(false);
         break;
     case 'build':
-        build();
+        build(true);
         break;
     default:
         throw "Invalid type argument";
@@ -16,28 +17,33 @@ switch (process.argv[2]) {
 /**
  * Build the src version of jspdf-autotable
  */
-function build() {
+function build(dist) {
     rollup.rollup({
         entry: './src/main.js',
-        plugins: [babel()]
+        plugins: [babel({presets: ["es2015-rollup"]})]
     }).then(function (bundle) {
-        return bundle.write({format: 'iife', dest: './examples/libs/jspdf.plugin.autotable.src.js'});
-    }).then(function(msg) {
+        var code = bundle.generate({
+            format: 'iife',
+            banner: '/** \n' +
+            ' * jsPDF AutoTable plugin v' + require('./package.json').version + '\n' +
+            ' * Copyright (c) 2014 Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable \n' +
+            ' * \n' +
+            ' * Licensed under the MIT License. \n' +
+            ' * http://opensource.org/licenses/mit-license \n' +
+            ' * \n' +
+            ' * @preserve \n' +
+            ' */'
+        }).code;
+
+        if (dist) {
+            var minified = uglify.minify(code, {fromString: true, output: {comments: /@preserve|@license/i}}).code;
+            fs.writeFileSync('./dist/jspdf.plugin.autotable.js', minified);
+            fs.writeFileSync('./dist/jspdf.plugin.autotable.src.js', code);
+        }
+        fs.writeFileSync( './examples/libs/jspdf.plugin.autotable.src.js', code);
+
         console.log('Done');
     }, function(err) {
         console.error(err);
     });
-}
-
-/**
- * Updates the plugin version in the dist files
- */
-function updateVersion() {
-    var v = require('./package.json').version;
-    var distFiles = ['dist/jspdf.plugin.autotable.js', 'dist/jspdf.plugin.autotable.src.js'];
-    for (var file of distFiles) {
-        var lf = fs.readFileSync(file, 'utf8');
-        lf = lf.replace('__VERSION__', 'v' + v);
-        fs.writeFileSync(file, lf);
-    }
 }

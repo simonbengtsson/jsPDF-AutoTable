@@ -1,13 +1,3 @@
-/*
- * jsPDF AutoTable plugin __VERSION__
- * Copyright (c) 2014 Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable
- *
- * Licensed under the MIT License.
- * http://opensource.org/licenses/mit-license
- *
- * @preserve
- */
-
 import {Table, Row, Cell, Column} from './models.js';
 import {Config, themes, FONT_ROW_RATIO} from './config.js';
 

@@ -10,18 +10,18 @@
     "jspdf": "^1.0.272"
   },
   "devDependencies": {
+    "babel-preset-es2015-rollup": "^1.1.1",
     "nodemon": "^1.8.1",
     "rollup": "^0.25.1",
     "rollup-plugin-babel": "^2.3.9",
     "uglify-js": "^2.4.24"
   },
   "scripts": {
-    "start": "nodemon --watch src -e js,ts build.js build",
-    "build": "babel src/main.js | uglifyjs -o dist/jspdf.plugin.autotable.js --comments && babel src/main.js > dist/jspdf.plugin.autotable.src.js && node build updateVersion",
+    "start": "nodemon --watch src -e js,ts build.js develop",
+    "build": "node build.js build",
     "version": "npm run build && git add -A dist",
     "hosted": "git checkout gh-pages && npm run build && git add -A && git commit -m \"Updated to latest version\" && git push && git checkout master && git clean -f -d",
-    "deploy": "git push && git push --tags && npm publish && npm run hosted",
-    "test": "echo 'To test, manually open the examples/index.html and check that all examples looks good.'"
+    "deploy": "git push && git push --tags && npm publish && npm run hosted"
   },
   "repository": {
     "type": "git",
