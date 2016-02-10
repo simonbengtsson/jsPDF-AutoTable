@@ -19,7 +19,7 @@
   "scripts": {
     "start": "nodemon --watch src -e js,ts build.js develop",
     "build": "node build.js build",
-    "version": "npm run build && git add -A dist",
+    "version": "npm run build && git add -A dist && git add -A examples/libs",
     "hosted": "git checkout gh-pages && npm run build && git add -A && git commit -m \"Updated to latest version\" && git push && git checkout master && git clean -f -d",
     "deploy": "git push && git push --tags && npm publish && npm run hosted"
   },
