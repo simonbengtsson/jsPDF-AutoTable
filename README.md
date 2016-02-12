@@ -202,3 +202,4 @@ Contributions are always welcome, especially on open issues or for items in the 
 - Header option `always`, `single`, `none`
 - Improve examples page (especially for firefox and mobile browsers that doesn't embed pdfs)
 - Easier way to add page numbers
+- Manually be able to add a new page with headers etc from the hooks
