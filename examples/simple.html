@@ -22,16 +22,6 @@
         var doc = new jsPDF('p', 'pt');
         doc.autoTable(columns, data);
         doc.save("table.pdf");
-
-        var doc2 = new jsPDF();
-        doc2.autoTable(columns, data, {
-            draw: function(data) {
-                if (data) {
-
-                }
-            }
-        });
-        doc2.save("table.pdf");
     }
 </script>
 </body>
