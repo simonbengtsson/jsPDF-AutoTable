@@ -7,7 +7,7 @@
     "example": "examples"
   },
   "dependencies": {
-    "jspdf": "^1.0.272"
+    "jspdf": "^1.2.61"
   },
   "devDependencies": {
     "babel-preset-es2015-rollup": "^1.1.1",
