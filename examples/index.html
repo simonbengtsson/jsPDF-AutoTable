@@ -192,7 +192,7 @@ but 0.9.x can be used for extended IE support. -->
 
 <!-- jspdf.debug.js 1.2.x includes require js. 
 Below tricks faker to output global instead of being a requirejs module -->
-<script>delete window.define.amd;</script>
+<script>if (window.define) delete window.define.amd;</script>
 
 <script src="libs/faker.min.js"></script>
 <script src="libs/jspdf.plugin.autotable.src.js"></script>
