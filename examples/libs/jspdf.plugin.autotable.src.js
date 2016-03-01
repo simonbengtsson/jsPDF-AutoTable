@@ -1,5 +1,5 @@
 /** 
- * jsPDF AutoTable plugin v2.0.19
+ * jsPDF AutoTable plugin v2.0.20
  * Copyright (c) 2014 Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable 
  * 
  * Licensed under the MIT License. 
@@ -545,7 +545,15 @@
                     var textSpace = col.width - cell.styles.cellPadding * 2;
                     if (cell.styles.overflow === 'linebreak') {
                         // Add one pt to textSpace to fix rounding error
-                        cell.text = doc.splitTextToSize(cell.text, textSpace + 1, { fontSize: cell.styles.fontSize });
+                        try {
+                            cell.text = doc.splitTextToSize(cell.text, textSpace + 1, { fontSize: cell.styles.fontSize });
+                        } catch (e) {
+                            if (e instanceof TypeError && Array.isArray(cell.text)) {
+                                cell.text = doc.splitTextToSize(cell.text.join(' '), textSpace + 1, { fontSize: cell.styles.fontSize });
+                            } else {
+                                throw e;
+                            }
+                        }
                     } else if (cell.styles.overflow === 'ellipsize') {
                         cell.text = ellipsize(cell.text, textSpace, cell.styles);
                     } else if (cell.styles.overflow === 'visible') {
@@ -762,6 +770,12 @@
                 return output;
             };
         })();
+    }
+
+    if (!Array.isArray) {
+        Array.isArray = function (arg) {
+            return Object.prototype.toString.call(arg) === '[object Array]';
+        };
     }
 
 }());
