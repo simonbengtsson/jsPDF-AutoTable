@@ -41,6 +41,8 @@ function build(dist) {
             fs.writeFileSync('./dist/jspdf.plugin.autotable.src.js', code);
         }
         fs.writeFileSync( './examples/libs/jspdf.plugin.autotable.src.js', code);
+        var write = fs.createWriteStream('./examples/libs/jspdf.min.js');
+        fs.createReadStream('./node_modules/jspdf/dist/jspdf.min.js').pipe(write);
 
         console.log('Done');
     }, function(err) {
