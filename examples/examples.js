@@ -84,7 +84,7 @@ examples.long = function () {
 
 // Content - shows how tables can be integrated with any other pdf content
 examples.content = function () {
-    var doc = new jsPDF({unit: 'pt', lineHeight: 1.5, orientation: 'p'});
+    var doc = new jsPDF('p', 'pt');
 
     doc.setFontSize(18);
     doc.text('A story about Miusov', 40, 60);
