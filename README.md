@@ -190,9 +190,16 @@ Contributions are always welcome, especially on open issues or for items in the 
 - Test the examples in examples.html to make sure everything looks alright
 - Submit pull request
 
-### Release (write access to repo required)
-- Build with `npm version <semver|major|minor|patch> -m <optional-commit-message>`
-- Manually check files and look over the examples
+### Contributing workflow
+- Make code changes
+- Build with `npm run build`
+- Test that the examples works
+- Commit and submit pull request
+
+### Release workflow (write access to repo required)
+- Test and commit code changes 
+- Run `npm version <semver|major|minor|patch> -m <optional-commit-message>`
+- Manually verify files and look over the examples
 - Deploy with `npm run deploy`
 
 ### Known issues
