@@ -103,17 +103,20 @@ import {Config, themes, FONT_ROW_RATIO} from './config.js';
         var result = {columns: [], rows: []};
 
         for (var k = 0; k < header.cells.length; k++) {
-            var cell = header.cells[k];
-            result.columns.push(typeof cell !== 'undefined' ? cell.textContent : '');
+            let cell = header.cells[k];
+            let val = cell ? cell.textContent.trim() : '';
+            result.columns.push(val);
         }
 
         for (var i = 1; i < tableElem.rows.length; i++) {
-            var tableRow = tableElem.rows[i];
-            var style = window.getComputedStyle(tableRow);
+            let tableRow = tableElem.rows[i];
+            let style = window.getComputedStyle(tableRow);
             if (includeHiddenRows || style.display !== 'none') {
-                var rowData = [];
+                let rowData = [];
                 for (var j = 0; j < header.cells.length; j++) {
-                    rowData.push(typeof tableRow.cells[j] !== 'undefined' ? tableRow.cells[j].textContent : '');
+                    let cell = tableRow.cells[j];
+                    let val = cell ? cell.textContent.trim() : '';
+                    rowData.push(val);
                 }
                 result.rows.push(rowData);
             }
