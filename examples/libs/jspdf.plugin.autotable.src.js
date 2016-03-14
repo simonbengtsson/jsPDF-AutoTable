@@ -1,5 +1,5 @@
 /** 
- * jsPDF AutoTable plugin v2.0.21
+ * jsPDF AutoTable plugin v2.0.22
  * Copyright (c) 2014 Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable 
  * 
  * Licensed under the MIT License. 
@@ -330,7 +330,8 @@
 
             for (var k = 0; k < header.cells.length; k++) {
                 var cell = header.cells[k];
-                result.columns.push(typeof cell !== 'undefined' ? cell.textContent : '');
+                var val = cell ? cell.textContent.trim() : '';
+                result.columns.push(val);
             }
 
             for (var i = 1; i < tableElem.rows.length; i++) {
@@ -339,7 +340,9 @@
                 if (includeHiddenRows || style.display !== 'none') {
                     var rowData = [];
                     for (var j = 0; j < header.cells.length; j++) {
-                        rowData.push(typeof tableRow.cells[j] !== 'undefined' ? tableRow.cells[j].textContent : '');
+                        var cell = tableRow.cells[j];
+                        var val = cell ? cell.textContent.trim() : '';
+                        rowData.push(val);
                     }
                     result.rows.push(rowData);
                 }
