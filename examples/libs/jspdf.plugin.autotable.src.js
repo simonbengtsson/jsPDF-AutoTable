@@ -1,5 +1,5 @@
 /** 
- * jsPDF AutoTable plugin v2.0.22
+ * jsPDF AutoTable plugin v2.0.23
  * Copyright (c) 2014 Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable 
  * 
  * Licensed under the MIT License. 
@@ -7,8 +7,11 @@
  * 
  * @preserve 
  */
-(function () {
-    'use strict';
+(function (global, factory) {
+    typeof exports === 'object' && typeof module !== 'undefined' ? factory() :
+    typeof define === 'function' && define.amd ? define(factory) :
+    (factory());
+}(this, function () { 'use strict';
 
     var babelHelpers = {};
     babelHelpers.typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
@@ -781,4 +784,4 @@
         };
     }
 
-}());
+}));
