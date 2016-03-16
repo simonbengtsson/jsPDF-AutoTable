@@ -23,7 +23,7 @@ function build(dist) {
         plugins: [babel({presets: ["es2015-rollup"]})]
     }).then(function (bundle) {
         var code = bundle.generate({
-            format: 'iife',
+            format: 'umd',
             banner: '/** \n' +
             ' * jsPDF AutoTable plugin v' + require('./package.json').version + '\n' +
             ' * Copyright (c) 2014 Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable \n' +
