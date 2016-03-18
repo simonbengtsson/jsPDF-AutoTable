@@ -74,7 +74,9 @@ doc.autoTable(columns, rows, {
 doc.save('table.pdf');
 ```
 
-See other examples in `/examples/examples.js` which is also the source code for the [demo](https://simonbengtsson.github.io/jsPDF-AutoTable/) documents.
+This plugin exports umd which means that you can use it together with build tools such as webpack, browserify and rollupjs. Simply make sure that you require the module and it should be registered correctly. The jspdf library itself has spotty support for module bundlers so you do have to make sure that you use a compatibly version of jspdf. I have had troubles with all official releases up to and including 1.2.61, but successfully tested with version 0.9.1 and 0.9.2 of a fork provided by [pavestru](https://github.com/pavestru/jsPDF).
+
+See other examples in `/examples/examples.js` which is also the source code for the [demo](https://simonbengtsson.github.io/jsPDF-AutoTable/) documents. 
 
 ### Options
 All options below are used in `examples.js` so be sure to check it out if in doubt.
