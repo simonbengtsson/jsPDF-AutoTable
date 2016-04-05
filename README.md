@@ -207,8 +207,9 @@ Contributions are always welcome, especially on open issues or for items in the 
 ### Known issues
 - The style `valign: center` gets inexact when using `overflown: linebreak` and there is around five or more rows
 
-### Future work
+### Future work (pull request welcome)
 - Header option `always`, `single`, `none`
 - Improve examples page (especially for firefox and mobile browsers that doesn't embed pdfs)
 - Easier way to add page numbers
 - Manually be able to add a new page with headers etc from the hooks
+- Attach html element to each data cell when using `autoTableToJson`
