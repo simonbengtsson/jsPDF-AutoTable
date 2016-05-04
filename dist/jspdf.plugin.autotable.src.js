@@ -1,5 +1,5 @@
 /** 
- * jsPDF AutoTable plugin v2.0.24
+ * jsPDF AutoTable plugin v2.0.25
  * Copyright (c) 2014 Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable 
  * 
  * Licensed under the MIT License. 
@@ -235,6 +235,39 @@
         return Config;
     }();
 
+    // mdn.io/assign#Polyfill
+    if (typeof Object.assign != 'function') {
+        (function () {
+            Object.assign = function (target) {
+                'use strict';
+
+                if (target === undefined || target === null) {
+                    throw new TypeError('Cannot convert undefined or null to object');
+                }
+
+                var output = Object(target);
+                for (var index = 1; index < arguments.length; index++) {
+                    var source = arguments[index];
+                    if (source !== undefined && source !== null) {
+                        for (var nextKey in source) {
+                            if (source.hasOwnProperty(nextKey)) {
+                                output[nextKey] = source[nextKey];
+                            }
+                        }
+                    }
+                }
+                return output;
+            };
+        })();
+    }
+
+    // mdn.io/isarray#Polyfill
+    if (!Array.isArray) {
+        Array.isArray = function (arg) {
+            return Object.prototype.toString.call(arg) === '[object Array]';
+        };
+    }
+
     var doc;
     var cursor;
     var styleModifiers;
@@ -324,11 +357,11 @@
      * Parses an html table
      *
      * @param tableElem Html table element
-     * @param includeHiddenRows Defaults to false
+     * @param includeHiddenElements If to include hidden rows and columns (defaults to false)
      * @returns Object Object with two properties, columns and rows
      */
-    jsPDF.API.autoTableHtmlToJson = function (tableElem, includeHiddenRows) {
-        includeHiddenRows = includeHiddenRows || false;
+    jsPDF.API.autoTableHtmlToJson = function (tableElem, includeHiddenElements) {
+        includeHiddenElements = includeHiddenElements || false;
 
         var header = tableElem.rows[0];
         var result = { columns: [], rows: [] };
@@ -336,13 +369,17 @@
         for (var k = 0; k < header.cells.length; k++) {
             var cell = header.cells[k];
             var val = cell ? cell.textContent.trim() : '';
-            result.columns.push(val);
+            var style = window.getComputedStyle(cell);
+
+            if (includeHiddenElements || style.display !== 'none') {
+                result.columns.push(val);
+            }
         }
 
         for (var i = 1; i < tableElem.rows.length; i++) {
             var tableRow = tableElem.rows[i];
             var style = window.getComputedStyle(tableRow);
-            if (includeHiddenRows || style.display !== 'none') {
+            if (includeHiddenElements || style.display !== 'none') {
                 var rowData = [];
                 for (var j = 0; j < header.cells.length; j++) {
                     var cell = tableRow.cells[j];
@@ -751,38 +788,6 @@
             text = text.substring(0, text.length - 1);
         }
         return text.trim() + ellipsizeStr;
-    }
-
-    // Polyfills
-    if (typeof Object.assign != 'function') {
-        (function () {
-            Object.assign = function (target) {
-                'use strict';
-
-                if (target === undefined || target === null) {
-                    throw new TypeError('Cannot convert undefined or null to object');
-                }
-
-                var output = Object(target);
-                for (var index = 1; index < arguments.length; index++) {
-                    var source = arguments[index];
-                    if (source !== undefined && source !== null) {
-                        for (var nextKey in source) {
-                            if (source.hasOwnProperty(nextKey)) {
-                                output[nextKey] = source[nextKey];
-                            }
-                        }
-                    }
-                }
-                return output;
-            };
-        })();
-    }
-
-    if (!Array.isArray) {
-        Array.isArray = function (arg) {
-            return Object.prototype.toString.call(arg) === '[object Array]';
-        };
     }
 
 }));
