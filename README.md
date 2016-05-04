@@ -153,7 +153,7 @@ There are 8 different hooks that gets called at various times during the drawing
 - `cursor` - The position at which the next table cell will be drawn. This can be assigned new values to create column and row spans. Checkout the Colspan and Rowspan example for more information.
 
 ### Helper functions
-- `autoTableHtmlToJson(tableElem, includeHiddenRows)` Use it to generate the javascript objects required for this library from an html table (see `from html` example)
+- `autoTableHtmlToJson(tableElem, includeHiddenElements)` Use it to generate the javascript objects required for this library from an html table (see `from html` example). If includeHiddenElements is set to true hidden rows and columns will be included otherwise excluded.
 - `autoTableEndPosY()` Use it if you want to know where on the page the the last row were drawn (see `multiple tables` example)
 
 ### Upgrade to Version 2.1 from 2.0

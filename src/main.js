@@ -94,11 +94,11 @@ jsPDF.API.autoTableEndPosY = function () {
  * Parses an html table
  *
  * @param tableElem Html table element
- * @param includeHiddenRows Defaults to false
+ * @param includeHiddenElements If to include hidden rows and columns (defaults to false)
  * @returns Object Object with two properties, columns and rows
  */
-jsPDF.API.autoTableHtmlToJson = function (tableElem, includeHiddenRows) {
-    includeHiddenRows = includeHiddenRows || false;
+jsPDF.API.autoTableHtmlToJson = function (tableElem, includeHiddenElements) {
+    includeHiddenElements = includeHiddenElements || false;
 
     var header = tableElem.rows[0];
     var result = {columns: [], rows: []};
@@ -106,13 +106,17 @@ jsPDF.API.autoTableHtmlToJson = function (tableElem, includeHiddenRows) {
     for (var k = 0; k < header.cells.length; k++) {
         let cell = header.cells[k];
         let val = cell ? cell.textContent.trim() : '';
-        result.columns.push(val);
+        let style = window.getComputedStyle(cell);
+       
+        if (includeHiddenElements || style.display !== 'none') {
+            result.columns.push(val);
+        }
     }
 
     for (var i = 1; i < tableElem.rows.length; i++) {
         let tableRow = tableElem.rows[i];
         let style = window.getComputedStyle(tableRow);
-        if (includeHiddenRows || style.display !== 'none') {
+        if (includeHiddenElements || style.display !== 'none') {
             let rowData = [];
             for (var j = 0; j < header.cells.length; j++) {
                 let cell = tableRow.cells[j];
