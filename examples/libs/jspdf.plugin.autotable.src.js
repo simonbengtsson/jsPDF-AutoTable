@@ -1,5 +1,5 @@
 /** 
- * jsPDF AutoTable plugin v2.0.25
+ * jsPDF AutoTable plugin v2.0.26
  * Copyright (c) 2014 Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable 
  * 
  * Licensed under the MIT License. 
@@ -268,6 +268,14 @@
         };
     }
 
+    if (!Object.values) {
+        Object.values = function (obj) {
+            return Object.keys(obj).map(function (key) {
+                return obj[key];
+            });
+        };
+    }
+
     var doc;
     var cursor;
     var styleModifiers;
@@ -363,16 +371,16 @@
     jsPDF.API.autoTableHtmlToJson = function (tableElem, includeHiddenElements) {
         includeHiddenElements = includeHiddenElements || false;
 
+        var columns = {},
+            rows = [];
+
         var header = tableElem.rows[0];
-        var result = { columns: [], rows: [] };
 
         for (var k = 0; k < header.cells.length; k++) {
             var cell = header.cells[k];
-            var val = cell ? cell.textContent.trim() : '';
             var style = window.getComputedStyle(cell);
-
             if (includeHiddenElements || style.display !== 'none') {
-                result.columns.push(val);
+                columns[k] = cell ? cell.textContent.trim() : '';
             }
         }
 
@@ -381,17 +389,38 @@
             var style = window.getComputedStyle(tableRow);
             if (includeHiddenElements || style.display !== 'none') {
                 var rowData = [];
-                for (var j = 0; j < header.cells.length; j++) {
-                    var cell = tableRow.cells[j];
-                    var val = cell ? cell.textContent.trim() : '';
-                    rowData.push(val);
+                var _iteratorNormalCompletion = true;
+                var _didIteratorError = false;
+                var _iteratorError = undefined;
+
+                try {
+                    for (var _iterator = Object.keys(columns)[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                        var j = _step.value;
+
+                        var cell = tableRow.cells[j];
+                        var val = cell ? cell.textContent.trim() : '';
+                        rowData.push(val);
+                    }
+                } catch (err) {
+                    _didIteratorError = true;
+                    _iteratorError = err;
+                } finally {
+                    try {
+                        if (!_iteratorNormalCompletion && _iterator.return) {
+                            _iterator.return();
+                        }
+                    } finally {
+                        if (_didIteratorError) {
+                            throw _iteratorError;
+                        }
+                    }
                 }
-                result.rows.push(rowData);
+
+                rows.push(rowData);
             }
         }
 
-        result.data = result.rows; // Deprecated
-        return result;
+        return { columns: Object.values(columns), rows: rows, data: rows }; // data prop deprecated
     };
 
     /**
