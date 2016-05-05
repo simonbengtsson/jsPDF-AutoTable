@@ -99,17 +99,16 @@ jsPDF.API.autoTableEndPosY = function () {
  */
 jsPDF.API.autoTableHtmlToJson = function (tableElem, includeHiddenElements) {
     includeHiddenElements = includeHiddenElements || false;
+    
+    var columns = {}, rows = [];
 
     var header = tableElem.rows[0];
-    var result = {columns: [], rows: []};
 
     for (var k = 0; k < header.cells.length; k++) {
         let cell = header.cells[k];
-        let val = cell ? cell.textContent.trim() : '';
         let style = window.getComputedStyle(cell);
-       
         if (includeHiddenElements || style.display !== 'none') {
-            result.columns.push(val);
+            columns[k] = cell ? cell.textContent.trim() : '';
         }
     }
 
@@ -118,17 +117,16 @@ jsPDF.API.autoTableHtmlToJson = function (tableElem, includeHiddenElements) {
         let style = window.getComputedStyle(tableRow);
         if (includeHiddenElements || style.display !== 'none') {
             let rowData = [];
-            for (var j = 0; j < header.cells.length; j++) {
+            for (let j of Object.keys(columns)) {
                 let cell = tableRow.cells[j];
                 let val = cell ? cell.textContent.trim() : '';
                 rowData.push(val);
             }
-            result.rows.push(rowData);
+            rows.push(rowData);
         }
     }
 
-    result.data = result.rows; // Deprecated
-    return result;
+    return {columns: Object.values(columns), rows: rows, data: rows}; // data prop deprecated
 };
 
 /**

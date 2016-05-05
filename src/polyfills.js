@@ -29,3 +29,7 @@ if (!Array.isArray) {
         return Object.prototype.toString.call(arg) === '[object Array]';
     };
 }
+
+if (!Object.values) {
+    Object.values = obj => Object.keys(obj).map(key => obj[key]);
+}
