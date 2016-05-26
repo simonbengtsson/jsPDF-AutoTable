@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Simple example</title>
+</head>
+<body>
+<button id="generate">Generate pdf</button>
+
+<script src="../libs/require.js"></script>
+<script>
+    // Note that you will have to use a version of jspdf that works with bundlers 
+    // Currently (2016-05-26) jspdf doesn't offcially support bundlers but you can obtain such version by:
+    // - building the latest jspdf yourself and use the generated dist files
+    // - use pavestru's jspdf fork https://github.com/pavestru/jsPDF 
+    // - copy libs/jspdf-bundler-ready.js which is a custom built version of jspdf 1.2.61
+    require.config({paths: {jspdf: '../libs/jspdf-bundler-ready'}});
+    require(['jspdf', '../libs/jspdf.plugin.autotable.src.js'], function(jsPDF) {
+
+        document.getElementById("generate").onclick = function() {
+            var columns = ["ID", "Name", "Age", "City"];
+            var data = [
+                [1, "Jonatan", 25, "Gothenburg"],
+                [2, "Simon", 23, "Gothenburg"],
+                [3, "Hanna", 21, "Stockholm"]
+            ];
+
+            var doc = new jsPDF('p', 'pt');
+            doc.autoTable(columns, data);
+            doc.save("table.pdf");
+        }
+
+    });
+</script>
+</body>
+</html>
