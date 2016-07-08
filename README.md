@@ -13,7 +13,7 @@ Download and include [jspdf.plugin.autotable.js](https://raw.githubusercontent.c
 
 ```html
 <script src="bower_components/jspdf/dist/jspdf.min.js"></script>
-<script src="bower_components/jspdf-autotable/jspdf.plugin.autotable.js"></script>
+<script src="bower_components/jspdf-autotable/dist/jspdf.plugin.autotable.js"></script>
 ```
 
 You can also get the plugin with a package manager:
