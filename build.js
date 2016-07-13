@@ -1,6 +1,8 @@
 var fs = require('fs');
 var rollup = require('rollup');
 var babel = require('rollup-plugin-babel');
+var nodeResolve = require('rollup-plugin-node-resolve');
+var commonjs = require('rollup-plugin-commonjs');
 var uglify = require("uglify-js");
 
 switch (process.argv[2]) {

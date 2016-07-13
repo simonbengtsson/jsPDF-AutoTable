@@ -7,17 +7,20 @@
     "example": "examples"
   },
   "dependencies": {
-    "jspdf": "<1.3"
+    "babel-polyfill": "^6.9.1",
+    "jspdf": "github:mrrio/jsPDF#76edb3387cda3d5292e212765134b06150030364"
   },
   "devDependencies": {
     "babel-preset-es2015-rollup": "^1.1.1",
     "nodemon": "^1.8.1",
-    "rollup": "^0.25.1",
-    "rollup-plugin-babel": "^2.3.9",
-    "uglify-js": "^2.4.24"
+    "rollup": "^0.34.1",
+    "rollup-plugin-babel": "^2.6.1",
+    "rollup-plugin-commonjs": "^3.1.0",
+    "rollup-plugin-node-resolve": "^1.7.1",
+    "uglify-js": "^2.7.0"
   },
   "scripts": {
-    "start": "nodemon --watch src -e js,ts build.js develop",
+    "start": "nodemon --watch src build.js develop & static examples -a 0.0.0.0",
     "build": "node build.js build",
     "version": "npm run build && git add -A dist && git add -A examples/libs",
     "hosted": "git checkout gh-pages && npm run build && git add -A && git commit -m \"Updated to latest version\" && git push && git checkout master && git clean -f -d",
