@@ -1,3 +1,5 @@
+import 'babel-polyfill/dist/polyfill';
+
 // mdn.io/assign#Polyfill
 if (typeof Object.assign != 'function') {
     (function () {

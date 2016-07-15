@@ -21,8 +21,8 @@ switch (process.argv[2]) {
  */
 function build(dist) {
     rollup.rollup({
-        entry: './src/main.js',
-        plugins: [babel({presets: ["es2015-rollup"]})]
+        entry: 'src/main.js',
+        plugins: [nodeResolve({jsnext: true, main: true, skip: ['jspdf']}), commonjs({}), babel({presets: ["es2015-rollup"]})]
     }).then(function (bundle) {
         var code = bundle.generate({
             format: 'umd',
@@ -48,6 +48,7 @@ function build(dist) {
 
         console.log('Done');
     }, function(err) {
+        console.log('ROLLUP ERROR:');
         console.error(err);
     });
 }
