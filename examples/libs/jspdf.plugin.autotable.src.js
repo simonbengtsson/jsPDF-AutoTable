@@ -1,5 +1,5 @@
 /** 
- * jsPDF AutoTable plugin v2.0.27
+ * jsPDF AutoTable plugin v2.0.28
  * Copyright (c) 2014 Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable 
  * 
  * Licensed under the MIT License. 
@@ -418,6 +418,17 @@
       }
 
       return { columns: Object.values(columns), rows: rows, data: rows }; // data prop deprecated
+  };
+
+  /**
+   * Add a new page including an autotable header etc. Use this function in the hooks.
+   *
+   * @param tableElem Html table element
+   * @param includeHiddenElements If to include hidden rows and columns (defaults to false)
+   * @returns Object Object with two properties, columns and rows
+   */
+  jsPDF.API.autoTableAddPage = function () {
+      addPage(doc.addPage);
   };
 
   /**
