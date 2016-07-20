@@ -22,7 +22,10 @@ switch (process.argv[2]) {
 function build(dist) {
     rollup.rollup({
         entry: 'src/main.js',
-        plugins: [nodeResolve({jsnext: true, main: true, skip: ['jspdf']}), commonjs({}), babel({presets: ["es2015-rollup"]})]
+        plugins: [nodeResolve({jsnext: true, main: true, skip: ['jspdf']}), commonjs({}), babel({
+            exclude: 'node_modules/**',
+            presets: ["es2015-rollup"]
+        })]
     }).then(function (bundle) {
         var code = bundle.generate({
             format: 'umd',
@@ -47,7 +50,7 @@ function build(dist) {
         fs.createReadStream('./node_modules/jspdf/dist/jspdf.min.js').pipe(write);
 
         console.log('Done');
-    }, function(err) {
+    }).catch(function(err) {
         console.log('ROLLUP ERROR:');
         console.error(err);
     });
