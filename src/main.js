@@ -130,6 +130,17 @@ jsPDF.API.autoTableHtmlToJson = function (tableElem, includeHiddenElements) {
 };
 
 /**
+ * Add a new page including an autotable header etc. Use this function in the hooks.
+ *
+ * @param tableElem Html table element
+ * @param includeHiddenElements If to include hidden rows and columns (defaults to false)
+ * @returns Object Object with two properties, columns and rows
+ */
+jsPDF.API.autoTableAddPage = function () {
+    addPage(doc.addPage);
+};
+
+/**
  * Improved text function with halign and valign support
  * Inspiration from: http://stackoverflow.com/questions/28327510/align-text-right-using-jspdf/28433113#28433113
  */

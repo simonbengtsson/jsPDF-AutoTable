@@ -155,9 +155,7 @@ There are 8 different hooks that gets called at various times during the drawing
 ### Helper functions
 - `autoTableHtmlToJson(tableElem, includeHiddenElements)` Use it to generate the javascript objects required for this library from an html table (see `from html` example). If includeHiddenElements is set to true hidden rows and columns will be included otherwise excluded.
 - `autoTableEndPosY()` Use it if you want to know where on the page the the last row were drawn (see `multiple tables` example)
-
-### Upgrade to Version 2.1 from 2.0
-- Use cursor.x instead of column.x.
+- `autoTableAddPage` Use in the hooks to continue the table on the next page. Adds a new header automatically.
 
 ### Upgrade to Version 2.0 from 1.x
 - Use the hooks (or  styles and themes) instead of `renderCell`, `renderHeaderCell`, `renderFooter`and `renderHeader`
