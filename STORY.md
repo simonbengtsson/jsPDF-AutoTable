@@ -1,8 +1,8 @@
 ### Background
-The original goal for the plugin was to be able to generate good looking pdf tables from raw javascript objects. Additional features have since been added, but mostly to make the generated tables easier to customize.
+The goal for the plugin has always been to make it easy to generate good looking pdf tables with javascript. Additional features and customization options have been added over time.
 
 ### Development
-The first was a quick proof of concept and was published to Github in the end of 2014. The first version was buggy, limited and basically only had one feature - automatic calculation of width of the columns based on the text in the cells (hence the name AutoTable). Surprisingly it got some traction and people started posting issues and star it. This spurred the development of version 1.0 which was completed in the beginning of 2015. Version 1.0 were also basic however and issues regarding styling and how to create a pdf from html were common. That was the main rationale for starting the development of 2.0 which was finished the summer of 2015.
+The first version was a quick proof of concept and was published to Github in the end of 2014. It only worked for limited use cases and basically only had one feature worth mentioning: automatic calculation of width of the columns based on the text in the cells (hence the name AutoTable). Surprisingly it got some traction and people started posting issues and star it. This spurred the development of version 1.0 which was completed in the beginning of 2015. Version 1.0 were also basic however and issues regarding styling and how to create a pdf from html were common. Version 2.0 was finished in the middle of 2015 and made it much easier easier to customize and style the tables.
 
 ### Production uses
 - Participants lists, result lists, etc for a management system for sailing competitions
