@@ -27,29 +27,30 @@ function build(dist) {
             presets: ["es2015-rollup"]
         })]
     }).then(function (bundle) {
-        var code = bundle.generate({
-            format: 'umd',
-            banner: '/** \n' +
-            ' * jsPDF AutoTable plugin v' + require('./package.json').version + '\n' +
-            ' * Copyright (c) 2014 Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable \n' +
-            ' * \n' +
-            ' * Licensed under the MIT License. \n' +
-            ' * http://opensource.org/licenses/mit-license \n' +
-            ' * \n' +
-            ' * @preserve \n' +
-            ' */'
-        }).code;
+        var banner = '/** \n' +
+        ' * jsPDF AutoTable plugin v' + require('./package.json').version + '\n' +
+        ' * Copyright (c) 2014 Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable \n' +
+        ' * \n' +
+        ' * Licensed under the MIT License. \n' +
+        ' * http://opensource.org/licenses/mit-license \n' +
+        ' * \n' +
+        ' * @preserve \n' +
+        ' */';
+        
+        var code = bundle.generate({format: 'iife', banner: banner}).code;
+        var umd = bundle.generate({format: 'umd', banner: banner}).code;
 
         if (dist) {
             var minified = uglify.minify(code, {fromString: true, output: {comments: /@preserve|@license/i}}).code;
             fs.writeFileSync('./dist/jspdf.plugin.autotable.js', minified);
             fs.writeFileSync('./dist/jspdf.plugin.autotable.src.js', code);
+            fs.writeFileSync('./dist/jspdf.plugin.autotable.umd.js', umd);
         }
         fs.writeFileSync( './examples/libs/jspdf.plugin.autotable.src.js', code);
-        var write = fs.createWriteStream('./examples/libs/jspdf.min.js');
-        fs.createReadStream('./node_modules/jspdf/dist/jspdf.min.js').pipe(write);
+        fs.writeFileSync( './examples/libs/jspdf.plugin.autotable.umd.js', umd);
+        fs.writeFileSync('./examples/libs/jspdf.min.js', fs.readFileSync('./node_modules/jspdf/dist/jspdf.min.js'));
 
-        console.log('Done');
+        console.log('Build finished successfully');
     }).catch(function(err) {
         console.log('ROLLUP ERROR:');
         console.error(err);
