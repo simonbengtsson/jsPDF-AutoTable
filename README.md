@@ -181,14 +181,9 @@ There are 8 different hooks that gets called at various times during the drawing
 
 ### Other pdf libraries
 
-#### [pdfmake (javascript)](https://github.com/bpampuch/pdfmake)
-I much prefer the coding style of jspdf over pdfmake, however the tables features of pdfmake are great.
-
-#### [Included jsPDF table plugin](https://github.com/MrRio/jsPDF/blob/master/jspdf.plugin.cell.js)
-No up to date documentation of how to use it (?) and has bugs. You might find it useful however.
- 
-#### [fpdf (php)](http://www.fpdf.org/) and [pdfbox (java)](https://pdfbox.apache.org/) 
-No included table features and have to be used server side.
+- [pdfmake (javascript)](https://github.com/bpampuch/pdfmake) I much prefer the coding style of jspdf over pdfmake, however the tables features of pdfmake are great.
+- [Included jsPDF table plugin](https://github.com/MrRio/jsPDF/blob/master/jspdf.plugin.cell.js) No up to date documentation of how to use it (?) and has bugs. You might find it useful however.
+- [fpdf (php)](http://www.fpdf.org/) and [pdfbox (java)](https://pdfbox.apache.org/) No included table features and have to be used server side.
 
 ### Questions and issues
 If you have questions regarding how to use this plugin, please post on stackoverflow with the `jspdf-autotable` tag and I will try to answer them. If you think you have found a problem with the plugin feel free to create an issue on Github. However, try to replicate the issue on `codepen` or some similar service first. Here is a [codepen](http://codepen.io/someatoms/pen/EjwPEb) with `jspdf` and `jspdf-autotable` included that you can fork.
@@ -196,29 +191,13 @@ If you have questions regarding how to use this plugin, please post on stackover
 ### Contributions
 Contributions are always welcome, especially on open issues or for items in the future work section below. If you have something major you want to add or change, please post an issue about it first.
 
-- Make your changes in `src/main.js`
-- Build dist files with `npm run build`
-- Test the examples in examples.html to make sure everything looks alright
-- Submit pull request
-
-### Contributing workflow
 - Make code changes
 - Build with `npm run build`
-- Test that the examples works
-- Commit and submit pull request
+- Test that the examples works in `examples/index.html`
+- Commit (without changed dist files) and submit pull request
 
 ### Release workflow (write access to repo required)
 - Test and commit code changes 
 - Run `npm version <semver|major|minor|patch> -m <optional-commit-message>`
 - Manually verify files and look over the examples
 - Deploy with `npm run deploy`
-
-### Known issues
-- The style `valign: center` gets inexact when using `overflown: linebreak` and there is around five or more rows
-
-### Future work (pull request welcome)
-- Header option `always`, `single`, `none`
-- Improve examples page (especially for firefox and mobile browsers that doesn't embed pdfs)
-- Easier way to add page numbers
-- Manually be able to add a new page with headers etc from the hooks
-- Attach html element to each data cell when using `autoTableToJson`
