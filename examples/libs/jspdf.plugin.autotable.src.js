@@ -1,5 +1,5 @@
 /** 
- * jsPDF AutoTable plugin v2.0.31
+ * jsPDF AutoTable plugin v2.0.32
  * Copyright (c) 2014 Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable 
  * 
  * Licensed under the MIT License. 
@@ -80,10 +80,11 @@
 	    this.y = 0;
 	};
 
-	var Column = function Column(dataKey) {
+	var Column = function Column(dataKey, index) {
 	    classCallCheck(this, Column);
 
 	    this.dataKey = dataKey;
+	    this.index = index;
 	    this.options = {};
 	    this.styles = {};
 	    this.contentWidth = 0;
@@ -2114,6 +2115,7 @@ var require$$7$1 = Object.freeze({
 
 	    // Columns and header row
 	    inputHeaders.forEach(function (rawColumn, dataKey) {
+	        var index = dataKey;
 	        if ((typeof rawColumn === 'undefined' ? 'undefined' : _typeof(rawColumn)) === 'object') {
 	            dataKey = typeof rawColumn.dataKey !== 'undefined' ? rawColumn.dataKey : rawColumn.key;
 	        }
@@ -2122,7 +2124,7 @@ var require$$7$1 = Object.freeze({
 	            console.error("Use of deprecated option: column.width, use column.styles.columnWidth instead.");
 	        }
 
-	        var col = new Column(dataKey);
+	        var col = new Column(dataKey, index);
 	        col.styles = settings.columnStyles[col.dataKey] || {};
 	        table.columns.push(col);
 
