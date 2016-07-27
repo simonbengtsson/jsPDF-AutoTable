@@ -3,6 +3,7 @@
 import jsPDF from 'jspdf';
 import {Table, Row, Cell, Column} from './models.js';
 import {Config, themes, FONT_ROW_RATIO} from './config.js';
+import './polyfills.js';
 
 var doc, // The current jspdf instance
     cursor, // An object keeping track of the x and y position of the next table cell to draw
