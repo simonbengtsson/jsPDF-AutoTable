@@ -21,10 +21,13 @@
   },
   "scripts": {
     "start": "nodemon --watch src build.js develop & static examples -a 0.0.0.0",
-    "build": "node build.js build",
-    "version": "npm run build && git add -A dist && git add -A examples/libs",
+    "build": "node build.js develop",
+    "examples": "cd examples/browserify && npm install && npm run build && cd ../webpack && npm install && npm run build && cd ../../",
+    "dist": "npm run examples && node build.js build",
+    "version": "npm run dist && git add -A dist && git add -A examples/libs",
     "hosted": "git checkout gh-pages && npm run build && git add -A && git commit -m \"Updated to latest version\" && git push && git checkout master && git clean -f -d",
-    "deploy": "git push && git push --tags && npm publish && npm run hosted"
+    "deploy": "git push && git push --tags && npm publish && npm run hosted",
+    "reset": "git reset dist examples/libs/jspdf.plugin.autotable.src.js examples/libs/jspdf.plugin.autotable.umd.js"
   },
   "repository": {
     "type": "git",
