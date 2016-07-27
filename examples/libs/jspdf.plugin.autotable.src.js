@@ -7,11 +7,8 @@
  * 
  * @preserve 
  */
-(function (global, factory) {
-	typeof exports === 'object' && typeof module !== 'undefined' ? factory(require('jspdf')) :
-	typeof define === 'function' && define.amd ? define(['jspdf'], factory) :
-	(factory(global.jsPDF));
-}(this, function (jsPDF) { 'use strict';
+(function (jsPDF) {
+	'use strict';
 
 	jsPDF = 'default' in jsPDF ? jsPDF['default'] : jsPDF;
 
@@ -2429,4 +2426,4 @@ var require$$7$1 = Object.freeze({
 	    return text.trim() + ellipsizeStr;
 	}
 
-}));
+}(jsPDF));
