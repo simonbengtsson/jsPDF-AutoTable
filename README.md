@@ -82,7 +82,7 @@ Use the `dist/jspdf.plugin.autotable.umd.js` with javascript bundlers such as re
 
 The jspdf library itself has spotty support for module bundlers so you do have to make sure that you use a compatibly version of jspdf. I have had troubles with all official releases up to and including 1.2.61, but the dist files in the jspdf repo should work.
 
-For more information, check out the [the requirejs example](examples/requirejs) or [the browserify example](examples/browserify)  
+For more information, check out the [examples](examples) and their [readme](examples/README.md).
 
 ### Options
 All options below are used in `examples.js` so be sure to check it out if in doubt.

@@ -11,6 +11,6 @@ There are three module bundler examples. If you open each example's `index.html`
 ### Important module bundler note
 Use jspdf.plugin.autotable.umd.js with module bundlers. The other dist files do not  include requirejs support as a bundled version of requirejs in versions <= 2.61 complicates matters.
     
-Also note that jspdf 2.61 does not work with requirejs. You have to download the dist files fom the jspdf github repo directly or use `examples/libs/jspdf.min.js` in this repo.
+Also note that jspdf 2.61 does not work with requirejs. You have get the latest files from the jspdf repository or use `examples/libs/jspdf.min.js` in this repo. The examples depend `github:mrrio/jsPDF#76edb3387cda3d5292e212765134b06150030364` instead of a specific version for this reason.
     
-Setting up paths for jspdf and jspdf-autotable so that the full path is not needed each time they are used
+Setting up paths for jspdf and jspdf-autotable so that the full path is not needed each time they are used.
