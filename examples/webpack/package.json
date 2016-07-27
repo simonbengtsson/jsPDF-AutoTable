@@ -8,6 +8,6 @@
     "webpack": "^1.13.1"
   },
   "scripts": {
-    "build": "webpack ./main.js main.bundle.js"
+    "build": "webpack"
   }
 }
