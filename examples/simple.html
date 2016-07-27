@@ -12,11 +12,13 @@
 
 <script>
     function generate() {
-        var columns = ["ID", "Name", "Age", "City"];
+        var columns = ["ID", "Country", "Rank", "Capital"];
         var data = [
-            [1, "Jonatan", 25, "Gothenburg"],
-            [2, "Simon", 23, "Gothenburg"],
-            [3, "Hanna", 21, "Stockholm"]
+            [1, "Denmark", 7.526, "Copenhagen"],
+            [2, "Switzerland", 	7.509, "Bern"],
+            [3, "Iceland", 7.501, "Reykjavík"],
+            [4, "Norway", 7.498, "Oslo"],
+            [5, "Finland", 7.413, "Helsinki"]
         ];
 
         var doc = new jsPDF('p', 'pt');

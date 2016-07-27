@@ -7,7 +7,7 @@
 <body>
 <button id="generate">Generate pdf</button>
 
-<script src="libs/require.js"></script>
+<script src="../libs/require.js"></script>
 <script>
     // !!! Note on requirejs !!!
     // Use jspdf.plugin.autotable.umd.js with requirejs. The other dist files do not 
@@ -22,7 +22,7 @@
     // each time they are used
     require.config({paths: {
         'jspdf': '../libs/jspdf.min', 
-        'jspdf-autotable': '../libs/jspdf.plugin.autotable.umd.js'
+        'jspdf-autotable': '../libs/jspdf.plugin.autotable.umd'
     }});
     
     require(['main'], function(main) {
