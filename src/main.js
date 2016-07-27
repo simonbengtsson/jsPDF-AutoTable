@@ -230,6 +230,7 @@ function createModels(inputHeaders, inputData) {
 
     // Columns and header row
     inputHeaders.forEach(function (rawColumn, dataKey) {
+        var index = dataKey;
         if (typeof rawColumn === 'object') {
             dataKey = typeof rawColumn.dataKey !== 'undefined' ? rawColumn.dataKey : rawColumn.key;
         }
@@ -238,7 +239,7 @@ function createModels(inputHeaders, inputData) {
             console.error("Use of deprecated option: column.width, use column.styles.columnWidth instead.");
         }
 
-        var col = new Column(dataKey);
+        var col = new Column(dataKey, index);
         col.styles = settings.columnStyles[col.dataKey] || {};
         table.columns.push(col);
 

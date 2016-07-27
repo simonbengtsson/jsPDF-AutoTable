@@ -39,8 +39,9 @@ export class Cell {
 }
 
 export class Column {
-    constructor(dataKey) {
+    constructor(dataKey, index) {
         this.dataKey = dataKey;
+        this.index = index;
         this.options = {};
         this.styles = {};
         this.contentWidth = 0;

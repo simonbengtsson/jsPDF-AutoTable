@@ -219,7 +219,7 @@ Below tricks faker to output global instead of being a requirejs module -->
         });
 
         if (shouldDownload) {
-            doc.output('table.pdf');
+            doc.save('table.pdf');
         } else {
             document.getElementById("output").src = doc.output('datauristring');
         }

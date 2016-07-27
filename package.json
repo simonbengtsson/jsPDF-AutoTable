@@ -27,7 +27,7 @@
     "version": "npm run dist && git add -A dist && git add -A examples/libs",
     "hosted": "git checkout gh-pages && npm run build && git add -A && git commit -m \"Updated to latest version\" && git push && git checkout master && git clean -f -d",
     "deploy": "git push && git push --tags && npm publish && npm run hosted",
-    "reset": "git reset dist examples/libs/jspdf.plugin.autotable.src.js examples/libs/jspdf.plugin.autotable.umd.js"
+    "clean": "git checkout dist examples/libs/jspdf.plugin.autotable.src.js examples/libs/jspdf.plugin.autotable.umd.js"
   },
   "repository": {
     "type": "git",
