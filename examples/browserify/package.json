@@ -1,0 +1,14 @@
+{
+  "private": true,
+  "dependencies": {
+    "jspdf": "github:mrrio/jsPDF#76edb3387cda3d5292e212765134b06150030364",
+    "jspdf-autotable": "^2.0.30"
+  },
+  "devDependencies": {
+    "browserify": "^13.1.0"
+  },
+  "scripts": {
+    "webpack": "",
+    "browserify": "browserify main.js > main.bundle.js"
+  }
+}

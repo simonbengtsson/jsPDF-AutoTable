@@ -1,4 +1,4 @@
-define(['jspdf', 'jspdf-autotable'], function(jsPDF, autotable) {
+define(['jspdf', 'jspdf-autotable'], function(jsPDF) {
     return {
         generatePdf: function() {
             var columns = ["ID", "Country", "Rank", "Capital"];
