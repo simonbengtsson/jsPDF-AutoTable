@@ -185,9 +185,9 @@
     </tbody>
 </table>
 
-<!-- All major versions (0.9.0, 1.0.272, 1.1.135 and 1.2.60) should work. 1.2.x is recommended 
-but 0.9.x can be used for extended IE support. -->
-<!--<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.2.60/jspdf.debug.js"></script>-->
+<!-- All major versions are tested (0.9.0, 1.0.x and 1.2.x), but the latest version is recommended -->
+<!--<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/0.9.0/jspdf.source.js"></script>-->
+<!--<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.2.61/jspdf.debug.js"></script>-->
 <script src="libs/jspdf.min.js"></script>
 
 <!-- jspdf.debug.js 1.2.x includes require js. 
@@ -219,7 +219,7 @@ Below tricks faker to output global instead of being a requirejs module -->
         });
 
         if (shouldDownload) {
-            doc.save('table.pdf');
+            doc.output('table.pdf');
         } else {
             document.getElementById("output").src = doc.output('datauristring');
         }

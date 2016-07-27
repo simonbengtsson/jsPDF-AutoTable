@@ -26,6 +26,11 @@ It is also available on cdnjs:
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/2.0.16/jspdf.plugin.autotable.js"></script>
 ```
 
+### Browser support
+
+Tested with IE10, IE11 and modern browsers (chrome, edge, firefox and safari). It will probably work with <IE10 as well
+but you might have to use an old versions of jspdf and/or add polyfills.
+
 ### Usage
 
 ```javascript
