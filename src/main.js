@@ -509,6 +509,7 @@ function hooksData(additionalData) {
         pageCount: table.pageCount,
         settings: settings,
         table: table,
+        doc: doc,
         cursor: cursor
     }, additionalData || {});
 }

@@ -161,6 +161,7 @@ There are 8 different hooks that gets called at various times during the drawing
 - `pageCount` - The number of pages it currently spans
 - `settings` - The user options merged with the default options
 - `table` - Information about the table such as the rows, columns and dimensions
+- `doc` - The current jspdf instance
 - `cursor` - The position at which the next table cell will be drawn. This can be assigned new values to create column and row spans. Checkout the Colspan and Rowspan example for more information.
 
 ### Helper functions
