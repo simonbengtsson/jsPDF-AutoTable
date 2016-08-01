@@ -1,5 +1,5 @@
 /** 
- * jsPDF AutoTable plugin v2.0.32
+ * jsPDF AutoTable plugin v2.0.33
  * Copyright (c) 2014 Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable 
  * 
  * Licensed under the MIT License. 
@@ -2393,6 +2393,7 @@ var require$$7$1 = Object.freeze({
 	        pageCount: table.pageCount,
 	        settings: settings,
 	        table: table,
+	        doc: doc,
 	        cursor: cursor
 	    }, additionalData || {});
 	}
