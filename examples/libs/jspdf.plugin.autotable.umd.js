@@ -1,5 +1,5 @@
 /** 
- * jsPDF AutoTable plugin v2.0.33
+ * jsPDF AutoTable plugin v2.0.34
  * Copyright (c) 2014 Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable 
  * 
  * Licensed under the MIT License. 
@@ -2059,7 +2059,7 @@ var require$$7$1 = Object.freeze({
 	    // Align the top
 	    y += fontSize * (2 - lineHeightProportion);
 
-	    if (styles.valign === 'middle') y -= lineCount / 2 * fontSize;else if (styles.valign === 'bottom') y -= lineCount * fontSize;
+	    if (styles.valign === 'middle') y -= lineCount / 2 * fontSize * lineHeightProportion;else if (styles.valign === 'bottom') y -= lineCount * fontSize * lineHeightProportion;
 
 	    if (styles.halign === 'center' || styles.halign === 'right') {
 	        var alignSize = fontSize;
