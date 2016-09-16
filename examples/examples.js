@@ -261,7 +261,7 @@ examples.spans = function () {
     doc.setTextColor(0);
     doc.setFontStyle('bold');
     doc.text('Col and row span', 40, 50);
-    var data = getData(20);
+    var data = getData(80);
     data.sort(function (a, b) {
         return parseFloat(b.expenses) - parseFloat(a.expenses);
     });
@@ -287,6 +287,13 @@ examples.spans = function () {
                     valign: 'middle'
                 });
                 data.cursor.y += 20;
+            }
+
+            if (row.index % 5 === 0) {
+                var posY = row.y + row.height * 6 + data.settings.margin.bottom;
+                if (posY > doc.internal.pageSize.height) {
+                    doc.autoTableAddPage();
+                }
             }
         },
         drawCell: function (cell, data) {
