@@ -89,6 +89,40 @@ The jspdf library itself has spotty support for module bundlers so you do have t
 
 For more information, check out the [examples](examples) and their readme.
 
+### Usage with Angular 2 (angular cli v1.0.0-beta.14)
+
+- In an angular cli project run `npm install jspdf-autotable --save`
+- Add the `jspdf` and `jspdf-autotable` files to the scripts section in `angular-cli.json` (see below)
+- Declare jsPDF as a global variable, and use as normal
+
+```js
+"scripts": [
+    "../node_modules/jspdf/dist/jspdf.min.js",
+    "../node_modules/jspdf-autotable/dist/jspdf.plugin.autotable.js"
+],
+```
+
+```js
+import { Component } from '@angular/core';
+
+declare var jsPDF: any;
+
+@Component({
+  selector: 'app-root',
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.css']
+})
+export class AppComponent {
+  title = 'app works!';
+  
+  constructor() {
+    var doc = new jsPDF('p', 'pt');
+    doc.autoTable(columns, data);
+    doc.save("table.pdf");
+  }
+}
+```
+
 ### Options
 All options below are used in `examples.js` so be sure to check it out if in doubt.
 
