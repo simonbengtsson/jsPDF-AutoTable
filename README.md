@@ -95,16 +95,16 @@ For more information, check out the [examples](examples) and their readme.
 - Add the `jspdf` and `jspdf-autotable` files to the scripts section in `angular-cli.json` (see below)
 - Declare jsPDF as a global variable `declare var jsPDF: any;`, and use as normal in any component
 
-`angular-cli.json`
 ```js
+// angular-cli.json
 "scripts": [
     "../node_modules/jspdf/dist/jspdf.min.js",
     "../node_modules/jspdf-autotable/dist/jspdf.plugin.autotable.js"
 ],
 ```
 
-`app.component.ts` or any other component
 ```js
+// app.component.ts or any other component
 import { Component } from '@angular/core';
 
 declare var jsPDF: any; // Important
