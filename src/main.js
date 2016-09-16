@@ -166,9 +166,9 @@ jsPDF.API.autoTableText = function (text, x, y, styles) {
     y += fontSize * (2 - lineHeightProportion);
 
     if (styles.valign === 'middle')
-        y -= (lineCount / 2) * fontSize;
+        y -= (lineCount / 2) * fontSize * lineHeightProportion;
     else if (styles.valign === 'bottom')
-        y -= lineCount * fontSize;
+        y -= lineCount * fontSize * lineHeightProportion;
 
     if (styles.halign === 'center' || styles.halign === 'right') {
         var alignSize = fontSize;
