@@ -28,8 +28,7 @@ It is also available on cdnjs:
 
 ### Browser support
 
-Tested with IE10, IE11 and modern browsers (chrome, edge, firefox and safari). It will probably work with <IE10 as well
-but you might have to use an old versions of jspdf and/or add polyfills.
+Tested with IE10, IE11 and modern browsers (chrome, edge, firefox and safari). It will probably work with < IE10 as well but you might have to use an old version of jspdf and/or add polyfills.
 
 ### Usage
 
@@ -200,33 +199,24 @@ There are 8 different hooks that gets called at various times during the drawing
 - `doc` - The current jspdf instance
 - `cursor` - The position at which the next table cell will be drawn. This can be assigned new values to create column and row spans. Checkout the Colspan and Rowspan example for more information.
 
+*OBS!* Only the `drawCell` hook can be used with the native style jspdf style changes such as `doc.setFillColor`. If you use the other hooks for changing styles, they will be overriden.
+
 ### Helper functions
 - `autoTableHtmlToJson(tableElem, includeHiddenElements)` Use it to generate the javascript objects required for this library from an html table (see `from html` example). If includeHiddenElements is set to true hidden rows and columns will be included otherwise excluded.
 - `autoTableEndPosY()` Use it if you want to know where on the page the the last row were drawn (see `multiple tables` example)
 - `autoTableAddPage` Use in the hooks to continue the table on the next page. Adds a new header automatically.
 
-### Upgrade to Version 2.0 from 1.x
-- Use the hooks (or  styles and themes) instead of `renderCell`, `renderHeaderCell`, `renderFooter`and `renderHeader`
-- Custom column width now specified with the style columnWidth
-- Use `tableWidth` instead of `extendWidth`
-- Use `columnWidth: 'wrap'` instead of `overflowColumns` 
-- Use `pageBreak` instead of `avoidPageSplit`
-- Use `margin` instead of `margins`
-- `autoTableHtmlToJson` now always returns an object
-- Use `API.autoTableEndPosY()` instead of `API.autoTableEndPos()`
-- Use column.x instead of cursor.x
-
 ### Other pdf libraries
 
-- [pdfmake (javascript)](https://github.com/bpampuch/pdfmake) I much prefer the coding style of jspdf over pdfmake, however the tables features of pdfmake are great.
-- [Included jsPDF table plugin](https://github.com/MrRio/jsPDF/blob/master/jspdf.plugin.cell.js) No up to date documentation of how to use it (?) and has bugs. You might find it useful however.
+- [pdfmake (javascript)](https://github.com/bpampuch/pdfmake) I much prefer the coding style of jspdf over pdfmake, however the tables features of pdfmake are great. And pdfmake have proper support for utf-8 which jspdf lacks.
+- [Included jsPDF table plugin](https://github.com/MrRio/jsPDF/blob/master/jspdf.plugin.cell.js) No up to date documentation of how to use it (?) and has bugs.
 - [fpdf (php)](http://www.fpdf.org/) and [pdfbox (java)](https://pdfbox.apache.org/) No included table features and have to be used server side.
 
 ### Questions and issues
 If you have questions regarding how to use this plugin, please post on stackoverflow with the `jspdf-autotable` tag and I will try to answer them. If you think you have found a problem with the plugin feel free to create an issue on Github. However, try to replicate the issue on `codepen` or some similar service first. Here is a [codepen](http://codepen.io/someatoms/pen/EjwPEb) with `jspdf` and `jspdf-autotable` included that you can fork.
 
 ### Contributions
-Contributions are always welcome, especially on open issues or for items in the future work section below. If you have something major you want to add or change, please post an issue about it first.
+Contributions are always welcome, especially on open issues. If you have something major you want to add or change, please post an issue about it first to discuss it further. The workflow for contributing would be something like this:
 
 - Make code changes
 - Build with `npm run build`
