@@ -142,7 +142,8 @@
 	        drawHeaderCell: function drawHeaderCell(cell, data) {},
 	        drawCell: function drawCell(cell, data) {},
 	        beforePageContent: function beforePageContent(data) {},
-	        afterPageContent: function afterPageContent(data) {}
+	        afterPageContent: function afterPageContent(data) {},
+	        afterPageAdd: function afterPageAdd(data) {}
 	    };
 	}
 
@@ -2284,6 +2285,7 @@ var require$$7$1 = Object.freeze({
 	function addPage(jspdfAddPage) {
 	    settings.afterPageContent(hooksData());
 	    jspdfAddPage();
+	    settings.afterPageAdd(hooksData());
 	    table.pageCount++;
 	    cursor = { x: settings.margin.left, y: settings.margin.top };
 	    settings.beforePageContent(hooksData());
