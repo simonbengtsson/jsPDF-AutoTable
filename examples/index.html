@@ -185,14 +185,11 @@
     </tbody>
 </table>
 
-<!-- All major versions are tested (0.9.0, 1.0.x and 1.2.x), but the latest version is recommended -->
+<!-- All major versions of jspdf should work (0.9.0, 1.0.x, 1.2.x and 1.3.x) -->
 <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/0.9.0/jspdf.source.js"></script>-->
 <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.2.61/jspdf.debug.js"></script>-->
+<!--<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.3.2/jspdf.debug.js"></script>-->
 <script src="libs/jspdf.min.js"></script>
-
-<!-- jspdf.debug.js 1.2.x includes require js. 
-Below tricks faker to output global instead of being a requirejs module -->
-<script>if (window.define) delete window.define.amd;</script>
 
 <script src="libs/faker.min.js"></script>
 <script src="libs/jspdf.plugin.autotable.src.js"></script>

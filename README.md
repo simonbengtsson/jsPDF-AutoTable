@@ -48,6 +48,8 @@ doc.autoTable(columns, rows);
 doc.save('table.pdf');
 ```
 
+You can also use it with webpack, requirejs and other module bundlers ([examples](examples)).
+
 ### Usage with options
 
 ```javascript
@@ -81,13 +83,7 @@ doc.save('table.pdf');
 
 See other examples in `/examples/examples.js` which is also the source code for the [demo](https://simonbengtsson.github.io/jsPDF-AutoTable/) documents. 
 
-### Usage with module bundlers
 
-Use the `dist/jspdf.plugin.autotable.umd.js` with javascript bundlers such as requirejs and browserify. This plugin does no longer export umd in the default dist files as jspdf `<= 2.61` breaks umd by bundling a version of requirejs. 
-
-The jspdf library itself has spotty support for module bundlers so you do have to make sure that you use a compatibly version of jspdf. I have had troubles with all official releases up to and including 1.2.61, but the dist files in the jspdf repo should work.
-
-For more information, check out the [examples](examples) and their readme.
 
 ### Usage with Angular 2 (angular cli v1.0.0-beta.14)
 
