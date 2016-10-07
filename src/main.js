@@ -399,6 +399,7 @@ function distributeWidth(dynamicColumns, staticWidth, dynamicColumnsContentWidth
 function addPage(jspdfAddPage) {
     settings.afterPageContent(hooksData());
     jspdfAddPage();
+    settings.afterPageAdd(hooksData());
     table.pageCount++;
     cursor = {x: settings.margin.left, y: settings.margin.top};
     settings.beforePageContent(hooksData());

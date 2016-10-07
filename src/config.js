@@ -48,7 +48,8 @@ function getDefaults() {
         drawHeaderCell: function (cell, data) {},
         drawCell: function (cell, data) {},
         beforePageContent: function (data) {},
-        afterPageContent: function (data) {}
+        afterPageContent: function (data) {},
+        afterPageAdd: function (data) {}
     }
 }
 
