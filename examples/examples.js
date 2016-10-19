@@ -135,7 +135,8 @@ examples.multiple = function () {
 examples.html = function () {
     var doc = new jsPDF('p', 'pt');
     doc.text("From HTML", 40, 50);
-    var res = doc.autoTableHtmlToJson(document.getElementById("basic-table"));
+    var elem = document.getElementById("basic-table");
+    var res = doc.autoTableHtmlToJson(elem);
     doc.autoTable(res.columns, res.data, {startY: 60});
     return doc;
 };

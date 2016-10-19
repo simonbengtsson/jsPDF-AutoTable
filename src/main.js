@@ -7,8 +7,6 @@ import './polyfills.js';
 
 var doc, // The current jspdf instance
     cursor, // An object keeping track of the x and y position of the next table cell to draw
-    styleModifiers,
-    pageSize,
     settings, // Default options merged with user options
     table; // The current Table instance
 
@@ -17,24 +15,12 @@ var doc, // The current jspdf instance
  *
  * @param {Object[]|String[]} headers Either as an array of objects or array of strings
  * @param {Object[][]|String[][]} data Either as an array of objects or array of strings
- * @param {Object} [options={}] Options that will override the default ones
+ * @param {Object} [userOptions={}] Options that will override the default ones
  */
-jsPDF.API.autoTable = function (headers, data, options) {
-    validateInput(headers, data, options);
+jsPDF.API.autoTable = function (headers, data, userOptions = {}) {
+    validateInput(headers, data, userOptions);
     doc = this;
-
-    pageSize = doc.internal.pageSize;
-    styleModifiers = {
-        fillColor: doc.setFillColor,
-        textColor: doc.setTextColor,
-        fontStyle: doc.setFontStyle,
-        lineColor: doc.setDrawColor,
-        lineWidth: doc.setLineWidth,
-        font: doc.setFont,
-        fontSize: doc.setFontSize
-    };
-
-    settings = Config.initSettings(options || {});
+    settings = Config.initSettings(userOptions);
 
     // Need a cursor y as it needs to be reset after each page (row.y can't do that)
     // Also prefer cursor to column.x as the cursor is easier to modify in the hooks
@@ -51,7 +37,7 @@ jsPDF.API.autoTable = function (headers, data, options) {
 
     // Create the table model with its columns, rows and cells
     createModels(headers, data);
-    calculateWidths(this, pageSize.width);
+    calculateWidths(this, doc.internal.pageSize.width);
 
     // Page break if there is room for only the first data row
     var firstRowHeight = table.rows[0] && settings.pageBreak === 'auto' ? table.rows[0].height : 0;
@@ -59,8 +45,9 @@ jsPDF.API.autoTable = function (headers, data, options) {
     if (settings.pageBreak === 'avoid') {
         minTableBottomPos += table.height;
     }
+    var pageHeight = doc.internal.pageSize.height;
     if ((settings.pageBreak === 'always' && settings.startY !== false) ||
-        (settings.startY !== false && minTableBottomPos > pageSize.height)) {
+        (settings.startY !== false && minTableBottomPos > pageHeight)) {
         this.addPage(this.addPage);
         cursor.y = settings.margin.top;
     }
@@ -409,7 +396,7 @@ function addPage(jspdfAddPage) {
  */
 function isNewPage(rowHeight) {
     var afterRowPos = cursor.y + rowHeight + settings.margin.bottom;
-    return afterRowPos >= pageSize.height;
+    return afterRowPos >= doc.internal.pageSize.height;
 }
 
 function printRows(jspdfAddPage) {
@@ -505,6 +492,15 @@ function getFillStyle(styles) {
 }
 
 function applyStyles(styles) {
+    var styleModifiers = {
+        fillColor: doc.setFillColor,
+        textColor: doc.setTextColor,
+        fontStyle: doc.setFontStyle,
+        lineColor: doc.setDrawColor,
+        lineWidth: doc.setLineWidth,
+        font: doc.setFont,
+        fontSize: doc.setFontSize
+    };
     Object.keys(styleModifiers).forEach(function (name) {
         var style = styles[name];
         var modifier = styleModifiers[name];
