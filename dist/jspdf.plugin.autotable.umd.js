@@ -1,5 +1,5 @@
 /** 
- * jsPDF AutoTable plugin v2.0.35
+ * jsPDF AutoTable plugin v2.0.36
  * Copyright (c) 2014 Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable 
  * 
  * Licensed under the MIT License. 
@@ -105,14 +105,14 @@
 	 */
 	var themes = {
 	    'striped': {
-	        table: { fillColor: 255, textColor: 80, fontStyle: 'normal', fillStyle: 'F' },
+	        table: { fillColor: 255, textColor: 80, fontStyle: 'normal' },
 	        header: { textColor: 255, fillColor: [41, 128, 185], rowHeight: 23, fontStyle: 'bold' },
 	        body: {},
 	        alternateRow: { fillColor: 245 }
 	    },
 	    'grid': {
-	        table: { fillColor: 255, textColor: 80, fontStyle: 'normal', lineWidth: 0.1, fillStyle: 'DF' },
-	        header: { textColor: 255, fillColor: [26, 188, 156], rowHeight: 23, fillStyle: 'F', fontStyle: 'bold' },
+	        table: { fillColor: 255, textColor: 80, fontStyle: 'normal', lineWidth: 0.1 },
+	        header: { textColor: 255, fillColor: [26, 188, 156], rowHeight: 23, fontStyle: 'bold', lineWidth: 0 },
 	        body: {},
 	        alternateRow: {}
 	    },
@@ -145,7 +145,8 @@
 	        drawHeaderCell: function drawHeaderCell(cell, data) {},
 	        drawCell: function drawCell(cell, data) {},
 	        beforePageContent: function beforePageContent(data) {},
-	        afterPageContent: function afterPageContent(data) {}
+	        afterPageContent: function afterPageContent(data) {},
+	        afterPageAdd: function afterPageAdd(data) {}
 	    };
 	}
 
@@ -156,14 +157,13 @@
 	        fontSize: 10,
 	        font: "helvetica", // helvetica, times, courier
 	        lineColor: 200,
-	        lineWidth: 0.1,
+	        lineWidth: 0,
 	        fontStyle: 'normal', // normal, bold, italic, bolditalic
 	        overflow: 'ellipsize', // visible, hidden, ellipsize or linebreak
-	        fillColor: 255,
+	        fillColor: false, // Either false for transparant, rbg array e.g. [255, 255, 255] or gray level e.g 200
 	        textColor: 20,
 	        halign: 'left', // left, center, right
 	        valign: 'top', // top, middle, bottom
-	        fillStyle: 'F', // 'S', 'F' or 'DF' (stroke, fill or fill then stroke)
 	        rowHeight: 20,
 	        columnWidth: 'auto'
 	    };
@@ -2025,10 +2025,6 @@ var require$$7$1 = Object.freeze({
 
 	/**
 	 * Add a new page including an autotable header etc. Use this function in the hooks.
-	 *
-	 * @param tableElem Html table element
-	 * @param includeHiddenElements If to include hidden rows and columns (defaults to false)
-	 * @returns Object Object with two properties, columns and rows
 	 */
 	jsPDF.API.autoTableAddPage = function () {
 	    addPage(doc.addPage);
@@ -2287,6 +2283,7 @@ var require$$7$1 = Object.freeze({
 	function addPage(jspdfAddPage) {
 	    settings.afterPageContent(hooksData());
 	    jspdfAddPage();
+	    settings.afterPageAdd(hooksData());
 	    table.pageCount++;
 	    cursor = { x: settings.margin.left, y: settings.margin.top };
 	    settings.beforePageContent(hooksData());
@@ -2365,7 +2362,10 @@ var require$$7$1 = Object.freeze({
 
 	        var data = hooksData({ column: column, row: row });
 	        if (hookHandler(cell, data) !== false) {
-	            doc.rect(cell.x, cell.y, cell.width, cell.height, cell.styles.fillStyle);
+	            var fillStyle = getFillStyle(cell.styles);
+	            if (fillStyle) {
+	                doc.rect(cell.x, cell.y, cell.width, cell.height, fillStyle);
+	            }
 	            doc.autoTableText(cell.text, cell.textPos.x, cell.textPos.y, {
 	                halign: cell.styles.halign,
 	                valign: cell.styles.valign
@@ -2375,6 +2375,20 @@ var require$$7$1 = Object.freeze({
 	    }
 
 	    cursor.y += row.height;
+	}
+
+	function getFillStyle(styles) {
+	    var drawLine = styles.lineWidth > 0;
+	    var drawBackground = styles.fillColor !== false;
+	    if (drawLine && drawBackground) {
+	        return 'DF'; // Fill then stroke
+	    } else if (drawLine) {
+	            return 'S'; // Only stroke (transperant backgorund)
+	        } else if (drawBackground) {
+	                return 'F'; // Only fill, no stroke
+	            } else {
+	                    return false;
+	                }
 	}
 
 	function applyStyles(styles) {
