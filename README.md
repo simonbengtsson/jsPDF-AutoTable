@@ -163,23 +163,22 @@ Styles work similar to css and can be overriden by more specific styles. The ove
     fontSize: 10,
     font: "helvetica", // helvetica, times, courier
     lineColor: 200,
-    lineWidth: 0.1,
+    lineWidth: 0,
     fontStyle: 'normal', // normal, bold, italic, bolditalic
     overflow: 'ellipsize', // visible, hidden, ellipsize or linebreak
-    fillColor: 255,
+    fillColor: false, // false for transperant or a color as described below
     textColor: 20,
     halign: 'left', // left, center, right
     valign: 'middle', // top, middle, bottom
-    fillStyle: 'F', // 'S', 'F' or 'DF' (stroke, fill or fill then stroke)
     rowHeight: 20,
     columnWidth: 'auto' // 'auto', 'wrap' or a number
 }
 ```
-All colors can either be specified as a number (255 white and 0 for black) or an array [red, green, blue].
+All colors can either be specified as a number (255 white and 0 for black) or an array [red, green, blue] e.g. [255, 255, 255].
 
 Every style above can be changed on a cell by cell basis. However to have different rowHeights for cells in the same row or different columnWidths for cells in the same column is unsupported.
 
-Many of the styles has a matching jspdf set method. For example `fillStyle` corresponds to `doc.setFillStyle()`. More information about those can be found in the jspdf documentation.
+Some of the styles has a matching jspdf set method. For example `lineWidth` corresponds to `doc.setLineWidth()`. More information about those can be found in the jspdf documentation.
 
 ### Properties
 - `startY` Indicates where the table should start to be drawn on the first page (overriding the margin top value). It can be used for example to draw content before the table. Many examples use this option, but the above use case is presented in the `With content` example.
@@ -195,7 +194,7 @@ There are 8 different hooks that gets called at various times during the drawing
 - `doc` - The current jspdf instance
 - `cursor` - The position at which the next table cell will be drawn. This can be assigned new values to create column and row spans. Checkout the Colspan and Rowspan example for more information.
 
-*OBS!* Only the `drawCell` hook can be used with the native style jspdf style changes such as `doc.setFillColor`. If you use the other hooks for changing styles, they will be overriden.
+*OBS!* Only the `drawCell` hook can be used with the native style jspdf style changes such as `doc.setLineWidth`. If you use the other hooks for changing styles, they will be overriden.
 
 ### Helper functions
 - `autoTableHtmlToJson(tableElem, includeHiddenElements)` Use it to generate the javascript objects required for this library from an html table (see `from html` example). If includeHiddenElements is set to true hidden rows and columns will be included otherwise excluded.

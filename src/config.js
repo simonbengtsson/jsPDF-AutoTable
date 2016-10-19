@@ -8,14 +8,14 @@ export var FONT_ROW_RATIO = 1.15;
  */
 export var themes = {
     'striped': {
-        table: {fillColor: 255, textColor: 80, fontStyle: 'normal', fillStyle: 'F'},
+        table: {fillColor: 255, textColor: 80, fontStyle: 'normal'},
         header: {textColor: 255, fillColor: [41, 128, 185], rowHeight: 23, fontStyle: 'bold'},
         body: {},
         alternateRow: {fillColor: 245}
     },
     'grid': {
-        table: {fillColor: 255, textColor: 80, fontStyle: 'normal', lineWidth: 0.1, fillStyle: 'DF'},
-        header: {textColor: 255, fillColor: [26, 188, 156], rowHeight: 23, fillStyle: 'F', fontStyle: 'bold'},
+        table: {fillColor: 255, textColor: 80, fontStyle: 'normal', lineWidth: 0.1},
+        header: {textColor: 255, fillColor: [26, 188, 156], rowHeight: 23, fontStyle: 'bold', lineWidth: 0},
         body: {},
         alternateRow: {}
     },
@@ -59,14 +59,13 @@ function defaultStyles() {
         fontSize: 10,
         font: "helvetica", // helvetica, times, courier
         lineColor: 200,
-        lineWidth: 0.1,
+        lineWidth: 0,
         fontStyle: 'normal', // normal, bold, italic, bolditalic
         overflow: 'ellipsize', // visible, hidden, ellipsize or linebreak
-        fillColor: 255,
+        fillColor: false, // Either false for transparant, rbg array e.g. [255, 255, 255] or gray level e.g 200
         textColor: 20,
         halign: 'left', // left, center, right
         valign: 'top', // top, middle, bottom
-        fillStyle: 'F', // 'S', 'F' or 'DF' (stroke, fill or fill then stroke)
         rowHeight: 20,
         columnWidth: 'auto'
     }

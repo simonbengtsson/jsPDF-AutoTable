@@ -131,10 +131,6 @@ jsPDF.API.autoTableHtmlToJson = function (tableElem, includeHiddenElements) {
 
 /**
  * Add a new page including an autotable header etc. Use this function in the hooks.
- *
- * @param tableElem Html table element
- * @param includeHiddenElements If to include hidden rows and columns (defaults to false)
- * @returns Object Object with two properties, columns and rows
  */
 jsPDF.API.autoTableAddPage = function () {
     addPage(doc.addPage);
@@ -478,7 +474,10 @@ function printRow(row, hookHandler) {
 
         var data = hooksData({column: column, row: row});
         if (hookHandler(cell, data) !== false) {
-            doc.rect(cell.x, cell.y, cell.width, cell.height, cell.styles.fillStyle);
+            var fillStyle = getFillStyle(cell.styles);
+            if (fillStyle) {
+                doc.rect(cell.x, cell.y, cell.width, cell.height, fillStyle);
+            }
             doc.autoTableText(cell.text, cell.textPos.x, cell.textPos.y, {
                 halign: cell.styles.halign,
                 valign: cell.styles.valign
@@ -488,6 +487,20 @@ function printRow(row, hookHandler) {
     }
 
     cursor.y += row.height;
+}
+
+function getFillStyle(styles) {
+    var drawLine = styles.lineWidth > 0;
+    var drawBackground = styles.fillColor !== false;
+    if (drawLine && drawBackground) {
+        return 'DF'; // Fill then stroke
+    } else if (drawLine) {
+        return 'S'; // Only stroke (transperant backgorund)
+    } else if (drawBackground) {
+        return 'F'; // Only fill, no stroke
+    } else {
+        return false;
+    }
 }
 
 function applyStyles(styles) {

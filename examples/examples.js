@@ -217,7 +217,6 @@ examples.custom = function () {
     doc.autoTable(getColumns().slice(2, 6), getData(20), {
         styles: {
             font: 'courier',
-            fillStyle: 'DF',
             lineColor: [44, 62, 80],
             lineWidth: 2
         },
