@@ -147,7 +147,8 @@ All options below are used in `examples.js` so be sure to check it out if in dou
     drawHeaderCell: function (cell, data) {},
     drawCell: function (cell, data) {},
     beforePageContent: function (data) {},
-    afterPageContent: function (data) {}
+    afterPageContent: function (data) {},
+    afterPageAdd: function (data) {}
  };
 ```
 
@@ -187,7 +188,7 @@ Some of the styles has a matching jspdf set method. For example `lineWidth` corr
 - `tableWidth` This option defines the fixed width of the table if set to a number. If set to 'auto' it will be 100% of width of the pageand if set to 'wrap' it will only be as wide as its content is.  
 
 ### Hooks
-There are 8 different hooks that gets called at various times during the drawing of the table. If applicable, information about the current cell, row or column are provided to the hook function. In addition to that the following general information is alaways provided in the `data` parameter:
+There are 9 different hooks that gets called at various times during the drawing of the table. If applicable, information about the current cell, row or column are provided to the hook function. In addition to that the following general information is alaways provided in the `data` parameter:
 - `pageCount` - The number of pages it currently spans
 - `settings` - The user options merged with the default options
 - `table` - Information about the table such as the rows, columns and dimensions
