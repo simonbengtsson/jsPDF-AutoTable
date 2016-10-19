@@ -43,17 +43,13 @@ function build(dist) {
         ' * @preserve \n' +
         ' */';
         
-        var code = bundle.generate({format: 'iife', banner: banner}).code;
-        var umd = bundle.generate({format: 'umd', banner: banner}).code;
-
+        var code = bundle.generate({format: 'umd', banner: banner}).code;
         if (dist) {
             var minified = uglify.minify(code, {fromString: true, output: {comments: /@preserve|@license/i}}).code;
             fs.writeFileSync('./dist/jspdf.plugin.autotable.js', minified);
             fs.writeFileSync('./dist/jspdf.plugin.autotable.src.js', code);
-            fs.writeFileSync('./dist/jspdf.plugin.autotable.umd.js', umd);
         }
         fs.writeFileSync( './examples/libs/jspdf.plugin.autotable.src.js', code);
-        fs.writeFileSync( './examples/libs/jspdf.plugin.autotable.umd.js', umd);
         fs.writeFileSync('./examples/libs/jspdf.min.js', fs.readFileSync('./node_modules/jspdf/dist/jspdf.min.js'));
 
         console.log('Build finished successfully');
