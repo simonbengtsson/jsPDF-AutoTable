@@ -1,7 +1,7 @@
 {
   "private": true,
   "dependencies": {
-    "jspdf-autotable": "^2.0.35"
+    "jspdf-autotable": "simonbengtsson/jspdf-autotable"
   },
   "devDependencies": {
     "browserify": "^13.1.0"

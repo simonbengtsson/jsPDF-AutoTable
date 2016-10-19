@@ -27,7 +27,8 @@
     "version": "npm run dist && git add -A dist && git add -A examples",
     "hosted": "git checkout gh-pages && npm run build && git add -A && git commit -m \"Updated to latest version\" && git push && git checkout master && git clean -f -d",
     "deploy": "git push && git push --tags && npm publish && npm run hosted",
-    "clean": "git checkout dist examples/libs/jspdf.plugin.autotable.src.js"
+    "clean": "git checkout dist examples/libs/jspdf.plugin.autotable.src.js",
+    "examplesUpdate": "cd examples/webpack && npm update && cd ../browserify && npm update"
   },
   "repository": {
     "type": "git",
