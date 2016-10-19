@@ -27,8 +27,14 @@ function build(dist) {
             presets: ["es2015-rollup"]
         })]
     }).then(function (bundle) {
+        var newVersion = require('./package.json').version;
+        var readme = "" + fs.readFileSync('./README.md');
+        var newVersionStr = "cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/" + newVersion + "/jspdf.plugin.autotable.js";
+        readme = readme.replace(/cdnjs\.cloudflare\.com\/ajax\/libs\/jspdf-autotable\/.*\/jspdf\.plugin\.autotable\.js/, newVersionStr);
+        fs.writeFileSync('./README.md', readme);
+        
         var banner = '/** \n' +
-        ' * jsPDF AutoTable plugin v' + require('./package.json').version + '\n' +
+        ' * jsPDF AutoTable plugin v' + newVersion + '\n' +
         ' * Copyright (c) 2014 Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable \n' +
         ' * \n' +
         ' * Licensed under the MIT License. \n' +
