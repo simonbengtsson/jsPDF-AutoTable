@@ -6,6 +6,6 @@ Open `index.html` in your browser to familiar yourself with the examples or go t
 Check `simple.html` for the most basic usage example of the plugin.
 
 ### Module bundlers (browserify, webpack and requirejs)
-There are three module bundler examples. If you open each example's `index.html` it should work out of the box. You can inspect the code used for bundling each, but it is very simple.
+There are three module bundler examples. If you open each example's `index.html` it should work out of the box (npm install is required for webpack and browserify). You can inspect the code used for bundling each, but it is very simple.
 
 Note that jspdf versions before 1.3 does not work well with module bundlers.
