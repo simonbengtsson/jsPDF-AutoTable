@@ -24,7 +24,7 @@
     "build": "node build.js develop",
     "examples": "cd examples/browserify && npm install && npm run build && cd ../webpack && npm install && npm run build && cd ../../",
     "dist": "npm run examples && node build.js build",
-    "version": "npm run dist && git add -A dist && git add -A examples",
+    "version": "npm run dist && git add -A dist && git add -A examples && git add README.md",
     "hosted": "git checkout gh-pages && npm run build && git add -A && git commit -m \"Updated to latest version\" && git push && git checkout master && git clean -f -d",
     "deploy": "git push && git push --tags && npm publish && npm run hosted",
     "clean": "git checkout dist examples/libs/jspdf.plugin.autotable.src.js",
