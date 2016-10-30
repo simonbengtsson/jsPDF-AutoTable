@@ -1,5 +1,5 @@
 /** 
- * jsPDF AutoTable plugin v2.0.36
+ * jsPDF AutoTable plugin v2.0.37
  * Copyright (c) 2014 Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable 
  * 
  * Licensed under the MIT License. 
@@ -7,8 +7,11 @@
  * 
  * @preserve 
  */
-(function (jsPDF) {
-	'use strict';
+(function (global, factory) {
+	typeof exports === 'object' && typeof module !== 'undefined' ? factory(require('jspdf')) :
+	typeof define === 'function' && define.amd ? define(['jspdf'], factory) :
+	(factory(global.jsPDF));
+}(this, function (jsPDF) { 'use strict';
 
 	jsPDF = 'default' in jsPDF ? jsPDF['default'] : jsPDF;
 
@@ -1875,8 +1878,6 @@ var require$$7$1 = Object.freeze({
 
 	var doc;
 	var cursor;
-	var styleModifiers;
-	var pageSize;
 	var settings;
 	var table;
 	// The current Table instance
@@ -1886,24 +1887,14 @@ var require$$7$1 = Object.freeze({
 	 *
 	 * @param {Object[]|String[]} headers Either as an array of objects or array of strings
 	 * @param {Object[][]|String[][]} data Either as an array of objects or array of strings
-	 * @param {Object} [options={}] Options that will override the default ones
+	 * @param {Object} [userOptions={}] Options that will override the default ones
 	 */
-	jsPDF.API.autoTable = function (headers, data, options) {
-	    validateInput(headers, data, options);
+	jsPDF.API.autoTable = function (headers, data) {
+	    var userOptions = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
+
+	    validateInput(headers, data, userOptions);
 	    doc = this;
-
-	    pageSize = doc.internal.pageSize;
-	    styleModifiers = {
-	        fillColor: doc.setFillColor,
-	        textColor: doc.setTextColor,
-	        fontStyle: doc.setFontStyle,
-	        lineColor: doc.setDrawColor,
-	        lineWidth: doc.setLineWidth,
-	        font: doc.setFont,
-	        fontSize: doc.setFontSize
-	    };
-
-	    settings = Config.initSettings(options || {});
+	    settings = Config.initSettings(userOptions);
 
 	    // Need a cursor y as it needs to be reset after each page (row.y can't do that)
 	    // Also prefer cursor to column.x as the cursor is easier to modify in the hooks
@@ -1920,7 +1911,7 @@ var require$$7$1 = Object.freeze({
 
 	    // Create the table model with its columns, rows and cells
 	    createModels(headers, data);
-	    calculateWidths(this, pageSize.width);
+	    calculateWidths(this, doc.internal.pageSize.width);
 
 	    // Page break if there is room for only the first data row
 	    var firstRowHeight = table.rows[0] && settings.pageBreak === 'auto' ? table.rows[0].height : 0;
@@ -1928,7 +1919,8 @@ var require$$7$1 = Object.freeze({
 	    if (settings.pageBreak === 'avoid') {
 	        minTableBottomPos += table.height;
 	    }
-	    if (settings.pageBreak === 'always' && settings.startY !== false || settings.startY !== false && minTableBottomPos > pageSize.height) {
+	    var pageHeight = doc.internal.pageSize.height;
+	    if (settings.pageBreak === 'always' && settings.startY !== false || settings.startY !== false && minTableBottomPos > pageHeight) {
 	        this.addPage(this.addPage);
 	        cursor.y = settings.margin.top;
 	    }
@@ -2294,7 +2286,7 @@ var require$$7$1 = Object.freeze({
 	 */
 	function isNewPage(rowHeight) {
 	    var afterRowPos = cursor.y + rowHeight + settings.margin.bottom;
-	    return afterRowPos >= pageSize.height;
+	    return afterRowPos >= doc.internal.pageSize.height;
 	}
 
 	function printRows(jspdfAddPage) {
@@ -2389,6 +2381,15 @@ var require$$7$1 = Object.freeze({
 	}
 
 	function applyStyles(styles) {
+	    var styleModifiers = {
+	        fillColor: doc.setFillColor,
+	        textColor: doc.setTextColor,
+	        fontStyle: doc.setFontStyle,
+	        lineColor: doc.setDrawColor,
+	        lineWidth: doc.setLineWidth,
+	        font: doc.setFont,
+	        fontSize: doc.setFontSize
+	    };
 	    Object.keys(styleModifiers).forEach(function (name) {
 	        var style = styles[name];
 	        var modifier = styleModifiers[name];
@@ -2443,4 +2444,4 @@ var require$$7$1 = Object.freeze({
 	    return text.trim() + ellipsizeStr;
 	}
 
-}(jsPDF));
+}));
