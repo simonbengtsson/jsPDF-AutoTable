@@ -212,9 +212,9 @@ There are 9 different hooks that gets called at various times during the drawing
 Contributions are always welcome, especially on open issues. If you have something major you want to add or change, please post an issue about it first to discuss it further. The workflow for contributing would be something like this:
 
 - Make code changes
-- Build with `npm run build`
+- Start watcher with `npm start` (will build files on file changes)
 - Test that the examples works in `examples/index.html`
-- Commit (without changed dist files) and submit pull request
+- Commit and submit pull request
 
 ### Release workflow (write access to repo required)
 - Test and commit code changes 
