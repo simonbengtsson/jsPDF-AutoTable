@@ -48,7 +48,7 @@ jsPDF.API.autoTable = function (headers, data, userOptions = {}) {
     var pageHeight = doc.internal.pageSize.height;
     if ((settings.pageBreak === 'always' && settings.startY !== false) ||
         (settings.startY !== false && minTableBottomPos > pageHeight)) {
-        this.addPage(this.addPage);
+        addPage(doc.addPage);
         cursor.y = settings.margin.top;
     }
 
@@ -65,6 +65,8 @@ jsPDF.API.autoTable = function (headers, data, userOptions = {}) {
 
     return this;
 };
+
+
 
 /**
  * Returns the Y position of the last drawn cell
