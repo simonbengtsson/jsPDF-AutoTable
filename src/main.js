@@ -5,9 +5,9 @@ import {Table, Row, Cell, Column} from './models.js';
 import {Config, themes, FONT_ROW_RATIO} from './config.js';
 import './polyfills.js';
 
-var doc, // The current jspdf instance
-    cursor, // An object keeping track of the x and y position of the next table cell to draw
+var cursor, // An object keeping track of the x and y position of the next table cell to draw
     settings, // Default options merged with user options
+    globalAddPageContent = function() {}, // Override with doc.autoTableAddPageContent
     table; // The current Table instance
 
 /**
@@ -19,7 +19,8 @@ var doc, // The current jspdf instance
  */
 jsPDF.API.autoTable = function (headers, data, userOptions = {}) {
     validateInput(headers, data, userOptions);
-    doc = this;
+    Config.setJspdfInstance(this);
+    var doc = Config.getJspdfInstance();
     settings = Config.initSettings(userOptions);
 
     // Need a cursor y as it needs to be reset after each page (row.y can't do that)
@@ -27,12 +28,6 @@ jsPDF.API.autoTable = function (headers, data, userOptions = {}) {
     cursor = {
         x: settings.margin.left,
         y: settings.startY === false ? settings.margin.top : settings.startY
-    };
-
-    var userStyles = {
-        textColor: 30, // Setting text color to dark gray as it can't be obtained from jsPDF
-        fontSize: doc.internal.getFontSize(),
-        fontStyle: doc.internal.getFont().fontStyle
     };
 
     // Create the table model with its columns, rows and cells
@@ -48,25 +43,23 @@ jsPDF.API.autoTable = function (headers, data, userOptions = {}) {
     var pageHeight = doc.internal.pageSize.height;
     if ((settings.pageBreak === 'always' && settings.startY !== false) ||
         (settings.startY !== false && minTableBottomPos > pageHeight)) {
-        addPage(doc.addPage);
+        addPage();
         cursor.y = settings.margin.top;
     }
 
-    applyStyles(userStyles);
+    Config.applyStyles(Config.getUserStyles());
     settings.beforePageContent(hooksData());
     if (settings.drawHeaderRow(table.headerRow, hooksData({row: table.headerRow})) !== false) {
         printRow(table.headerRow, settings.drawHeaderCell);
     }
-    applyStyles(userStyles);
-    printRows(this.addPage);
+    Config.applyStyles(Config.getUserStyles());
+    printRows();
     settings.afterPageContent(hooksData());
 
-    applyStyles(userStyles);
+    Config.applyStyles(Config.getUserStyles());
 
     return this;
 };
-
-
 
 /**
  * Returns the Y position of the last drawn cell
@@ -122,7 +115,7 @@ jsPDF.API.autoTableHtmlToJson = function (tableElem, includeHiddenElements) {
  * Add a new page including an autotable header etc. Use this function in the hooks.
  */
 jsPDF.API.autoTableAddPage = function () {
-    addPage(doc.addPage);
+    addPage();
 };
 
 /**
@@ -165,14 +158,14 @@ jsPDF.API.autoTableText = function (text, x, y, styles) {
                 this.text(splittedText[iLine], x - this.getStringUnitWidth(splittedText[iLine]) * alignSize, y);
                 y += fontSize;
             }
-            return doc;
+            return Config.getJspdfInstance();
         }
         x -= this.getStringUnitWidth(text) * alignSize;
     }
 
     this.text(text, x, y);
 
-    return this;
+    return Config.getJspdfInstance();
 };
 
 function validateInput(headers, data, options) {
@@ -324,7 +317,7 @@ function calculateWidths(doc, pageWidth) {
         var lineBreakCount = 0;
         table.columns.forEach(function (col) {
             var cell = row.cells[col.dataKey];
-            applyStyles(cell.styles);
+            Config.applyStyles(cell.styles);
             var textSpace = col.width - cell.styles.cellPadding * 2;
             if (cell.styles.overflow === 'linebreak') {
                 // Add one pt to textSpace to fix rounding error
@@ -377,13 +370,13 @@ function distributeWidth(dynamicColumns, staticWidth, dynamicColumnsContentWidth
             break;
         } else {
             col.width = col.contentWidth + extraWidth * ratio;
-        }
+        } 
     }
 }
 
-function addPage(jspdfAddPage) {
+function addPage() {
     settings.afterPageContent(hooksData());
-    jspdfAddPage();
+    Config.getJspdfInstance().addPage();
     settings.afterPageAdd(hooksData());
     table.pageCount++;
     cursor = {x: settings.margin.left, y: settings.margin.top};
@@ -398,10 +391,10 @@ function addPage(jspdfAddPage) {
  */
 function isNewPage(rowHeight) {
     var afterRowPos = cursor.y + rowHeight + settings.margin.bottom;
-    return afterRowPos >= doc.internal.pageSize.height;
+    return afterRowPos >= Config.getJspdfInstance().internal.pageSize.height;
 }
 
-function printRows(jspdfAddPage) {
+function printRows() {
     table.rows.forEach(function (row, i) {
         if (isNewPage(row.height)) {
             var samePageThreshold = 3;
@@ -422,7 +415,7 @@ function printRows(jspdfAddPage) {
                 }
                 row = new Row(rawRow);
             }*/
-            addPage(jspdfAddPage);
+            addPage();
         }
         row.y = cursor.y;
         if (settings.drawRow(row, hooksData({row: row})) !== false) {
@@ -439,7 +432,7 @@ function printRow(row, hookHandler) {
         if(!cell) {
             continue;
         }
-        applyStyles(cell.styles);
+        Config.applyStyles(cell.styles);
 
         cell.x = cursor.x;
         cell.y = cursor.y;
@@ -466,9 +459,9 @@ function printRow(row, hookHandler) {
         if (hookHandler(cell, data) !== false) {
             var fillStyle = getFillStyle(cell.styles);
             if (fillStyle) {
-                doc.rect(cell.x, cell.y, cell.width, cell.height, fillStyle);
+                Config.getJspdfInstance().rect(cell.x, cell.y, cell.width, cell.height, fillStyle);
             }
-            doc.autoTableText(cell.text, cell.textPos.x, cell.textPos.y, {
+            Config.getJspdfInstance().autoTableText(cell.text, cell.textPos.x, cell.textPos.y, {
                 halign: cell.styles.halign,
                 valign: cell.styles.valign
             });
@@ -493,42 +486,19 @@ function getFillStyle(styles) {
     }
 }
 
-function applyStyles(styles) {
-    var styleModifiers = {
-        fillColor: doc.setFillColor,
-        textColor: doc.setTextColor,
-        fontStyle: doc.setFontStyle,
-        lineColor: doc.setDrawColor,
-        lineWidth: doc.setLineWidth,
-        font: doc.setFont,
-        fontSize: doc.setFontSize
-    };
-    Object.keys(styleModifiers).forEach(function (name) {
-        var style = styles[name];
-        var modifier = styleModifiers[name];
-        if (typeof style !== 'undefined') {
-            if (style.constructor === Array) {
-                modifier.apply(this, style);
-            } else {
-                modifier(style);
-            }
-        }
-    });
-}
-
 function hooksData(additionalData) {
     return Object.assign({
         pageCount: table.pageCount,
         settings: settings,
         table: table,
-        doc: doc,
+        doc: Config.getJspdfInstance(),
         cursor: cursor
     }, additionalData || {});
 }
 
 function getStringWidth(text, styles) {
-    applyStyles(styles);
-    var w = doc.getStringUnitWidth(text);
+    Config.applyStyles(styles);
+    var w = Config.getJspdfInstance().getStringUnitWidth(text);
     return w * styles.fontSize;
 }
 

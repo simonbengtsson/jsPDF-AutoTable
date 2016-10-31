@@ -160,6 +160,7 @@ examples['header-footer'] = function () {
         if (typeof doc.putTotalPages === 'function') {
             str = str + " of " + totalPagesExp;
         }
+        doc.setFontSize(10);
         doc.text(str, data.settings.margin.left, doc.internal.pageSize.height - 30);
     };
 

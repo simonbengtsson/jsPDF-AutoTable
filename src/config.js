@@ -2,6 +2,8 @@
  * Ratio between font size and font height. The number comes from jspdf's source code
  */
 export var FONT_ROW_RATIO = 1.15;
+var jspdfInstance = null;
+var userStyles = null;
 
 /**
  * Styles for the themes (overriding the default styles)
@@ -73,6 +75,24 @@ function defaultStyles() {
 }
 
 export class Config {
+    
+    static setJspdfInstance(instance) {
+        jspdfInstance = instance;
+        userStyles = {
+            textColor: 30, // Setting text color to dark gray as it can't be obtained from jsPDF
+            fontSize: jspdfInstance.internal.getFontSize(),
+            fontStyle: jspdfInstance.internal.getFont().fontStyle
+        };
+    }
+    
+    static getJspdfInstance() {
+        return jspdfInstance;
+    }
+    
+    // Styles before autotable was called
+    static getUserStyles() {
+        return userStyles;
+    }
 
     static initSettings(userOptions) {
         var settings = Object.assign({}, getDefaults(), userOptions);
@@ -126,4 +146,28 @@ export class Config {
         styles.unshift({});
         return Object.assign.apply(this, styles);
     }
+
+    static applyStyles(styles) {
+        var doc = Config.getJspdfInstance();
+        var styleModifiers = {
+            fillColor: doc.setFillColor,
+            textColor: doc.setTextColor,
+            fontStyle: doc.setFontStyle,
+            lineColor: doc.setDrawColor,
+            lineWidth: doc.setLineWidth,
+            font: doc.setFont,
+            fontSize: doc.setFontSize
+        };
+        Object.keys(styleModifiers).forEach(function (name) {
+            var style = styles[name];
+            var modifier = styleModifiers[name];
+            if (typeof style !== 'undefined') {
+                if (style.constructor === Array) {
+                    modifier.apply(this, style);
+                } else {
+                    modifier(style);
+                }
+            }
+        });
+    } 
 }
