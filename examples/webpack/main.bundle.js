@@ -17095,7 +17095,7 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	/** 
-	 * jsPDF AutoTable plugin v2.0.37
+	 * jsPDF AutoTable plugin v2.1.0
 	 * Copyright (c) 2014 Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable 
 	 * 
 	 * Licensed under the MIT License. 
@@ -17195,6 +17195,8 @@
 		 * Ratio between font size and font height. The number comes from jspdf's source code
 		 */
 		var FONT_ROW_RATIO = 1.15;
+		var jspdfInstance = null;
+		var userStyles = null;
 
 		/**
 		 * Styles for the themes (overriding the default styles)
@@ -17240,9 +17242,7 @@
 		        drawRow: function drawRow(row, data) {},
 		        drawHeaderCell: function drawHeaderCell(cell, data) {},
 		        drawCell: function drawCell(cell, data) {},
-		        beforePageContent: function beforePageContent(data) {},
-		        afterPageContent: function afterPageContent(data) {},
-		        afterPageAdd: function afterPageAdd(data) {}
+		        addPageContent: function addPageContent(data) {}
 		    };
 		}
 
@@ -17271,6 +17271,29 @@
 		    }
 
 		    createClass(Config, null, [{
+		        key: 'setJspdfInstance',
+		        value: function setJspdfInstance(instance) {
+		            jspdfInstance = instance;
+		            userStyles = {
+		                textColor: 30, // Setting text color to dark gray as it can't be obtained from jsPDF
+		                fontSize: jspdfInstance.internal.getFontSize(),
+		                fontStyle: jspdfInstance.internal.getFont().fontStyle
+		            };
+		        }
+		    }, {
+		        key: 'getJspdfInstance',
+		        value: function getJspdfInstance() {
+		            return jspdfInstance;
+		        }
+
+		        // Styles before autotable was called
+
+		    }, {
+		        key: 'getUserStyles',
+		        value: function getUserStyles() {
+		            return userStyles;
+		        }
+		    }, {
 		        key: 'initSettings',
 		        value: function initSettings(userOptions) {
 		            var settings = Object.assign({}, getDefaults(), userOptions);
@@ -17283,6 +17306,23 @@
 		            if (typeof settings.margins !== 'undefined') {
 		                if (typeof settings.margin === 'undefined') settings.margin = settings.margins;
 		                console.error("Use of deprecated option: margins, use margin instead.");
+		            }
+		            if (typeof settings.afterPageContent !== 'undefined' || typeof settings.beforePageContent !== 'undefined' || typeof settings.afterPageAdd !== 'undefined') {
+		                console.error("The afterPageContent, beforePageContent and afterPageAdd hooks are deprecated. Use addPageContent instead");
+		                if (typeof userOptions.addPageContent === 'undefined') {
+		                    settings.addPageContent = function (data) {
+		                        Config.applyStyles(Config.getUserStyles());
+		                        if (settings.beforePageContent) settings.beforePageContent(data);
+		                        Config.applyStyles(Config.getUserStyles());
+		                        if (settings.afterPageContent) settings.afterPageContent(data);
+		                        Config.applyStyles(Config.getUserStyles());
+
+		                        if (settings.afterPageAdd && data.pageCount > 1) {
+		                            data.afterPageAdd(data);
+		                        }
+		                        Config.applyStyles(Config.getUserStyles());
+		                    };
+		                }
 		            }
 
 		            [['padding', 'cellPadding'], ['lineHeight', 'rowHeight'], 'fontSize', 'overflow'].forEach(function (o) {
@@ -17324,6 +17364,31 @@
 		            _styles.unshift(defaultStyles());
 		            _styles.unshift({});
 		            return Object.assign.apply(this, _styles);
+		        }
+		    }, {
+		        key: 'applyStyles',
+		        value: function applyStyles(styles) {
+		            var doc = Config.getJspdfInstance();
+		            var styleModifiers = {
+		                fillColor: doc.setFillColor,
+		                textColor: doc.setTextColor,
+		                fontStyle: doc.setFontStyle,
+		                lineColor: doc.setDrawColor,
+		                lineWidth: doc.setLineWidth,
+		                font: doc.setFont,
+		                fontSize: doc.setFontSize
+		            };
+		            Object.keys(styleModifiers).forEach(function (name) {
+		                var style = styles[name];
+		                var modifier = styleModifiers[name];
+		                if (typeof style !== 'undefined') {
+		                    if (style.constructor === Array) {
+		                        modifier.apply(this, style);
+		                    } else {
+		                        modifier(style);
+		                    }
+		                }
+		            });
 		        }
 		    }]);
 		    return Config;
@@ -18972,9 +19037,9 @@
 
 		interopDefault(values);
 
-		var doc;
 		var cursor;
 		var settings;
+		var globalAddPageContent = function globalAddPageContent() {};
 		var table;
 		// The current Table instance
 
@@ -18989,7 +19054,8 @@
 		    var userOptions = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
 
 		    validateInput(headers, data, userOptions);
-		    doc = this;
+		    Config.setJspdfInstance(this);
+		    var doc = Config.getJspdfInstance();
 		    settings = Config.initSettings(userOptions);
 
 		    // Need a cursor y as it needs to be reset after each page (row.y can't do that)
@@ -18997,12 +19063,6 @@
 		    cursor = {
 		        x: settings.margin.left,
 		        y: settings.startY === false ? settings.margin.top : settings.startY
-		    };
-
-		    var userStyles = {
-		        textColor: 30, // Setting text color to dark gray as it can't be obtained from jsPDF
-		        fontSize: doc.internal.getFontSize(),
-		        fontStyle: doc.internal.getFont().fontStyle
 		    };
 
 		    // Create the table model with its columns, rows and cells
@@ -19017,20 +19077,21 @@
 		    }
 		    var pageHeight = doc.internal.pageSize.height;
 		    if (settings.pageBreak === 'always' && settings.startY !== false || settings.startY !== false && minTableBottomPos > pageHeight) {
-		        this.addPage(this.addPage);
+		        addPage();
 		        cursor.y = settings.margin.top;
 		    }
 
-		    applyStyles(userStyles);
-		    settings.beforePageContent(hooksData());
+		    Config.applyStyles(Config.getUserStyles());
 		    if (settings.drawHeaderRow(table.headerRow, hooksData({ row: table.headerRow })) !== false) {
 		        printRow(table.headerRow, settings.drawHeaderCell);
 		    }
-		    applyStyles(userStyles);
-		    printRows(this.addPage);
-		    settings.afterPageContent(hooksData());
+		    Config.applyStyles(Config.getUserStyles());
+		    printRows();
 
-		    applyStyles(userStyles);
+		    settings.addPageContent(hooksData());
+		    Config.applyStyles(Config.getUserStyles());
+		    globalAddPageContent(hooksData());
+		    Config.applyStyles(Config.getUserStyles());
 
 		    return this;
 		};
@@ -19044,6 +19105,16 @@
 		        return 0;
 		    }
 		    return cursor.y;
+		};
+
+		jsPDF.API.autoTableAddPageContent = function (hook) {
+		    var isBeforeCallsToAutoTable = true; // TODO How to know this?
+		    if (!isBeforeCallsToAutoTable) {
+		        console.error("autoTableAddPageContent has to be called before any calls to autoTable.");
+		    } else if (typeof hook !== "function") {
+		        console.error("A function has to be provided to autoTableAddPageContent, got: " + (typeof hook === 'undefined' ? 'undefined' : _typeof(hook)));
+		    }
+		    globalAddPageContent = hook;
 		};
 
 		/**
@@ -19112,7 +19183,7 @@
 		 * Add a new page including an autotable header etc. Use this function in the hooks.
 		 */
 		jsPDF.API.autoTableAddPage = function () {
-		    addPage(doc.addPage);
+		    addPage();
 		};
 
 		/**
@@ -19151,14 +19222,14 @@
 		                this.text(splittedText[iLine], x - this.getStringUnitWidth(splittedText[iLine]) * alignSize, y);
 		                y += fontSize;
 		            }
-		            return doc;
+		            return Config.getJspdfInstance();
 		        }
 		        x -= this.getStringUnitWidth(text) * alignSize;
 		    }
 
 		    this.text(text, x, y);
 
-		    return this;
+		    return Config.getJspdfInstance();
 		};
 
 		function validateInput(headers, data, options) {
@@ -19308,7 +19379,7 @@
 		        var lineBreakCount = 0;
 		        table.columns.forEach(function (col) {
 		            var cell = row.cells[col.dataKey];
-		            applyStyles(cell.styles);
+		            Config.applyStyles(cell.styles);
 		            var textSpace = col.width - cell.styles.cellPadding * 2;
 		            if (cell.styles.overflow === 'linebreak') {
 		                // Add one pt to textSpace to fix rounding error
@@ -19365,13 +19436,17 @@
 		    }
 		}
 
-		function addPage(jspdfAddPage) {
-		    settings.afterPageContent(hooksData());
-		    jspdfAddPage();
-		    settings.afterPageAdd(hooksData());
+		function addContentHooks() {
+		    settings.addPageContent(hooksData());
+		    Config.applyStyles(Config.getUserStyles());
+		    globalAddPageContent(hooksData());
+		    Config.applyStyles(Config.getUserStyles());
+		}
+
+		function addPage() {
+		    Config.getJspdfInstance().addPage();
 		    table.pageCount++;
 		    cursor = { x: settings.margin.left, y: settings.margin.top };
-		    settings.beforePageContent(hooksData());
 		    if (settings.drawHeaderRow(table.headerRow, hooksData({ row: table.headerRow })) !== false) {
 		        printRow(table.headerRow, settings.drawHeaderCell);
 		    }
@@ -19382,10 +19457,10 @@
 		 */
 		function isNewPage(rowHeight) {
 		    var afterRowPos = cursor.y + rowHeight + settings.margin.bottom;
-		    return afterRowPos >= doc.internal.pageSize.height;
+		    return afterRowPos >= Config.getJspdfInstance().internal.pageSize.height;
 		}
 
-		function printRows(jspdfAddPage) {
+		function printRows() {
 		    table.rows.forEach(function (row, i) {
 		        if (isNewPage(row.height)) {
 		            var samePageThreshold = 3;
@@ -19405,7 +19480,10 @@
 		                }
 		                row = new Row(rawRow);
 		            }*/
-		            addPage(jspdfAddPage);
+		            // Add user content just before adding new page ensure it will
+		            // be drawn above other things on the page
+		            addContentHooks();
+		            addPage();
 		        }
 		        row.y = cursor.y;
 		        if (settings.drawRow(row, hooksData({ row: row })) !== false) {
@@ -19422,7 +19500,7 @@
 		        if (!cell) {
 		            continue;
 		        }
-		        applyStyles(cell.styles);
+		        Config.applyStyles(cell.styles);
 
 		        cell.x = cursor.x;
 		        cell.y = cursor.y;
@@ -19449,9 +19527,9 @@
 		        if (hookHandler(cell, data) !== false) {
 		            var fillStyle = getFillStyle(cell.styles);
 		            if (fillStyle) {
-		                doc.rect(cell.x, cell.y, cell.width, cell.height, fillStyle);
+		                Config.getJspdfInstance().rect(cell.x, cell.y, cell.width, cell.height, fillStyle);
 		            }
-		            doc.autoTableText(cell.text, cell.textPos.x, cell.textPos.y, {
+		            Config.getJspdfInstance().autoTableText(cell.text, cell.textPos.x, cell.textPos.y, {
 		                halign: cell.styles.halign,
 		                valign: cell.styles.valign
 		            });
@@ -19476,42 +19554,19 @@
 		                }
 		}
 
-		function applyStyles(styles) {
-		    var styleModifiers = {
-		        fillColor: doc.setFillColor,
-		        textColor: doc.setTextColor,
-		        fontStyle: doc.setFontStyle,
-		        lineColor: doc.setDrawColor,
-		        lineWidth: doc.setLineWidth,
-		        font: doc.setFont,
-		        fontSize: doc.setFontSize
-		    };
-		    Object.keys(styleModifiers).forEach(function (name) {
-		        var style = styles[name];
-		        var modifier = styleModifiers[name];
-		        if (typeof style !== 'undefined') {
-		            if (style.constructor === Array) {
-		                modifier.apply(this, style);
-		            } else {
-		                modifier(style);
-		            }
-		        }
-		    });
-		}
-
 		function hooksData(additionalData) {
 		    return Object.assign({
 		        pageCount: table.pageCount,
 		        settings: settings,
 		        table: table,
-		        doc: doc,
+		        doc: Config.getJspdfInstance(),
 		        cursor: cursor
 		    }, additionalData || {});
 		}
 
 		function getStringWidth(text, styles) {
-		    applyStyles(styles);
-		    var w = doc.getStringUnitWidth(text);
+		    Config.applyStyles(styles);
+		    var w = Config.getJspdfInstance().getStringUnitWidth(text);
 		    return w * styles.fontSize;
 		}
 
