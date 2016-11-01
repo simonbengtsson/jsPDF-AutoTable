@@ -144,17 +144,17 @@ examples.html = function () {
 // Header and footers - shows how header and footers can be drawn
 examples['header-footer'] = function () {
     var doc = new jsPDF('p', 'pt');
+    var totalPagesExp = "{total_pages_count_string}";
 
-    var header = function (data) {
+    var pageContent = function (data) {
+        // HEADER
         doc.setFontSize(20);
         doc.setTextColor(40);
         doc.setFontStyle('normal');
         doc.addImage(headerImgData, 'JPEG', data.settings.margin.left, 40, 25, 25);
         doc.text("Report", data.settings.margin.left + 35, 60);
-    };
 
-    var totalPagesExp = "{total_pages_count_string}";
-    var footer = function (data) {
+        // FOOTER
         var str = "Page " + data.pageCount;
         // Total page number plugin only available in jspdf v1.0+
         if (typeof doc.putTotalPages === 'function') {
@@ -163,13 +163,11 @@ examples['header-footer'] = function () {
         doc.setFontSize(10);
         doc.text(str, data.settings.margin.left, doc.internal.pageSize.height - 30);
     };
-
-    var options = {
-        beforePageContent: header,
-        afterPageContent: footer,
+    
+    doc.autoTable(getColumns(), getData(40), {
+        addPageContent: pageContent,
         margin: {top: 80}
-    };
-    doc.autoTable(getColumns(), getData(40), options);
+    });
 
     // Total page number plugin only available in jspdf v1.0+
     if (typeof doc.putTotalPages === 'function') {

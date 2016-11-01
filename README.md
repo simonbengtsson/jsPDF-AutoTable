@@ -146,9 +146,7 @@ All options below are used in `examples.js` so be sure to check it out if in dou
     drawRow: function (row, data) {},
     drawHeaderCell: function (cell, data) {},
     drawCell: function (cell, data) {},
-    beforePageContent: function (data) {},
-    afterPageContent: function (data) {},
-    afterPageAdd: function (data) {}
+    addPageContent: function (data) {}
  };
 ```
 
@@ -200,7 +198,8 @@ There are 9 different hooks that gets called at various times during the drawing
 ### Helper functions
 - `autoTableHtmlToJson(tableElem, includeHiddenElements)` Use it to generate the javascript objects required for this library from an html table (see `from html` example). If includeHiddenElements is set to true hidden rows and columns will be included otherwise excluded.
 - `autoTableEndPosY()` Use it if you want to know where on the page the the last row were drawn (see `multiple tables` example)
-- `autoTableAddPage` Use in the hooks to continue the table on the next page. Adds a new header automatically.
+- `autoTableAddPage()` Use in the hooks to continue the table on the next page. Adds a new header automatically.
+- `autoTableAddPageContent(hook)` The passed function/hook will be called once for every page there is parts of a autotable on. Useful when having multiple tables spanning over multiple pages that should have the same header for example. The passed function will get the same data object as the hooks function (described above). Make sure this is called before any calls to autoTable.
 
 ### Other pdf libraries
 

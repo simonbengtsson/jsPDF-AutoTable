@@ -74,11 +74,13 @@ jsPDF.API.autoTableEndPosY = function () {
 };
 
 jsPDF.API.autoTableAddPageContent = function (hook) {
-    if (typeof hook === "function") {
-        globalAddPageContent = hook;
-    } else {
+    var isBeforeCallsToAutoTable = true; // TODO How to know this?
+    if (!isBeforeCallsToAutoTable) {
+        console.error("autoTableAddPageContent has to be called before any calls to autoTable.");
+    } else if (typeof hook !== "function") {
         console.error("A function has to be provided to autoTableAddPageContent, got: " + typeof hook)
     }
+    globalAddPageContent = hook;
 };
 
 /**
@@ -383,14 +385,14 @@ function distributeWidth(dynamicColumns, staticWidth, dynamicColumnsContentWidth
     }
 }
 
-function addPage() {
-    // Add user content just before adding new page ensure it will 
-    // be drawn above other things on the page
+function addContentHooks() {
     settings.addPageContent(hooksData());
     Config.applyStyles(Config.getUserStyles());
     globalAddPageContent(hooksData());
     Config.applyStyles(Config.getUserStyles());
+}
 
+function addPage() {
     Config.getJspdfInstance().addPage();
     table.pageCount++;
     cursor = {x: settings.margin.left, y: settings.margin.top};
@@ -428,6 +430,9 @@ function printRows() {
                 }
                 row = new Row(rawRow);
             }*/
+            // Add user content just before adding new page ensure it will 
+            // be drawn above other things on the page
+            addContentHooks();
             addPage();
         }
         row.y = cursor.y;
