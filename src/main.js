@@ -48,14 +48,15 @@ jsPDF.API.autoTable = function (headers, data, userOptions = {}) {
     }
 
     Config.applyStyles(Config.getUserStyles());
-    settings.beforePageContent(hooksData());
     if (settings.drawHeaderRow(table.headerRow, hooksData({row: table.headerRow})) !== false) {
         printRow(table.headerRow, settings.drawHeaderCell);
     }
     Config.applyStyles(Config.getUserStyles());
     printRows();
-    settings.afterPageContent(hooksData());
 
+    settings.addPageContent(hooksData());
+    Config.applyStyles(Config.getUserStyles());
+    globalAddPageContent(hooksData());
     Config.applyStyles(Config.getUserStyles());
 
     return this;
@@ -70,6 +71,14 @@ jsPDF.API.autoTableEndPosY = function () {
         return 0;
     }
     return cursor.y;
+};
+
+jsPDF.API.autoTableAddPageContent = function (hook) {
+    if (typeof hook === "function") {
+        globalAddPageContent = hook;
+    } else {
+        console.error("A function has to be provided to autoTableAddPageContent, got: " + typeof hook)
+    }
 };
 
 /**
@@ -375,12 +384,16 @@ function distributeWidth(dynamicColumns, staticWidth, dynamicColumnsContentWidth
 }
 
 function addPage() {
-    settings.afterPageContent(hooksData());
+    // Add user content just before adding new page ensure it will 
+    // be drawn above other things on the page
+    settings.addPageContent(hooksData());
+    Config.applyStyles(Config.getUserStyles());
+    globalAddPageContent(hooksData());
+    Config.applyStyles(Config.getUserStyles());
+
     Config.getJspdfInstance().addPage();
-    settings.afterPageAdd(hooksData());
     table.pageCount++;
     cursor = {x: settings.margin.left, y: settings.margin.top};
-    settings.beforePageContent(hooksData());
     if (settings.drawHeaderRow(table.headerRow, hooksData({row: table.headerRow})) !== false) {
         printRow(table.headerRow, settings.drawHeaderCell);
     }

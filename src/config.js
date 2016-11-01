@@ -49,9 +49,7 @@ function getDefaults() {
         drawRow: function (row, data) {},
         drawHeaderCell: function (cell, data) {},
         drawCell: function (cell, data) {},
-        beforePageContent: function (data) {},
-        afterPageContent: function (data) {},
-        afterPageAdd: function (data) {}
+        addPageContent: function (data) {}
     }
 }
 
@@ -105,6 +103,23 @@ export class Config {
         if (typeof settings.margins !== 'undefined') {
             if (typeof settings.margin === 'undefined') settings.margin = settings.margins;
             console.error("Use of deprecated option: margins, use margin instead.");
+        }
+        if (typeof settings.afterPageContent !== 'undefined' || typeof settings.beforePageContent !== 'undefined' || typeof settings.afterPageAdd !== 'undefined') {
+            console.error("The afterPageContent, beforePageContent and afterPageAdd hooks are deprecated. Use addPageContent instead");
+            if (typeof userOptions.addPageContent === 'undefined') {
+                settings.addPageContent = function(data) {
+                    Config.applyStyles(Config.getUserStyles());
+                    if (settings.beforePageContent) settings.beforePageContent(data);
+                    Config.applyStyles(Config.getUserStyles());
+                    if (settings.afterPageContent) settings.afterPageContent(data);
+                    Config.applyStyles(Config.getUserStyles());
+
+                    if (settings.afterPageAdd && data.pageCount > 1) {
+                        data.afterPageAdd(data);
+                    }
+                    Config.applyStyles(Config.getUserStyles());
+                }
+            }
         }
 
         [['padding', 'cellPadding'], ['lineHeight', 'rowHeight'], 'fontSize', 'overflow'].forEach(function (o) {
