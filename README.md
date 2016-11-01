@@ -23,7 +23,7 @@ You can also get the plugin with a package manager:
 
 It is also available on cdnjs:
 ```html
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/2.0.37/jspdf.plugin.autotable.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/2.1.0/jspdf.plugin.autotable.js"></script>
 ```
 
 ### Browser support
