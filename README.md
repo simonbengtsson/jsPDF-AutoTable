@@ -19,7 +19,8 @@ Download and include [jspdf.plugin.autotable.js](https://raw.githubusercontent.c
 You can also get the plugin with a package manager:
 - `bower install jspdf-autotable`
 - `npm install jspdf-autotable` (only client side usage)
-- `meteor add jspdf:autotable`
+
+Note! If you are using meteor, use the npm release. Do not use the `jspdf:autotable` package on atmosphere as it is currently outdated.
 
 It is also available on cdnjs:
 ```html
