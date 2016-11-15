@@ -74,7 +74,7 @@ doc.autoTable(columns, rows, {
     	id: {fillColor: 255}
     },
     margin: {top: 60},
-    beforePageContent: function(data) {
+    addPageContent: function(data) {
     	doc.text("Header", 40, 30);
     }
 });
