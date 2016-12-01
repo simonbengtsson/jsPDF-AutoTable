@@ -159,7 +159,7 @@
 	        lineColor: 200,
 	        lineWidth: 0,
 	        fontStyle: 'normal', // normal, bold, italic, bolditalic
-	        overflow: 'ellipsize', // visible, hidden, ellipsize or linebreak
+	        overflow: 'linebreak', // visible, hidden, ellipsize or linebreak
 	        fillColor: false, // Either false for transparant, rbg array e.g. [255, 255, 255] or gray level e.g 200
 	        textColor: 20,
 	        halign: 'left', // left, center, right
