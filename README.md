@@ -20,16 +20,16 @@ You can also get the plugin with a package manager:
 - `bower install jspdf-autotable`
 - `npm install jspdf-autotable` (only client side usage)
 
-Note! If you are using meteor, use the npm release. Do not use the `jspdf:autotable` package on atmosphere as it is currently outdated.
-
 It is also available on cdnjs:
 ```html
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/2.1.0/jspdf.plugin.autotable.js"></script>
 ```
 
+Note! If you are using meteor, use the npm release. Do not use the `jspdf:autotable` package on atmosphere as it is currently outdated.
+
 ### Browser support
 
-Tested with IE10, IE11 and modern browsers (chrome, edge, firefox and safari). It will probably work with < IE10 as well but you might have to use an old version of jspdf and/or add polyfills.
+Tested with IE10, IE11 and modern browsers (chrome, edge, firefox and safari).
 
 ### Usage
 
@@ -136,7 +136,7 @@ All options below are used in `examples.js` so be sure to check it out if in dou
 
     // Properties
     startY: false, // false (indicates margin top value) or a number
-    margin: 40, a number, array or object
+    margin: 40, // a number, array or object
     pageBreak: 'auto', // 'auto', 'avoid' or 'always'
     tableWidth: 'auto', // 'auto', 'wrap' or a number, 
 
@@ -152,10 +152,10 @@ All options below are used in `examples.js` so be sure to check it out if in dou
 ```
 
 ### Note on units
-Only pt are supported at this stage. The goal is to support all units supported by jspdf including mm and in but currently there is not timeplan for that.
+Only `pt` is supported at this stage. The goal is to support all units supported by jspdf including `mm` and `in` in the future.
 
 ### Styles
-Styles work similar to css and can be overriden by more specific styles. The overriding order is as follows: Default styles <- theme styles <- `styles` <- `headerStyles` and `bodyStyles` <- `alternateRowStyles` and `columnStyles`. It is also possible to override specific cell or row styles using for example the `createdCell` hook. Checkout the `Custom style` example for more information.
+Styles work similar to css and can be overridden by more specific styles. The overriding order is as follows: Default styles <- theme styles <- `styles` <- `headerStyles` and `bodyStyles` <- `alternateRowStyles` and `columnStyles`. It is also possible to override specific cell or row styles using for example the `createdCell` hook. Checkout the `Custom style` example for more information.
 
 ```javascript
 {
