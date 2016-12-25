@@ -92,6 +92,11 @@ jsPDF.API.autoTableAddPageContent = function (hook) {
 jsPDF.API.autoTableHtmlToJson = function (tableElem, includeHiddenElements) {
     includeHiddenElements = includeHiddenElements || false;
     
+    if (!tableElem || !(tableElem instanceof HTMLTableElement)) {
+        console.error("A HTMLTableElement has to be sent to autoTableHtmlToJson");
+        return null;
+    }
+    
     var columns = {}, rows = [];
 
     var header = tableElem.rows[0];
