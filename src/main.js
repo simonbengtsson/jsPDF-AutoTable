@@ -67,17 +67,16 @@ jsPDF.API.autoTable = function (headers, data, userOptions = {}) {
  * @returns int
  */
 jsPDF.API.autoTableEndPosY = function () {
-    if (typeof cursor === 'undefined' || typeof cursor.y === 'undefined') {
+    var sameDocument = Config.getJspdfInstance() === this;
+    if (sameDocument && cursor && typeof cursor.y === 'number') {
+        return cursor.y;
+    } else {
         return 0;
     }
-    return cursor.y;
 };
 
 jsPDF.API.autoTableAddPageContent = function (hook) {
-    var isBeforeCallsToAutoTable = true; // TODO How to know this?
-    if (!isBeforeCallsToAutoTable) {
-        console.error("autoTableAddPageContent has to be called before any calls to autoTable.");
-    } else if (typeof hook !== "function") {
+    if (typeof hook !== "function") {
         console.error("A function has to be provided to autoTableAddPageContent, got: " + typeof hook)
     }
     globalAddPageContent = hook;
