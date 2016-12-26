@@ -47,7 +47,9 @@ jsPDF.API.autoTable = function (headers, data, userOptions = {}) {
     }
 
     Config.applyStyles(Config.getUserStyles());
-    printRow(table.headerRow, settings.drawHeaderCell, settings.drawHeaderRow);
+    if (settings.showHeader === true || settings.showHeader === 'always' || settings.showHeader === 'once') {
+        printRow(table.headerRow, settings.drawHeaderRow, settings.drawHeaderCell);
+    }
     Config.applyStyles(Config.getUserStyles());
 
     table.rows.forEach(function (row) {
@@ -423,7 +425,9 @@ function addPage() {
     Config.getJspdfInstance().addPage();
     table.pageCount++;
     cursor = {x: settings.margin.left, y: settings.margin.top};
-    printRow(table.headerRow, settings.drawHeaderRow, settings.drawHeaderCell);
+    if (settings.showHeader === true || settings.showHeader === 'always') {
+        printRow(table.headerRow, settings.drawHeaderRow, settings.drawHeaderCell);
+    }
 }
 
 /**

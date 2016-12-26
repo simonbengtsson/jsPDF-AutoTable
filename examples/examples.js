@@ -95,7 +95,7 @@ examples.content = function () {
 
     var cols = getColumns();
     cols.splice(0, 2);
-    doc.autoTable(cols, getData(40), {startY: 50});
+    doc.autoTable(cols, getData(40), {startY: 50, showHeader: 'once'});
 
     doc.text(text, 14, doc.autoTableEndPosY() + 10);
 

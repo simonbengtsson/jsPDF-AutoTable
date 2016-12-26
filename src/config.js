@@ -45,7 +45,8 @@ function getDefaults() {
         startY: false, // false indicates the margin.top value
         margin: 40 / scaleFactor,
         pageBreak: 'auto', // 'auto', 'avoid', 'always'
-        tableWidth: 'auto', // number, 'auto', 'wrap'
+        tableWidth: 'auto', // number, 'auto', 'wrap',
+        showHeader: 'always', // 'always', 'once', 'never'
 
         // Hooks
         createdHeaderCell: function (cell, data) {},
