@@ -30,50 +30,50 @@ var examples = {};
 
 // Default - shows what a default table looks like
 examples.auto = function () {
-    var doc = new jsPDF('p', 'pt');
+    var doc = new jsPDF();
     doc.autoTable(getColumns(), getData());
     return doc;
 };
 
 // Minimal - shows how compact tables can be drawn
 examples.minimal = function () {
-    var doc = new jsPDF('p', 'pt');
+    var doc = new jsPDF();
     doc.autoTable(getColumns(), getData(), {
         tableWidth: 'wrap',
-        styles: {cellPadding: 2},
-        headerStyles: {rowHeight: 15, fontSize: 8},
-        bodyStyles: {rowHeight: 12, fontSize: 8, valign: 'middle'}
+        styles: {cellPadding: 0.5},
+        headerStyles: {rowHeight: 5, fontSize: 8, valign: 'middle'},
+        bodyStyles: {rowHeight: 4, fontSize: 8, valign: 'middle'},
     });
     return doc;
 };
 
 // Long data - shows how the overflow features looks and can be used
 examples.long = function () {
-    var doc = new jsPDF('l', 'pt');
+    var doc = new jsPDF('l');
     var columnsLong = getColumns().concat([
         {title: shuffleSentence(), dataKey: "text"},
         {title: "Text with a\nlinebreak", dataKey: "text2"}
     ]);
 
-    doc.text("Overflow 'ellipsize' (default)", 10, 40);
+    doc.text(7, 15, "Overflow 'ellipsize' (default)");
     doc.autoTable(columnsLong, getData(), {
-        startY: 55,
-        margin: {horizontal: 10},
-        columnStyles: {text: {columnWidth: 250}}
+        startY: 20,
+        margin: {horizontal: 7},
+        columnStyles: {text: {columnWidth: 90}}
     });
 
-    doc.text("Overflow 'hidden'", 10, doc.autoTableEndPosY() + 30);
+    doc.text("Overflow 'hidden'", 7, doc.autoTableEndPosY() + 10);
     doc.autoTable(columnsLong, getData(), {
-        startY: doc.autoTableEndPosY() + 45,
-        margin: {horizontal: 10},
+        startY: doc.autoTableEndPosY() + 20,
+        margin: {horizontal: 7},
         styles: {overflow: 'hidden'},
         columnStyles: {email: {columnWidth: 160}}
     });
 
-    doc.text("Overflow 'linebreak'", 10, doc.autoTableEndPosY() + 30);
+    doc.text("Overflow 'linebreak'", 7, doc.autoTableEndPosY() + 10);
     doc.autoTable(columnsLong, getData(3), {
-        startY: doc.autoTableEndPosY() + 45,
-        margin: {horizontal: 10},
+        startY: doc.autoTableEndPosY() + 5,
+        margin: {horizontal: 7},
         styles: {overflow: 'linebreak'},
         bodyStyles: {valign: 'top'},
         columnStyles: {email: {columnWidth: 'wrap'}},
@@ -84,46 +84,46 @@ examples.long = function () {
 
 // Content - shows how tables can be integrated with any other pdf content
 examples.content = function () {
-    var doc = new jsPDF('p', 'pt');
+    var doc = new jsPDF();
 
     doc.setFontSize(18);
-    doc.text('A story about Miusov', 40, 60);
+    doc.text('A story about Miusov', 14, 22);
     doc.setFontSize(11);
     doc.setTextColor(100);
-    var text = doc.splitTextToSize(shuffleSentence(faker.lorem.words(55)) + '.', doc.internal.pageSize.width - 80, {});
-    doc.text(text, 40, 80);
+    var text = doc.splitTextToSize(shuffleSentence(faker.lorem.words(55)) + '.', doc.internal.pageSize.width - 35, {});
+    doc.text(text, 14, 30);
 
     var cols = getColumns();
     cols.splice(0, 2);
-    doc.autoTable(cols, getData(40), {startY: 150});
+    doc.autoTable(cols, getData(40), {startY: 50});
 
-    doc.text(text, 40, doc.autoTableEndPosY() + 30);
+    doc.text(text, 14, doc.autoTableEndPosY() + 10);
 
     return doc;
 };
 
 // Multiple - shows how multiple tables can be drawn both horizontally and vertically
 examples.multiple = function () {
-    var doc = new jsPDF('p', 'pt');
+    var doc = new jsPDF();
     doc.setFontSize(22);
-    doc.text("Multiple tables", 40, 60);
+    doc.text("Multiple tables", 14, 20);
     doc.setFontSize(12);
 
     doc.autoTable(getColumns().slice(0, 3), getData(), {
-        startY: 90,
+        startY: 30,
         pageBreak: 'avoid',
-        margin: {right: 305}
+        margin: {right: 107}
     });
 
     doc.autoTable(getColumns().slice(0, 3), getData(), {
-        startY: 90,
+        startY: 30,
         pageBreak: 'avoid',
-        margin: {left: 305}
+        margin: {left: 107}
     });
 
     for (var j = 0; j < 6; j++) {
         doc.autoTable(getColumns(), getData(9), {
-            startY: doc.autoTableEndPosY() + 30,
+            startY: doc.autoTableEndPosY() + 10,
             pageBreak: 'avoid',
         });
     }
@@ -133,17 +133,17 @@ examples.multiple = function () {
 
 // From html - shows how pdf tables can be be drawn from html tables
 examples.html = function () {
-    var doc = new jsPDF('p', 'pt');
-    doc.text("From HTML", 40, 50);
+    var doc = new jsPDF();
+    doc.text("From HTML", 14, 16);
     var elem = document.getElementById("basic-table");
     var res = doc.autoTableHtmlToJson(elem);
-    doc.autoTable(res.columns, res.data, {startY: 60});
+    doc.autoTable(res.columns, res.data, {startY: 20});
     return doc;
 };
 
 // Header and footers - shows how header and footers can be drawn
 examples['header-footer'] = function () {
-    var doc = new jsPDF('p', 'pt');
+    var doc = new jsPDF();
     var totalPagesExp = "{total_pages_count_string}";
 
     var pageContent = function (data) {
@@ -151,8 +151,8 @@ examples['header-footer'] = function () {
         doc.setFontSize(20);
         doc.setTextColor(40);
         doc.setFontStyle('normal');
-        doc.addImage(headerImgData, 'JPEG', data.settings.margin.left, 40, 25, 25);
-        doc.text("Report", data.settings.margin.left + 35, 60);
+        doc.addImage(headerImgData, 'JPEG', data.settings.margin.left, 15, 10, 10);
+        doc.text("Report", data.settings.margin.left + 15, 22);
 
         // FOOTER
         var str = "Page " + data.pageCount;
@@ -161,12 +161,12 @@ examples['header-footer'] = function () {
             str = str + " of " + totalPagesExp;
         }
         doc.setFontSize(10);
-        doc.text(str, data.settings.margin.left, doc.internal.pageSize.height - 30);
+        doc.text(str, data.settings.margin.left, doc.internal.pageSize.height - 10);
     };
     
     doc.autoTable(getColumns(), getData(40), {
         addPageContent: pageContent,
-        margin: {top: 80}
+        margin: {top: 30}
     });
 
     // Total page number plugin only available in jspdf v1.0+
@@ -177,28 +177,10 @@ examples['header-footer'] = function () {
     return doc;
 };
 
-// Themes - shows how the different themes looks
-examples.themes = function () {
-    var doc = new jsPDF('p', 'pt');
-    doc.setFontSize(12);
-    doc.setFontStyle('bold');
-
-    doc.text('Theme "striped"', 40, 50);
-    doc.autoTable(getColumns(), getData(), {startY: 60});
-
-    doc.text('Theme "grid"', 40, doc.autoTableEndPosY() + 30);
-    doc.autoTable(getColumns(), getData(), {startY: doc.autoTableEndPosY() + 40, theme: 'grid'});
-
-    doc.text('Theme "plain"', 40, doc.autoTableEndPosY() + 30);
-    doc.autoTable(getColumns(), getData(), {startY: doc.autoTableEndPosY() + 40, theme: 'plain'});
-
-    return doc;
-};
-
 // Horizontal - shows how tables can be drawn with horizontal headers
 examples.horizontal = function () {
-    var doc = new jsPDF('p', 'pt');
-    doc.autoTable(getColumns().splice(1,4), getData(), {
+    var doc = new jsPDF();
+    doc.autoTable(getColumns().splice(1, 4), getData(), {
         drawHeaderRow: function() {
             // Don't draw header row
             return false;
@@ -210,48 +192,6 @@ examples.horizontal = function () {
     return doc;
 };
 
-
-// Custom style - shows how custom styles can be applied to tables
-examples.custom = function () {
-    var doc = new jsPDF('p', 'pt');
-    doc.autoTable(getColumns().slice(2, 6), getData(20), {
-        styles: {
-            font: 'courier',
-            lineColor: [44, 62, 80],
-            lineWidth: 2
-        },
-        headerStyles: {
-            fillColor: [44, 62, 80],
-            fontSize: 15,
-            rowHeight: 30
-        },
-        bodyStyles: {
-            fillColor: [52, 73, 94],
-            textColor: 240
-        },
-        alternateRowStyles: {
-            fillColor: [74, 96, 117]
-        },
-        columnStyles: {
-            email: {
-                fontStyle: 'bold'
-            }
-        },
-        createdCell: function (cell, data) {
-            if (data.column.dataKey === 'expenses') {
-                cell.styles.halign = 'right';
-                if (cell.raw > 600) {
-                    cell.styles.textColor = [255, 100, 100];
-                    cell.styles.fontStyle = 'bolditalic';
-                }
-                cell.text = '$' + cell.text;
-            } else if (data.column.dataKey === 'country') {
-                cell.text = cell.raw.split(' ')[0];
-            }
-        }
-    });
-    return doc;
-};
 
 // Custom style - shows how custom styles can be applied to tables
 examples.spans = function () {
@@ -306,6 +246,66 @@ examples.spans = function () {
                     });
                 }
                 return false;
+            }
+        }
+    });
+    return doc;
+};
+
+// Themes - shows how the different themes looks
+examples.themes = function () {
+    var doc = new jsPDF();
+    doc.setFontSize(12);
+    doc.setFontStyle('bold');
+
+    doc.text('Theme "striped"', 14, 16);
+    doc.autoTable(getColumns(), getData(), {startY: 20});
+
+    doc.text('Theme "grid"', 14, doc.autoTableEndPosY() + 10);
+    doc.autoTable(getColumns(), getData(), {startY: doc.autoTableEndPosY() + 14, theme: 'grid'});
+
+    doc.text('Theme "plain"', 14, doc.autoTableEndPosY() + 10);
+    doc.autoTable(getColumns(), getData(), {startY: doc.autoTableEndPosY() + 14, theme: 'plain'});
+
+    return doc;
+};
+
+// Custom style - shows how custom styles can be applied to tables
+examples.custom = function () {
+    var doc = new jsPDF();
+    doc.autoTable(getColumns().slice(2, 6), getData(20), {
+        styles: {
+            font: 'courier',
+            lineColor: [44, 62, 80],
+            lineWidth: 0.75
+        },
+        headerStyles: {
+            fillColor: [44, 62, 80],
+            fontSize: 15,
+            rowHeight: 10
+        },
+        bodyStyles: {
+            fillColor: [52, 73, 94],
+            textColor: 240
+        },
+        alternateRowStyles: {
+            fillColor: [74, 96, 117]
+        },
+        columnStyles: {
+            email: {
+                fontStyle: 'bold'
+            }
+        },
+        createdCell: function (cell, data) {
+            if (data.column.dataKey === 'expenses') {
+                cell.styles.halign = 'right';
+                if (cell.raw > 600) {
+                    cell.styles.textColor = [255, 100, 100];
+                    cell.styles.fontStyle = 'bolditalic';
+                }
+                cell.text = '$' + cell.text;
+            } else if (data.column.dataKey === 'country') {
+                cell.text = cell.raw.split(' ')[0];
             }
         }
     });
