@@ -105,7 +105,7 @@ jsPDF.API.autoTableHtmlToJson = function (tableElem, includeHiddenElements) {
         let cell = header.cells[k];
         let style = window.getComputedStyle(cell);
         if (includeHiddenElements || style.display !== 'none') {
-            columns[k] = cell ? cell.textContent.trim() : '';
+            columns[k] = cell;
         }
     }
 
@@ -116,14 +116,13 @@ jsPDF.API.autoTableHtmlToJson = function (tableElem, includeHiddenElements) {
             let rowData = [];
             for (let j of Object.keys(columns)) {
                 let cell = tableRow.cells[j];
-                let val = cell ? cell.textContent.trim() : '';
-                rowData.push(val);
+                rowData.push(cell);
             }
             rows.push(rowData);
         }
     }
 
-    return {columns: Object.values(columns), rows: rows, data: rows}; // data prop deprecated
+    return {columns: Object.values(columns), rows: rows, data: rows};
 };
 
 /**
@@ -222,13 +221,16 @@ function createModels(inputHeaders, inputData) {
     headerRow.styles = Object.assign({}, themeStyles, settings.styles, settings.headerStyles);
 
     // Columns and header row
-    inputHeaders.forEach(function (rawColumn, dataKey) {
-        var index = dataKey;
-        if (typeof rawColumn === 'object') {
-            dataKey = typeof rawColumn.dataKey !== 'undefined' ? rawColumn.dataKey : rawColumn.key;
+    inputHeaders.forEach(function (rawColumn, index) {
+        var dataKey = index;
+        if (typeof rawColumn.dataKey !== 'undefined') {
+            dataKey = rawColumn.dataKey;
+        } else if (typeof rawColumn.key !== 'undefined') {
+            console.log("Deprecation warning: Use dataKey instead of key");
+            dataKey = rawColumn.key; // deprecated since 2.x
         }
 
-        if (typeof rawColumn.width !== 'undefined') {
+        if (!(rawColumn instanceof HTMLElement) && typeof rawColumn.width !== 'undefined') {
             console.error("Use of deprecated option: column.width, use column.styles.columnWidth instead.");
         }
 
@@ -237,9 +239,17 @@ function createModels(inputHeaders, inputData) {
         table.columns.push(col);
 
         var cell = new Cell();
-        cell.raw = typeof rawColumn === 'object' ? rawColumn.title : rawColumn;
+        cell.raw = rawColumn;
         cell.styles = Object.assign({}, headerRow.styles);
-        cell.text = '' + cell.raw;
+
+        if (cell.raw instanceof HTMLElement) {
+            cell.text = cell.raw.textContent.trim();
+        } else {
+            var text = typeof cell.raw === 'object' ? cell.raw.title : cell.raw;
+            // Stringify 0 and false, but not undefined
+            cell.text = typeof cell.raw !== 'undefined' ? '' + text : '';
+        }
+        
         cell.contentWidth = cell.styles.cellPadding * 2 + getStringWidth(cell.text, cell.styles);
         cell.text = cell.text.split(splitRegex);
 
@@ -260,7 +270,14 @@ function createModels(inputHeaders, inputData) {
             var cell = new Cell();
             cell.raw = rawRow[column.dataKey];
             cell.styles = Object.assign({}, row.styles, column.styles);
-            cell.text = typeof cell.raw !== 'undefined' ? '' + cell.raw : ''; // Stringify 0 and false, but not undefined
+            
+            if (cell.raw && cell.raw instanceof HTMLElement) {
+                cell.text = cell.raw.textContent.trim();
+            } else {
+                // Stringify 0 and false, but not undefined
+                cell.text = typeof cell.raw !== 'undefined' ? '' + cell.raw : '';
+            }
+            
             row.cells[column.dataKey] = cell;
             settings.createdCell(cell, hooksData({column: column, row: row}));
             cell.contentWidth = cell.styles.cellPadding * 2 + getStringWidth(cell.text, cell.styles);
