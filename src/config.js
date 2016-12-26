@@ -8,25 +8,30 @@ var userStyles = null;
 /**
  * Styles for the themes (overriding the default styles)
  */
-export var themes = {
-    'striped': {
-        table: {fillColor: 255, textColor: 80, fontStyle: 'normal'},
-        header: {textColor: 255, fillColor: [41, 128, 185], rowHeight: 23, fontStyle: 'bold'},
-        body: {},
-        alternateRow: {fillColor: 245}
-    },
-    'grid': {
-        table: {fillColor: 255, textColor: 80, fontStyle: 'normal', lineWidth: 0.1},
-        header: {textColor: 255, fillColor: [26, 188, 156], rowHeight: 23, fontStyle: 'bold', lineWidth: 0},
-        body: {},
-        alternateRow: {}
-    },
-    'plain': {
-        header: {fontStyle: 'bold'}
-    }
+export var getTheme = function(name) {
+    let scaleFactor = Config.getJspdfInstance().internal.scaleFactor;
+    var themes = {
+        'striped': {
+            table: {fillColor: 255, textColor: 80, fontStyle: 'normal'},
+            header: {textColor: 255, fillColor: [41, 128, 185], rowHeight: 23 / scaleFactor, fontStyle: 'bold'},
+            body: {},
+            alternateRow: {fillColor: 245}
+        },
+        'grid': {
+            table: {fillColor: 255, textColor: 80, fontStyle: 'normal', lineWidth: 0.1},
+            header: {textColor: 255, fillColor: [26, 188, 156], rowHeight: 23 / scaleFactor, fontStyle: 'bold', lineWidth: 0},
+            body: {},
+            alternateRow: {}
+        },
+        'plain': {
+            header: {fontStyle: 'bold'}
+        }
+    };
+    return themes[name];
 };
 
 function getDefaults() {
+    let scaleFactor = Config.getJspdfInstance().internal.scaleFactor;
     return {
         // Styling
         theme: 'striped', // 'striped', 'grid' or 'plain'
@@ -38,7 +43,7 @@ function getDefaults() {
 
         // Properties
         startY: false, // false indicates the margin.top value
-        margin: 40,
+        margin: 40 / scaleFactor,
         pageBreak: 'auto', // 'auto', 'avoid', 'always'
         tableWidth: 'auto', // number, 'auto', 'wrap'
 
@@ -55,19 +60,20 @@ function getDefaults() {
 
 // Base style for all themes
 function defaultStyles() {
+    let scaleFactor = Config.getJspdfInstance().internal.scaleFactor;
     return {
-        cellPadding: 5,
-        fontSize: 10,
         font: "helvetica", // helvetica, times, courier
         lineColor: 200,
-        lineWidth: 0,
         fontStyle: 'normal', // normal, bold, italic, bolditalic
         overflow: 'ellipsize', // visible, hidden, ellipsize or linebreak
         fillColor: false, // Either false for transparant, rbg array e.g. [255, 255, 255] or gray level e.g 200
         textColor: 20,
         halign: 'left', // left, center, right
         valign: 'top', // top, middle, bottom
-        rowHeight: 20,
+        fontSize: 10,
+        cellPadding: 5 / scaleFactor,
+        lineWidth: 0 / scaleFactor,
+        rowHeight: 20 / scaleFactor,
         columnWidth: 'auto'
     }
 }
@@ -148,8 +154,9 @@ export class Config {
             if (typeof marginSetting === 'number') {
                 settings.margin[side] = marginSetting;
             } else {
+                let scaleFactor = Config.getJspdfInstance().internal.scaleFactor;
                 var key = Array.isArray(marginSetting) ? i : side;
-                settings.margin[side] = typeof marginSetting[key] === 'number' ? marginSetting[key] : 40;
+                settings.margin[side] = typeof marginSetting[key] === 'number' ? marginSetting[key] : 40 / scaleFactor;
             }
         });
 
@@ -177,7 +184,7 @@ export class Config {
             var style = styles[name];
             var modifier = styleModifiers[name];
             if (typeof style !== 'undefined') {
-                if (style.constructor === Array) {
+                if (Array.isArray(style)) {
                     modifier.apply(this, style);
                 } else {
                     modifier(style);

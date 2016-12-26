@@ -2,7 +2,7 @@
 
 import jsPDF from 'jspdf';
 import {Table, Row, Cell, Column} from './models.js';
-import {Config, themes, FONT_ROW_RATIO} from './config.js';
+import {Config, getTheme, FONT_ROW_RATIO} from './config.js';
 import './polyfills.js';
 
 var cursor, // An object keeping track of the x and y position of the next table cell to draw
@@ -140,7 +140,8 @@ jsPDF.API.autoTableText = function (text, x, y, styles) {
     if (typeof x !== 'number' || typeof y !== 'number') {
         console.error('The x and y parameters are required. Missing for the text: ', text);
     }
-    var fontSize = this.internal.getFontSize() / this.internal.scaleFactor;
+    var k = this.internal.scaleFactor;
+    var fontSize = this.internal.getFontSize() / k;
 
     // As defined in jsPDF source code
     var lineHeightProportion = FONT_ROW_RATIO;
@@ -217,7 +218,8 @@ function createModels(inputHeaders, inputData) {
     var headerRow = new Row(inputHeaders);
     headerRow.index = -1;
 
-    var themeStyles = Config.styles([themes[settings.theme].table, themes[settings.theme].header]);
+    var theme = getTheme(settings.theme);
+    var themeStyles = Config.styles([theme.table, theme.header]);
     headerRow.styles = Object.assign({}, themeStyles, settings.styles, settings.headerStyles);
 
     // Columns and header row
@@ -262,7 +264,8 @@ function createModels(inputHeaders, inputData) {
     inputData.forEach(function (rawRow, i) {
         var row = new Row(rawRow);
         var isAlternate = i % 2 === 0;
-        var themeStyles = Config.styles([themes[settings.theme].table, isAlternate ? themes[settings.theme].alternateRow : {}]);
+        var theme = getTheme(settings.theme);
+        var themeStyles = Config.styles([theme.table, isAlternate ? theme.alternateRow : {}]);
         var userStyles = Object.assign({}, settings.styles, settings.bodyStyles, isAlternate ? settings.alternateRowStyles : {});
         row.styles = Object.assign({}, themeStyles, userStyles);
         row.index = i;
@@ -322,7 +325,7 @@ function calculateWidths(doc, pageWidth) {
     var fairWidth = table.width / table.columns.length;
     var staticWidth = 0;
     table.columns.forEach(function (column) {
-        var colStyles = Config.styles([themes[settings.theme].table, settings.styles, column.styles]);
+        var colStyles = Config.styles([getTheme(settings.theme).table, settings.styles, column.styles]);
         if (colStyles.columnWidth === 'wrap') {
             column.width = column.contentWidth;
         } else if (typeof colStyles.columnWidth === 'number') {
@@ -577,11 +580,11 @@ function hooksData(additionalData) {
 }
 
 function getStringWidth(text, styles) {
+    let k = Config.getJspdfInstance().internal.scaleFactor;
     Config.applyStyles(styles);
-    var w = Config.getJspdfInstance().getStringUnitWidth(text);
+    var w = Config.getJspdfInstance().getStringUnitWidth(text) / k;
     return w * styles.fontSize;
 }
-
 
 /**
  * Ellipsize the text to fit in the width
