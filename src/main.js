@@ -34,25 +34,25 @@ jsPDF.API.autoTable = function (headers, data, userOptions = {}) {
     createModels(headers, data);
     calculateWidths(this, doc.internal.pageSize.width);
 
-    // Page break if there is room for only the first data row
     var firstRowHeight = table.rows[0] && settings.pageBreak === 'auto' ? table.rows[0].height : 0;
-    var minTableBottomPos = settings.startY + settings.margin.bottom + table.headerRow.height + firstRowHeight;
+    var minTableBottomPos = settings.startY + settings.margin.bottom + table.headerRow.height;
     if (settings.pageBreak === 'avoid') {
         minTableBottomPos += table.height;
     }
     var pageHeight = doc.internal.pageSize.height;
     if ((settings.pageBreak === 'always' && settings.startY !== false) ||
         (settings.startY !== false && minTableBottomPos > pageHeight)) {
-        addPage();
+        Config.getJspdfInstance().addPage();
         cursor.y = settings.margin.top;
     }
 
     Config.applyStyles(Config.getUserStyles());
-    if (settings.drawHeaderRow(table.headerRow, hooksData({row: table.headerRow})) !== false) {
-        printRow(table.headerRow, settings.drawHeaderCell);
-    }
+    printRow(table.headerRow, settings.drawHeaderCell, settings.drawHeaderRow);
     Config.applyStyles(Config.getUserStyles());
-    printRows();
+
+    table.rows.forEach(function (row) {
+        printFullRow(row, settings.drawRow, settings.drawCell);
+    });
 
     settings.addPageContent(hooksData());
     Config.applyStyles(Config.getUserStyles());
@@ -414,56 +414,97 @@ function addContentHooks() {
 }
 
 function addPage() {
+    // Add user content just before adding new page ensure it will 
+    // be drawn above other things on the page
+    addContentHooks();
     Config.getJspdfInstance().addPage();
     table.pageCount++;
     cursor = {x: settings.margin.left, y: settings.margin.top};
-    if (settings.drawHeaderRow(table.headerRow, hooksData({row: table.headerRow})) !== false) {
-        printRow(table.headerRow, settings.drawHeaderCell);
-    }
+    printRow(table.headerRow, settings.drawHeaderRow, settings.drawHeaderCell);
 }
 
 /**
  * Add a new page if cursor is at the end of page
  */
-function isNewPage(rowHeight) {
-    var afterRowPos = cursor.y + rowHeight + settings.margin.bottom;
-    return afterRowPos >= Config.getJspdfInstance().internal.pageSize.height;
+function canFitOnPage(rowHeight) {
+    var pageHeight = Config.getJspdfInstance().internal.pageSize.height;
+    var pos = cursor.y + rowHeight + settings.margin.bottom;
+    return pos < pageHeight;
 }
 
-function printRows() {
-    table.rows.forEach(function (row, i) {
-        if (isNewPage(row.height)) {
-            var samePageThreshold = 3;
-            // TODO Fix cell height > page height
-            /*if (row.height > row.heightStyle * samePageThreshold) {
-                var remainingPageSpace = pageSize.height - cursor.y - settings.margin.bottom;
-                var lineCount = Math.floor(remainingPageSpace / (row.styles.fontSize * FONT_ROW_RATIO));
-                table.columns.forEach(function(col) {
-                    var arr = row.cells[col.dataKey].text;
-                    if (arr.length > lineCount) {
-                        arr.splice(lineCount - 1, arr.length, "...");
-                    }
-                });
-
-                row.height = remainingPageSpace;
-                if (settings.drawRow(row, hooksData({row: row})) !== false) {
-                    printRow(row, settings.drawCell);
-                }
-                row = new Row(rawRow);
-            }*/
-            // Add user content just before adding new page ensure it will 
-            // be drawn above other things on the page
-            addContentHooks();
+function printFullRow(row, drawRowHook, drawCellHook) {
+    var remainingRowHeight = 0;
+    var remainingTexts = {};
+    
+    if (!canFitOnPage(row.height)) {
+        // Simply move small rows to new page to avoid splitting
+        if (row.height < row.heightStyle * 3) {
             addPage();
+        } else {
+            
+            // Modify the row to fit the current page and calculate text and height of partial row
+            
+            row.spansMultiplePages = true;
+            
+            var pageHeight = Config.getJspdfInstance().internal.pageSize.height;
+            var maxCellHeight = 0;
+            
+            for (let j = 0; j < table.columns.length; j++) {
+                let col = table.columns[j];
+                let cell = row.cells[col.dataKey];
+ 
+                var fontHeight = cell.styles.fontSize * FONT_ROW_RATIO;
+                var vpadding = Math.abs(row.heightStyle - fontHeight);
+                var remainingPageSpace = pageHeight - cursor.y - settings.margin.bottom;
+                var remainingLineCount = Math.floor((remainingPageSpace - vpadding) / fontHeight);
+
+                if (Array.isArray(cell.text) && cell.text.length > remainingLineCount) {
+                    var remainingLines = cell.text.splice(remainingLineCount, cell.text.length);
+                    remainingTexts[col.dataKey] = remainingLines;
+                    
+                    var rowHeight1 = cell.text.length * fontHeight + vpadding;
+                    if (rowHeight1 > maxCellHeight) {
+                        maxCellHeight = rowHeight1;
+                    }
+
+                    var rowHeight2 = remainingLines.length * fontHeight + vpadding;
+                    if (rowHeight2 > remainingRowHeight) {
+                        remainingRowHeight = rowHeight2;
+                    }
+                }
+            }
+            
+            // Reset row height since text are now removed
+            row.height = maxCellHeight;
         }
-        row.y = cursor.y;
-        if (settings.drawRow(row, hooksData({row: row})) !== false) {
-            printRow(row, settings.drawCell);
+    }
+
+    printRow(row, drawRowHook, drawCellHook);
+
+    // Parts of the row is now printed. Time for adding a new page, prune 
+    // the text and start over
+    
+    if (Object.keys(remainingTexts).length > 0) {
+        for (let j = 0; j < table.columns.length; j++) {
+            let col = table.columns[j];
+            let cell = row.cells[col.dataKey];
+            cell.text = remainingTexts[col.dataKey] || '';
         }
-    });
+
+        addPage();
+        row.pageCount++;
+        row.height = remainingRowHeight;
+        printFullRow(row, drawRowHook, drawCellHook);
+    }
 }
 
-function printRow(row, hookHandler) {
+function printRow(row, drawRowHook, drawCellHook) {
+    row.y = cursor.y;
+
+    if (drawRowHook(row, hooksData({row: row})) === false) {
+        return;
+    }
+
     cursor.x = settings.margin.left;
     for (var i = 0; i < table.columns.length; i++) {
         var column = table.columns[i];
@@ -495,7 +536,7 @@ function printRow(row, hookHandler) {
         }
 
         var data = hooksData({column: column, row: row});
-        if (hookHandler(cell, data) !== false) {
+        if (drawCellHook(cell, data) !== false) {
             var fillStyle = getFillStyle(cell.styles);
             if (fillStyle) {
                 Config.getJspdfInstance().rect(cell.x, cell.y, cell.width, cell.height, fillStyle);

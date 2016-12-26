@@ -19,8 +19,11 @@ export class Row {
         this.index = 0;
         this.styles = {};
         this.cells = {};
+        this.spansMultiplePages = false;
+        this.pageCount = 1;
         this.height = 0;
         this.y = 0;
+        this.heightStyle = 0;
     }
 }
 
