@@ -2,10 +2,11 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Simple example</title>
+    <title>Requirejs example</title>
 </head>
 <body>
 <button id="generate">Generate pdf</button>
+<br><svg id="circle"></svg>
 
 <script src="../libs/require.js"></script>
 <script>
@@ -21,6 +22,33 @@
             main.generatePdf();
         }
     });
+    
+    
+    // Experiment with multiple dependencies
+
+    // Setting up paths for jspdf and jspdf-autotable so that the full path is not needed 
+    // each time they are used
+    /*
+    require.config({paths: {
+        'd3': '../libs/d3',
+        'jspdf': '../libs/jspdf.min',
+        'moment': '../libs/moment',
+        'jquery': '../libs/jquery'
+    }});
+
+    require(['d3', 'jspdf', 'moment', 'jquery'], function(d3, jsPDF, moment, jquery) {
+        console.log(arguments);
+        console.log(jquery('title').text());
+        console.log(moment().format("MMM Do YY"));
+
+        var svg = d3.select("#circle");
+        var circle = svg.append("circle").attr("cx", 30).attr("cy", 30).attr("r", 20);
+
+        var doc = new jsPDF();
+        doc.text(20, 20, "Hello");
+        doc.output("dataurlnewwindow");
+    });
+    */
 </script>
 </body>
 </html>

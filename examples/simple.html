@@ -10,6 +10,37 @@
 <script src="libs/jspdf.min.js"></script>
 <script src="libs/jspdf.plugin.autotable.src.js"></script>
 
+<table id="table" style="display: none;">
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>First name</th>
+        <th>Last name</th>
+        <th>Email</th>
+        <th>Country</th>
+        <th>IP-address</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>1</td>
+        <td>Donna</td>
+        <td>Moore</td>
+        <td>dmoore0@furl.net</td>
+        <td>China</td>
+        <td>211.56.242.221</td>
+    </tr>
+    <tr>
+        <td>2</td>
+        <td>Janice</td>
+        <td>Henry</td>
+        <td>jhenry1@theatlantic.com</td>
+        <td>Ukraine</td>
+        <td>38.36.7.199</td>
+    </tr>
+    </tbody>
+</table>
+
 <script>
     function generate() {
         var columns = ["ID", "Country", "Rank", "Capital"];
