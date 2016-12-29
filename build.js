@@ -50,7 +50,7 @@ function build(dist) {
             fs.writeFileSync('./dist/jspdf.plugin.autotable.src.js', code);
         }
         fs.writeFileSync( './examples/libs/jspdf.plugin.autotable.src.js', code);
-        fs.writeFileSync('./examples/libs/jspdf.min.js', fs.readFileSync('./node_modules/jspdf/dist/jspdf.min.js'));
+        fs.writeFileSync('./examples/libs/jspdf.debug.js', fs.readFileSync('./node_modules/jspdf/dist/jspdf.debug.js'));
 
         console.log('Build finished successfully');
     }).catch(function(err) {
