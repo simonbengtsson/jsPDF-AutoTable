@@ -1,55 +1,77 @@
 export let table = {};
 
 export class Table {
-    constructor() {
-        this.height = 0;
-        this.width = 0;
-        this.contentWidth = 0;
-        this.preferredWidth = 0;
-        this.rows = [];
-        this.columns = [];
-        this.headerRow = null;
-        this.settings = {};
-        this.pageCount = 1;
+    settings;
+    cursor;
+    
+    height = 0;
+    width = 0;
+    contentWidth = 0;
+    preferredWidth = 0;
+    rows = [];
+    columns = [];
+    headerRow = null;
+    pageCount = 1;
+    
+    
+    constructor(settings) {
+        this.settings = settings;
+        
+        this.cursor = {
+            x: this.margin('left'),
+            y: settings.startY === false ? this.margin('top') : settings.startY
+        };
+    }
+    
+    margin(side) {
+        return this.settings.margin[side];
     }
 }
 
 export class Row {
+    raw;
+    index;
+    cells = {};
+    spansMultiplePages = false;
+    pageCount = 1;
+    height = 0;
+    y = 0;
+    heightStyle = 0;
+    
     constructor(raw, index) {
-        this.raw = raw || {};
+        this.raw = raw;
         this.index = index;
-        this.cells = {};
-        this.spansMultiplePages = false;
-        this.pageCount = 1;
-        this.height = 0;
-        this.y = 0;
-        this.heightStyle = 0;
     }
 }
 
 export class Cell {
+    raw;
+    styles = {};
+    text = '';
+    contentWidth = 0;
+    textPos = {};
+    height = 0;
+    width = 0;
+    x = 0;
+    y = 0;
+    
     constructor(raw) {
         this.raw = raw;
-        this.styles = {};
-        this.text = '';
-        this.contentWidth = 0;
-        this.textPos = {};
-        this.height = 0;
-        this.width = 0;
-        this.x = 0;
-        this.y = 0;
     }
 }
 
 export class Column {
+    dataKey; // string|number
+    index; // number
+    options = {};
+    contentWidth = 0;
+    preferredWidth = 0;
+    widthStyle = 'auto';
+    width = 0;
+    x = 0;
+    
     constructor(dataKey, index) {
         this.dataKey = dataKey;
         this.index = index;
-        this.options = {};
-        this.contentWidth = 0;
-        this.preferredWidth = 0;
-        this.widthStyle = 'auto';
-        this.width = 0;
-        this.x = 0;
     }
 }

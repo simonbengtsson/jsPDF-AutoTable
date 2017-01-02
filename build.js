@@ -24,7 +24,7 @@ function build(dist) {
         entry: 'src/main.js',
         plugins: [nodeResolve({jsnext: true, main: true, skip: ['jspdf']}), commonjs({}), babel({
             exclude: 'node_modules/**',
-            presets: ["es2015-rollup"]
+            plugins: ["transform-class-properties"]
         })]
     }).then(function (bundle) {
         var newVersion = require('./package.json').version;
