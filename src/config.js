@@ -45,8 +45,8 @@ function getDefaults() {
         startY: false, // false indicates the margin.top value
         margin: 40 / scaleFactor,
         pageBreak: 'auto', // 'auto', 'avoid', 'always'
-        tableWidth: 'auto', // number, 'auto', 'wrap',
-        showHeader: 'always', // 'always', 'once', 'never'
+        tableWidth: 'auto', // 'auto'|'wrap'|number (takes precedence over columnWidth style if conflict)
+        showHeader: 'always', // 'always', 'once', 'never',
 
         // Hooks
         createdHeaderCell: function (cell, data) {},
@@ -139,35 +139,41 @@ export class Config {
                 console.error("Use of deprecated option: " + deprecatedOption + ", use the style " + style + " instead.");
             }
         });
-
-        // Unifying
-        var marginSetting = settings.margin;
-        settings.margin = {};
-        if (typeof marginSetting.horizontal === 'number') {
-            marginSetting.right = marginSetting.horizontal;
-            marginSetting.left = marginSetting.horizontal;
-        }
-        if (typeof marginSetting.vertical === 'number') {
-            marginSetting.top = marginSetting.vertical;
-            marginSetting.bottom = marginSetting.vertical;
-        }
-        ['top', 'right', 'bottom', 'left'].forEach(function (side, i) {
-            if (typeof marginSetting === 'number') {
-                settings.margin[side] = marginSetting;
-            } else {
-                let scaleFactor = Config.getJspdfInstance().internal.scaleFactor;
-                var key = Array.isArray(marginSetting) ? i : side;
-                settings.margin[side] = typeof marginSetting[key] === 'number' ? marginSetting[key] : 40 / scaleFactor;
-            }
-        });
+        
+        settings.margin = Config.marginOrPadding(settings.margin, 40);
 
         return settings;
     }
+    
+    static marginOrPadding(value, defaultVal) {
+        let newValue = {};
+        ['top', 'right', 'bottom', 'left'].forEach(function (side, i) {
+            let k = Config.getJspdfInstance().internal.scaleFactor;
+            newValue[side] = defaultVal / k;
+            if (typeof value === 'number') {
+                newValue[side] = value;
+            } else if (Array.isArray(value) && typeof value[i] === 'number') {
+                newValue[side] = value[i];
+            } else if (typeof value === 'object') {
+                if (typeof value[side] === 'number') {
+                    newValue[side] = value[side];
+                } else if ((side === 'right' || side === 'left') && typeof value['horizontal'] === 'number') {
+                    newValue[side] = value['horizontal'];
+                } else if ((side === 'top' || side === 'bottom') && typeof value['vertical'] === 'number') {
+                    newValue[side] = value['vertical'];
+                }
+            }
+        });
+        return newValue;
+    }
 
     static styles(styles) {
-        styles.unshift(defaultStyles());
+        let defStyles = defaultStyles();
+        styles.unshift(defStyles);
         styles.unshift({});
-        return Object.assign.apply(this, styles);
+        styles = Object.assign.apply(this, styles);
+        styles.cellPadding = Config.marginOrPadding(styles.cellPadding, defStyles.cellPadding);
+        return styles;
     }
 
     static applyStyles(styles) {

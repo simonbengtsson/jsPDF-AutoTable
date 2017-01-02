@@ -5,6 +5,7 @@ export class Table {
         this.height = 0;
         this.width = 0;
         this.contentWidth = 0;
+        this.preferredWidth = 0;
         this.rows = [];
         this.columns = [];
         this.headerRow = null;
@@ -14,10 +15,9 @@ export class Table {
 }
 
 export class Row {
-    constructor(raw) {
+    constructor(raw, index) {
         this.raw = raw || {};
-        this.index = 0;
-        this.styles = {};
+        this.index = index;
         this.cells = {};
         this.spansMultiplePages = false;
         this.pageCount = 1;
@@ -46,8 +46,9 @@ export class Column {
         this.dataKey = dataKey;
         this.index = index;
         this.options = {};
-        this.styles = {};
         this.contentWidth = 0;
+        this.preferredWidth = 0;
+        this.widthStyle = 'auto';
         this.width = 0;
         this.x = 0;
     }

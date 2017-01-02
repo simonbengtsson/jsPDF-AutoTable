@@ -40,9 +40,9 @@ examples.minimal = function () {
     var doc = new jsPDF();
     doc.autoTable(getColumns(), getData(), {
         tableWidth: 'wrap',
-        styles: {cellPadding: 0.5},
-        headerStyles: {rowHeight: 5, fontSize: 8, valign: 'middle'},
-        bodyStyles: {rowHeight: 4, fontSize: 8, valign: 'middle'},
+        styles: {cellPadding: 0.5, fontSize: 8},
+        headerStyles: {rowHeight: 5},
+        bodyStyles: {rowHeight: 4},
     });
     return doc;
 };
@@ -51,32 +51,33 @@ examples.minimal = function () {
 examples.long = function () {
     var doc = new jsPDF('l');
     var columnsLong = getColumns().concat([
-        {title: shuffleSentence(), dataKey: "text"},
-        {title: "Text with a\nlinebreak", dataKey: "text2"}
+        {title: "Title with\nlinebreak", dataKey: "text2"},
+        {title: "Long text column", dataKey: "text"},
     ]);
 
     doc.text(7, 15, "Overflow 'ellipsize' (default)");
     doc.autoTable(columnsLong, getData(), {
         startY: 20,
         margin: {horizontal: 7},
-        columnStyles: {text: {columnWidth: 30}}
+        styles: {columnWidth: 'wrap'},
+        columnStyles: {text: {columnWidth: 'auto'}}
     });
 
     doc.text("Overflow 'hidden'", 7, doc.autoTableEndPosY() + 10);
     doc.autoTable(columnsLong, getData(), {
-        startY: doc.autoTableEndPosY() + 20,
+        startY: doc.autoTableEndPosY() + 15,
         margin: {horizontal: 7},
-        styles: {overflow: 'hidden'},
-        columnStyles: {email: {columnWidth: 50}}
+        styles: {overflow: 'hidden', columnWidth: 'wrap'},
+        columnStyles: {text: {columnWidth: 'auto'}}
     });
 
     doc.text("Overflow 'linebreak'", 7, doc.autoTableEndPosY() + 10);
     doc.autoTable(columnsLong, getData(3), {
-        startY: doc.autoTableEndPosY() + 5,
+        startY: doc.autoTableEndPosY() + 15,
         margin: {horizontal: 7},
-        styles: {overflow: 'linebreak'},
         bodyStyles: {valign: 'top'},
-        columnStyles: {email: {columnWidth: 'wrap'}},
+        styles: {overflow: 'linebreak', columnWidth: 'wrap'},
+        columnStyles: {text: {columnWidth: 'auto'}}
     });
 
     return doc;
@@ -109,13 +110,13 @@ examples.multiple = function () {
     doc.text("Multiple tables", 14, 20);
     doc.setFontSize(12);
 
-    doc.autoTable(getColumns().slice(0, 3), getData(), {
+    doc.autoTable(getColumns().slice(0, 2), getData(), {
         startY: 30,
         pageBreak: 'avoid',
         margin: {right: 107}
     });
 
-    doc.autoTable(getColumns().slice(0, 3), getData(), {
+    doc.autoTable(getColumns().slice(0, 2), getData(), {
         startY: 30,
         pageBreak: 'avoid',
         margin: {left: 107}
@@ -182,11 +183,10 @@ examples.horizontal = function () {
     var doc = new jsPDF();
     doc.autoTable(getColumns().splice(1, 4), getData(), {
         drawHeaderRow: function() {
-            // Don't draw header row
-            return false;
+            return false; // Don't draw header row
         },
         columnStyles: {
-            first_name: {fillColor: [41, 128, 185], textColor: 255, fontStyle: 'bold'}
+            name: {fillColor: [41, 128, 185], textColor: 255, fontStyle: 'bold'}
         }
     });
     return doc;
@@ -273,7 +273,7 @@ examples.themes = function () {
 // Custom style - shows how custom styles can be applied to tables
 examples.custom = function () {
     var doc = new jsPDF();
-    doc.autoTable(getColumns().slice(2, 6), getData(20), {
+    doc.autoTable(getColumns().slice(1, 5), getData(20), {
         styles: {
             font: 'courier',
             lineColor: [44, 62, 80],
@@ -304,8 +304,8 @@ examples.custom = function () {
                     cell.styles.fontStyle = 'bolditalic';
                 }
                 cell.text = '$' + cell.text;
-            } else if (data.column.dataKey === 'country') {
-                cell.text = cell.raw.split(' ')[0];
+            } else if (data.column.dataKey === 'name') {
+                cell.text = cell.raw.split(' ')[0]; // only first name
             }
         }
     });
@@ -322,10 +322,9 @@ examples.custom = function () {
 var getColumns = function () {
     return [
         {title: "ID", dataKey: "id"},
-        {title: "Name", dataKey: "first_name"},
+        {title: "Name", dataKey: "name"},
         {title: "Email", dataKey: "email"},
         {title: "City", dataKey: "city"},
-        {title: "Country", dataKey: "country"},
         {title: "Expenses", dataKey: "expenses"}
     ];
 };
@@ -333,18 +332,18 @@ var getColumns = function () {
 // Uses the faker.js library to get random data.
 function getData(rowCount) {
     rowCount = rowCount || 4;
-    var sentence = faker.lorem.words(12);
+    var sentence = faker.lorem.words(20);
     var data = [];
     for (var j = 1; j <= rowCount; j++) {
         data.push({
             id: j,
-            first_name: faker.name.findName(),
+            name: faker.name.findName(),
             email: faker.internet.email(),
             country: faker.address.country(),
             city: faker.address.city(),
             expenses: faker.finance.amount(),
             text: shuffleSentence(sentence),
-            text2: shuffleSentence(sentence)
+            text2: faker.lorem.words(1)
         });
     }
     return data;
