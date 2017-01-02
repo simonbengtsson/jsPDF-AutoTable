@@ -8,9 +8,6 @@ import {calculateWidths} from './calculator.js';
 import {createModels, validateInput} from './creator.js';
 import './polyfills.js';
 
-//noinspection JSUnresolvedVariable
-let API = jsPDF.API;
-
 /**
  * Create a table from a set of rows and columns.
  *
@@ -18,36 +15,29 @@ let API = jsPDF.API;
  * @param {Object[][]|String[][]} data Either as an array of objects or array of strings
  * @param {Object} [userOptions={}] Options that will override the default ones
  */
-API.autoTable = function (headers, data, userOptions = {}) {
+jsPDF.API.autoTable = function (headers, data, userOptions = {}) {
     validateInput(headers, data, userOptions);
     Config.setJspdfInstance(this);
     let doc = Config.getJspdfInstance();
-    Config.initSettings(userOptions);
-    let settings = Config.settings();
 
-    Config.createTable();
+    Config.createTable(Config.initSettings(userOptions));
     let table = Config.tableInstance();
+    let settings = table.settings;
 
-    // Need a cursor y as it needs to be reset after each page (row.y can't do that)
-    // Also prefer cursor to column.x as the cursor is easier to modify in the hooks
-    doc.autoTableCursor = {
-        x: settings.margin.left,
-        y: settings.startY === false ? settings.margin.top : settings.startY
-    };
-
+    
     // Create the table model with its columns, rows and cells
     createModels(headers, data);
-    calculateWidths(this, doc.internal.pageSize.width);
+    calculateWidths(this, Config.pageSize().width);
 
     let minTableBottomPos = settings.startY + settings.margin.bottom + table.headerRow.height;
     if (settings.pageBreak === 'avoid') {
         minTableBottomPos += table.height;
     }
-    let pageHeight = doc.internal.pageSize.height;
+    let pageHeight = Config.pageSize().height;
     if ((settings.pageBreak === 'always' && settings.startY !== false) ||
         (settings.startY !== false && minTableBottomPos > pageHeight)) {
         Config.getJspdfInstance().addPage();
-        Config.getJspdfInstance().autoTableCursor.y = settings.margin.top;
+        table.cursor.y = settings.margin.top;
     }
 
     Config.applyStyles(Config.getUserStyles());
@@ -59,8 +49,10 @@ API.autoTable = function (headers, data, userOptions = {}) {
     table.rows.forEach(function (row) {
         printFullRow(row, settings.drawRow, settings.drawCell);
     });
-
+    
     addContentHooks();
+    
+    doc.autoTablePreviousCursor = table.cursor;
 
     return this;
 };
@@ -69,8 +61,8 @@ API.autoTable = function (headers, data, userOptions = {}) {
  * Returns the Y position of the last drawn cell
  * @returns int
  */
-API.autoTableEndPosY = function () {
-    let cursor = Config.getJspdfInstance().autoTableCursor;
+jsPDF.API.autoTableEndPosY = function () {
+    let cursor = Config.getJspdfInstance().autoTablePreviousCursor;
     if (cursor && typeof cursor.y === 'number') {
         return cursor.y;
     } else {
@@ -78,7 +70,7 @@ API.autoTableEndPosY = function () {
     }
 };
 
-API.autoTableAddPageContent = function (hook) {
+jsPDF.API.autoTableAddPageContent = function (hook) {
     if (typeof hook !== "function") {
         console.error("A function has to be provided to autoTableAddPageContent, got: " + typeof hook);
         return;
@@ -93,7 +85,7 @@ API.autoTableAddPageContent = function (hook) {
  * @param includeHiddenElements If to include hidden rows and columns (defaults to false)
  * @returns Object Object with two properties, columns and rows
  */
-API.autoTableHtmlToJson = function (tableElem, includeHiddenElements) {
+jsPDF.API.autoTableHtmlToJson = function (tableElem, includeHiddenElements) {
     includeHiddenElements = includeHiddenElements || false;
     
     if (!tableElem || !(tableElem instanceof HTMLTableElement)) {
@@ -118,22 +110,23 @@ API.autoTableHtmlToJson = function (tableElem, includeHiddenElements) {
         let style = window.getComputedStyle(tableRow);
         if (includeHiddenElements || style.display !== 'none') {
             let rowData = [];
-            for (let j of Object.keys(columns)) {
-                let cell = tableRow.cells[j];
+            Object.keys(columns).forEach(function(key) {
+                let cell = tableRow.cells[key];
                 rowData.push(cell);
-            }
+            });
             rows.push(rowData);
         }
     }
 
-    return {columns: Object.values(columns), rows: rows, data: rows};
+    let values = Object.keys(columns).map(function(key) { return columns[key] });
+    return {columns: values, rows: rows, data: rows};
 };
 
 /**
  * Improved text function with halign and valign support
  * Inspiration from: http://stackoverflow.com/questions/28327510/align-text-right-using-jspdf/28433113#28433113
  */
-API.autoTableText = function (text, x, y, styles) {
+jsPDF.API.autoTableText = function (text, x, y, styles) {
     if (typeof x !== 'number' || typeof y !== 'number') {
         console.error('The x and y parameters are required. Missing for the text: ', text);
     }
