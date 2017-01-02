@@ -2,8 +2,13 @@
  * Ratio between font size and font height. The number comes from jspdf's source code
  */
 export let FONT_ROW_RATIO = 1.15;
+import {Table} from './models.js';
+
 let jspdfInstance = null;
 let userStyles = null;
+let settingsObject = null; // Default options merged with user options
+let table = null;
+let globalAddPageContent = function() {}; // Override with doc.autoTableAddPageContent
 
 /**
  * Styles for the themes (overriding the default styles)
@@ -98,6 +103,26 @@ export class Config {
     static getUserStyles() {
         return userStyles;
     }
+    
+    static createTable() {
+        table = new Table();
+    }
+    
+    static setPageContentHook(hook) {
+        globalAddPageContent = hook;
+    }
+    
+    static callPageContentHook(data) {
+        globalAddPageContent(data);
+    }
+    
+    static tableInstance() {
+        return table;
+    }
+    
+    static settings() {
+        return settingsObject;
+    }
 
     static initSettings(userOptions) {
         let settings = Object.assign({}, getDefaults(), userOptions);
@@ -142,7 +167,7 @@ export class Config {
         
         settings.margin = Config.marginOrPadding(settings.margin, 40);
 
-        return settings;
+        settingsObject = settings;
     }
     
     static marginOrPadding(value, defaultVal) {

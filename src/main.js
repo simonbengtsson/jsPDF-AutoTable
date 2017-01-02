@@ -1,14 +1,12 @@
 'use strict';
 
 import jsPDF from 'jspdf';
-import {Table, Row, Cell, Column} from './models.js';
+import {Row, Cell, Column} from './models.js';
 import {Config, getTheme, FONT_ROW_RATIO} from './config.js';
 import './polyfills.js';
 
-let cursor, // An object keeping track of the x and y position of the next table cell to draw
-    settings, // Default options merged with user options
-    globalAddPageContent = function() {}, // Override with doc.autoTableAddPageContent
-    table; // The current Table instance
+let settings;
+let table;
 
 /**
  * Create a table from a set of rows and columns.
@@ -21,11 +19,15 @@ jsPDF.API.autoTable = function (headers, data, userOptions = {}) {
     validateInput(headers, data, userOptions);
     Config.setJspdfInstance(this);
     let doc = Config.getJspdfInstance();
-    settings = Config.initSettings(userOptions);
+    Config.initSettings(userOptions);
+    settings = Config.settings();
+
+    Config.createTable();
+    table = Config.tableInstance();
 
     // Need a cursor y as it needs to be reset after each page (row.y can't do that)
     // Also prefer cursor to column.x as the cursor is easier to modify in the hooks
-    cursor = {
+    doc.autoTableCursor = {
         x: settings.margin.left,
         y: settings.startY === false ? settings.margin.top : settings.startY
     };
@@ -42,7 +44,7 @@ jsPDF.API.autoTable = function (headers, data, userOptions = {}) {
     if ((settings.pageBreak === 'always' && settings.startY !== false) ||
         (settings.startY !== false && minTableBottomPos > pageHeight)) {
         Config.getJspdfInstance().addPage();
-        cursor.y = settings.margin.top;
+        Config.getJspdfInstance().autoTableCursor.y = settings.margin.top;
     }
 
     Config.applyStyles(Config.getUserStyles());
@@ -55,10 +57,7 @@ jsPDF.API.autoTable = function (headers, data, userOptions = {}) {
         printFullRow(row, settings.drawRow, settings.drawCell);
     });
 
-    settings.addPageContent(hooksData());
-    Config.applyStyles(Config.getUserStyles());
-    globalAddPageContent(hooksData());
-    Config.applyStyles(Config.getUserStyles());
+    addContentHooks();
 
     return this;
 };
@@ -68,8 +67,8 @@ jsPDF.API.autoTable = function (headers, data, userOptions = {}) {
  * @returns int
  */
 jsPDF.API.autoTableEndPosY = function () {
-    let sameDocument = Config.getJspdfInstance() === this;
-    if (sameDocument && cursor && typeof cursor.y === 'number') {
+    let cursor = Config.getJspdfInstance().autoTableCursor;
+    if (cursor && typeof cursor.y === 'number') {
         return cursor.y;
     } else {
         return 0;
@@ -79,8 +78,9 @@ jsPDF.API.autoTableEndPosY = function () {
 jsPDF.API.autoTableAddPageContent = function (hook) {
     if (typeof hook !== "function") {
         console.error("A function has to be provided to autoTableAddPageContent, got: " + typeof hook)
+        return;
     }
-    globalAddPageContent = hook;
+    Config.setPageContentHook(hook);
 };
 
 /**
@@ -208,8 +208,6 @@ function validateInput(headers, data, options) {
  * @param inputData
  */
 function createModels(inputHeaders, inputData) {
-    table = new Table();
-
     let splitRegex = /\r\n|\r|\n/g;
     let theme = getTheme(settings.theme);
     
@@ -396,9 +394,10 @@ function distributeWidth(dynamicColumns, staticWidth, dynamicColumnsContentWidth
 }
 
 function addContentHooks() {
+    Config.applyStyles(Config.getUserStyles());
     settings.addPageContent(hooksData());
     Config.applyStyles(Config.getUserStyles());
-    globalAddPageContent(hooksData());
+    Config.callPageContentHook(hooksData());
     Config.applyStyles(Config.getUserStyles());
 }
 
@@ -408,7 +407,7 @@ function addPage() {
     addContentHooks();
     Config.getJspdfInstance().addPage();
     table.pageCount++;
-    cursor = {x: settings.margin.left, y: settings.margin.top};
+    Config.getJspdfInstance().autoTableCursor = {x: settings.margin.left, y: settings.margin.top};
     if (settings.showHeader === true || settings.showHeader === 'always') {
         printRow(table.headerRow, settings.drawHeaderRow, settings.drawHeaderCell);
     }
@@ -419,6 +418,7 @@ function addPage() {
  */
 function canFitOnPage(rowHeight) {
     let pageHeight = Config.getJspdfInstance().internal.pageSize.height;
+    let cursor = Config.getJspdfInstance().autoTableCursor;
     let pos = cursor.y + rowHeight + settings.margin.bottom;
     return pos < pageHeight;
 }
@@ -448,7 +448,7 @@ function printFullRow(row, drawRowHook, drawCellHook) {
                 let k = Config.getJspdfInstance().internal.scaleFactor;
                 let fontHeight = cell.styles.fontSize / k * FONT_ROW_RATIO;
                 let vpadding = 0 / k; // TODO
-                let remainingPageSpace = pageHeight - cursor.y - settings.margin.bottom;
+                let remainingPageSpace = pageHeight - Config.getJspdfInstance().autoTableCursor.y - settings.margin.bottom;
                 let remainingLineCount = Math.floor((remainingPageSpace - vpadding) / fontHeight);
  
                 if (Array.isArray(cell.text) && cell.text.length > remainingLineCount) {
@@ -492,6 +492,7 @@ function printFullRow(row, drawRowHook, drawCellHook) {
 }
 
 function printRow(row, drawRowHook, drawCellHook) {
+    let cursor = Config.getJspdfInstance().autoTableCursor;
     row.y = cursor.y;
 
     if (drawRowHook(row, hooksData({row: row})) === false) {
@@ -565,7 +566,7 @@ function hooksData(additionalData) {
         settings: settings,
         table: table,
         doc: Config.getJspdfInstance(),
-        cursor: cursor
+        cursor: Config.getJspdfInstance().autoTableCursor
     }, additionalData || {});
 }
 
