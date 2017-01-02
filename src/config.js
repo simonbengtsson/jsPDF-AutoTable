@@ -124,6 +124,16 @@ export class Config {
         return settingsObject;
     }
 
+    static hooksData(additionalData) {
+        return Object.assign({
+            pageCount: table.pageCount,
+            settings: settingsObject,
+            table: table,
+            doc: jspdfInstance,
+            cursor: jspdfInstance.autoTableCursor
+        }, additionalData || {});
+    }
+
     static initSettings(userOptions) {
         let settings = Object.assign({}, getDefaults(), userOptions);
 
