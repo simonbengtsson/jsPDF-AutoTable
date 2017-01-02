@@ -52,7 +52,7 @@ export function calculateWidths(doc, pageWidth) {
 
     // Row height, table height and text overflow
     let all = table.rows.concat(table.headerRow);
-    all.forEach(function (row, i) {
+    all.forEach(function (row) {
         let maxCellHeight = 0;
         table.columns.forEach(function (col) {
             let cell = row.cells[col.dataKey];

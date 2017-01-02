@@ -110,7 +110,7 @@ export function printRow(row, drawRowHook, drawCellHook) {
             cell.textPos.x = cell.x + cell.styles.cellPadding.left;
         }
 
-        let data = Config.hooksData({column: column, row: row});
+        let data = Config.hooksData({column: column, row: row, addPage: addPage});
         if (drawCellHook(cell, data) !== false) {
             let fillStyle = getFillStyle(cell.styles);
             if (fillStyle) {

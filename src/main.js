@@ -2,11 +2,14 @@
 
 import jsPDF from 'jspdf';
 import {Config, FONT_ROW_RATIO} from './config.js';
-import {addContentHooks, addPage} from './common.js';
+import {addContentHooks} from './common.js';
 import {printRow, printFullRow} from './painter.js';
 import {calculateWidths} from './calculator.js';
 import {createModels, validateInput} from './creator.js';
 import './polyfills.js';
+
+//noinspection JSUnresolvedVariable
+let API = jsPDF.API;
 
 /**
  * Create a table from a set of rows and columns.
@@ -15,7 +18,7 @@ import './polyfills.js';
  * @param {Object[][]|String[][]} data Either as an array of objects or array of strings
  * @param {Object} [userOptions={}] Options that will override the default ones
  */
-jsPDF.API.autoTable = function (headers, data, userOptions = {}) {
+API.autoTable = function (headers, data, userOptions = {}) {
     validateInput(headers, data, userOptions);
     Config.setJspdfInstance(this);
     let doc = Config.getJspdfInstance();
@@ -66,7 +69,7 @@ jsPDF.API.autoTable = function (headers, data, userOptions = {}) {
  * Returns the Y position of the last drawn cell
  * @returns int
  */
-jsPDF.API.autoTableEndPosY = function () {
+API.autoTableEndPosY = function () {
     let cursor = Config.getJspdfInstance().autoTableCursor;
     if (cursor && typeof cursor.y === 'number') {
         return cursor.y;
@@ -75,9 +78,9 @@ jsPDF.API.autoTableEndPosY = function () {
     }
 };
 
-jsPDF.API.autoTableAddPageContent = function (hook) {
+API.autoTableAddPageContent = function (hook) {
     if (typeof hook !== "function") {
-        console.error("A function has to be provided to autoTableAddPageContent, got: " + typeof hook)
+        console.error("A function has to be provided to autoTableAddPageContent, got: " + typeof hook);
         return;
     }
     Config.setPageContentHook(hook);
@@ -90,7 +93,7 @@ jsPDF.API.autoTableAddPageContent = function (hook) {
  * @param includeHiddenElements If to include hidden rows and columns (defaults to false)
  * @returns Object Object with two properties, columns and rows
  */
-jsPDF.API.autoTableHtmlToJson = function (tableElem, includeHiddenElements) {
+API.autoTableHtmlToJson = function (tableElem, includeHiddenElements) {
     includeHiddenElements = includeHiddenElements || false;
     
     if (!tableElem || !(tableElem instanceof HTMLTableElement)) {
@@ -127,17 +130,10 @@ jsPDF.API.autoTableHtmlToJson = function (tableElem, includeHiddenElements) {
 };
 
 /**
- * Add a new page including an autotable header etc. Use this function in the hooks.
- */
-jsPDF.API.autoTableAddPage = function () {
-    addPage();
-};
-
-/**
  * Improved text function with halign and valign support
  * Inspiration from: http://stackoverflow.com/questions/28327510/align-text-right-using-jspdf/28433113#28433113
  */
-jsPDF.API.autoTableText = function (text, x, y, styles) {
+API.autoTableText = function (text, x, y, styles) {
     if (typeof x !== 'number' || typeof y !== 'number') {
         console.error('The x and y parameters are required. Missing for the text: ', text);
     }

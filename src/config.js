@@ -113,7 +113,9 @@ export class Config {
     }
     
     static callPageContentHook(data) {
-        globalAddPageContent(data);
+        if (typeof globalAddPageContent === 'function') {
+            globalAddPageContent(data);
+        }
     }
     
     static tableInstance() {
@@ -204,11 +206,8 @@ export class Config {
 
     static styles(styles) {
         let defStyles = defaultStyles();
-        styles.unshift(defStyles);
-        styles.unshift({});
-        styles = Object.assign.apply(this, styles);
         styles.cellPadding = Config.marginOrPadding(styles.cellPadding, defStyles.cellPadding);
-        return styles;
+        return Object.assign({}, defStyles, ...styles);
     }
 
     static applyStyles(styles) {
