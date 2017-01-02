@@ -5,7 +5,7 @@ import {Table, Row, Cell, Column} from './models.js';
 import {Config, getTheme, FONT_ROW_RATIO} from './config.js';
 import './polyfills.js';
 
-var cursor, // An object keeping track of the x and y position of the next table cell to draw
+let cursor, // An object keeping track of the x and y position of the next table cell to draw
     settings, // Default options merged with user options
     globalAddPageContent = function() {}, // Override with doc.autoTableAddPageContent
     table; // The current Table instance
@@ -20,7 +20,7 @@ var cursor, // An object keeping track of the x and y position of the next table
 jsPDF.API.autoTable = function (headers, data, userOptions = {}) {
     validateInput(headers, data, userOptions);
     Config.setJspdfInstance(this);
-    var doc = Config.getJspdfInstance();
+    let doc = Config.getJspdfInstance();
     settings = Config.initSettings(userOptions);
 
     // Need a cursor y as it needs to be reset after each page (row.y can't do that)
@@ -34,11 +34,11 @@ jsPDF.API.autoTable = function (headers, data, userOptions = {}) {
     createModels(headers, data);
     calculateWidths(this, doc.internal.pageSize.width);
 
-    var minTableBottomPos = settings.startY + settings.margin.bottom + table.headerRow.height;
+    let minTableBottomPos = settings.startY + settings.margin.bottom + table.headerRow.height;
     if (settings.pageBreak === 'avoid') {
         minTableBottomPos += table.height;
     }
-    var pageHeight = doc.internal.pageSize.height;
+    let pageHeight = doc.internal.pageSize.height;
     if ((settings.pageBreak === 'always' && settings.startY !== false) ||
         (settings.startY !== false && minTableBottomPos > pageHeight)) {
         Config.getJspdfInstance().addPage();
@@ -68,7 +68,7 @@ jsPDF.API.autoTable = function (headers, data, userOptions = {}) {
  * @returns int
  */
 jsPDF.API.autoTableEndPosY = function () {
-    var sameDocument = Config.getJspdfInstance() === this;
+    let sameDocument = Config.getJspdfInstance() === this;
     if (sameDocument && cursor && typeof cursor.y === 'number') {
         return cursor.y;
     } else {
@@ -98,19 +98,19 @@ jsPDF.API.autoTableHtmlToJson = function (tableElem, includeHiddenElements) {
         return null;
     }
     
-    var columns = {}, rows = [];
+    let columns = {}, rows = [];
 
-    var header = tableElem.rows[0];
+    let header = tableElem.rows[0];
 
-    for (var k = 0; k < header.cells.length; k++) {
-        let cell = header.cells[k];
+    for (let i = 0; i < header.cells.length; i++) {
+        let cell = header.cells[i];
         let style = window.getComputedStyle(cell);
         if (includeHiddenElements || style.display !== 'none') {
-            columns[k] = cell;
+            columns[i] = cell;
         }
     }
 
-    for (var i = 1; i < tableElem.rows.length; i++) {
+    for (let i = 1; i < tableElem.rows.length; i++) {
         let tableRow = tableElem.rows[i];
         let style = window.getComputedStyle(tableRow);
         if (includeHiddenElements || style.display !== 'none') {
@@ -141,12 +141,12 @@ jsPDF.API.autoTableText = function (text, x, y, styles) {
     if (typeof x !== 'number' || typeof y !== 'number') {
         console.error('The x and y parameters are required. Missing for the text: ', text);
     }
-    var k = this.internal.scaleFactor;
-    var fontSize = this.internal.getFontSize() / k;
+    let k = this.internal.scaleFactor;
+    let fontSize = this.internal.getFontSize() / k;
 
-    var splitRegex = /\r\n|\r|\n/g;
-    var splittedText = null;
-    var lineCount = 1;
+    let splitRegex = /\r\n|\r|\n/g;
+    let splittedText = null;
+    let lineCount = 1;
     if (styles.valign === 'middle' || styles.valign === 'bottom' || styles.halign === 'center' || styles.halign === 'right') {
         splittedText = typeof text === 'string' ? text.split(splitRegex) : text;
 
@@ -162,12 +162,12 @@ jsPDF.API.autoTableText = function (text, x, y, styles) {
         y -= lineCount * fontSize * FONT_ROW_RATIO;
 
     if (styles.halign === 'center' || styles.halign === 'right') {
-        var alignSize = fontSize;
+        let alignSize = fontSize;
         if (styles.halign === 'center')
             alignSize *= 0.5;
 
         if (lineCount >= 1) {
-            for (var iLine = 0; iLine < splittedText.length; iLine++) {
+            for (let iLine = 0; iLine < splittedText.length; iLine++) {
                 this.text(splittedText[iLine], x - this.getStringUnitWidth(splittedText[iLine]) * alignSize, y);
                 y += fontSize;
             }
@@ -210,17 +210,17 @@ function validateInput(headers, data, options) {
 function createModels(inputHeaders, inputData) {
     table = new Table();
 
-    var splitRegex = /\r\n|\r|\n/g;
-    var theme = getTheme(settings.theme);
+    let splitRegex = /\r\n|\r|\n/g;
+    let theme = getTheme(settings.theme);
     
     // Header row and columns
-    var headerRow = new Row(inputHeaders);
+    let headerRow = new Row(inputHeaders);
     headerRow.heightStyle = Config.styles([theme.table, theme.header, settings.styles, settings.headerStyles]).rowHeight;
     headerRow.index = -1;
 
     // Columns and header row
     inputHeaders.forEach(function (rawColumn, index) {
-        var dataKey = index;
+        let dataKey = index;
         if (typeof rawColumn.dataKey !== 'undefined') {
             dataKey = rawColumn.dataKey;
         } else if (typeof rawColumn.key !== 'undefined') {
@@ -232,18 +232,18 @@ function createModels(inputHeaders, inputData) {
             console.error("Use of deprecated option: column.width, use column.styles.columnWidth instead.");
         }
 
-        var col = new Column(dataKey, index);
+        let col = new Column(dataKey, index);
         col.widthStyle = Config.styles([theme.table, theme.header, settings.styles, settings.columnStyles[col.dataKey] || {}]).columnWidth;
         table.columns.push(col);
 
-        var cell = new Cell();
+        let cell = new Cell();
         cell.raw = rawColumn;
         cell.styles = Config.styles([theme.table, theme.header, settings.styles, settings.headerStyles]);
 
         if (cell.raw instanceof HTMLElement) {
             cell.text = cell.raw.textContent.trim();
         } else {
-            var text = typeof cell.raw === 'object' ? cell.raw.title : cell.raw;
+            let text = typeof cell.raw === 'object' ? cell.raw.title : cell.raw;
             // Stringify 0 and false, but not undefined
             cell.text = typeof cell.raw !== 'undefined' ? '' + text : '';
         }
@@ -256,11 +256,11 @@ function createModels(inputHeaders, inputData) {
 
     // Rows och cells
     inputData.forEach(function (rawRow, i) {
-        var row = new Row(rawRow, i);
+        let row = new Row(rawRow, i);
         let rowStyles = i % 2 === 0 ? Object.assign({}, theme.alternateRow, settings.alternateRowStyles) : {};
         row.heightStyle = Config.styles([theme.table, theme.body, settings.styles, settings.bodyStyles, rowStyles]).rowHeight;
         table.columns.forEach(function (column) {
-            var cell = new Cell();
+            let cell = new Cell();
             cell.raw = rawRow[column.dataKey];
             let colStyles = settings.columnStyles[column.dataKey] || {};
             cell.styles = Config.styles([theme.table, theme.body, settings.styles, settings.bodyStyles, rowStyles, colStyles]);
@@ -288,7 +288,7 @@ function calculateWidths(doc, pageWidth) {
     // Column and table content width
     let fixedWidth = 0;
     let autoWidth = 0;
-    var dynamicColumns = [];
+    let dynamicColumns = [];
     table.columns.forEach(function (column) {
         column.contentWidth = 0;
         table.rows.concat(table.headerRow).forEach(function (row) {
@@ -327,14 +327,14 @@ function calculateWidths(doc, pageWidth) {
     distributeWidth(dynamicColumns, fixedWidth, autoWidth, 0);
 
     // Row height, table height and text overflow
-    var all = table.rows.concat(table.headerRow);
+    let all = table.rows.concat(table.headerRow);
     all.forEach(function (row, i) {
         let maxCellHeight = 0;
         table.columns.forEach(function (col) {
             let cell = row.cells[col.dataKey];
             
             Config.applyStyles(cell.styles);
-            var textSpace = col.width - cell.styles.cellPadding.left - cell.styles.cellPadding.right;
+            let textSpace = col.width - cell.styles.cellPadding.left - cell.styles.cellPadding.right;
             if (cell.styles.overflow === 'linebreak') {
                 // Add one pt to textSpace to fix rounding error
                 try {
@@ -376,12 +376,12 @@ function calculateWidths(doc, pageWidth) {
 }
 
 function distributeWidth(dynamicColumns, staticWidth, dynamicColumnsContentWidth, fairWidth) {
-    var extraWidth = table.width - staticWidth - dynamicColumnsContentWidth;
-    for (var i = 0; i < dynamicColumns.length; i++) {
-        var col = dynamicColumns[i];
-        var ratio = col.contentWidth / dynamicColumnsContentWidth;
+    let extraWidth = table.width - staticWidth - dynamicColumnsContentWidth;
+    for (let i = 0; i < dynamicColumns.length; i++) {
+        let col = dynamicColumns[i];
+        let ratio = col.contentWidth / dynamicColumnsContentWidth;
         // A column turned out to be none dynamic, start over recursively
-        var isNoneDynamic = col.contentWidth + extraWidth * ratio < fairWidth;
+        let isNoneDynamic = col.contentWidth + extraWidth * ratio < fairWidth;
         if (extraWidth < 0 && isNoneDynamic) {
             dynamicColumns.splice(i, 1);
             dynamicColumnsContentWidth -= col.contentWidth;
@@ -418,14 +418,14 @@ function addPage() {
  * Add a new page if cursor is at the end of page
  */
 function canFitOnPage(rowHeight) {
-    var pageHeight = Config.getJspdfInstance().internal.pageSize.height;
-    var pos = cursor.y + rowHeight + settings.margin.bottom;
+    let pageHeight = Config.getJspdfInstance().internal.pageSize.height;
+    let pos = cursor.y + rowHeight + settings.margin.bottom;
     return pos < pageHeight;
 }
 
 function printFullRow(row, drawRowHook, drawCellHook) {
-    var remainingRowHeight = 0;
-    var remainingTexts = {};
+    let remainingRowHeight = 0;
+    let remainingTexts = {};
     
     if (!canFitOnPage(row.height)) {
         // Simply move small rows to new page to avoid splitting
@@ -438,29 +438,29 @@ function printFullRow(row, drawRowHook, drawCellHook) {
             
             row.spansMultiplePages = true;
             
-            var pageHeight = Config.getJspdfInstance().internal.pageSize.height;
-            var maxCellHeight = 0;
+            let pageHeight = Config.getJspdfInstance().internal.pageSize.height;
+            let maxCellHeight = 0;
             
             for (let j = 0; j < table.columns.length; j++) {
                 let col = table.columns[j];
                 let cell = row.cells[col.dataKey];
 
                 let k = Config.getJspdfInstance().internal.scaleFactor;
-                var fontHeight = cell.styles.fontSize / k * FONT_ROW_RATIO;
+                let fontHeight = cell.styles.fontSize / k * FONT_ROW_RATIO;
                 let vpadding = 0 / k; // TODO
-                var remainingPageSpace = pageHeight - cursor.y - settings.margin.bottom;
-                var remainingLineCount = Math.floor((remainingPageSpace - vpadding) / fontHeight);
+                let remainingPageSpace = pageHeight - cursor.y - settings.margin.bottom;
+                let remainingLineCount = Math.floor((remainingPageSpace - vpadding) / fontHeight);
  
                 if (Array.isArray(cell.text) && cell.text.length > remainingLineCount) {
-                    var remainingLines = cell.text.splice(remainingLineCount, cell.text.length);
+                    let remainingLines = cell.text.splice(remainingLineCount, cell.text.length);
                     remainingTexts[col.dataKey] = remainingLines;
                     
-                    var rowHeight1 = cell.text.length * fontHeight + vpadding;
+                    let rowHeight1 = cell.text.length * fontHeight + vpadding;
                     if (rowHeight1 > maxCellHeight) {
                         maxCellHeight = rowHeight1;
                     }
 
-                    var rowHeight2 = remainingLines.length * fontHeight + vpadding;
+                    let rowHeight2 = remainingLines.length * fontHeight + vpadding;
                     if (rowHeight2 > remainingRowHeight) {
                         remainingRowHeight = rowHeight2;
                     }
@@ -499,9 +499,9 @@ function printRow(row, drawRowHook, drawCellHook) {
     }
 
     cursor.x = settings.margin.left;
-    for (var i = 0; i < table.columns.length; i++) {
-        var column = table.columns[i];
-        var cell = row.cells[column.dataKey];
+    for (let i = 0; i < table.columns.length; i++) {
+        let column = table.columns[i];
+        let cell = row.cells[column.dataKey];
         if(!cell) {
             continue;
         }
@@ -528,9 +528,9 @@ function printRow(row, drawRowHook, drawCellHook) {
             cell.textPos.x = cell.x + cell.styles.cellPadding.left;
         }
 
-        var data = hooksData({column: column, row: row});
+        let data = hooksData({column: column, row: row});
         if (drawCellHook(cell, data) !== false) {
-            var fillStyle = getFillStyle(cell.styles);
+            let fillStyle = getFillStyle(cell.styles);
             if (fillStyle) {
                 Config.getJspdfInstance().rect(cell.x, cell.y, cell.width, cell.height, fillStyle);
             }
@@ -546,8 +546,8 @@ function printRow(row, drawRowHook, drawCellHook) {
 }
 
 function getFillStyle(styles) {
-    var drawLine = styles.lineWidth > 0;
-    var drawBackground = styles.fillColor !== false;
+    let drawLine = styles.lineWidth > 0;
+    let drawBackground = styles.fillColor !== false;
     if (drawLine && drawBackground) {
         return 'DF'; // Fill then stroke
     } else if (drawLine) {

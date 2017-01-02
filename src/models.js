@@ -1,4 +1,4 @@
-export var table = {};
+export let table = {};
 
 export class Table {
     constructor() {

@@ -1,16 +1,16 @@
 /**
  * Ratio between font size and font height. The number comes from jspdf's source code
  */
-export var FONT_ROW_RATIO = 1.15;
-var jspdfInstance = null;
-var userStyles = null;
+export let FONT_ROW_RATIO = 1.15;
+let jspdfInstance = null;
+let userStyles = null;
 
 /**
  * Styles for the themes (overriding the default styles)
  */
-export var getTheme = function(name) {
+export let getTheme = function(name) {
     let scaleFactor = Config.getJspdfInstance().internal.scaleFactor;
-    var themes = {
+    let themes = {
         'striped': {
             table: {fillColor: 255, textColor: 80, fontStyle: 'normal'},
             header: {textColor: 255, fillColor: [41, 128, 185], rowHeight: 23 / scaleFactor, fontStyle: 'bold'},
@@ -100,7 +100,7 @@ export class Config {
     }
 
     static initSettings(userOptions) {
-        var settings = Object.assign({}, getDefaults(), userOptions);
+        let settings = Object.assign({}, getDefaults(), userOptions);
 
         // Options
         if (typeof settings.extendWidth !== 'undefined') {
@@ -130,8 +130,8 @@ export class Config {
         }
 
         [['padding', 'cellPadding'], ['lineHeight', 'rowHeight'], 'fontSize', 'overflow'].forEach(function (o) {
-            var deprecatedOption = typeof o === 'string' ? o : o[0];
-            var style = typeof o === 'string' ? o : o[1];
+            let deprecatedOption = typeof o === 'string' ? o : o[0];
+            let style = typeof o === 'string' ? o : o[1];
             if (typeof settings[deprecatedOption] !== 'undefined') {
                 if (typeof settings.styles[style] === 'undefined') {
                     settings.styles[style] = settings[deprecatedOption];
@@ -177,8 +177,8 @@ export class Config {
     }
 
     static applyStyles(styles) {
-        var doc = Config.getJspdfInstance();
-        var styleModifiers = {
+        let doc = Config.getJspdfInstance();
+        let styleModifiers = {
             fillColor: doc.setFillColor,
             textColor: doc.setTextColor,
             fontStyle: doc.setFontStyle,
@@ -188,8 +188,8 @@ export class Config {
             fontSize: doc.setFontSize
         };
         Object.keys(styleModifiers).forEach(function (name) {
-            var style = styles[name];
-            var modifier = styleModifiers[name];
+            let style = styles[name];
+            let modifier = styleModifiers[name];
             if (typeof style !== 'undefined') {
                 if (Array.isArray(style)) {
                     modifier.apply(this, style);
