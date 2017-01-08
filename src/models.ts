@@ -47,7 +47,7 @@ export class Row {
 export class Cell {
     raw;
     styles = {};
-    text = '';
+    text: string|string[] = '';
     contentWidth = 0;
     textPos = {};
     height = 0;

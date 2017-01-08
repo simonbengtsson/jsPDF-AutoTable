@@ -1,5 +1,8 @@
-import {Row, Cell, Column} from './models.js';
-import {Config, getTheme} from './config.js';
+import {Row, Cell, Column} from './models';
+import {Config, getTheme} from './config';
+
+declare function require(path: string): any;
+var assign = require('object-assign');
 
 export function validateInput(headers, data, options) {
     if (!headers || typeof headers !== 'object') {
@@ -29,12 +32,12 @@ export function validateInput(headers, data, options) {
  */
 export function createModels(inputHeaders, inputData) {
     let splitRegex = /\r\n|\r|\n/g;
-    let settings = Config.settings();
     let table = Config.tableInstance();
+    let settings = table.settings;
     let theme = getTheme(settings.theme);
 
     // Header row and columns
-    let headerRow = new Row(inputHeaders);
+    let headerRow = new Row(inputHeaders, -1);
     headerRow.heightStyle = Config.styles([theme.table, theme.header, settings.styles, settings.headerStyles]).rowHeight;
     headerRow.index = -1;
 
@@ -48,16 +51,11 @@ export function createModels(inputHeaders, inputData) {
             dataKey = rawColumn.key; // deprecated since 2.x
         }
 
-        if (!(rawColumn instanceof HTMLElement) && typeof rawColumn.width !== 'undefined') {
-            console.error("Use of deprecated option: column.width, use column.styles.columnWidth instead.");
-        }
-
         let col = new Column(dataKey, index);
         col.widthStyle = Config.styles([theme.table, theme.header, settings.styles, settings.columnStyles[col.dataKey] || {}]).columnWidth;
         table.columns.push(col);
 
-        let cell = new Cell();
-        cell.raw = rawColumn;
+        let cell = new Cell(rawColumn);
         cell.styles = Config.styles([theme.table, theme.header, settings.styles, settings.headerStyles]);
 
         if (cell.raw instanceof HTMLElement) {
@@ -77,11 +75,10 @@ export function createModels(inputHeaders, inputData) {
     // Rows och cells
     inputData.forEach(function (rawRow, i) {
         let row = new Row(rawRow, i);
-        let rowStyles = i % 2 === 0 ? Object.assign({}, theme.alternateRow, settings.alternateRowStyles) : {};
+        let rowStyles = i % 2 === 0 ? assign({}, theme.alternateRow, settings.alternateRowStyles) : {};
         row.heightStyle = Config.styles([theme.table, theme.body, settings.styles, settings.bodyStyles, rowStyles]).rowHeight;
         table.columns.forEach(function (column) {
-            let cell = new Cell();
-            cell.raw = rawRow[column.dataKey];
+            let cell = new Cell(rawRow[column.dataKey]);
             let colStyles = settings.columnStyles[column.dataKey] || {};
             cell.styles = Config.styles([theme.table, theme.body, settings.styles, settings.bodyStyles, rowStyles, colStyles]);
 

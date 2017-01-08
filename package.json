@@ -6,22 +6,24 @@
   "directories": {
     "example": "examples"
   },
-  "dependencies": {
-    "jspdf": "^1.3.2"
+  "peerDependencies": {
+    "jspdf": ">=1.3.0"
   },
   "devDependencies": {
-    "babel-preset-es2015-rollup": "^1.1.1",
-    "budo": "^9.3.0",
-    "core-js": "^2.4.1",
-    "nodemon": "^1.8.1",
-    "rollup": "^0.34.1",
-    "rollup-plugin-babel": "^2.6.1",
-    "rollup-plugin-commonjs": "^3.1.0",
-    "rollup-plugin-node-resolve": "^1.7.1",
-    "uglify-js": "^2.7.0"
+    "awesome-typescript-loader": "^3.0.0-beta.17",
+    "jspdf": "^1.3.2",
+    "mocha": "^3.2.0",
+    "mock-browser": "^0.92.12",
+    "object-assign": "^4.1.0",
+    "object.entries": "^1.0.4",
+    "ts-loader": "^1.3.3",
+    "ts-node": "^2.0.0",
+    "typescript": "^2.1.4",
+    "webpack": "^2.2.0-rc.3",
+    "webpack-dev-server": "^2.2.0-rc.0"
   },
   "scripts": {
-    "start": "nodemon --watch src build.js develop & budo -d examples",
+    "start": "webpack-dev-server --open",
     "build": "node build.js develop",
     "examples": "cd examples/browserify && npm install && npm run build && cd ../webpack && npm install && npm run build && cd ../../",
     "dist": "npm run examples && node build.js build",
@@ -29,7 +31,8 @@
     "hosted": "git checkout gh-pages && npm run build && git add -A && git commit -m \"Updated to latest version\" && git push && git checkout master && git clean -f -d",
     "deploy": "git push && git push --tags && npm publish && npm run hosted",
     "clean": "git checkout dist examples/libs/jspdf.plugin.autotable.src.js",
-    "examplesUpdate": "cd examples/webpack && npm update && npm run build && cd ../browserify && npm update && npm run build"
+    "examplesUpdate": "cd examples/webpack && npm update && npm run build && cd ../browserify && npm update && npm run build",
+    "test": "mocha --compilers ts:ts-node/register test/*.js || true"
   },
   "repository": {
     "type": "git",

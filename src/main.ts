@@ -1,12 +1,11 @@
 'use strict';
 
-import jsPDF from 'jspdf';
-import {Config, FONT_ROW_RATIO} from './config.js';
-import {addContentHooks} from './common.js';
-import {printRow, printFullRow} from './painter.js';
-import {calculateWidths} from './calculator.js';
-import {createModels, validateInput} from './creator.js';
-import './polyfills.js';
+import * as jsPDF from 'jspdf';
+import {Config, FONT_ROW_RATIO} from './config';
+import {addContentHooks} from './common';
+import {printRow, printFullRow} from './painter';
+import {calculateWidths} from './calculator';
+import {createModels, validateInput} from './creator';
 
 /**
  * Create a table from a set of rows and columns.

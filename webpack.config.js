@@ -1,0 +1,60 @@
+var webpack = require("webpack");
+var fs = require("fs");
+var path = require('path');
+
+fs.writeFileSync('./examples/libs/jspdf.debug.js', fs.readFileSync('./node_modules/jspdf/dist/jspdf.debug.js'));
+
+var newVersion = require('./package.json').version;
+var readme = "" + fs.readFileSync('./README.md');
+var newVersionStr = "cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/" + newVersion + "/jspdf.plugin.autotable.js";
+readme = readme.replace(/cdnjs\.cloudflare\.com\/ajax\/libs\/jspdf-autotable\/.*\/jspdf\.plugin\.autotable\.js/, newVersionStr);
+fs.writeFileSync('./README.md', readme);
+
+module.exports = {
+    entry: {
+        "dist/jspdf.plugin.autotable": "./src/main.ts",
+        "examples/libs/jspdf.plugin.autotable": "./src/main.ts",
+        "dist/jspdf.plugin.autotable.min": "./src/main.ts",
+    },
+    resolve: {
+        extensions: [".ts", ".js"]
+    },
+    output: {
+        path: path.join(__dirname, './'),
+        filename: "[name].js",
+        libraryTarget: "umd"
+    },
+    module: {
+        loaders: [
+            { test: /\.ts$/, loader: "ts-loader" }
+        ]
+    },
+    externals: {
+        "jspdf": {
+            commonjs: "jspdf",
+            commonjs2: "jspdf",
+            amd: "jspdf",
+            root: "jsPDF"
+        }
+    },
+    devServer: {
+        contentBase: "./examples",
+        compress: true
+    },
+    plugins: [
+        //new ExtractTextPlugin("bundle.css"),
+        new webpack.BannerPlugin(""
+            + "jsPDF AutoTable plugin v" + newVersion + "\n"
+            + "Copyright (c) 2014 Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable \n"
+            + "\n"
+            + "Licensed under the MIT License.\n"
+            + "http://opensource.org/licenses/mit-license\n"
+            + "\n"
+            + "*/if (typeof window === 'object') window.jspdfAutoTableVersion = '" + newVersion + "';/*"
+            + ""),
+        new webpack.optimize.UglifyJsPlugin({
+            include: /\.min\.js$/,
+            minimize: true
+        })
+    ]
+};

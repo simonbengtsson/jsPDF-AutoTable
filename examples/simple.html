@@ -4,13 +4,22 @@
     <meta charset="UTF-8">
     <title>Simple example</title>
 </head>
+<style>
+    html {
+        box-sizing: border-box;
+    }
+    
+    *, *:before, *:after {
+        box-sizing: inherit;
+    }
+</style>
 <body>
 <button onclick="generate()">Generate pdf</button>
 
-<script src="libs/jspdf.min.js"></script>
-<script src="libs/jspdf.plugin.autotable.src.js"></script>
+<script src="libs/jspdf.debug.js"></script>
+<script src="libs/jspdf.plugin.autotable.js"></script>
 
-<table id="table" style="display: none;">
+<table id="table">
     <thead>
     <tr>
         <th>ID</th>

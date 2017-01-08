@@ -1,5 +1,5 @@
-import {Config, FONT_ROW_RATIO} from './config.js';
-import {addPage} from './common.js';
+import {Config, FONT_ROW_RATIO} from './config';
+import {addPage} from './common';
 
 export function printFullRow(row, drawRowHook, drawCellHook) {
     let remainingRowHeight = 0;
@@ -25,10 +25,10 @@ export function printFullRow(row, drawRowHook, drawCellHook) {
                 let col = table.columns[j];
                 let cell = row.cells[col.dataKey];
 
-                let k = Config.getJspdfInstance().internal.scaleFactor;
+                let k = Config.scaleFactor();
                 let fontHeight = cell.styles.fontSize / k * FONT_ROW_RATIO;
                 let vpadding = 0 / k; // TODO
-                let remainingPageSpace = pageHeight - Config.getJspdfInstance().autoTableCursor.y - Config.settings().margin.bottom;
+                let remainingPageSpace = pageHeight - table.cursor.y - table.margin('bottom');
                 let remainingLineCount = Math.floor((remainingPageSpace - vpadding) / fontHeight);
 
                 if (Array.isArray(cell.text) && cell.text.length > remainingLineCount) {
@@ -73,14 +73,13 @@ export function printFullRow(row, drawRowHook, drawCellHook) {
 
 export function printRow(row, drawRowHook, drawCellHook) {
     let table = Config.tableInstance();
-    let cursor = Config.getJspdfInstance().autoTableCursor;
-    row.y = cursor.y;
+    row.y = table.cursor.y;
 
-    if (drawRowHook(row, Config.hooksData({row: row})) === false) {
+    if (drawRowHook(row, Config.hooksData({row: row, addPage: addPage})) === false) {
         return;
     }
 
-    cursor.x = Config.settings().margin.left;
+    table.cursor.x = table.margin('left');
     for (let i = 0; i < table.columns.length; i++) {
         let column = table.columns[i];
         let cell = row.cells[column.dataKey];
@@ -89,17 +88,17 @@ export function printRow(row, drawRowHook, drawCellHook) {
         }
         Config.applyStyles(cell.styles);
 
-        cell.x = cursor.x;
-        cell.y = cursor.y;
+        cell.x = table.cursor.x;
+        cell.y = table.cursor.y;
         cell.height = row.height;
         cell.width = column.width;
 
         if (cell.styles.valign === 'top') {
-            cell.textPos.y = cursor.y + cell.styles.cellPadding.top;
+            cell.textPos.y = table.cursor.y + cell.styles.cellPadding.top;
         } else if (cell.styles.valign === 'bottom') {
-            cell.textPos.y = cursor.y + row.height - cell.styles.cellPadding.bottom;
+            cell.textPos.y = table.cursor.y + row.height - cell.styles.cellPadding.bottom;
         } else {
-            cell.textPos.y = cursor.y + row.height / 2;
+            cell.textPos.y = table.cursor.y + row.height / 2;
         }
 
         if (cell.styles.halign === 'right') {
@@ -121,17 +120,16 @@ export function printRow(row, drawRowHook, drawCellHook) {
                 valign: cell.styles.valign
             });
         }
-        cursor.x += cell.width;
+        table.cursor.x += cell.width;
     }
 
-    cursor.y += row.height;
+    table.cursor.y += row.height;
 }
 
 function canFitOnPage(rowHeight) {
-    let pageHeight = Config.getJspdfInstance().internal.pageSize.height;
-    let cursor = Config.getJspdfInstance().autoTableCursor;
-    let pos = cursor.y + rowHeight + Config.settings().margin.bottom;
-    return pos < pageHeight;
+    let table = Config.tableInstance();
+    let pos = rowHeight + table.cursor.y + table.margin('bottom');
+    return pos < Config.pageSize().height;
 }
 
 function getFillStyle(styles) {

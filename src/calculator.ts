@@ -1,5 +1,5 @@
-import {Config, FONT_ROW_RATIO} from './config.js';
-import {getStringWidth, ellipsize} from './common.js';
+import {Config, FONT_ROW_RATIO} from './config';
+import {getStringWidth, ellipsize} from './common';
 
 /**
  * Calculate the column widths
@@ -39,13 +39,12 @@ export function calculateWidths(doc, pageWidth) {
         table.preferredWidth += column.preferredWidth;
     });
 
-    let settings = Config.settings();
-    if (typeof settings.tableWidth === 'number') {
-        table.width = settings.tableWidth;
-    } else if (settings.tableWidth === 'wrap') {
+    if (typeof table.settings.tableWidth === 'number') {
+        table.width = table.settings.tableWidth;
+    } else if (table.settings.tableWidth === 'wrap') {
         table.width = table.preferredWidth;
     } else {
-        table.width = pageWidth - settings.margin.left - settings.margin.right;
+        table.width = pageWidth - table.margin('left') - table.margin('right');
     }
 
     distributeWidth(dynamicColumns, fixedWidth, autoWidth, 0);
@@ -82,7 +81,7 @@ export function calculateWidths(doc, pageWidth) {
                 console.error("Unrecognized overflow type: " + cell.styles.overflow);
             }
 
-            let k = Config.getJspdfInstance().internal.scaleFactor;
+            let k = Config.scaleFactor();
             let lineCount = Array.isArray(cell.text) ? cell.text.length : 1;
             let fontHeight = cell.styles.fontSize / k * FONT_ROW_RATIO;
             let vpadding = cell.styles.cellPadding.top + cell.styles.cellPadding.bottom;

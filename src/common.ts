@@ -1,8 +1,8 @@
-import {Config} from './config.js';
-import {printRow} from './painter.js';
+import {Config} from './config';
+import {printRow} from './painter';
 
 export function getStringWidth(text, styles) {
-    let k = Config.getJspdfInstance().internal.scaleFactor;
+    let k = Config.scaleFactor();
     let fontSize = styles.fontSize / k;
     Config.applyStyles(styles);
     text = Array.isArray(text) ? text : [text];
@@ -21,8 +21,7 @@ export function getStringWidth(text, styles) {
 /**
  * Ellipsize the text to fit in the width
  */
-export function ellipsize(text, width, styles, ellipsizeStr) {
-    ellipsizeStr = typeof  ellipsizeStr !== 'undefined' ? ellipsizeStr : '...';
+export function ellipsize(text, width, styles, ellipsizeStr = '...') {
 
     if (Array.isArray(text)) {
         let value = [];
@@ -32,8 +31,7 @@ export function ellipsize(text, width, styles, ellipsizeStr) {
         return value;
     }
 
-    let k = Config.getJspdfInstance().internal.scaleFactor;
-    let precision = 10000 * k;
+    let precision = 10000 * Config.scaleFactor();
     width = Math.ceil(width * precision) / precision;
 
     if (width >= getStringWidth(text, styles)) {
@@ -51,19 +49,19 @@ export function ellipsize(text, width, styles, ellipsizeStr) {
 export function addPage() {
     // Add user content just before adding new page ensure it will 
     // be drawn above other things on the page
-    let settings = Config.settings();
     addContentHooks();
     Config.getJspdfInstance().addPage();
-    Config.tableInstance().pageCount++;
-    Config.getJspdfInstance().autoTableCursor = {x: settings.margin.left, y: settings.margin.top};
-    if (settings.showHeader === true || settings.showHeader === 'always') {
-        printRow(Config.tableInstance().headerRow, settings.drawHeaderRow, settings.drawHeaderCell);
+    let table = Config.tableInstance();
+    table.pageCount++;
+    table.cursor = {x: table.margin('left'), y: table.margin('top')};
+    if (table.settings.showHeader === true || table.settings.showHeader === 'always') {
+        printRow(table.headerRow, table.settings.drawHeaderRow, table.settings.drawHeaderCell);
     }
 }
 
 export function addContentHooks() {
     Config.applyStyles(Config.getUserStyles());
-    Config.settings().addPageContent(Config.hooksData());
+    Config.tableInstance().settings.addPageContent(Config.hooksData());
     Config.applyStyles(Config.getUserStyles());
     Config.callPageContentHook(Config.hooksData());
     Config.applyStyles(Config.getUserStyles());

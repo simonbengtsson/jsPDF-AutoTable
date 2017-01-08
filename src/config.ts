@@ -2,19 +2,21 @@
  * Ratio between font size and font height. The number comes from jspdf's source code
  */
 export let FONT_ROW_RATIO = 1.15;
-import {Table} from './models.js';
+import {Table} from './models';
 
 let jspdfInstance = null;
 let userStyles = null;
-let settingsObject = null; // Default options merged with user options
 let table = null;
-let globalAddPageContent = function() {}; // Override with doc.autoTableAddPageContent
+let globalAddPageContent = null; // Set with doc.autoTableAddPageContent
+
+declare function require(path: string): any;
+var assign = require('object-assign');
 
 /**
  * Styles for the themes (overriding the default styles)
  */
 export let getTheme = function(name) {
-    let scaleFactor = Config.getJspdfInstance().internal.scaleFactor;
+    let scaleFactor = Config.scaleFactor();
     let themes = {
         'striped': {
             table: {fillColor: 255, textColor: 80, fontStyle: 'normal'},
@@ -36,7 +38,7 @@ export let getTheme = function(name) {
 };
 
 function getDefaults() {
-    let scaleFactor = Config.getJspdfInstance().internal.scaleFactor;
+    let scaleFactor = Config.scaleFactor();
     return {
         // Styling
         theme: 'striped', // 'striped', 'grid' or 'plain'
@@ -66,7 +68,7 @@ function getDefaults() {
 
 // Base style for all themes
 function defaultStyles() {
-    let scaleFactor = Config.getJspdfInstance().internal.scaleFactor;
+    let scaleFactor = Config.scaleFactor();
     return {
         font: "helvetica", // helvetica, times, courier
         lineColor: 200,
@@ -86,6 +88,10 @@ function defaultStyles() {
 
 export class Config {
     
+    static pageSize() {
+        return Config.getJspdfInstance().internal.pageSize;
+    }
+    
     static setJspdfInstance(instance) {
         jspdfInstance = instance;
         userStyles = {
@@ -104,8 +110,8 @@ export class Config {
         return userStyles;
     }
     
-    static createTable() {
-        table = new Table();
+    static createTable(settings) {
+        table = new Table(settings);
     }
     
     static setPageContentHook(hook) {
@@ -122,22 +128,22 @@ export class Config {
         return table;
     }
     
-    static settings() {
-        return settingsObject;
+    static scaleFactor() {
+        return jspdfInstance.internal.scaleFactor;
     }
 
-    static hooksData(additionalData) {
-        return Object.assign({
+    static hooksData(additionalData = {}) {
+        return assign({
             pageCount: table.pageCount,
-            settings: settingsObject,
+            settings: table.settings,
             table: table,
             doc: jspdfInstance,
-            cursor: jspdfInstance.autoTableCursor
+            cursor: table.cursor,
         }, additionalData || {});
     }
 
     static initSettings(userOptions) {
-        let settings = Object.assign({}, getDefaults(), userOptions);
+        let settings = assign({}, getDefaults(), userOptions);
 
         // Options
         if (typeof settings.extendWidth !== 'undefined') {
@@ -178,15 +184,14 @@ export class Config {
         });
         
         settings.margin = Config.marginOrPadding(settings.margin, 40);
-
-        settingsObject = settings;
+        
+        return settings;
     }
     
     static marginOrPadding(value, defaultVal) {
         let newValue = {};
         ['top', 'right', 'bottom', 'left'].forEach(function (side, i) {
-            let k = Config.getJspdfInstance().internal.scaleFactor;
-            newValue[side] = defaultVal / k;
+            newValue[side] = defaultVal / Config.scaleFactor();
             if (typeof value === 'number') {
                 newValue[side] = value;
             } else if (Array.isArray(value) && typeof value[i] === 'number') {
@@ -206,8 +211,9 @@ export class Config {
 
     static styles(styles) {
         let defStyles = defaultStyles();
-        styles.cellPadding = Config.marginOrPadding(styles.cellPadding, defStyles.cellPadding);
-        return Object.assign({}, defStyles, ...styles);
+        let newStyles = assign({}, defStyles, ...styles);
+        newStyles.cellPadding = Config.marginOrPadding(newStyles.cellPadding, defStyles.cellPadding);
+        return newStyles;
     }
 
     static applyStyles(styles) {

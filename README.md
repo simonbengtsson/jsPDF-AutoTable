@@ -166,7 +166,7 @@ Styles work similar to css and can be overridden by more specific styles. The ov
     lineWidth: 0,
     fontStyle: 'normal', // normal, bold, italic, bolditalic
     overflow: 'ellipsize', // visible, hidden, ellipsize or linebreak
-    fillColor: false, // false for transperant or a color as described below
+    fillColor: false, // false for transparent or a color as described below
     textColor: 20,
     halign: 'left', // left, center, right
     valign: 'middle', // top, middle, bottom
@@ -184,17 +184,17 @@ Some of the styles has a matching jspdf set method. For example `lineWidth` corr
 - `startY` Indicates where the table should start to be drawn on the first page (overriding the margin top value). It can be used for example to draw content before the table. Many examples use this option, but the above use case is presented in the `With content` example.
 - `margin` Similar to margin in css it sets how much spacing it should be around the table on each page. The startY option can be used if the margin top value should be different on the first page. The margin option accepts both a number, an array [top, right, bottom, left] and an object {top: 40, right: 40, bottom: 40, left: 40}. If you want to use the default value and only change one side you can specify it like this: {top: 60}.
 - `pageBreak` This option defines the behavior of the table when it will span more than one page. If set to 'always' each table will always start on a new page. If set to 'avoid' it will start on a new page if there is not enough room to fit the entire table on the current page. If set to 'auto' it will add a new page only when the next row doesn't fit.
-- `tableWidth` This option defines the fixed width of the table if set to a number. If set to 'auto' it will be 100% of width of the pageand if set to 'wrap' it will only be as wide as its content is.  
+- `tableWidth` This option defines the fixed width of the table if set to a number. If set to 'auto' it will be 100% of width of the page and if set to 'wrap' it will only be as wide as its content is.  
 
 ### Hooks
-There are 9 different hooks that gets called at various times during the drawing of the table. If applicable, information about the current cell, row or column are provided to the hook function. In addition to that the following general information is alaways provided in the `data` parameter:
+There are 9 different hooks that gets called at various times during the drawing of the table. If applicable, information about the current cell, row or column are provided to the hook function. In addition to that the following general information is always provided in the `data` parameter:
 - `pageCount` - The number of pages it currently spans
 - `settings` - The user options merged with the default options
 - `table` - Information about the table such as the rows, columns and dimensions
 - `doc` - The current jspdf instance
 - `cursor` - The position at which the next table cell will be drawn. This can be assigned new values to create column and row spans. Checkout the Colspan and Rowspan example for more information.
 
-*OBS!* Only the `drawCell` hook can be used with the native style jspdf style changes such as `doc.setLineWidth`. If you use the other hooks for changing styles, they will be overriden.
+*OBS!* Only the `drawCell` hook can be used with the native style jspdf style changes such as `doc.setLineWidth`. If you use the other hooks for changing styles, they will be overridden.
 
 ### Helper functions
 - `autoTableHtmlToJson(tableElem, includeHiddenElements)` Use it to generate the javascript objects required for this library from an html table (see `from html` example). If includeHiddenElements is set to true hidden rows and columns will be included otherwise excluded.
