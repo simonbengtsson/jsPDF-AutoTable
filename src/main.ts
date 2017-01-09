@@ -2,7 +2,7 @@
 
 import * as jsPDF from 'jspdf';
 import {Config, FONT_ROW_RATIO} from './config';
-import {addContentHooks} from './common';
+import {addContentHooks, addPage} from './common';
 import {printRow, printFullRow} from './painter';
 import {calculateWidths} from './calculator';
 import {createModels, validateInput} from './creator';
@@ -75,6 +75,13 @@ jsPDF.API.autoTableAddPageContent = function (hook) {
         return;
     }
     Config.setPageContentHook(hook);
+};
+
+/**
+ * @deprecated Use data.addPage in hooks instead
+ */
+jsPDF.API.autoTableAddPage = function() {
+    addPage();
 };
 
 /**
