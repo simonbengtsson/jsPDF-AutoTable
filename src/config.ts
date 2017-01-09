@@ -16,17 +16,16 @@ var assign = require('object-assign');
  * Styles for the themes (overriding the default styles)
  */
 export let getTheme = function(name) {
-    let scaleFactor = Config.scaleFactor();
     let themes = {
         'striped': {
             table: {fillColor: 255, textColor: 80, fontStyle: 'normal'},
-            header: {textColor: 255, fillColor: [41, 128, 185], rowHeight: 23 / scaleFactor, fontStyle: 'bold'},
+            header: {textColor: 255, fillColor: [41, 128, 185], fontStyle: 'bold'},
             body: {},
             alternateRow: {fillColor: 245}
         },
         'grid': {
             table: {fillColor: 255, textColor: 80, fontStyle: 'normal', lineWidth: 0.1},
-            header: {textColor: 255, fillColor: [26, 188, 156], rowHeight: 23 / scaleFactor, fontStyle: 'bold', lineWidth: 0},
+            header: {textColor: 255, fillColor: [26, 188, 156], fontStyle: 'bold', lineWidth: 0},
             body: {},
             alternateRow: {}
         },
@@ -79,9 +78,8 @@ function defaultStyles() {
         halign: 'left', // left, center, right
         valign: 'top', // top, middle, bottom
         fontSize: 10,
-        cellPadding: 5 / scaleFactor,
+        cellPadding: 5 / scaleFactor, // number or {top,left,right,left,vertical,horizontal}
         lineWidth: 0 / scaleFactor,
-        rowHeight: 20 / scaleFactor,
         columnWidth: 'auto'
     }
 }

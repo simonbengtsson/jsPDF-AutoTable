@@ -8,14 +8,10 @@ export function printFullRow(row, drawRowHook, drawCellHook) {
     let table = Config.tableInstance();
 
     if (!canFitOnPage(row.height)) {
-        // Simply move small rows to new page to avoid splitting
-        // TODO Improve
-        if (row.height < row.heightStyle * 3) {
+        if (row.maxLineCount <= 1) {
             addPage();
         } else {
-
             // Modify the row to fit the current page and calculate text and height of partial row
-
             row.spansMultiplePages = true;
 
             let pageHeight = Config.getJspdfInstance().internal.pageSize.height;
@@ -27,7 +23,7 @@ export function printFullRow(row, drawRowHook, drawCellHook) {
 
                 let k = Config.scaleFactor();
                 let fontHeight = cell.styles.fontSize / k * FONT_ROW_RATIO;
-                let vpadding = 0 / k; // TODO
+                let vpadding = cell.styles.cellPadding.top + cell.styles.cellPadding.bottom / k;
                 let remainingPageSpace = pageHeight - table.cursor.y - table.margin('bottom');
                 let remainingLineCount = Math.floor((remainingPageSpace - vpadding) / fontHeight);
 
@@ -35,14 +31,14 @@ export function printFullRow(row, drawRowHook, drawCellHook) {
                     let remainingLines = cell.text.splice(remainingLineCount, cell.text.length);
                     remainingTexts[col.dataKey] = remainingLines;
 
-                    let rowHeight1 = cell.text.length * fontHeight + vpadding;
-                    if (rowHeight1 > maxCellHeight) {
-                        maxCellHeight = rowHeight1;
+                    let cellHeight = cell.text.length * fontHeight + vpadding;
+                    if (cellHeight > maxCellHeight) {
+                        maxCellHeight = cellHeight;
                     }
 
-                    let rowHeight2 = remainingLines.length * fontHeight + vpadding;
-                    if (rowHeight2 > remainingRowHeight) {
-                        remainingRowHeight = rowHeight2;
+                    let rCellHeight = remainingLines.length * fontHeight + vpadding;
+                    if (rCellHeight > remainingRowHeight) {
+                        remainingRowHeight = rCellHeight;
                     }
                 }
             }

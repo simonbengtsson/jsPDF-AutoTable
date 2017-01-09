@@ -36,7 +36,7 @@ export class Row {
     pageCount = 1;
     height = 0;
     y = 0;
-    heightStyle = 0;
+    maxLineCount = 1;
     
     constructor(raw, index) {
         this.raw = raw;

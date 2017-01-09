@@ -38,7 +38,7 @@ function parseTableSection(window, sectionElement, includeHidden, useCss): RowRe
             let cell = row.cells[i];
             let style = window.getComputedStyle(cell);
             if (includeHidden || style.display !== 'none') {
-                let styles = useCss ? parseCss(style, ['rowHeight']) : {};
+                let styles = useCss ? parseCss(style) : {};
                 let content = (cell.innerText || '').trim()
                 resultRow.cells.push({
                     content: content,
@@ -80,7 +80,6 @@ function parseCss(style, ignored = []): any {
     assign('fontSize', parseInt(style.fontSize));
     assign('cellPadding', parsePadding(style.padding));
     assign('lineWidth', parseInt(style.borderWidth));
-    assign('rowHeight', parseInt(style.height));
     assign('font', style.fontFamily.toLowerCase());
     
     return result;

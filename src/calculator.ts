@@ -84,16 +84,14 @@ export function calculateWidths(doc, pageWidth) {
             let k = Config.scaleFactor();
             let lineCount = Array.isArray(cell.text) ? cell.text.length : 1;
             let fontHeight = cell.styles.fontSize / k * FONT_ROW_RATIO;
-            let vpadding = cell.styles.cellPadding.top + cell.styles.cellPadding.bottom;
-            let contentHeight = vpadding + fontHeight;
-            let vextra = contentHeight > row.heightStyle ? vpadding : row.heightStyle - fontHeight;
-            cell.contentHeight = lineCount * fontHeight + vextra;
-            if (cell.contentHeight > maxCellHeight) {
-                maxCellHeight = cell.contentHeight;
+            let vPadding = cell.styles.cellPadding.top + cell.styles.cellPadding.bottom;
+            cell.contentHeight = lineCount * fontHeight + vPadding;
+            if (cell.contentHeight > row.height) {
+                row.height = cell.contentHeight;
+                row.maxLineCount = lineCount;
             }
         });
-
-        row.height = maxCellHeight;
+        
         table.height += row.height;
     });
 }

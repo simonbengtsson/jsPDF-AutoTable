@@ -38,7 +38,6 @@ export function createModels(inputHeaders, inputData) {
 
     // Header row and columns
     let headerRow = new Row(inputHeaders, -1);
-    headerRow.heightStyle = Config.styles([theme.table, theme.header, settings.styles, settings.headerStyles]).rowHeight;
     headerRow.index = -1;
 
     // Columns and header row
@@ -76,7 +75,6 @@ export function createModels(inputHeaders, inputData) {
     inputData.forEach(function (rawRow, i) {
         let row = new Row(rawRow, i);
         let rowStyles = i % 2 === 0 ? assign({}, theme.alternateRow, settings.alternateRowStyles) : {};
-        row.heightStyle = Config.styles([theme.table, theme.body, settings.styles, settings.bodyStyles, rowStyles]).rowHeight;
         table.columns.forEach(function (column) {
             let cell = new Cell(rawRow[column.dataKey]);
             let colStyles = settings.columnStyles[column.dataKey] || {};

@@ -43,9 +43,7 @@ examples.minimal = function () {
     var doc = new jsPDF();
     doc.autoTable(getColumns(), getData(), {
         tableWidth: 'wrap',
-        styles: {cellPadding: 0.5, fontSize: 8},
-        headerStyles: {rowHeight: 5},
-        bodyStyles: {rowHeight: 4},
+        styles: {cellPadding: 0.5, fontSize: 8}
     });
     return doc;
 };
@@ -242,7 +240,7 @@ examples.spans = function () {
         },
         drawCell: function (cell, data) {
             // Rowspan
-            if (data.column.id === 'id') {
+            if (data.column.dataKey === 'id') {
                 if (data.row.index % 5 === 0) {
                     doc.rect(cell.x, cell.y, data.table.width, cell.height * 5, 'S');
                     doc.autoTableText(data.row.index / 5 + 1 + '', cell.x + cell.width / 2, cell.y + cell.height * 5 / 2, {
@@ -286,8 +284,7 @@ examples.custom = function () {
         },
         headerStyles: {
             fillColor: [44, 62, 80],
-            fontSize: 15,
-            rowHeight: 10
+            fontSize: 15
         },
         bodyStyles: {
             fillColor: [52, 73, 94],
@@ -337,6 +334,7 @@ var getColumns = function () {
 // Uses the faker.js library to get random data.
 function getData(rowCount) {
     rowCount = rowCount || 4;
+    //var sentence = "Minima quis totam nobis nihil et molestiae architecto accusantium qui necessitatibus sit ducimus cupiditate qui ullam et aspernatur esse et dolores ut voluptatem odit quasi ea sit ad sint voluptatem est dignissimos voluptatem vel adipisci facere consequuntur et reprehenderit cum unde debitis ab cumque sint quo ut officiis rerum aut quia quia expedita ut consectetur animiqui voluptas suscipit Monsequatur";
     var sentence = faker.lorem.words(20);
     var data = [];
     for (var j = 1; j <= rowCount; j++) {
@@ -355,6 +353,7 @@ function getData(rowCount) {
 }
 
 function shuffleSentence(words) {
+    if (typeof words === 'string') return words;
     words = words || faker.lorem.words(8);
     var str = faker.helpers.shuffle(words).join(' ').trim();
     return str.charAt(0).toUpperCase() + str.slice(1);
