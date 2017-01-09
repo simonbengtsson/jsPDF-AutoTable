@@ -1,11 +1,11 @@
 /*!
- * jsPDF AutoTable plugin v2.2.0
+ * jsPDF AutoTable plugin v2.2.2
  * Copyright (c) 2014 Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable 
  * 
  * Licensed under the MIT License.
  * http://opensource.org/licenses/mit-license
  * 
- * */if (typeof window === 'object') window.jspdfAutoTableVersion = '2.2.0';/*
+ * */if (typeof window === 'object') window.jspdfAutoTableVersion = '2.2.2';/*
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
@@ -140,6 +140,8 @@ function getDefaults() {
         pageBreak: 'auto',
         tableWidth: 'auto',
         showHeader: 'everyPage',
+        tableLineWidth: 0,
+        tableLineColor: 200,
         // Hooks
         createdHeaderCell: function (cell, data) { },
         createdCell: function (cell, data) { },
@@ -155,7 +157,6 @@ function defaultStyles() {
     var scaleFactor = Config.scaleFactor();
     return {
         font: "helvetica",
-        lineColor: 200,
         fontStyle: 'normal',
         overflow: 'ellipsize',
         fillColor: false,
@@ -164,6 +165,7 @@ function defaultStyles() {
         valign: 'top',
         fontSize: 10,
         cellPadding: 5 / scaleFactor,
+        lineColor: 200,
         lineWidth: 0 / scaleFactor,
         columnWidth: 'auto'
     };
@@ -284,6 +286,7 @@ var Config = (function () {
         return newValue;
     };
     Config.styles = function (styles) {
+        styles = Array.isArray(styles) ? styles : [styles];
         var defStyles = defaultStyles();
         var newStyles = assign.apply(void 0, [{}, defStyles].concat(styles));
         newStyles.cellPadding = Config.marginOrPadding(newStyles.cellPadding, defStyles.cellPadding);
@@ -369,14 +372,29 @@ function ellipsize(text, width, styles, ellipsizeStr) {
     return text.trim() + ellipsizeStr;
 }
 exports.ellipsize = ellipsize;
+function addTableLine() {
+    var table = config_1.Config.tableInstance();
+    var doc = config_1.Config.getJspdfInstance();
+    var styles = { lineWidth: table.settings.tableLineWidth, lineColor: table.settings.tableLineColor };
+    config_1.Config.applyStyles(styles);
+    var fs = getFillStyle(styles);
+    if (fs) {
+        doc.rect(table.pageStartX, table.pageStartY, table.width, table.cursor.y - table.pageStartY, fs);
+    }
+}
+exports.addTableLine = addTableLine;
 function addPage() {
+    var table = config_1.Config.tableInstance();
+    var doc = config_1.Config.getJspdfInstance();
     // Add user content just before adding new page ensure it will 
     // be drawn above other things on the page
     addContentHooks();
-    config_1.Config.getJspdfInstance().addPage();
-    var table = config_1.Config.tableInstance();
+    addTableLine();
+    doc.addPage();
     table.pageCount++;
     table.cursor = { x: table.margin('left'), y: table.margin('top') };
+    table.pageStartX = table.cursor.x;
+    table.pageStartY = table.cursor.y;
     if (table.settings.showHeader === true || table.settings.showHeader === 'everyPage') {
         painter_1.printRow(table.headerRow, table.settings.drawHeaderRow, table.settings.drawHeaderCell);
     }
@@ -390,6 +408,23 @@ function addContentHooks() {
     config_1.Config.applyStyles(config_1.Config.getUserStyles());
 }
 exports.addContentHooks = addContentHooks;
+function getFillStyle(styles) {
+    var drawLine = styles.lineWidth > 0;
+    var drawBackground = styles.fillColor || styles.fillColor === 0;
+    if (drawLine && drawBackground) {
+        return 'DF'; // Fill then stroke
+    }
+    else if (drawLine) {
+        return 'S'; // Only stroke (transparent background)
+    }
+    else if (drawBackground) {
+        return 'F'; // Only fill, no stroke
+    }
+    else {
+        return false;
+    }
+}
+exports.getFillStyle = getFillStyle;
 
 
 /***/ },
@@ -492,7 +527,7 @@ function printRow(row, drawRowHook, drawCellHook) {
         }
         var data = config_1.Config.hooksData({ column: column, row: row, addPage: common_1.addPage });
         if (drawCellHook(cell, data) !== false) {
-            var fillStyle = getFillStyle(cell.styles);
+            var fillStyle = common_1.getFillStyle(cell.styles);
             if (fillStyle) {
                 config_1.Config.getJspdfInstance().rect(cell.x, cell.y, cell.width, cell.height, fillStyle);
             }
@@ -510,22 +545,6 @@ function canFitOnPage(rowHeight) {
     var table = config_1.Config.tableInstance();
     var pos = rowHeight + table.cursor.y + table.margin('bottom');
     return pos < config_1.Config.pageSize().height;
-}
-function getFillStyle(styles) {
-    var drawLine = styles.lineWidth > 0;
-    var drawBackground = styles.fillColor !== false;
-    if (drawLine && drawBackground) {
-        return 'DF'; // Fill then stroke
-    }
-    else if (drawLine) {
-        return 'S'; // Only stroke (transparent background)
-    }
-    else if (drawBackground) {
-        return 'F'; // Only fill, no stroke
-    }
-    else {
-        return false;
-    }
 }
 
 
@@ -959,6 +978,8 @@ jsPDF.API.autoTable = function (headers, data, userOptions) {
         config_1.Config.getJspdfInstance().addPage();
         table.cursor.y = settings.margin.top;
     }
+    table.pageStartX = table.cursor.x;
+    table.pageStartY = table.cursor.y;
     config_1.Config.applyStyles(config_1.Config.getUserStyles());
     if (settings.showHeader === true || settings.showHeader === 'firstPage' || settings.showHeader === 'everyPage') {
         painter_1.printRow(table.headerRow, settings.drawHeaderRow, settings.drawHeaderCell);
@@ -967,6 +988,7 @@ jsPDF.API.autoTable = function (headers, data, userOptions) {
     table.rows.forEach(function (row) {
         painter_1.printFullRow(row, settings.drawRow, settings.drawCell);
     });
+    common_1.addTableLine();
     common_1.addContentHooks();
     doc.autoTablePreviousCursor = table.cursor;
     return this;
