@@ -58,7 +58,7 @@ export function createModels(inputHeaders, inputData) {
         cell.styles = Config.styles([theme.table, theme.header, settings.styles, settings.headerStyles]);
 
         if (cell.raw instanceof HTMLElement) {
-            cell.text = cell.raw.textContent.trim();
+            cell.text = (cell.raw.innerText || '').trim();
         } else {
             let text = typeof cell.raw === 'object' ? cell.raw.title : cell.raw;
             // Stringify 0 and false, but not undefined
@@ -81,7 +81,7 @@ export function createModels(inputHeaders, inputData) {
             cell.styles = Config.styles([theme.table, theme.body, settings.styles, settings.bodyStyles, rowStyles, colStyles]);
 
             if (cell.raw && cell.raw instanceof HTMLElement) {
-                cell.text = cell.raw.textContent.trim();
+                cell.text = (cell.raw.innerText || '').trim();
             } else {
                 // Stringify 0 and false, but not undefined
                 cell.text = typeof cell.raw !== 'undefined' ? '' + cell.raw : '';
