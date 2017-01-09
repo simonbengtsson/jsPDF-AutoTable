@@ -22,7 +22,7 @@ module.exports = {
     output: {
         path: path.join(__dirname, './'),
         filename: "[name].js",
-        libraryTarget: "umd"
+        libraryTarget: "umd",
     },
     module: {
         loaders: [
@@ -40,7 +40,10 @@ module.exports = {
     performance: { hints: false },
     devServer: {
         contentBase: "./examples",
-        compress: true
+        port: 9000,
+        proxy: {
+            "/libs/jspdf.plugin.autotable.js": "http://localhost:9000/examples"
+        }
     },
     plugins: [
         //new ExtractTextPlugin("bundle.css"),
