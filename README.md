@@ -139,6 +139,7 @@ All options below are used in `examples.js` so be sure to check it out if in dou
     margin: 40, // a number, array or object
     pageBreak: 'auto', // 'auto', 'avoid' or 'always'
     tableWidth: 'auto', // 'auto', 'wrap' or a number, 
+    showHeader: 'everyPage' // 'everyPage', 'firstPage', 'never'
 
     // Hooks
     createdHeaderCell: function (cell, data) {},
@@ -151,15 +152,12 @@ All options below are used in `examples.js` so be sure to check it out if in dou
  };
 ```
 
-### Note on units
-Only `pt` is supported at this stage. The goal is to support all units supported by jspdf including `mm` and `in` in the future.
-
 ### Styles
 Styles work similar to css and can be overridden by more specific styles. The overriding order is as follows: Default styles <- theme styles <- `styles` <- `headerStyles` and `bodyStyles` <- `alternateRowStyles` and `columnStyles`. It is also possible to override specific cell or row styles using for example the `createdCell` hook. Checkout the `Custom style` example for more information.
 
 ```javascript
 {
-	cellPadding: 5,
+	cellPadding: 5, // a number, array or object (see margin below)
     fontSize: 10,
     font: "helvetica", // helvetica, times, courier
     lineColor: 200,
@@ -170,15 +168,14 @@ Styles work similar to css and can be overridden by more specific styles. The ov
     textColor: 20,
     halign: 'left', // left, center, right
     valign: 'middle', // top, middle, bottom
-    rowHeight: 20,
     columnWidth: 'auto' // 'auto', 'wrap' or a number
 }
 ```
 All colors can either be specified as a number (255 white and 0 for black) or an array [red, green, blue] e.g. [255, 255, 255].
 
-Every style above can be changed on a cell by cell basis. However to have different rowHeights for cells in the same row or different columnWidths for cells in the same column is unsupported.
+Every style above can be changed on a cell by cell basis except for columnWidth.
 
-Some of the styles has a matching jspdf set method. For example `lineWidth` corresponds to `doc.setLineWidth()`. More information about those can be found in the jspdf documentation.
+Many of the styles has a matching jspdf set method. For example `lineWidth` corresponds to `doc.setLineWidth()`. More information about those can be found in the jspdf documentation.
 
 ### Properties
 - `startY` Indicates where the table should start to be drawn on the first page (overriding the margin top value). It can be used for example to draw content before the table. Many examples use this option, but the above use case is presented in the `With content` example.

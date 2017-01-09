@@ -16,8 +16,8 @@ export function calculateWidths(doc, pageWidth) {
         column.contentWidth = 0;
         table.rows.concat(table.headerRow).forEach(function (row) {
             let cell = row.cells[column.dataKey];
-            let hpadding = cell.styles.cellPadding.left + cell.styles.cellPadding.right;
-            cell.contentWidth = hpadding + getStringWidth(cell.text, cell.styles);
+            let hPadding = cell.styles.cellPadding.left + cell.styles.cellPadding.right;
+            cell.contentWidth = hPadding + getStringWidth(cell.text, cell.styles);
             if (cell.contentWidth > column.contentWidth) {
                 column.contentWidth = cell.contentWidth;
             }
@@ -52,7 +52,6 @@ export function calculateWidths(doc, pageWidth) {
     // Row height, table height and text overflow
     let all = table.rows.concat(table.headerRow);
     all.forEach(function (row) {
-        let maxCellHeight = 0;
         table.columns.forEach(function (col) {
             let cell = row.cells[col.dataKey];
 

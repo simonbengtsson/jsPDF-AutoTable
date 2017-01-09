@@ -23,20 +23,20 @@ export function printFullRow(row, drawRowHook, drawCellHook) {
 
                 let k = Config.scaleFactor();
                 let fontHeight = cell.styles.fontSize / k * FONT_ROW_RATIO;
-                let vpadding = cell.styles.cellPadding.top + cell.styles.cellPadding.bottom / k;
+                let vPadding = cell.styles.cellPadding.top + cell.styles.cellPadding.bottom / k;
                 let remainingPageSpace = pageHeight - table.cursor.y - table.margin('bottom');
-                let remainingLineCount = Math.floor((remainingPageSpace - vpadding) / fontHeight);
+                let remainingLineCount = Math.floor((remainingPageSpace - vPadding) / fontHeight);
 
                 if (Array.isArray(cell.text) && cell.text.length > remainingLineCount) {
                     let remainingLines = cell.text.splice(remainingLineCount, cell.text.length);
                     remainingTexts[col.dataKey] = remainingLines;
 
-                    let cellHeight = cell.text.length * fontHeight + vpadding;
+                    let cellHeight = cell.text.length * fontHeight + vPadding;
                     if (cellHeight > maxCellHeight) {
                         maxCellHeight = cellHeight;
                     }
 
-                    let rCellHeight = remainingLines.length * fontHeight + vpadding;
+                    let rCellHeight = remainingLines.length * fontHeight + vPadding;
                     if (rCellHeight > remainingRowHeight) {
                         remainingRowHeight = rCellHeight;
                     }
@@ -134,7 +134,7 @@ function getFillStyle(styles) {
     if (drawLine && drawBackground) {
         return 'DF'; // Fill then stroke
     } else if (drawLine) {
-        return 'S'; // Only stroke (transperant backgorund)
+        return 'S'; // Only stroke (transparent background)
     } else if (drawBackground) {
         return 'F'; // Only fill, no stroke
     } else {

@@ -40,7 +40,7 @@ jsPDF.API.autoTable = function (headers, data, userOptions = {}) {
     }
 
     Config.applyStyles(Config.getUserStyles());
-    if (settings.showHeader === true || settings.showHeader === 'always' || settings.showHeader === 'once') {
+    if (settings.showHeader === true || settings.showHeader === 'firstPage' || settings.showHeader === 'everyPage') {
         printRow(table.headerRow, settings.drawHeaderRow, settings.drawHeaderCell);
     }
     Config.applyStyles(Config.getUserStyles());
@@ -140,12 +140,12 @@ jsPDF.API.autoTableText = function (text, x, y, styles) {
     let fontSize = this.internal.getFontSize() / k;
 
     let splitRegex = /\r\n|\r|\n/g;
-    let splittedText = null;
+    let splitText = null;
     let lineCount = 1;
     if (styles.valign === 'middle' || styles.valign === 'bottom' || styles.halign === 'center' || styles.halign === 'right') {
-        splittedText = typeof text === 'string' ? text.split(splitRegex) : text;
+        splitText = typeof text === 'string' ? text.split(splitRegex) : text;
 
-        lineCount = splittedText.length || 1;
+        lineCount = splitText.length || 1;
     }
 
     // Align the top
@@ -162,8 +162,8 @@ jsPDF.API.autoTableText = function (text, x, y, styles) {
             alignSize *= 0.5;
 
         if (lineCount >= 1) {
-            for (let iLine = 0; iLine < splittedText.length; iLine++) {
-                this.text(splittedText[iLine], x - this.getStringUnitWidth(splittedText[iLine]) * alignSize, y);
+            for (let iLine = 0; iLine < splitText.length; iLine++) {
+                this.text(splitText[iLine], x - this.getStringUnitWidth(splitText[iLine]) * alignSize, y);
                 y += fontSize;
             }
             return Config.getJspdfInstance();

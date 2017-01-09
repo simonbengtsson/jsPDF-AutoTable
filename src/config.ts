@@ -52,7 +52,7 @@ function getDefaults() {
         margin: 40 / scaleFactor,
         pageBreak: 'auto', // 'auto', 'avoid', 'always'
         tableWidth: 'auto', // 'auto'|'wrap'|number (takes precedence over columnWidth style if conflict)
-        showHeader: 'always', // 'always', 'once', 'never',
+        showHeader: 'everyPage', // 'everyPage', 'firstPage', 'never',
 
         // Hooks
         createdHeaderCell: function (cell, data) {},
@@ -73,7 +73,7 @@ function defaultStyles() {
         lineColor: 200,
         fontStyle: 'normal', // normal, bold, italic, bolditalic
         overflow: 'ellipsize', // visible, hidden, ellipsize or linebreak
-        fillColor: false, // Either false for transparant, rbg array e.g. [255, 255, 255] or gray level e.g 200
+        fillColor: false, // Either false for transparent, rbg array e.g. [255, 255, 255] or gray level e.g 200
         textColor: 20,
         halign: 'left', // left, center, right
         valign: 'top', // top, middle, bottom

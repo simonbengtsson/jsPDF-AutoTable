@@ -19,7 +19,7 @@ export function validateInput(headers, data, options) {
 
     if (!Array.prototype.forEach) {
         console.error("The current browser does not support Array.prototype.forEach which is required for " +
-            "jsPDF-AutoTable. You can try polyfilling it by including this script " +
+            "jsPDF-AutoTable. You can try to polyfill it by including this script " +
             "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/forEach#Polyfill");
     }
 }

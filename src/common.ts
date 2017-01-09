@@ -54,7 +54,7 @@ export function addPage() {
     let table = Config.tableInstance();
     table.pageCount++;
     table.cursor = {x: table.margin('left'), y: table.margin('top')};
-    if (table.settings.showHeader === true || table.settings.showHeader === 'always') {
+    if (table.settings.showHeader === true || table.settings.showHeader === 'everyPage') {
         printRow(table.headerRow, table.settings.drawHeaderRow, table.settings.drawHeaderCell);
     }
 }

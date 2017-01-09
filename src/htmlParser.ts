@@ -39,7 +39,7 @@ function parseTableSection(window, sectionElement, includeHidden, useCss): RowRe
             let style = window.getComputedStyle(cell);
             if (includeHidden || style.display !== 'none') {
                 let styles = useCss ? parseCss(style) : {};
-                let content = (cell.innerText || '').trim()
+                let content = (cell.innerText || '').trim();
                 resultRow.cells.push({
                     content: content,
                     rowspan: cell.rowSpan,
