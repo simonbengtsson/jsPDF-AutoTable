@@ -17,5 +17,5 @@ function generatePdf() {
 
     var doc = new jsPDF();
     doc.autoTable(columns, data);
-    doc.save("table.pdf");
+    doc.output("dataurlnewwindow");
 }

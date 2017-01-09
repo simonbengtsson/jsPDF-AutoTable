@@ -15,7 +15,7 @@ function generatePdf() {
         [5, "Finland", 7.413, "Helsinki"]
     ];
 
-    var doc = new jsPDF('p', 'pt');
+    var doc = new jsPDF();
     doc.autoTable(columns, data);
-    doc.save("table.pdf");
+    doc.output("dataurlnewwindow");
 }

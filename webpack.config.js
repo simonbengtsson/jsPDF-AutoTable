@@ -2,8 +2,6 @@ var webpack = require("webpack");
 var fs = require("fs");
 var path = require('path');
 
-fs.writeFileSync('./examples/libs/jspdf.debug.js', fs.readFileSync('./node_modules/jspdf/dist/jspdf.debug.js'));
-
 var newVersion = require('./package.json').version;
 var readme = "" + fs.readFileSync('./README.md');
 var newVersionStr = "cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/" + newVersion + "/jspdf.plugin.autotable.js";
@@ -13,8 +11,6 @@ fs.writeFileSync('./README.md', readme);
 module.exports = {
     entry: {
         "dist/jspdf.plugin.autotable": "./src/main.ts",
-        "dist/jspdf.plugin.autotable.src": "./src/main.ts",
-        "examples/libs/jspdf.plugin.autotable": "./src/main.ts",
         "dist/jspdf.plugin.autotable.min": "./src/main.ts",
     },
     resolve: {

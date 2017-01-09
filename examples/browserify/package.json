@@ -8,6 +8,6 @@
     "browserify": "^13.1.0"
   },
   "scripts": {
-    "build": "browserify main.js > main.bundle.js"
+    "build": "browserify main.js > bundle.js"
   }
 }
