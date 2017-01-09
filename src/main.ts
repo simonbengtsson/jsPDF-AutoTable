@@ -2,7 +2,7 @@
 
 import * as jsPDF from 'jspdf';
 import {Config, FONT_ROW_RATIO} from './config';
-import {addContentHooks, addPage} from './common';
+import {addContentHooks, addPage, addTableLine} from './common';
 import {printRow, printFullRow} from './painter';
 import {calculateWidths} from './calculator';
 import {createModels, validateInput} from './creator';
@@ -38,6 +38,8 @@ jsPDF.API.autoTable = function (headers, data, userOptions = {}) {
         Config.getJspdfInstance().addPage();
         table.cursor.y = settings.margin.top;
     }
+    table.pageStartX = table.cursor.x;
+    table.pageStartY = table.cursor.y;
 
     Config.applyStyles(Config.getUserStyles());
     if (settings.showHeader === true || settings.showHeader === 'firstPage' || settings.showHeader === 'everyPage') {
@@ -48,7 +50,8 @@ jsPDF.API.autoTable = function (headers, data, userOptions = {}) {
     table.rows.forEach(function (row) {
         printFullRow(row, settings.drawRow, settings.drawCell);
     });
-    
+
+    addTableLine();
     addContentHooks();
     
     doc.autoTablePreviousCursor = table.cursor;

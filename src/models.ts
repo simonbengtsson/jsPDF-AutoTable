@@ -12,6 +12,8 @@ export class Table {
     columns = [];
     headerRow = null;
     pageCount = 1;
+    pageStartX: number;
+    pageStartY: number;
     
     
     constructor(settings) {

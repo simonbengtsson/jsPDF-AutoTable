@@ -46,14 +46,30 @@ export function ellipsize(text, width, styles, ellipsizeStr = '...') {
     return text.trim() + ellipsizeStr;
 }
 
+export function addTableLine() {
+    let table = Config.tableInstance();
+    let doc = Config.getJspdfInstance();
+    let styles = {lineWidth: table.settings.tableLineWidth, lineColor: table.settings.tableLineColor};
+    Config.applyStyles(styles);
+    let fs = getFillStyle(styles);
+    if (fs) {
+        doc.rect(table.pageStartX, table.pageStartY, table.width, table.cursor.y - table.pageStartY, fs); 
+    }
+}
+
 export function addPage() {
+    let table = Config.tableInstance();
+    let doc = Config.getJspdfInstance();
+    
     // Add user content just before adding new page ensure it will 
     // be drawn above other things on the page
     addContentHooks();
-    Config.getJspdfInstance().addPage();
-    let table = Config.tableInstance();
+    addTableLine();
+    doc.addPage();
     table.pageCount++;
     table.cursor = {x: table.margin('left'), y: table.margin('top')};
+    table.pageStartX = table.cursor.x;
+    table.pageStartY = table.cursor.y;
     if (table.settings.showHeader === true || table.settings.showHeader === 'everyPage') {
         printRow(table.headerRow, table.settings.drawHeaderRow, table.settings.drawHeaderCell);
     }
@@ -65,4 +81,18 @@ export function addContentHooks() {
     Config.applyStyles(Config.getUserStyles());
     Config.callPageContentHook(Config.hooksData());
     Config.applyStyles(Config.getUserStyles());
+}
+
+export function getFillStyle(styles) {
+    let drawLine = styles.lineWidth > 0;
+    let drawBackground = styles.fillColor || styles.fillColor === 0;
+    if (drawLine && drawBackground) {
+        return 'DF'; // Fill then stroke
+    } else if (drawLine) {
+        return 'S'; // Only stroke (transparent background)
+    } else if (drawBackground) {
+        return 'F'; // Only fill, no stroke
+    } else {
+        return false;
+    }
 }

@@ -1,5 +1,5 @@
 import {Config, FONT_ROW_RATIO} from './config';
-import {addPage} from './common';
+import {addPage, getFillStyle} from './common';
 
 export function printFullRow(row, drawRowHook, drawCellHook) {
     let remainingRowHeight = 0;
@@ -126,18 +126,4 @@ function canFitOnPage(rowHeight) {
     let table = Config.tableInstance();
     let pos = rowHeight + table.cursor.y + table.margin('bottom');
     return pos < Config.pageSize().height;
-}
-
-function getFillStyle(styles) {
-    let drawLine = styles.lineWidth > 0;
-    let drawBackground = styles.fillColor !== false;
-    if (drawLine && drawBackground) {
-        return 'DF'; // Fill then stroke
-    } else if (drawLine) {
-        return 'S'; // Only stroke (transparent background)
-    } else if (drawBackground) {
-        return 'F'; // Only fill, no stroke
-    } else {
-        return false;
-    }
 }

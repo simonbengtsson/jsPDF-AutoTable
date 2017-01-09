@@ -139,7 +139,9 @@ All options below are used in `examples.js` so be sure to check it out if in dou
     margin: 40, // a number, array or object
     pageBreak: 'auto', // 'auto', 'avoid' or 'always'
     tableWidth: 'auto', // 'auto', 'wrap' or a number, 
-    showHeader: 'everyPage' // 'everyPage', 'firstPage', 'never'
+    showHeader: 'everyPage' // 'everyPage', 'firstPage', 'never',
+    tableLineColor: 200, // number, array (see color section below)
+    tableLineWidth: 0,
 
     // Hooks
     createdHeaderCell: function (cell, data) {},

@@ -277,6 +277,8 @@ examples.themes = function () {
 examples.custom = function () {
     var doc = new jsPDF();
     doc.autoTable(getColumns().slice(1, 5), getData(20), {
+        tableLineColor: [189, 195, 199],
+        tableLineWidth: 0.75,
         styles: {
             font: 'courier',
             lineColor: [44, 62, 80],

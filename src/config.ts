@@ -53,6 +53,8 @@ function getDefaults() {
         pageBreak: 'auto', // 'auto', 'avoid', 'always'
         tableWidth: 'auto', // 'auto'|'wrap'|number (takes precedence over columnWidth style if conflict)
         showHeader: 'everyPage', // 'everyPage', 'firstPage', 'never',
+        tableLineWidth: 0,
+        tableLineColor: 200,
 
         // Hooks
         createdHeaderCell: function (cell, data) {},
@@ -70,7 +72,6 @@ function defaultStyles() {
     let scaleFactor = Config.scaleFactor();
     return {
         font: "helvetica", // helvetica, times, courier
-        lineColor: 200,
         fontStyle: 'normal', // normal, bold, italic, bolditalic
         overflow: 'ellipsize', // visible, hidden, ellipsize or linebreak
         fillColor: false, // Either false for transparent, rbg array e.g. [255, 255, 255] or gray level e.g 200
@@ -79,6 +80,7 @@ function defaultStyles() {
         valign: 'top', // top, middle, bottom
         fontSize: 10,
         cellPadding: 5 / scaleFactor, // number or {top,left,right,left,vertical,horizontal}
+        lineColor: 200,
         lineWidth: 0 / scaleFactor,
         columnWidth: 'auto'
     }
@@ -122,7 +124,7 @@ export class Config {
         }
     }
     
-    static tableInstance() {
+    static tableInstance(): Table {
         return table;
     }
     
@@ -208,6 +210,7 @@ export class Config {
     }
 
     static styles(styles) {
+        styles = Array.isArray(styles) ? styles : [styles];
         let defStyles = defaultStyles();
         let newStyles = assign({}, defStyles, ...styles);
         newStyles.cellPadding = Config.marginOrPadding(newStyles.cellPadding, defStyles.cellPadding);
