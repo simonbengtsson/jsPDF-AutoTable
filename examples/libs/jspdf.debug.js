@@ -2039,6 +2039,7 @@
       }
       return jsPDF;
   }(typeof self !== "undefined" && self || typeof window !== "undefined" && window || undefined);
+  /*rollup-keeper-start*/window.tmp = jsPDF;
 
   /**
    * jsPDF AcroForm Plugin
