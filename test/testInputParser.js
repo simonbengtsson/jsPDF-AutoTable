@@ -9,11 +9,6 @@ var assert = require('assert');
 describe('input parser', function () {
     
     describe('html input', function() {
-        it('test', function() {
-            var parseInput = require('../src/inputParser').parseInput;
-            let table = parseInput({});
-        });
-        
         it.skip('from html', function () {
             let window = new MockBrowser().getWindow();
             window.document.querySelector = function () { return null; };

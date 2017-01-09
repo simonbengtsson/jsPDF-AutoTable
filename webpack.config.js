@@ -37,6 +37,7 @@ module.exports = {
             root: "jsPDF"
         }
     },
+    performance: { hints: false },
     devServer: {
         contentBase: "./examples",
         compress: true

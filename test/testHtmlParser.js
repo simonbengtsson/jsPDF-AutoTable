@@ -82,7 +82,6 @@ describe('html parser', function () {
 
     it('Table styles', function () {
         let window = new MockBrowser().getWindow();
-        global.window = window;
         window.document.querySelector = function () {
             let table = window.document.createElement('table');
             let row = table.insertRow(0);
@@ -105,8 +104,11 @@ describe('html parser', function () {
                 height: "20px"
             }
         };
+        global.window = window;
 
-        let res = parseHtml('', window, false, true);
+        
+        let res = parseHtml('', false, true);
+        console.log(res.body[0].styles);
         assert(res, 'Should have result');
         assert(!res.body[0].styles.lineColor, "Transparent color");
         assert(res.body[0].styles.fillColor, 'Parse color');
