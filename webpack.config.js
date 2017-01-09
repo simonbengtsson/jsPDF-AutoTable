@@ -13,6 +13,7 @@ fs.writeFileSync('./README.md', readme);
 module.exports = {
     entry: {
         "dist/jspdf.plugin.autotable": "./src/main.ts",
+        "dist/jspdf.plugin.autotable.src": "./src/main.ts",
         "examples/libs/jspdf.plugin.autotable": "./src/main.ts",
         "dist/jspdf.plugin.autotable.min": "./src/main.ts",
     },
