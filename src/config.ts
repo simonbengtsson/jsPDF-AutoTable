@@ -188,7 +188,7 @@ export class Config {
         return settings;
     }
     
-    static marginOrPadding(value, defaultVal) {
+    static marginOrPadding(value, defaultVal): any {
         let newValue = {};
         ['top', 'right', 'bottom', 'left'].forEach(function (side, i) {
             newValue[side] = defaultVal / Config.scaleFactor();
@@ -211,10 +211,7 @@ export class Config {
 
     static styles(styles) {
         styles = Array.isArray(styles) ? styles : [styles];
-        let defStyles = defaultStyles();
-        let newStyles = assign({}, defStyles, ...styles);
-        newStyles.cellPadding = Config.marginOrPadding(newStyles.cellPadding, defStyles.cellPadding);
-        return newStyles;
+        return assign(defaultStyles(), ...styles);
     }
 
     static applyStyles(styles) {

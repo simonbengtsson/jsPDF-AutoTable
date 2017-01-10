@@ -16,8 +16,7 @@ export function calculateWidths(doc, pageWidth) {
         column.contentWidth = 0;
         table.rows.concat(table.headerRow).forEach(function (row) {
             let cell = row.cells[column.dataKey];
-            let hPadding = cell.styles.cellPadding.left + cell.styles.cellPadding.right;
-            cell.contentWidth = hPadding + getStringWidth(cell.text, cell.styles);
+            cell.contentWidth = cell.padding('horizontal') + getStringWidth(cell.text, cell.styles);
             if (cell.contentWidth > column.contentWidth) {
                 column.contentWidth = cell.contentWidth;
             }
@@ -56,7 +55,7 @@ export function calculateWidths(doc, pageWidth) {
             let cell = row.cells[col.dataKey];
 
             Config.applyStyles(cell.styles);
-            let textSpace = col.width - cell.styles.cellPadding.left - cell.styles.cellPadding.right;
+            let textSpace = col.width - cell.padding('horizontal');
             if (cell.styles.overflow === 'linebreak') {
                 // Add one pt to textSpace to fix rounding error
                 try {
@@ -83,8 +82,7 @@ export function calculateWidths(doc, pageWidth) {
             let k = Config.scaleFactor();
             let lineCount = Array.isArray(cell.text) ? cell.text.length : 1;
             let fontHeight = cell.styles.fontSize / k * FONT_ROW_RATIO;
-            let vPadding = cell.styles.cellPadding.top + cell.styles.cellPadding.bottom;
-            cell.contentHeight = lineCount * fontHeight + vPadding;
+            cell.contentHeight = lineCount * fontHeight + cell.padding('vertical');
             if (cell.contentHeight > row.height) {
                 row.height = cell.contentHeight;
                 row.maxLineCount = lineCount;

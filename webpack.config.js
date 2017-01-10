@@ -39,11 +39,13 @@ module.exports = {
         contentBase: "./examples",
         port: 9000,
         proxy: {
-            "/libs/jspdf.plugin.autotable.js": "http://localhost:9000/examples"
+            "/libs/jspdf.plugin.autotable.js": {
+                target: "http://localhost:9000/dist/",
+                pathRewrite: {"^/libs" : ""}
+            }
         }
     },
     plugins: [
-        //new ExtractTextPlugin("bundle.css"),
         new webpack.BannerPlugin(""
             + "jsPDF AutoTable plugin v" + newVersion + "\n"
             + "Copyright (c) 2014 Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable \n"

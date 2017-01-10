@@ -1,3 +1,4 @@
+import {Config} from "./config";
 export let table = {};
 
 export class Table {
@@ -48,7 +49,7 @@ export class Row {
 
 export class Cell {
     raw;
-    styles = {};
+    styles: any = {};
     text: string|string[] = '';
     contentWidth = 0;
     textPos = {};
@@ -59,6 +60,17 @@ export class Cell {
     
     constructor(raw) {
         this.raw = raw;
+    }
+    
+    padding(name) {
+        let padding = Config.marginOrPadding(this.styles.cellPadding, null);
+        if (name === 'vertical') {
+            return padding.top + padding.bottom;
+        } else if (name === 'horizontal') {
+            return padding.left + padding.right;
+        } else {
+            return padding[name];
+        }
     }
 }
 

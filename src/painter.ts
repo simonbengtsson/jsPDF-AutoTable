@@ -21,9 +21,8 @@ export function printFullRow(row, drawRowHook, drawCellHook) {
                 let col = table.columns[j];
                 let cell = row.cells[col.dataKey];
 
-                let k = Config.scaleFactor();
-                let fontHeight = cell.styles.fontSize / k * FONT_ROW_RATIO;
-                let vPadding = cell.styles.cellPadding.top + cell.styles.cellPadding.bottom / k;
+                let fontHeight = cell.styles.fontSize / Config.scaleFactor() * FONT_ROW_RATIO;
+                let vPadding = cell.padding('vertical');
                 let remainingPageSpace = pageHeight - table.cursor.y - table.margin('bottom');
                 let remainingLineCount = Math.floor((remainingPageSpace - vPadding) / fontHeight);
 
@@ -90,19 +89,19 @@ export function printRow(row, drawRowHook, drawCellHook) {
         cell.width = column.width;
 
         if (cell.styles.valign === 'top') {
-            cell.textPos.y = table.cursor.y + cell.styles.cellPadding.top;
+            cell.textPos.y = table.cursor.y + cell.padding('top');
         } else if (cell.styles.valign === 'bottom') {
-            cell.textPos.y = table.cursor.y + row.height - cell.styles.cellPadding.bottom;
+            cell.textPos.y = table.cursor.y + row.height - cell.padding('bottom');
         } else {
             cell.textPos.y = table.cursor.y + row.height / 2;
         }
 
         if (cell.styles.halign === 'right') {
-            cell.textPos.x = cell.x + cell.width - cell.styles.cellPadding.right;
+            cell.textPos.x = cell.x + cell.width - cell.padding('right');
         } else if (cell.styles.halign === 'center') {
             cell.textPos.x = cell.x + cell.width / 2;
         } else {
-            cell.textPos.x = cell.x + cell.styles.cellPadding.left;
+            cell.textPos.x = cell.x + cell.padding('left');
         }
 
         let data = Config.hooksData({column: column, row: row, addPage: addPage});
