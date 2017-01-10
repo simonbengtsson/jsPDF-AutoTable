@@ -1,11 +1,11 @@
 /*!
- * jsPDF AutoTable plugin v2.2.2
+ * jsPDF AutoTable plugin v2.2.3
  * Copyright (c) 2014 Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable 
  * 
  * Licensed under the MIT License.
  * http://opensource.org/licenses/mit-license
  * 
- * */if (typeof window === 'object') window.jspdfAutoTableVersion = '2.2.2';/*
+ * */if (typeof window === 'object') window.jspdfAutoTableVersion = '2.2.3';/*
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
@@ -287,10 +287,7 @@ var Config = (function () {
     };
     Config.styles = function (styles) {
         styles = Array.isArray(styles) ? styles : [styles];
-        var defStyles = defaultStyles();
-        var newStyles = assign.apply(void 0, [{}, defStyles].concat(styles));
-        newStyles.cellPadding = Config.marginOrPadding(newStyles.cellPadding, defStyles.cellPadding);
-        return newStyles;
+        return assign.apply(void 0, [defaultStyles()].concat(styles));
     };
     Config.applyStyles = function (styles) {
         var doc = Config.getJspdfInstance();
@@ -451,9 +448,8 @@ function printFullRow(row, drawRowHook, drawCellHook) {
             for (var j = 0; j < table.columns.length; j++) {
                 var col = table.columns[j];
                 var cell = row.cells[col.dataKey];
-                var k = config_1.Config.scaleFactor();
-                var fontHeight = cell.styles.fontSize / k * config_1.FONT_ROW_RATIO;
-                var vPadding = cell.styles.cellPadding.top + cell.styles.cellPadding.bottom / k;
+                var fontHeight = cell.styles.fontSize / config_1.Config.scaleFactor() * config_1.FONT_ROW_RATIO;
+                var vPadding = cell.padding('vertical');
                 var remainingPageSpace = pageHeight - table.cursor.y - table.margin('bottom');
                 var remainingLineCount = Math.floor((remainingPageSpace - vPadding) / fontHeight);
                 if (Array.isArray(cell.text) && cell.text.length > remainingLineCount) {
@@ -508,22 +504,22 @@ function printRow(row, drawRowHook, drawCellHook) {
         cell.height = row.height;
         cell.width = column.width;
         if (cell.styles.valign === 'top') {
-            cell.textPos.y = table.cursor.y + cell.styles.cellPadding.top;
+            cell.textPos.y = table.cursor.y + cell.padding('top');
         }
         else if (cell.styles.valign === 'bottom') {
-            cell.textPos.y = table.cursor.y + row.height - cell.styles.cellPadding.bottom;
+            cell.textPos.y = table.cursor.y + row.height - cell.padding('bottom');
         }
         else {
             cell.textPos.y = table.cursor.y + row.height / 2;
         }
         if (cell.styles.halign === 'right') {
-            cell.textPos.x = cell.x + cell.width - cell.styles.cellPadding.right;
+            cell.textPos.x = cell.x + cell.width - cell.padding('right');
         }
         else if (cell.styles.halign === 'center') {
             cell.textPos.x = cell.x + cell.width / 2;
         }
         else {
-            cell.textPos.x = cell.x + cell.styles.cellPadding.left;
+            cell.textPos.x = cell.x + cell.padding('left');
         }
         var data = config_1.Config.hooksData({ column: column, row: row, addPage: common_1.addPage });
         if (drawCellHook(cell, data) !== false) {
@@ -644,6 +640,7 @@ module.exports = shouldUseNative() ? Object.assign : function (target, source) {
 
 "use strict";
 
+var config_1 = __webpack_require__(0);
 exports.table = {};
 var Table = (function () {
     function Table(settings) {
@@ -693,6 +690,18 @@ var Cell = (function () {
         this.y = 0;
         this.raw = raw;
     }
+    Cell.prototype.padding = function (name) {
+        var padding = config_1.Config.marginOrPadding(this.styles.cellPadding, null);
+        if (name === 'vertical') {
+            return padding.top + padding.bottom;
+        }
+        else if (name === 'horizontal') {
+            return padding.left + padding.right;
+        }
+        else {
+            return padding[name];
+        }
+    };
     return Cell;
 }());
 exports.Cell = Cell;
@@ -733,8 +742,7 @@ function calculateWidths(doc, pageWidth) {
         column.contentWidth = 0;
         table.rows.concat(table.headerRow).forEach(function (row) {
             var cell = row.cells[column.dataKey];
-            var hPadding = cell.styles.cellPadding.left + cell.styles.cellPadding.right;
-            cell.contentWidth = hPadding + common_1.getStringWidth(cell.text, cell.styles);
+            cell.contentWidth = cell.padding('horizontal') + common_1.getStringWidth(cell.text, cell.styles);
             if (cell.contentWidth > column.contentWidth) {
                 column.contentWidth = cell.contentWidth;
             }
@@ -773,7 +781,7 @@ function calculateWidths(doc, pageWidth) {
         table.columns.forEach(function (col) {
             var cell = row.cells[col.dataKey];
             config_1.Config.applyStyles(cell.styles);
-            var textSpace = col.width - cell.styles.cellPadding.left - cell.styles.cellPadding.right;
+            var textSpace = col.width - cell.padding('horizontal');
             if (cell.styles.overflow === 'linebreak') {
                 // Add one pt to textSpace to fix rounding error
                 try {
@@ -805,8 +813,7 @@ function calculateWidths(doc, pageWidth) {
             var k = config_1.Config.scaleFactor();
             var lineCount = Array.isArray(cell.text) ? cell.text.length : 1;
             var fontHeight = cell.styles.fontSize / k * config_1.FONT_ROW_RATIO;
-            var vPadding = cell.styles.cellPadding.top + cell.styles.cellPadding.bottom;
-            cell.contentHeight = lineCount * fontHeight + vPadding;
+            cell.contentHeight = lineCount * fontHeight + cell.padding('vertical');
             if (cell.contentHeight > row.height) {
                 row.height = cell.contentHeight;
                 row.maxLineCount = lineCount;
