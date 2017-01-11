@@ -181,13 +181,48 @@ examples['header-footer'] = function () {
     return doc;
 };
 
+// Minimal - shows how compact tables can be drawn
+examples.defaults = function () {
+    // Global defaults
+    jsPDF.autoTableSetDefaults({
+        styles: {overflow: 'linebreak'},
+        headerStyles: {fillColor: [100, 0, 0]}
+    });
+    
+    var doc = new jsPDF();
+    
+    // Document defaults
+    doc.autoTableSetDefaults({
+        styles: {fontSize: 8},
+        headerStyles: {fillColor: [0, 100, 0]},
+        margin: {top: 25},
+        addPageContent: function(data) {
+            doc.setFontSize(20);
+            doc.text('Document specific header', data.settings.margin.left, 20);
+        }
+    });
+    
+    doc.autoTable(getColumns(), getData());
+    
+    doc.addPage();
+    
+    doc.autoTable(getColumns(), getData(), {
+        headerStyles: {fillColor: [0, 0, 100]}
+    });
+
+    
+    // Reset defaults
+    doc.autoTableSetDefaults(null);
+    jsPDF.autoTableSetDefaults(null);
+    
+    return doc;
+};
+
 // Horizontal - shows how tables can be drawn with horizontal headers
 examples.horizontal = function () {
     var doc = new jsPDF();
     doc.autoTable(getColumns().splice(1, 4), getData(), {
-        drawHeaderRow: function() {
-            return false; // Don't draw header row
-        },
+        showHeader: 'never',
         columnStyles: {
             name: {fillColor: [41, 128, 185], textColor: 255, fontStyle: 'bold'}
         }

@@ -71,15 +71,15 @@ export function addPage() {
     table.pageStartX = table.cursor.x;
     table.pageStartY = table.cursor.y;
     if (table.settings.showHeader === true || table.settings.showHeader === 'everyPage') {
-        printRow(table.headerRow, table.settings.drawHeaderRow, table.settings.drawHeaderCell);
+        printRow(table.headerRow, table.hooks.drawHeaderRow, table.hooks.drawHeaderCell);
     }
 }
 
 export function addContentHooks() {
     Config.applyStyles(Config.getUserStyles());
-    Config.tableInstance().settings.addPageContent(Config.hooksData());
-    Config.applyStyles(Config.getUserStyles());
-    Config.callPageContentHook(Config.hooksData());
+    for (let hook of Config.tableInstance().hooks.addPageContent) {
+        hook(Config.hooksData());
+    }
     Config.applyStyles(Config.getUserStyles());
 }
 

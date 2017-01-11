@@ -1,7 +1,7 @@
 'use strict';
 
 import * as jsPDF from 'jspdf';
-import {Config, FONT_ROW_RATIO} from './config';
+import {Config, FONT_ROW_RATIO, getDefaults} from './config';
 import {addContentHooks, addPage, addTableLine} from './common';
 import {printRow, printFullRow} from './painter';
 import {calculateWidths} from './calculator';
@@ -15,20 +15,26 @@ import {createModels, validateInput} from './creator';
  * @param {Object} [userOptions={}] Options that will override the default ones
  */
 jsPDF.API.autoTable = function (headers, data, userOptions = {}) {
-    validateInput(headers, data, userOptions);
+    let allOptions = [this.autoTable.globalDefaults || {}, this.autoTable.documentDefaults || {}, userOptions || {}];
+    validateInput(headers, data, allOptions);
     Config.setJspdfInstance(this);
     let doc = Config.getJspdfInstance();
 
-    Config.createTable(Config.initSettings(userOptions));
-    let table = Config.tableInstance();
+    let table = Config.createTable();
+    Config.initSettings(table, allOptions);
     let settings = table.settings;
-
     
     // Create the table model with its columns, rows and cells
     createModels(headers, data);
+    settings.margin = Config.marginOrPadding(settings.margin, getDefaults().margin);
     calculateWidths(this, Config.pageSize().width);
 
-    let minTableBottomPos = settings.startY + settings.margin.bottom + table.headerRow.height;
+    table.cursor = {
+        x: table.margin('left'),
+        y: settings.startY === false ? table.margin('top') : settings.startY
+    };
+
+    let minTableBottomPos = settings.startY + table.margin('bottom') + table.headerRow.height;
     if (settings.pageBreak === 'avoid') {
         minTableBottomPos += table.height;
     }
@@ -36,19 +42,19 @@ jsPDF.API.autoTable = function (headers, data, userOptions = {}) {
     if ((settings.pageBreak === 'always' && settings.startY !== false) ||
         (settings.startY !== false && minTableBottomPos > pageHeight)) {
         Config.getJspdfInstance().addPage();
-        table.cursor.y = settings.margin.top;
+        table.cursor.y = table.margin('top');
     }
     table.pageStartX = table.cursor.x;
     table.pageStartY = table.cursor.y;
 
     Config.applyStyles(Config.getUserStyles());
     if (settings.showHeader === true || settings.showHeader === 'firstPage' || settings.showHeader === 'everyPage') {
-        printRow(table.headerRow, settings.drawHeaderRow, settings.drawHeaderCell);
+        printRow(table.headerRow, table.hooks.drawHeaderRow, table.hooks.drawHeaderCell);
     }
     Config.applyStyles(Config.getUserStyles());
 
     table.rows.forEach(function (row) {
-        printFullRow(row, settings.drawRow, settings.drawCell);
+        printFullRow(row, table.hooks.drawRow, table.hooks.drawCell);
     });
 
     addTableLine();
@@ -57,6 +63,15 @@ jsPDF.API.autoTable = function (headers, data, userOptions = {}) {
     doc.autoTablePreviousCursor = table.cursor;
 
     return this;
+};
+
+jsPDF.API.autoTableSetDefaults = function(defaults) {
+    this.autoTable.documentDefaults = defaults;
+    return this;
+};
+
+jsPDF.autoTableSetDefaults = function(defaults) {
+    jsPDF.API.autoTable.globalDefaults = defaults;
 };
 
 /**
@@ -72,12 +87,15 @@ jsPDF.API.autoTableEndPosY = function () {
     }
 };
 
+/**
+ * @deprecated Use jsPDF.autoTableSetDefaults({addPageContent: function() {}}) instead
+ */
 jsPDF.API.autoTableAddPageContent = function (hook) {
-    if (typeof hook !== "function") {
-        console.error("A function has to be provided to autoTableAddPageContent, got: " + typeof hook);
-        return;
+    if (!jsPDF.API.autoTable.globalDefaults) {
+        jsPDF.API.autoTable.globalDefaults = {};
     }
-    Config.setPageContentHook(hook);
+    jsPDF.API.autoTable.globalDefaults.addPageContent = hook;
+    return this;
 };
 
 /**
@@ -85,6 +103,7 @@ jsPDF.API.autoTableAddPageContent = function (hook) {
  */
 jsPDF.API.autoTableAddPage = function() {
     addPage();
+    return this;
 };
 
 /**
@@ -169,12 +188,12 @@ jsPDF.API.autoTableText = function (text, x, y, styles) {
                 this.text(splitText[iLine], x - this.getStringUnitWidth(splitText[iLine]) * alignSize, y);
                 y += fontSize;
             }
-            return Config.getJspdfInstance();
+            return this;
         }
         x -= this.getStringUnitWidth(text) * alignSize;
     }
 
     this.text(text, x, y);
 
-    return Config.getJspdfInstance();
+    return this;
 };

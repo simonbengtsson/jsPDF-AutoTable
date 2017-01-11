@@ -7,10 +7,10 @@ import {Table} from './models';
 let jspdfInstance = null;
 let userStyles = null;
 let table = null;
-let globalAddPageContent = null; // Set with doc.autoTableAddPageContent
 
 declare function require(path: string): any;
 var assign = require('object-assign');
+var entries = require('object.entries');
 
 /**
  * Styles for the themes (overriding the default styles)
@@ -36,7 +36,7 @@ export let getTheme = function(name) {
     return themes[name];
 };
 
-function getDefaults() {
+export function getDefaults() {
     let scaleFactor = Config.scaleFactor();
     return {
         // Styling
@@ -48,7 +48,7 @@ function getDefaults() {
         columnStyles: {},
 
         // Properties
-        startY: false, // false indicates the margin.top value
+        startY: false, // false indicates the margin top value
         margin: 40 / scaleFactor,
         pageBreak: 'auto', // 'auto', 'avoid', 'always'
         tableWidth: 'auto', // 'auto'|'wrap'|number (takes precedence over columnWidth style if conflict)
@@ -110,18 +110,9 @@ export class Config {
         return userStyles;
     }
     
-    static createTable(settings) {
-        table = new Table(settings);
-    }
-    
-    static setPageContentHook(hook) {
-        globalAddPageContent = hook;
-    }
-    
-    static callPageContentHook(data) {
-        if (typeof globalAddPageContent === 'function') {
-            globalAddPageContent(data);
-        }
+    static createTable() {
+        table = new Table();
+        return table;
     }
     
     static tableInstance(): Table {
@@ -142,70 +133,59 @@ export class Config {
         }, additionalData || {});
     }
 
-    static initSettings(userOptions) {
-        let settings = assign({}, getDefaults(), userOptions);
-
-        // Options
-        if (typeof settings.extendWidth !== 'undefined') {
-            settings.tableWidth = settings.extendWidth ? 'auto' : 'wrap';
-            console.error("Use of deprecated option: extendWidth, use tableWidth instead.");
+    static initSettings(table, allOptions) {
+        // Merge styles one level deeper
+        for (let styleProp of Object.keys(table.styles)) {
+            let styles = allOptions.map(function(opts) { return opts[styleProp] || {}});
+            table.styles[styleProp] = assign({}, ...styles);
         }
-        if (typeof settings.margins !== 'undefined') {
-            if (typeof settings.margin === 'undefined') settings.margin = settings.margins;
-            console.error("Use of deprecated option: margins, use margin instead.");
-        }
-        if (typeof settings.afterPageContent !== 'undefined' || typeof settings.beforePageContent !== 'undefined' || typeof settings.afterPageAdd !== 'undefined') {
-            console.error("The afterPageContent, beforePageContent and afterPageAdd hooks are deprecated. Use addPageContent instead");
-            if (typeof userOptions.addPageContent === 'undefined') {
-                settings.addPageContent = function(data) {
-                    Config.applyStyles(Config.getUserStyles());
-                    if (settings.beforePageContent) settings.beforePageContent(data);
-                    Config.applyStyles(Config.getUserStyles());
-                    if (settings.afterPageContent) settings.afterPageContent(data);
-                    Config.applyStyles(Config.getUserStyles());
 
-                    if (settings.afterPageAdd && data.pageCount > 1) {
-                        data.afterPageAdd(data);
-                    }
-                    Config.applyStyles(Config.getUserStyles());
+        // Append event handlers instead of replacing them
+        for (let [hookName, list] of entries(table.hooks)) {
+            for (let opts of allOptions) {
+                if (opts && opts[hookName]) {
+                    list.push(opts[hookName]);
                 }
             }
         }
 
-        [['padding', 'cellPadding'], ['lineHeight', 'rowHeight'], 'fontSize', 'overflow'].forEach(function (o) {
-            let deprecatedOption = typeof o === 'string' ? o : o[0];
-            let style = typeof o === 'string' ? o : o[1];
-            if (typeof settings[deprecatedOption] !== 'undefined') {
-                if (typeof settings.styles[style] === 'undefined') {
-                    settings.styles[style] = settings[deprecatedOption];
-                }
-                console.error("Use of deprecated option: " + deprecatedOption + ", use the style " + style + " instead.");
-            }
-        });
-        
-        settings.margin = Config.marginOrPadding(settings.margin, 40);
-        
-        return settings;
+        // Merge all other options one level
+        table.settings = assign(getDefaults(), ...allOptions);
     }
     
-    static marginOrPadding(value, defaultVal): any {
+    // This is messy, only keep array and number format the next major version
+    static marginOrPadding(value, defaultValue: number): any {
         let newValue = {};
-        ['top', 'right', 'bottom', 'left'].forEach(function (side, i) {
-            newValue[side] = defaultVal / Config.scaleFactor();
-            if (typeof value === 'number') {
-                newValue[side] = value;
-            } else if (Array.isArray(value) && typeof value[i] === 'number') {
-                newValue[side] = value[i];
-            } else if (typeof value === 'object') {
-                if (typeof value[side] === 'number') {
-                    newValue[side] = value[side];
-                } else if ((side === 'right' || side === 'left') && typeof value['horizontal'] === 'number') {
-                    newValue[side] = value['horizontal'];
-                } else if ((side === 'top' || side === 'bottom') && typeof value['vertical'] === 'number') {
-                    newValue[side] = value['vertical'];
-                }
+        if (Array.isArray(value)) {
+            if (value.length >= 4) {
+                newValue = {'top': value[0], 'right': value[1], 'bottom': value[2], 'left': value[3]};
+            } else if (value.length === 3) {
+                newValue = {'top': value[0], 'right': value[1], 'bottom': value[2], 'left': value[1]};
+            } else if (value.length === 2) {
+                newValue = {'top': value[0], 'right': value[1], 'bottom': value[0], 'left': value[1]};
+            } else if (value.length === 1) {
+                value = value[0];
+            } else {
+                value = defaultValue;
             }
-        });
+        } else if (typeof value === 'object') {
+            if (value['vertical']) {
+                value['top'] = value['vertical'];
+                value['bottom'] = value['vertical'];
+            } else if (value['horizontal']) {
+                value['right'] = value['horizontal'];
+                value['left'] = value['horizontal'];
+            }
+            
+            for (let side of ['top', 'right', 'bottom', 'left']) {
+                newValue[side] = value[side] || value[side] === 0 ? value[side] : defaultValue;
+            }
+        }
+        
+        if (typeof value === 'number') {
+            newValue = {'top': value, 'right': value, 'bottom': value, 'left': value};
+        }
+        
         return newValue;
     }
 

@@ -1,7 +1,7 @@
 import {Config, FONT_ROW_RATIO} from './config';
 import {addPage, getFillStyle} from './common';
 
-export function printFullRow(row, drawRowHook, drawCellHook) {
+export function printFullRow(row, drawRowHooks, drawCellHooks) {
     let remainingRowHeight = 0;
     let remainingTexts = {};
 
@@ -47,7 +47,7 @@ export function printFullRow(row, drawRowHook, drawCellHook) {
         }
     }
 
-    printRow(row, drawRowHook, drawCellHook);
+    printRow(row, drawRowHooks, drawCellHooks);
 
     // Parts of the row is now printed. Time for adding a new page, prune 
     // the text and start over
@@ -62,16 +62,18 @@ export function printFullRow(row, drawRowHook, drawCellHook) {
         addPage();
         row.pageCount++;
         row.height = remainingRowHeight;
-        printFullRow(row, drawRowHook, drawCellHook);
+        printFullRow(row, drawRowHooks, drawCellHooks);
     }
 }
 
-export function printRow(row, drawRowHook, drawCellHook) {
+export function printRow(row, drawRowHooks, drawCellHooks) {
     let table = Config.tableInstance();
     row.y = table.cursor.y;
-
-    if (drawRowHook(row, Config.hooksData({row: row, addPage: addPage})) === false) {
-        return;
+    
+    for (let hook of drawRowHooks) {
+        if (hook(row, Config.hooksData({row: row, addPage: addPage})) === false) {
+            return;
+        }
     }
 
     table.cursor.x = table.margin('left');
@@ -104,8 +106,16 @@ export function printRow(row, drawRowHook, drawCellHook) {
             cell.textPos.x = cell.x + cell.padding('left');
         }
 
+        
+        let shouldDrawCell = true;
         let data = Config.hooksData({column: column, row: row, addPage: addPage});
-        if (drawCellHook(cell, data) !== false) {
+        for (let hook of drawCellHooks) {
+            if (hook(cell, data) === false) {
+                shouldDrawCell = false;
+            }
+        }
+
+        if (shouldDrawCell) {
             let fillStyle = getFillStyle(cell.styles);
             if (fillStyle) {
                 Config.getJspdfInstance().rect(cell.x, cell.y, cell.width, cell.height, fillStyle);
@@ -115,6 +125,7 @@ export function printRow(row, drawRowHook, drawCellHook) {
                 valign: cell.styles.valign
             });
         }
+        
         table.cursor.x += cell.width;
     }
 

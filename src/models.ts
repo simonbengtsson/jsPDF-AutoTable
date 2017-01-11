@@ -1,4 +1,4 @@
-import {Config} from "./config";
+import {Config, getDefaults} from "./config";
 export let table = {};
 
 export class Table {
@@ -15,19 +15,27 @@ export class Table {
     pageCount = 1;
     pageStartX: number;
     pageStartY: number;
-    
-    
-    constructor(settings) {
-        this.settings = settings;
-        
-        this.cursor = {
-            x: this.margin('left'),
-            y: settings.startY === false ? this.margin('top') : settings.startY
-        };
-    }
+
+    hooks = {
+        createdHeaderCell: [],
+        createdCell: [],
+        drawHeaderRow: [],
+        drawRow: [],
+        drawHeaderCell: [],
+        drawCell: [],
+        addPageContent: []
+    };
+
+    styles = {
+        styles: {},
+        headerStyles: {},
+        bodyStyles: {},
+        alternateRowStyles: {},
+        columnStyles: {},
+    };
     
     margin(side) {
-        return this.settings.margin[side];
+        return Config.marginOrPadding(this.settings.margin, getDefaults().margin)[side];
     }
 }
 
@@ -63,7 +71,7 @@ export class Cell {
     }
     
     padding(name) {
-        let padding = Config.marginOrPadding(this.styles.cellPadding, null);
+        let padding = Config.marginOrPadding(this.styles.cellPadding, Config.styles([]).cellPadding);
         if (name === 'vertical') {
             return padding.top + padding.bottom;
         } else if (name === 'horizontal') {
