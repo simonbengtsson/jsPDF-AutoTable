@@ -184,6 +184,7 @@ Many of the styles has a matching jspdf set method. For example `lineWidth` corr
 - `margin` Similar to margin in css it sets how much spacing it should be around the table on each page. The startY option can be used if the margin top value should be different on the first page. The margin option accepts both a number, an array [top, right, bottom, left] and an object {top: 40, right: 40, bottom: 40, left: 40}. If you want to use the default value and only change one side you can specify it like this: {top: 60}.
 - `pageBreak` This option defines the behavior of the table when it will span more than one page. If set to 'always' each table will always start on a new page. If set to 'avoid' it will start on a new page if there is not enough room to fit the entire table on the current page. If set to 'auto' it will add a new page only when the next row doesn't fit.
 - `tableWidth` This option defines the fixed width of the table if set to a number. If set to 'auto' it will be 100% of width of the page and if set to 'wrap' it will only be as wide as its content is.  
+- `showHeader` Set to `firstPage`, `everyPage` or `never`
 
 ### Hooks
 There are 9 different hooks that gets called at various times during the drawing of the table. If applicable, information about the current cell, row or column are provided to the hook function. In addition to that the following general information is always provided in the `data` parameter:
@@ -197,9 +198,10 @@ There are 9 different hooks that gets called at various times during the drawing
 
 ### Helper functions
 - `autoTableHtmlToJson(tableElem, includeHiddenElements)` Use it to generate the javascript objects required for this library from an html table (see `from html` example). If includeHiddenElements is set to true hidden rows and columns will be included otherwise excluded.
-- `autoTableEndPosY()` Use it if you want to know where on the page the the last row were drawn (see `multiple tables` example)
-- `autoTableAddPage()` Use in the hooks to continue the table on the next page. Adds a new header automatically.
-- `autoTableAddPageContent(hook)` The passed function/hook will be called once for every page there is parts of a autotable on. Useful when having multiple tables spanning over multiple pages that should have the same header for example. The passed function will get the same data object as the hooks function (described above). Make sure this is called before any calls to autoTable.
+- `doc.autoTableSetDefaults({ ... })`. Use for setting default options for all tables on the specific document. Settings and styles will be overridden in the following order `global` < `document` < `table`. Hooks will be added and not overridden.
+- `jsPDF.autoTableSetDefaults({ ... })` Use for setting global defaults which will be applied for all document and tabels.
+
+If you want to know something about the last table that was drawn you can use `doc.autoTable.previous`. It has a `doc.autoTable.previous.finalY` property among other things that has the value of the last printed y coordinate on a page. This can be used to draw text, multiple tables or other content after a table.
 
 ### Other pdf libraries
 

@@ -64,17 +64,17 @@ examples.long = function () {
         columnStyles: {text: {columnWidth: 'auto'}}
     });
 
-    doc.text("Overflow 'hidden'", 7, doc.autoTableEndPosY() + 10);
+    doc.text("Overflow 'hidden'", 7, doc.autoTable.previous.finalY + 10);
     doc.autoTable(columnsLong, getData(), {
-        startY: doc.autoTableEndPosY() + 15,
+        startY: doc.autoTable.previous.finalY + 15,
         margin: {horizontal: 7},
         styles: {overflow: 'hidden', columnWidth: 'wrap'},
         columnStyles: {text: {columnWidth: 'auto'}}
     });
 
-    doc.text("Overflow 'linebreak'", 7, doc.autoTableEndPosY() + 10);
+    doc.text("Overflow 'linebreak'", 7, doc.autoTable.previous.finalY  + 10);
     doc.autoTable(columnsLong, getData(3), {
-        startY: doc.autoTableEndPosY() + 15,
+        startY: doc.autoTable.previous.finalY + 15,
         margin: {horizontal: 7},
         bodyStyles: {valign: 'top'},
         styles: {overflow: 'linebreak', columnWidth: 'wrap'},
@@ -99,7 +99,7 @@ examples.content = function () {
     cols.splice(0, 2);
     doc.autoTable(cols, getData(40), {startY: 50, showHeader: 'firstPage'});
 
-    doc.text(text, 14, doc.autoTableEndPosY() + 10);
+    doc.text(text, 14, doc.autoTable.previous.finalY + 10);
 
     return doc;
 };
@@ -125,7 +125,7 @@ examples.multiple = function () {
 
     for (var j = 0; j < 6; j++) {
         doc.autoTable(getColumns(), getData(9), {
-            startY: doc.autoTableEndPosY() + 10,
+            startY: doc.autoTable.previous.finalY + 10,
             pageBreak: 'avoid',
         });
     }
@@ -298,11 +298,11 @@ examples.themes = function () {
     doc.text('Theme "striped"', 14, 16);
     doc.autoTable(getColumns(), getData(), {startY: 20});
 
-    doc.text('Theme "grid"', 14, doc.autoTableEndPosY() + 10);
-    doc.autoTable(getColumns(), getData(), {startY: doc.autoTableEndPosY() + 14, theme: 'grid'});
+    doc.text('Theme "grid"', 14, doc.autoTable.previous.finalY + 10);
+    doc.autoTable(getColumns(), getData(), {startY: doc.autoTable.previous.finalY + 14, theme: 'grid'});
 
-    doc.text('Theme "plain"', 14, doc.autoTableEndPosY() + 10);
-    doc.autoTable(getColumns(), getData(), {startY: doc.autoTableEndPosY() + 14, theme: 'plain'});
+    doc.text('Theme "plain"', 14, doc.autoTable.previous.finalY + 10);
+    doc.autoTable(getColumns(), getData(), {startY: doc.autoTable.previous.finalY + 14, theme: 'plain'});
 
     return doc;
 };

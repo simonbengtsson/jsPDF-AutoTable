@@ -58,6 +58,7 @@ export function addTableBorder() {
 
 export function addPage() {
     let table = Config.tableInstance();
+    table.finalY = table.cursor.y;
     
     // Add user content just before adding new page ensure it will 
     // be drawn above other things on the page
@@ -75,10 +76,10 @@ export function addPage() {
 
 export function addContentHooks() {
     for (let hook of Config.tableInstance().hooks.addPageContent) {
-        Config.applyStyles(Config.applyUserStyles());
+        Config.applyUserStyles();
         hook(Config.hooksData());
     }
-    Config.applyStyles(Config.applyUserStyles());
+    Config.applyUserStyles();
 }
 
 export function getFillStyle(styles) {

@@ -72,10 +72,16 @@ jsPDF.API.autoTable = function (headers, data, tableOptions = {}) {
         addContentHooks();
     }
     
-    this.autoTablePreviousCursor = table.cursor;
+    table.finalY = table.cursor.y;
+    this.autoTable.previous = table;
+
+    Config.applyUserStyles();
     
     return this;
 };
+
+// Enables doc.autoTable.previous.finalY || 40;
+jsPDF.API.autoTable.previous = false;
 
 jsPDF.API.autoTableSetDefaults = function(defaults) {
     if (!this.autoTableState) this.autoTableState = {};
@@ -99,38 +105,6 @@ jsPDF.autoTableSetDefaults = function(defaults) {
     }
     
     jsPDF.autoTableState.defaults = defaults;
-};
-
-/**
- * Returns the Y position of the last drawn cell
- * @returns int
- */
-jsPDF.API.autoTableEndPosY = function () {
-    let cursor = Config.tableInstance().doc.autoTablePreviousCursor;
-    if (cursor && typeof cursor.y === 'number') {
-        return cursor.y;
-    } else {
-        return 0;
-    }
-};
-
-/**
- * @deprecated Use jsPDF.autoTableSetDefaults({addPageContent: function() {}}) instead
- */
-jsPDF.API.autoTableAddPageContent = function (hook) {
-    if (!jsPDF.API.autoTable.globalDefaults) {
-        jsPDF.API.autoTable.globalDefaults = {};
-    }
-    jsPDF.API.autoTable.globalDefaults.addPageContent = hook;
-    return this;
-};
-
-/**
- * @deprecated Use data.addPage in hooks instead
- */
-jsPDF.API.autoTableAddPage = function() {
-    addPage();
-    return this;
 };
 
 /**
@@ -222,5 +196,36 @@ jsPDF.API.autoTableText = function (text, x, y, styles) {
 
     this.text(text, x, y);
 
+    return this;
+};
+
+/**
+ * @deprecated Use doc.autoTable.previous.finalY instead
+ */
+jsPDF.API.autoTableEndPosY = function () {
+    let prev = this.autoTable.previous;
+    if (prev.cursor && typeof prev.cursor.y === 'number') {
+        return prev.cursor.y;
+    } else {
+        return 0;
+    }
+};
+
+/**
+ * @deprecated Use jsPDF.autoTableSetDefaults({addPageContent: function() {}}) instead
+ */
+jsPDF.API.autoTableAddPageContent = function (hook) {
+    if (!jsPDF.API.autoTable.globalDefaults) {
+        jsPDF.API.autoTable.globalDefaults = {};
+    }
+    jsPDF.API.autoTable.globalDefaults.addPageContent = hook;
+    return this;
+};
+
+/**
+ * @deprecated Use data.addPage in hooks instead
+ */
+jsPDF.API.autoTableAddPage = function() {
+    addPage();
     return this;
 };
