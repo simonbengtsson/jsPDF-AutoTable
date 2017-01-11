@@ -46,7 +46,7 @@ export function ellipsize(text, width, styles, ellipsizeStr = '...') {
     return text.trim() + ellipsizeStr;
 }
 
-export function addTableLine() {
+export function addTableBorder() {
     let table = Config.tableInstance();
     let styles = {lineWidth: table.settings.tableLineWidth, lineColor: table.settings.tableLineColor};
     Config.applyStyles(styles);
@@ -62,7 +62,7 @@ export function addPage() {
     // Add user content just before adding new page ensure it will 
     // be drawn above other things on the page
     addContentHooks();
-    addTableLine();
+    addTableBorder();
     table.doc.addPage();
     table.pageCount++;
     table.cursor = {x: table.margin('left'), y: table.margin('top')};

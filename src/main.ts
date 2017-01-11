@@ -2,7 +2,7 @@
 
 import * as jsPDF from 'jspdf';
 import {Config, FONT_ROW_RATIO, getDefaults} from './config';
-import {addContentHooks, addPage, addTableLine} from './common';
+import {addContentHooks, addPage, addTableBorder} from './common';
 import {printRow, printFullRow} from './painter';
 import {calculateWidths} from './calculator';
 import {createModels, validateInput} from './creator';
@@ -14,11 +14,14 @@ import {createModels, validateInput} from './creator';
  * @param {Object[][]|String[][]} data Either as an array of objects or array of strings
  * @param {Object} [userOptions={}] Options that will override the default ones
  */
-jsPDF.API.autoTable = function (headers, data, userOptions = {}) {
-    let allOptions = [this.autoTable.globalDefaults || {}, this.autoTable.documentDefaults || {}, userOptions || {}];
+jsPDF.API.autoTable = function (headers, data, tableOptions = {}) {
+    this.autoTableState = this.autoTableState || {addPageHookPages: {}, defaults: {}};
+    jsPDF.autoTableState = jsPDF.autoTableState || {defaults: {}};
+    
+    let allOptions = [jsPDF.autoTableState.defaults, this.autoTableState.defaults, tableOptions];
     validateInput(headers, data, allOptions);
     Config.initUserStyles(this);
-
+    
     let table = Config.createTable(this);
     Config.initSettings(table, allOptions);
     let settings = table.settings;
@@ -56,8 +59,19 @@ jsPDF.API.autoTable = function (headers, data, userOptions = {}) {
         printFullRow(row, table.hooks.drawRow, table.hooks.drawCell);
     });
 
-    addTableLine();
-    addContentHooks();
+    addTableBorder();
+
+    // Don't call global and document addPageContent more than once for each page
+    let pageNumber = this.internal.getCurrentPageInfo().pageNumber;
+    if (this.autoTableState.addPageHookPages && this.autoTableState.addPageHookPages[pageNumber]) {
+        if (typeof tableOptions['addPageContent'] === 'function') {
+            tableOptions['addPageContent'](Config.hooksData());
+        }
+    } else {
+        if (!this.autoTableState.addPageHookPages) this.autoTableState.addPageHookPages = {};
+        this.autoTableState.addPageHookPages[pageNumber] = true;
+        addContentHooks();
+    }
     
     this.autoTablePreviousCursor = table.cursor;
 
@@ -65,12 +79,27 @@ jsPDF.API.autoTable = function (headers, data, userOptions = {}) {
 };
 
 jsPDF.API.autoTableSetDefaults = function(defaults) {
-    this.autoTable.documentDefaults = defaults;
+    if (!this.autoTableState) this.autoTableState = {};
+    
+    if (defaults && typeof defaults === 'object') {
+        this.autoTableState.defaults = defaults;
+    } else {
+        delete this.autoTableState.defaults;
+    }
+    
     return this;
 };
 
 jsPDF.autoTableSetDefaults = function(defaults) {
-    jsPDF.API.autoTable.globalDefaults = defaults;
+    if (!jsPDF.autoTableState) jsPDF.autoTableState = {};
+    
+    if (defaults && typeof defaults === 'object') {
+        this.autoTableState.defaults = defaults;
+    } else {
+        delete this.autoTableState.defaults;
+    }
+    
+    jsPDF.autoTableState.defaults = defaults;
 };
 
 /**

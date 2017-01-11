@@ -185,16 +185,15 @@ examples['header-footer'] = function () {
 examples.defaults = function () {
     // Global defaults
     jsPDF.autoTableSetDefaults({
-        styles: {overflow: 'linebreak'},
-        headerStyles: {fillColor: [100, 0, 0]}
+        columnStyles: {id: {fontStyle: 'bold'}},
+        headerStyles: {fillColor: 0},
     });
     
     var doc = new jsPDF();
     
     // Document defaults
     doc.autoTableSetDefaults({
-        styles: {fontSize: 8},
-        headerStyles: {fillColor: [0, 100, 0]},
+        headerStyles: {fillColor: [155, 89, 182]}, // Purple
         margin: {top: 25},
         addPageContent: function(data) {
             doc.setFontSize(20);
@@ -207,7 +206,8 @@ examples.defaults = function () {
     doc.addPage();
     
     doc.autoTable(getColumns(), getData(), {
-        headerStyles: {fillColor: [0, 0, 100]}
+        // Will override document and global headerStyles
+        headerStyles: {fillColor: [231, 76, 60]} // Red
     });
 
     
