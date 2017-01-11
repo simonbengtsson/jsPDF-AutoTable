@@ -74,11 +74,11 @@ export function addPage() {
 }
 
 export function addContentHooks() {
-    Config.applyStyles(Config.getUserStyles());
     for (let hook of Config.tableInstance().hooks.addPageContent) {
+        Config.applyStyles(Config.applyUserStyles());
         hook(Config.hooksData());
     }
-    Config.applyStyles(Config.getUserStyles());
+    Config.applyStyles(Config.applyUserStyles());
 }
 
 export function getFillStyle(styles) {

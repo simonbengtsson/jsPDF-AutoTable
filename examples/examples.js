@@ -209,7 +209,6 @@ examples.defaults = function () {
         // Will override document and global headerStyles
         headerStyles: {fillColor: [231, 76, 60]} // Red
     });
-
     
     // Reset defaults
     doc.autoTableSetDefaults(null);

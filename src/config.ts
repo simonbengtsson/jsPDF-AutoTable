@@ -4,8 +4,7 @@
 export let FONT_ROW_RATIO = 1.15;
 import {Table} from './models';
 
-let userStyles = null;
-let table = null;
+let table: Table = null;
 
 declare function require(path: string): any;
 var assign = require('object-assign');
@@ -91,17 +90,8 @@ export class Config {
         return table.doc.internal.pageSize;
     }
     
-    static initUserStyles(doc) {
-        userStyles = {
-            textColor: 30, // Setting text color to dark gray as it can't be obtained from jsPDF
-            fontSize: doc.internal.getFontSize(),
-            fontStyle: doc.internal.getFont().fontStyle
-        };
-    }
-
-    // Styles before autotable was called
-    static getUserStyles() {
-        return userStyles;
+    static applyUserStyles() {
+        Config.applyStyles(table.userStyles);
     }
     
     static createTable(doc) {

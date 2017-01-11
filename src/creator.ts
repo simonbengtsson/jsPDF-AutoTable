@@ -29,16 +29,16 @@ export function validateInput(headers, data, allOptions) {
             console.error("The afterPageContent, beforePageContent and afterPageAdd hooks are deprecated. Use addPageContent instead");
             if (typeof settings.addPageContent === 'undefined') {
                 settings.addPageContent = function(data) {
-                    Config.applyStyles(Config.getUserStyles());
+                    Config.applyUserStyles();
                     if (settings.beforePageContent) settings.beforePageContent(data);
-                    Config.applyStyles(Config.getUserStyles());
+                    Config.applyUserStyles();
                     if (settings.afterPageContent) settings.afterPageContent(data);
-                    Config.applyStyles(Config.getUserStyles());
+                    Config.applyUserStyles();
 
                     if (settings.afterPageAdd && data.pageCount > 1) {
                         data.afterPageAdd(data);
-                    } 
-                    Config.applyStyles(Config.getUserStyles());
+                    }
+                    Config.applyUserStyles();
                 }
             }
         }

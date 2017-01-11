@@ -5,6 +5,7 @@ export class Table {
     settings;
     cursor;
     doc;
+    userStyles;
     
     height = 0;
     width = 0;
@@ -19,6 +20,12 @@ export class Table {
     
     constructor(doc) {
         this.doc = doc;
+        
+        this.userStyles = {
+            textColor: 30, // Setting text color to dark gray as it can't be obtained from jsPDF
+            fontSize: doc.internal.getFontSize(),
+            fontStyle: doc.internal.getFont().fontStyle
+        };
     }
 
     hooks = {

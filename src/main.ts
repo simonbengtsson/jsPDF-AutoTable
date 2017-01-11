@@ -15,12 +15,11 @@ import {createModels, validateInput} from './creator';
  * @param {Object} [userOptions={}] Options that will override the default ones
  */
 jsPDF.API.autoTable = function (headers, data, tableOptions = {}) {
-    this.autoTableState = this.autoTableState || {addPageHookPages: {}, defaults: {}};
-    jsPDF.autoTableState = jsPDF.autoTableState || {defaults: {}};
+    this.autoTableState = this.autoTableState || {};
+    jsPDF.autoTableState = jsPDF.autoTableState || {};
     
-    let allOptions = [jsPDF.autoTableState.defaults, this.autoTableState.defaults, tableOptions];
+    let allOptions = [jsPDF.autoTableState.defaults || {}, this.autoTableState.defaults || {}, tableOptions || {}];
     validateInput(headers, data, allOptions);
-    Config.initUserStyles(this);
     
     let table = Config.createTable(this);
     Config.initSettings(table, allOptions);
@@ -49,11 +48,11 @@ jsPDF.API.autoTable = function (headers, data, tableOptions = {}) {
     table.pageStartX = table.cursor.x;
     table.pageStartY = table.cursor.y;
 
-    Config.applyStyles(Config.getUserStyles());
+    Config.applyUserStyles();
     if (settings.showHeader === true || settings.showHeader === 'firstPage' || settings.showHeader === 'everyPage') {
         printRow(table.headerRow, table.hooks.drawHeaderRow, table.hooks.drawHeaderCell);
     }
-    Config.applyStyles(Config.getUserStyles());
+    Config.applyUserStyles();
 
     table.rows.forEach(function (row) {
         printFullRow(row, table.hooks.drawRow, table.hooks.drawCell);
@@ -74,7 +73,7 @@ jsPDF.API.autoTable = function (headers, data, tableOptions = {}) {
     }
     
     this.autoTablePreviousCursor = table.cursor;
-
+    
     return this;
 };
 
