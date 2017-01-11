@@ -22,7 +22,6 @@ export class Table {
     constructor(doc) {
         this.doc = doc;
         
-        console.log(doc.internal.getFontSize());
         this.userStyles = {
             textColor: 30, // Setting text color to dark gray as it can't be obtained from jsPDF
             fontSize: doc.internal.getFontSize(),

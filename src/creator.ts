@@ -5,6 +5,9 @@ declare function require(path: string): any;
 var assign = require('object-assign');
 
 export function validateInput(headers, data, allOptions) {
+    if (!window.console) {
+        var console = {error: function(msg) {}, log: function() {}}
+    }
     if (!headers || typeof headers !== 'object') {
         console.error("The headers should be an object or array, is: " + typeof headers);
     }
@@ -85,7 +88,7 @@ export function createModels(inputHeaders, inputData) {
         let dataKey = index;
         if (typeof rawColumn.dataKey !== 'undefined') {
             dataKey = rawColumn.dataKey;
-        } else if (typeof rawColumn.key !== 'undefined') {
+        } else if (typeof rawColumn.key !== 'undefined' && window.console) {
             console.error("Deprecation warning: Use dataKey instead of key");
             dataKey = rawColumn.key; // deprecated since 2.x
         }

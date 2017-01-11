@@ -118,7 +118,9 @@ jsPDF.API.autoTableHtmlToJson = function (tableElem, includeHiddenElements) {
     includeHiddenElements = includeHiddenElements || false;
     
     if (!tableElem || !(tableElem instanceof HTMLTableElement)) {
-        console.error("A HTMLTableElement has to be sent to autoTableHtmlToJson");
+        if (window.console) {
+            console.error("A HTMLTableElement has to be sent to autoTableHtmlToJson");
+        }
         return null;
     }
     
@@ -156,7 +158,7 @@ jsPDF.API.autoTableHtmlToJson = function (tableElem, includeHiddenElements) {
  * Inspiration from: http://stackoverflow.com/questions/28327510/align-text-right-using-jspdf/28433113#28433113
  */
 jsPDF.API.autoTableText = function (text, x, y, styles) {
-    if (typeof x !== 'number' || typeof y !== 'number') {
+    if (typeof x !== 'number' || typeof y !== 'number' && window.console) {
         console.error('The x and y parameters are required. Missing for the text: ', text);
     }
     let k = this.internal.scaleFactor;

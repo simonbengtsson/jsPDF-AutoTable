@@ -75,8 +75,6 @@ export function calculateWidths(doc, pageWidth) {
                 cell.text = ellipsize(cell.text, textSpace, cell.styles, '');
             } else if (typeof cell.styles.overflow === 'function') {
                 cell.text = cell.styles.overflow(cell.text, textSpace);
-            } else {
-                console.error("Unrecognized overflow type: " + cell.styles.overflow);
             }
 
             let k = Config.scaleFactor();
