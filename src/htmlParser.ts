@@ -62,18 +62,17 @@ function parseTableSection(window, sectionElement, includeHidden, useCss): RowRe
 function parseCss(style, ignored = []): any {
     let result = {};
     
-    function assign(name, value, accepted = []) { 
-        value = Array.isArray(value) ? value : [value];
-        value.forEach(function(val) {
-           if ((accepted.length === 0 || accepted.indexOf(val) !== -1) && ignored.indexOf(name) === -1) {
-               result[name] = val;
-           }
-        });
+    function assign(name, value, accepted = []) {
+        if ((accepted.length === 0 || accepted.indexOf(value) !== -1) && ignored.indexOf(name) === -1) {
+            if (value === 0 || value) {
+                result[name] = value;
+            }
+        }
     }
     
     assign('fillColor', parseColor(style.backgroundColor));
     assign('lineColor', parseColor(style.borderColor));
-    assign('fontStyle', [style.fontStyle, style.fontWeight], ['italic', 'bold']);
+    assign('fontStyle', parseFontStyle(style));
     assign('textColor', parseColor(style.color));
     assign('halign', style.textAlign, ['left', 'right', 'center']);
     assign('valign', style.verticalAlign, ['middle', 'bottom', 'top']);
@@ -83,6 +82,16 @@ function parseCss(style, ignored = []): any {
     assign('font', style.fontFamily.toLowerCase());
     
     return result;
+}
+
+function parseFontStyle(style) {
+    let res = '';
+    if (style.fontStyle === 'italic') {
+        res += 'italic';
+    } else if (style.fontWeight === 'bold') {
+        res += 'bold';
+    }
+    return res;
 }
 
 function parseColor(cssColor) {
