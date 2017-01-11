@@ -4,7 +4,6 @@
 export let FONT_ROW_RATIO = 1.15;
 import {Table} from './models';
 
-let jspdfInstance = null;
 let userStyles = null;
 let table = null;
 
@@ -89,29 +88,24 @@ function defaultStyles() {
 export class Config {
     
     static pageSize() {
-        return Config.getJspdfInstance().internal.pageSize;
+        return table.doc.internal.pageSize;
     }
     
-    static setJspdfInstance(instance) {
-        jspdfInstance = instance;
+    static initUserStyles(doc) {
         userStyles = {
             textColor: 30, // Setting text color to dark gray as it can't be obtained from jsPDF
-            fontSize: jspdfInstance.internal.getFontSize(),
-            fontStyle: jspdfInstance.internal.getFont().fontStyle
+            fontSize: doc.internal.getFontSize(),
+            fontStyle: doc.internal.getFont().fontStyle
         };
     }
-    
-    static getJspdfInstance() {
-        return jspdfInstance;
-    }
-    
+
     // Styles before autotable was called
     static getUserStyles() {
         return userStyles;
     }
     
-    static createTable() {
-        table = new Table();
+    static createTable(doc) {
+        table = new Table(doc);
         return table;
     }
     
@@ -120,7 +114,7 @@ export class Config {
     }
     
     static scaleFactor() {
-        return jspdfInstance.internal.scaleFactor;
+        return table.doc.internal.scaleFactor;
     }
 
     static hooksData(additionalData = {}) {
@@ -128,7 +122,7 @@ export class Config {
             pageCount: table.pageCount,
             settings: table.settings,
             table: table,
-            doc: jspdfInstance,
+            doc: table.doc,
             cursor: table.cursor,
         }, additionalData || {});
     }
@@ -195,7 +189,7 @@ export class Config {
     }
 
     static applyStyles(styles) {
-        let doc = Config.getJspdfInstance();
+        let doc = table.doc;
         let styleModifiers = {
             fillColor: doc.setFillColor,
             textColor: doc.setTextColor,

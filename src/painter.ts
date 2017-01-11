@@ -14,7 +14,7 @@ export function printFullRow(row, drawRowHooks, drawCellHooks) {
             // Modify the row to fit the current page and calculate text and height of partial row
             row.spansMultiplePages = true;
 
-            let pageHeight = Config.getJspdfInstance().internal.pageSize.height;
+            let pageHeight = table.doc.internal.pageSize.height;
             let maxCellHeight = 0;
 
             for (let j = 0; j < table.columns.length; j++) {
@@ -118,9 +118,9 @@ export function printRow(row, drawRowHooks, drawCellHooks) {
         if (shouldDrawCell) {
             let fillStyle = getFillStyle(cell.styles);
             if (fillStyle) {
-                Config.getJspdfInstance().rect(cell.x, cell.y, cell.width, cell.height, fillStyle);
+                table.doc.rect(cell.x, cell.y, cell.width, cell.height, fillStyle);
             }
-            Config.getJspdfInstance().autoTableText(cell.text, cell.textPos.x, cell.textPos.y, {
+            table.doc.autoTableText(cell.text, cell.textPos.x, cell.textPos.y, {
                 halign: cell.styles.halign,
                 valign: cell.styles.valign
             });

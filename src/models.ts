@@ -4,6 +4,7 @@ export let table = {};
 export class Table {
     settings;
     cursor;
+    doc;
     
     height = 0;
     width = 0;
@@ -15,6 +16,10 @@ export class Table {
     pageCount = 1;
     pageStartX: number;
     pageStartY: number;
+    
+    constructor(doc) {
+        this.doc = doc;
+    }
 
     hooks = {
         createdHeaderCell: [],

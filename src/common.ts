@@ -8,7 +8,7 @@ export function getStringWidth(text, styles) {
     text = Array.isArray(text) ? text : [text];
     let maxWidth = 0;
     text.forEach(function(line) {
-        let width = Config.getJspdfInstance().getStringUnitWidth(line);
+        let width = Config.tableInstance().doc.getStringUnitWidth(line);
         if (width > maxWidth) {
             maxWidth = width;
         }
@@ -48,24 +48,22 @@ export function ellipsize(text, width, styles, ellipsizeStr = '...') {
 
 export function addTableLine() {
     let table = Config.tableInstance();
-    let doc = Config.getJspdfInstance();
     let styles = {lineWidth: table.settings.tableLineWidth, lineColor: table.settings.tableLineColor};
     Config.applyStyles(styles);
     let fs = getFillStyle(styles);
     if (fs) {
-        doc.rect(table.pageStartX, table.pageStartY, table.width, table.cursor.y - table.pageStartY, fs); 
+        table.doc.rect(table.pageStartX, table.pageStartY, table.width, table.cursor.y - table.pageStartY, fs); 
     }
 }
 
 export function addPage() {
     let table = Config.tableInstance();
-    let doc = Config.getJspdfInstance();
     
     // Add user content just before adding new page ensure it will 
     // be drawn above other things on the page
     addContentHooks();
     addTableLine();
-    doc.addPage();
+    table.doc.addPage();
     table.pageCount++;
     table.cursor = {x: table.margin('left'), y: table.margin('top')};
     table.pageStartX = table.cursor.x;

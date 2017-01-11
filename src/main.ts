@@ -17,10 +17,9 @@ import {createModels, validateInput} from './creator';
 jsPDF.API.autoTable = function (headers, data, userOptions = {}) {
     let allOptions = [this.autoTable.globalDefaults || {}, this.autoTable.documentDefaults || {}, userOptions || {}];
     validateInput(headers, data, allOptions);
-    Config.setJspdfInstance(this);
-    let doc = Config.getJspdfInstance();
+    Config.initUserStyles(this);
 
-    let table = Config.createTable();
+    let table = Config.createTable(this);
     Config.initSettings(table, allOptions);
     let settings = table.settings;
     
@@ -41,7 +40,7 @@ jsPDF.API.autoTable = function (headers, data, userOptions = {}) {
     let pageHeight = Config.pageSize().height;
     if ((settings.pageBreak === 'always' && settings.startY !== false) ||
         (settings.startY !== false && minTableBottomPos > pageHeight)) {
-        Config.getJspdfInstance().addPage();
+        table.doc.addPage();
         table.cursor.y = table.margin('top');
     }
     table.pageStartX = table.cursor.x;
@@ -60,7 +59,7 @@ jsPDF.API.autoTable = function (headers, data, userOptions = {}) {
     addTableLine();
     addContentHooks();
     
-    doc.autoTablePreviousCursor = table.cursor;
+    this.autoTablePreviousCursor = table.cursor;
 
     return this;
 };
@@ -79,7 +78,7 @@ jsPDF.autoTableSetDefaults = function(defaults) {
  * @returns int
  */
 jsPDF.API.autoTableEndPosY = function () {
-    let cursor = Config.getJspdfInstance().autoTablePreviousCursor;
+    let cursor = Config.tableInstance().doc.autoTablePreviousCursor;
     if (cursor && typeof cursor.y === 'number') {
         return cursor.y;
     } else {
