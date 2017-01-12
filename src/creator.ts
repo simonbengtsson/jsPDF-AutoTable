@@ -5,14 +5,13 @@ declare function require(path: string): any;
 var assign = require('object-assign');
 
 export function validateInput(headers, data, allOptions) {
-    if (!window.console) {
-        var console = {error: function(msg) {}, log: function() {}}
+    if (typeof console === 'undefined') {
+        var console = {error: function(msg) {}, log: function(msg) {}}
     }
+    
     if (!headers || typeof headers !== 'object') {
         console.error("The headers should be an object or array, is: " + typeof headers);
-    }
-
-    if (!data || typeof data !== 'object') {
+    } else if (!data || typeof data !== 'object') {
         console.error("The data should be an object or array, is: " + typeof data);
     }
     
@@ -100,14 +99,15 @@ export function createModels(inputHeaders, inputData) {
         let cell = new Cell(rawColumn);
         cell.styles = Config.styles([theme.table, theme.header, table.styles.styles, table.styles.headerStyles]);
 
-        if (cell.raw instanceof HTMLElement) {
-            cell.text = (cell.raw.innerText || '').trim();
+        let cellText = '';
+        if (cell.raw instanceof (<any>window).HTMLElement) {
+            cellText = (cell.raw.innerText || '').trim();
         } else {
             let text = typeof cell.raw === 'object' ? cell.raw.title : cell.raw;
             // Stringify 0 and false, but not undefined
-            cell.text = typeof cell.raw !== 'undefined' ? '' + text : '';
+            cellText = typeof cell.raw !== 'undefined' ? '' + text : '';
         }
-        cell.text = cell.text.split(splitRegex);
+        cell.text = cellText.split(splitRegex);
 
         headerRow.cells[dataKey] = cell;
         for (let hook of table.hooks.createdHeaderCell) {
@@ -125,13 +125,14 @@ export function createModels(inputHeaders, inputData) {
             let colStyles = table.styles.columnStyles[column.dataKey] || {};
             cell.styles = Config.styles([theme.table, theme.body, table.styles.styles, table.styles.bodyStyles, rowStyles, colStyles]);
 
-            if (cell.raw && cell.raw instanceof HTMLElement) {
-                cell.text = (cell.raw.innerText || '').trim();
+            let text = '';
+            if (cell.raw && cell.raw instanceof (<any>window).HTMLElement) {
+                text = (cell.raw.innerText || '').trim();
             } else {
                 // Stringify 0 and false, but not undefined
-                cell.text = typeof cell.raw !== 'undefined' ? '' + cell.raw : '';
+                text = typeof cell.raw !== 'undefined' ? '' + cell.raw : '';
             }
-            cell.text = cell.text.split(splitRegex);
+            cell.text = text.split(splitRegex);
 
             row.cells[column.dataKey] = cell;
             

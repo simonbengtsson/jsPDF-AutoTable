@@ -7,6 +7,17 @@ let it = global.it;
 var assert = require('assert');
 
 describe('input parser', function () {
+
+
+    before(function() {
+        global.window = new MockBrowser().getWindow();
+        global.navigator = {};
+    });
+
+    after(function() {
+        delete global.navigator;
+        delete global.window;
+    });
     
     describe('html input', function() {
         it.skip('from html', function () {
@@ -35,9 +46,14 @@ describe('input parser', function () {
     });
     
     it.skip('Limited input', function () {
-        let parseInput = require('../src/inputParser').parseInput;
+        var jsPDF = require('jspdf');
+        let doc = new jsPDF();
         
-        var table = parseInput({});
+        let createModels = require('../src/creator').createModels;
+        let Config = require('../src/config').Config;
+
+        Config.createTable(doc);
+        var table = createModels();
         assert(!table, 'No content provided');
 
         table = parseInput(doc, {columns: [], head: [], body: [], foot: [], fromHtml: null});

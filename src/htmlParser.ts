@@ -1,5 +1,5 @@
 /**
- * Experimental html and css parser for plugin version 3.0
+ * Experimental html and css parser
  */
 
 interface RowResult {
@@ -79,28 +79,37 @@ function parseCss(style, ignored = []): any {
     assign('fontSize', parseInt(style.fontSize));
     assign('cellPadding', parsePadding(style.padding));
     assign('lineWidth', parseInt(style.borderWidth));
-    assign('font', style.fontFamily.toLowerCase());
+    assign('font', (style.fontFamily || '').toLowerCase());
     
     return result;
 }
 
 function parseFontStyle(style) {
     let res = '';
-    if (style.fontStyle === 'italic') {
-        res += 'italic';
-    } else if (style.fontWeight === 'bold') {
+    if (style.fontWeight === 'bold' || style.fontWeight === 'bolder' || parseInt(style.fontWeight) >= 700) {
         res += 'bold';
+    }
+    if (style.fontStyle === 'italic' || style.fontStyle === 'oblique') {
+        res += 'italic';
     }
     return res;
 }
 
 function parseColor(cssColor) {
+    if (!cssColor) {
+        return null;
+    }
+    
     var rgba = cssColor.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d*\.?\d*))?\)$/);
+    
+    if (!rgba || !Array.isArray(rgba)) {
+        return null;
+    }
 
     var color = [parseInt(rgba[1]), parseInt(rgba[2]), parseInt(rgba[3])];
     var alpha = parseInt(rgba[4]);
 
-    if (alpha === 0 || isNaN(color[0])) {
+    if (alpha === 0 || isNaN(color[0]) || isNaN(color[1]) || isNaN(color[2])) {
         return null;
     }
 
@@ -108,5 +117,6 @@ function parseColor(cssColor) {
 }
 
 function parsePadding(val) {
-    return val.split(' ').map((n) => parseInt(n));
+    let p = val.split(' ').map((n) => parseInt(n));
+    return Array.isArray(p) && p.length === 1 ? p[0] : p;
 }

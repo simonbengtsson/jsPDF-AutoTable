@@ -88,35 +88,60 @@ describe('html parser', function () {
             row.insertCell(0);
             return table;
         };
+        
         window.getComputedStyle = function () {
             return {
-                fontFamily: "Times", // helvetica, times, courier
+                fontFamily: "Times",
                 borderColor: "rgba(0, 0, 0, 0)",
                 fontStyle: 'italic',
                 fontWeight: 'bold',
                 backgroundColor: "rgba(240, 255, 255, 1)",
                 color: "rgb(50, 50, 50)",
-                textAlign: 'not supported',
+                textAlign: 'center',
                 verticalAlign: 'top',
                 fontSize: "16px",
                 padding: "5px",
                 borderWidth: "2px",
-                height: "20px"
             }
         };
         global.window = window;
-
         
         let res = parseHtml('', false, true);
-        console.log(res.body[0].styles);
         assert(res, 'Should have result');
         assert(!res.body[0].styles.lineColor, "Transparent color");
         assert(res.body[0].styles.fillColor, 'Parse color');
-        assert(!res.body[0].styles.halign, 'Not supported value');
+        assert(res.body[0].styles.halign === 'center', 'Horizontal align');
         assert(res.body[0].styles.valign === 'top', 'String value');
-        assert.equal(res.body[0].styles.rowHeight, 20, 'Number value');
-        assert(!res.body[0].cells[0].styles.rowHeight, 'Unnecessary styles');
-        assert(res.body[0].cells[0].styles.cellPadding === 5, 'Cell styles');
+        assert(res.body[0].cells[0].styles.cellPadding === 5, 'Cell padding');
+        assert(res.body[0].cells[0].styles.lineWidth === 2, 'Line width');
+
+        window.getComputedStyle = function () {
+            return {
+                backgroundColor: "transparent",
+                textAlign: '',
+                verticalAlign: '',
+                padding: "",
+                fontStyle: 'normal',
+                fontWeight: 'normal',
+                fontSize: "",
+                borderWidth: "",
+                display: 'none'
+            }
+        };
+
+        res = parseHtml('', true, true);
+        assert(res, 'Should have result');
+        assert(!res.body[0].styles.fillColor, 'Transparent');
+        assert(!res.body[0].styles.halign, 'Empty string halign');
+        assert(!res.body[0].styles.valign, 'Empty tring valign');
+        assert(!res.body[0].cells[0].styles.cellPadding, 'Empty string padding');
+        assert(!res.body[0].cells[0].styles.fontStyle, 'No font style');
+        assert(!res.body[0].cells[0].styles.fontSize, 'No font size');
+        
+        res = parseHtml('', true, false);
+        assert(!Object.keys(res.body[0].styles).length, 'Should have no styles result');
+        res = parseHtml('', false, false);
+        assert(!res.body.length, 'Should have no body result');
         
         delete global.window;
     });
