@@ -39,9 +39,7 @@ jsPDF.API.autoTable = function (headers, data, tableOptions = {}) {
     if (settings.pageBreak === 'avoid') {
         minTableBottomPos += table.height;
     }
-    let pageHeight = Config.pageSize().height;
-    if ((settings.pageBreak === 'always' && settings.startY !== false) ||
-        (settings.startY !== false && minTableBottomPos > pageHeight)) {
+    if (settings.startY !== false && minTableBottomPos > Config.pageSize().height) {
         table.doc.addPage();
         table.cursor.y = table.margin('top');
     }
