@@ -11,9 +11,9 @@ export class Table {
     width = 0;
     contentWidth = 0;
     preferredWidth = 0;
-    rows = [];
-    columns = [];
-    headerRow = null;
+    rows: Row[] = [];
+    columns: Column[] = [];
+    headerRow: Row = null;
     pageCount = 1;
     pageStartX: number;
     pageStartY: number;
@@ -60,7 +60,8 @@ export class Row {
     pageCount = 1;
     height = 0;
     y = 0;
-    maxLineCount = 1;
+    maxCellLineCount = 1;
+    maxCellHeight = 0;
     
     constructor(raw, index) {
         this.raw = raw;
@@ -80,6 +81,7 @@ export class Cell {
     y = 0;
     
     colSpan = 1;
+    rowSpan = 1;
     
     constructor(raw) {
         this.raw = raw;

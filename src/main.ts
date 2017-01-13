@@ -1,9 +1,8 @@
 'use strict';
 
 import * as jsPDF from 'jspdf';
-import {Config, FONT_ROW_RATIO, getDefaults} from './config';
-import {addContentHooks, addPage, addTableBorder} from './common';
-import {printRow, printFullRow} from './painter';
+import {Config} from './config';
+import {drawTable, addPage} from './painter';
 import {calculateWidths} from './calculator';
 import {createModels, validateInput} from './creator';
 import autoText from './autoText';
@@ -13,7 +12,7 @@ import autoText from './autoText';
  *
  * @param {Object[]|String[]} headers Either as an array of objects or array of strings
  * @param {Object[][]|String[][]} data Either as an array of objects or array of strings
- * @param {Object} [userOptions={}] Options that will override the default ones
+ * @param {Object} [tableOptions={}] Options that will override the default ones
  */
 jsPDF.API.autoTable = function (headers, data, tableOptions = {}) {
     this.autoTableState = this.autoTableState || {};
@@ -22,58 +21,19 @@ jsPDF.API.autoTable = function (headers, data, tableOptions = {}) {
     let allOptions = [jsPDF.autoTableState.defaults || {}, this.autoTableState.defaults || {}, tableOptions || {}];
     validateInput(headers, data, allOptions);
     
+    // 1. Parse and unify user input
     let table = Config.createTable(this);
     Config.initSettings(table, allOptions);
-    let settings = table.settings;
-    
-    // Create the table model with its columns, rows and cells
     createModels(headers, data);
-    settings.margin = Config.marginOrPadding(settings.margin, getDefaults().margin);
-    calculateWidths(this, Config.pageSize().width);
-
-    table.cursor = {
-        x: table.margin('left'),
-        y: settings.startY === false ? table.margin('top') : settings.startY
-    };
-
-    let minTableBottomPos = settings.startY + table.margin('bottom') + table.headerRow.height;
-    if (settings.pageBreak === 'avoid') {
-        minTableBottomPos += table.height;
-    }
-    if (settings.startY !== false && minTableBottomPos > Config.pageSize().height) {
-        table.doc.addPage();
-        table.cursor.y = table.margin('top');
-    }
-    table.pageStartX = table.cursor.x;
-    table.pageStartY = table.cursor.y;
-
-    Config.applyUserStyles();
-    if (settings.showHeader === true || settings.showHeader === 'firstPage' || settings.showHeader === 'everyPage') {
-        printRow(table.headerRow, table.hooks.drawHeaderRow, table.hooks.drawHeaderCell);
-    }
-    Config.applyUserStyles();
-
-    table.rows.forEach(function (row) {
-        printFullRow(row, table.hooks.drawRow, table.hooks.drawCell);
-    });
-
-    addTableBorder();
-
-    // Don't call global and document addPageContent more than once for each page
-    let pageNumber = this.internal.getCurrentPageInfo().pageNumber;
-    if (this.autoTableState.addPageHookPages && this.autoTableState.addPageHookPages[pageNumber]) {
-        if (typeof tableOptions['addPageContent'] === 'function') {
-            tableOptions['addPageContent'](Config.hooksData());
-        }
-    } else {
-        if (!this.autoTableState.addPageHookPages) this.autoTableState.addPageHookPages = {};
-        this.autoTableState.addPageHookPages[pageNumber] = true;
-        addContentHooks();
-    }
+    
+    // 2. Calculate preliminary table, column, row and cell dimensions
+    calculateWidths(table);
+    
+    // 3. Output table to pdf
+    drawTable(table, tableOptions);
     
     table.finalY = table.cursor.y;
     this.autoTable.previous = table;
-
     Config.applyUserStyles();
     
     return this;

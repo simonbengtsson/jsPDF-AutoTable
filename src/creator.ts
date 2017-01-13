@@ -1,5 +1,5 @@
 import {Row, Cell, Column} from './models';
-import {Config, getTheme} from './config';
+import {Config, getTheme, getDefaults} from './config';
 
 declare function require(path: string): any;
 var assign = require('object-assign');
@@ -142,4 +142,8 @@ export function createModels(inputHeaders, inputData) {
         });
         table.rows.push(row);
     });
+
+    table.settings.margin = Config.marginOrPadding(table.settings.margin, getDefaults().margin);
+    
+    return table;
 }

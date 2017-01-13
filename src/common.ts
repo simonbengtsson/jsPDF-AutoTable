@@ -1,5 +1,4 @@
 import {Config} from './config';
-import {printRow} from './painter';
 
 export function getStringWidth(text, styles) {
     let k = Config.scaleFactor();
@@ -53,24 +52,6 @@ export function addTableBorder() {
     let fs = getFillStyle(styles);
     if (fs) {
         table.doc.rect(table.pageStartX, table.pageStartY, table.width, table.cursor.y - table.pageStartY, fs); 
-    }
-}
-
-export function addPage() {
-    let table = Config.tableInstance();
-    table.finalY = table.cursor.y;
-    
-    // Add user content just before adding new page ensure it will 
-    // be drawn above other things on the page
-    addContentHooks();
-    addTableBorder();
-    table.doc.addPage();
-    table.pageCount++;
-    table.cursor = {x: table.margin('left'), y: table.margin('top')};
-    table.pageStartX = table.cursor.x;
-    table.pageStartY = table.cursor.y;
-    if (table.settings.showHeader === true || table.settings.showHeader === 'everyPage') {
-        printRow(table.headerRow, table.hooks.drawHeaderRow, table.hooks.drawHeaderCell);
     }
 }
 
