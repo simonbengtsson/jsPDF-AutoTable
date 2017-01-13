@@ -79,6 +79,8 @@ export class Cell {
     x = 0;
     y = 0;
     
+    colSpan = 1;
+    
     constructor(raw) {
         this.raw = raw;
     }

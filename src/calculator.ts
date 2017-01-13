@@ -1,6 +1,9 @@
 import {Config, FONT_ROW_RATIO} from './config';
 import {getStringWidth, ellipsize} from './common';
 
+declare function require(path: string): any;
+var entries = require('object.entries');
+
 /**
  * Calculate the column widths
  */
@@ -17,7 +20,8 @@ export function calculateWidths(doc, pageWidth) {
         table.rows.concat(table.headerRow).forEach(function (row) {
             let cell = row.cells[column.dataKey];
             cell.contentWidth = cell.padding('horizontal') + getStringWidth(cell.text, cell.styles);
-            if (cell.contentWidth > column.contentWidth) {
+            let width = cell.colSpan > 1 ? 0 : cell.contentWidth;
+            if (width > column.contentWidth) {
                 column.contentWidth = cell.contentWidth;
             }
         });
@@ -51,26 +55,42 @@ export function calculateWidths(doc, pageWidth) {
     // Row height, table height and text overflow
     let all = table.rows.concat(table.headerRow);
     all.forEach(function (row) {
-        table.columns.forEach(function (col) {
-            let cell = row.cells[col.dataKey];
+        
+        let colSpanCell = null;
+        let combinedColSpanWidth = 0;
+        let colSpansLeft = 0;
+        for (var i = 0; i < table.columns.length; i++) {
+            let col = table.columns[i];
+            colSpansLeft -= 1;
+            if (colSpansLeft > 1 && table.columns[i + 1]) {
+                combinedColSpanWidth += col.width;
+                delete row.cells[col.dataKey];
+                continue;
+            } else if (colSpanCell) {
+                var cell = colSpanCell;
+                delete row.cells[col.dataKey];
+                colSpanCell = null;
+            } else {
+                var cell = row.cells[col.dataKey];
+                colSpansLeft = cell.colSpan;
+                combinedColSpanWidth = 0;
+                if (cell.colSpan > 1) {
+                    colSpanCell = cell;
+                    combinedColSpanWidth += col.width;
+                    continue;
+                } 
+            }
+            
+            cell.width = col.width + combinedColSpanWidth;
 
             Config.applyStyles(cell.styles);
-            let textSpace = col.width - cell.padding('horizontal');
+            let textSpace = cell.width - cell.padding('horizontal');
             if (cell.styles.overflow === 'linebreak') {
+                cell.text = Array.isArray(cell.text) ? cell.text.join(' ') : cell.text;
                 // Add one pt to textSpace to fix rounding error
-                try {
-                    cell.text = doc.splitTextToSize(cell.text, textSpace + 1, {fontSize: cell.styles.fontSize});
-                } catch(e) {
-                    if (e instanceof TypeError && Array.isArray(cell.text)) {
-                        cell.text = doc.splitTextToSize(cell.text.join(' '), textSpace + 1, {fontSize: cell.styles.fontSize});
-                    } else {
-                        throw e;
-                    }
-                }
+                cell.text = doc.splitTextToSize(cell.text, textSpace + 1, {fontSize: cell.styles.fontSize});
             } else if (cell.styles.overflow === 'ellipsize') {
                 cell.text = ellipsize(cell.text, textSpace, cell.styles);
-            } else if (cell.styles.overflow === 'visible') {
-                // Do nothing
             } else if (cell.styles.overflow === 'hidden') {
                 cell.text = ellipsize(cell.text, textSpace, cell.styles, '');
             } else if (typeof cell.styles.overflow === 'function') {
@@ -85,7 +105,7 @@ export function calculateWidths(doc, pageWidth) {
                 row.height = cell.contentHeight;
                 row.maxLineCount = lineCount;
             }
-        });
+        }
         
         table.height += row.height;
     });

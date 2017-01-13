@@ -20,6 +20,9 @@ export function printFullRow(row, drawRowHooks, drawCellHooks) {
             for (let j = 0; j < table.columns.length; j++) {
                 let col = table.columns[j];
                 let cell = row.cells[col.dataKey];
+                if (!cell) {
+                    continue;
+                }
 
                 let fontHeight = cell.styles.fontSize / Config.scaleFactor() * FONT_ROW_RATIO;
                 let vPadding = cell.padding('vertical');
@@ -88,7 +91,6 @@ export function printRow(row, drawRowHooks, drawCellHooks) {
         cell.x = table.cursor.x;
         cell.y = table.cursor.y;
         cell.height = row.height;
-        cell.width = column.width;
 
         if (cell.styles.valign === 'top') {
             cell.textPos.y = table.cursor.y + cell.padding('top');
