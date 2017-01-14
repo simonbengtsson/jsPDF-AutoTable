@@ -129,14 +129,16 @@ function printRow(row, drawRowHooks, drawCellHooks) {
     table.cursor.x = table.margin('left');
     for (let column of table.columns) {
         let cell = row.cells[column.dataKey];
+        let cursorX = table.cursor.x;
         if(!cell) {
+            table.cursor.x += column.width;
             continue;
         }
         Config.applyStyles(cell.styles);
 
-        cell.x = table.cursor.x;
+        cell.x = cursorX;
         cell.y = table.cursor.y;
-
+        
         if (cell.styles.valign === 'top') {
             cell.textPos.y = table.cursor.y + cell.padding('top');
         } else if (cell.styles.valign === 'bottom') {
@@ -173,7 +175,7 @@ function printRow(row, drawRowHooks, drawCellHooks) {
             }]);
         }
 
-        table.cursor.x += cell.width;
+        table.cursor.x += column.width;
     }
 
     table.cursor.y += row.height;

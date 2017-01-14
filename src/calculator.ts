@@ -50,20 +50,19 @@ export function calculateWidths(table: Table) {
 
     distributeWidth(dynamicColumns, fixedWidth, autoWidth, 0);
 
-    let rowSpanCell = null;
-    let combinedRowSpanHeight = 0;
-    let rowSpansLeft = 0;
+    let rowSpanCells = {};
     
     // Row height, table height and text overflow
     let all = table.rows.concat(table.headerRow);
-    for (var rowIndex = 0; rowIndex < all.length; rowIndex++) {
-        var row = all[rowIndex];
+    for (let rowIndex = 0; rowIndex < all.length; rowIndex++) {
+        let row = all[rowIndex];
         
         let colSpanCell = null;
         let combinedColSpanWidth = 0;
         let colSpansLeft = 0;
         for (var columnIndex = 0; columnIndex < table.columns.length; columnIndex++) {
             let col = table.columns[columnIndex];
+            let cell = null;
             
             // Width and colspan
             colSpansLeft -= 1;
@@ -72,11 +71,11 @@ export function calculateWidths(table: Table) {
                 delete row.cells[col.dataKey];
                 continue;
             } else if (colSpanCell) {
-                var cell = colSpanCell;
+                cell = colSpanCell;
                 delete row.cells[col.dataKey];
                 colSpanCell = null;
             } else {
-                var cell = row.cells[col.dataKey];
+                cell = row.cells[col.dataKey];
                 colSpansLeft = cell.colSpan;
                 combinedColSpanWidth = 0;
                 if (cell.colSpan > 1) {
@@ -107,14 +106,33 @@ export function calculateWidths(table: Table) {
             cell.contentHeight = lineCount * fontHeight + cell.padding('vertical');
 
             if (cell.rowSpan <= 1 && cell.contentHeight > row.height) {
-                row.height = cell.contentHeight
-            }
-
-            cell.height = row.height + combinedRowSpanHeight;
-            
-            if (cell.height > row.maxCellHeight) {
-                row.maxCellHeight = cell.height;
+                row.height = cell.contentHeight;
+                row.maxCellHeight = cell.contentHeight;
                 row.maxCellLineCount = lineCount;
+            }
+        }
+
+        for (let column of table.columns) {
+            let data = rowSpanCells[column.dataKey];
+            if (data) {
+                data.cell.height += row.height;
+                if (data.cell.height > row.maxCellHeight) {
+                    row.maxCellHeight = data.cell.height;
+                    row.maxCellLineCount = Array.isArray(data.cell.text) ? data.cell.text.length : 1;
+                }
+                delete row.cells[column.dataKey];
+                data.left -= 1;
+                if (data.left <= 1) {
+                    delete rowSpanCells[column.dataKey];
+                }
+            } else {
+                var cell = row.cells[column.dataKey];
+                cell.height = row.height;
+                if (cell.rowSpan > 1) {
+                    let remaining = all.length - 1 - rowIndex;
+                    let left = cell.rowSpan > remaining ? remaining : cell.rowSpan;
+                    rowSpanCells[column.dataKey] = {cell, left};
+                }
             }
         }
         
