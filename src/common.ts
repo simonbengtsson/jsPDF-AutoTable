@@ -1,4 +1,5 @@
 import {Config} from './config';
+import {ATEvent} from './models';
 
 export function getStringWidth(text, styles) {
     let k = Config.scaleFactor();
@@ -55,10 +56,10 @@ export function addTableBorder() {
     }
 }
 
-export function addContentHooks() {
+export function addContentHooks(table) {
     for (let hook of Config.tableInstance().hooks.addPageContent) {
         Config.applyUserStyles();
-        hook(Config.hooksData());
+        hook(new ATEvent(table));
     }
     Config.applyUserStyles();
 }

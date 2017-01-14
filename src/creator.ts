@@ -1,4 +1,4 @@
-import {Row, Cell, Column} from './models';
+import {Row, Cell, Column, ATEvent} from './models';
 import {Config, getTheme, getDefaults} from './config';
 
 declare function require(path: string): any;
@@ -137,7 +137,7 @@ export function createModels(inputHeaders, inputData) {
             row.cells[column.dataKey] = cell;
             
             for (let hook of table.hooks.createdCell) {
-                hook(cell, Config.hooksData({cell: cell, column: column, row: row}));
+                hook(cell, new ATEvent(table, row, column, cell));
             }
         });
         table.rows.push(row);

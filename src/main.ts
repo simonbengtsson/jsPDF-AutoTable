@@ -64,6 +64,8 @@ jsPDF.autoTableSetDefaults = function(defaults) {
     }
     
     jsPDF.autoTableState.defaults = defaults;
+    
+    return this;
 };
 
 /**

@@ -1,6 +1,6 @@
 import {Config, FONT_ROW_RATIO} from './config';
 import {getFillStyle, addTableBorder, addContentHooks} from './common';
-import {Row, Table} from "./models";
+import {Row, Table, ATEvent} from "./models";
 import autoText from './autoText';
 
 export function drawTable(table: Table, tableOptions) {
@@ -37,12 +37,12 @@ export function drawTable(table: Table, tableOptions) {
     let pageNumber = table.doc.internal.getCurrentPageInfo().pageNumber;
     if (table.doc.autoTableState.addPageHookPages && table.doc.autoTableState.addPageHookPages[pageNumber]) {
         if (typeof tableOptions['addPageContent'] === 'function') {
-            tableOptions['addPageContent'](Config.hooksData());
+            tableOptions['addPageContent'](new ATEvent(table));
         }
     } else {
         if (!table.doc.autoTableState.addPageHookPages) table.doc.autoTableState.addPageHookPages = {};
         table.doc.autoTableState.addPageHookPages[pageNumber] = true;
-        addContentHooks();
+        addContentHooks(table);
     }
 }
 
@@ -121,7 +121,7 @@ function printRow(row, drawRowHooks, drawCellHooks) {
     row.y = table.cursor.y;
     
     for (let hook of drawRowHooks) {
-        if (hook(row, Config.hooksData({row: row, addPage: addPage})) === false) {
+        if (hook(row, new ATEvent(table, row)) === false) {
             return;
         }
     }
@@ -157,9 +157,9 @@ function printRow(row, drawRowHooks, drawCellHooks) {
 
 
         let shouldDrawCell = true;
-        let data = Config.hooksData({column: column, row: row, addPage: addPage});
+        let event = new ATEvent(table, row, column, cell);
         for (let hook of drawCellHooks) {
-            if (hook(cell, data) === false) {
+            if (hook(cell, event) === false) {
                 shouldDrawCell = false;
             }
         }
@@ -193,7 +193,7 @@ export function addPage() {
 
     // Add user content just before adding new page ensure it will 
     // be drawn above other things on the page
-    addContentHooks();
+    addContentHooks(table);
     addTableBorder();
     table.doc.addPage();
     table.pageCount++;

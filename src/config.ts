@@ -106,17 +106,7 @@ export class Config {
     static scaleFactor() {
         return table.doc.internal.scaleFactor;
     }
-
-    static hooksData(additionalData = {}) {
-        return assign({
-            pageCount: table.pageCount,
-            settings: table.settings,
-            table: table,
-            doc: table.doc,
-            cursor: table.cursor,
-        }, additionalData || {});
-    }
-
+    
     static initSettings(table, allOptions) {
         // Merge styles one level deeper
         for (let styleProp of Object.keys(table.styles)) {

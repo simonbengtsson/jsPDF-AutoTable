@@ -1,19 +1,22 @@
 import {Config, getDefaults} from "./config";
+import {addPage} from "./painter";
 export let table = {};
 
 export class Table {
-    settings;
-    cursor;
-    doc;
-    userStyles;
+    settings: any;
+    cursor: {x: number, y: number};
+    doc: any;
+    userStyles: {};
+
+    rows: Row[] = [];
+    columns: Column[] = [];
+    headerRow: Row = null;
     
     height = 0;
     width = 0;
     contentWidth = 0;
     preferredWidth = 0;
-    rows: Row[] = [];
-    columns: Column[] = [];
-    headerRow: Row = null;
+    
     pageCount = 1;
     pageStartX: number;
     pageStartY: number;
@@ -53,15 +56,16 @@ export class Table {
 }
 
 export class Row {
-    raw;
-    index;
+    raw: HTMLTableRowElement|any;
+    index: number;
     cells = {};
-    spansMultiplePages = false;
-    pageCount = 1;
+    
     height = 0;
-    y = 0;
     maxCellLineCount = 1;
     maxCellHeight = 0;
+    
+    pageCount = 1;
+    spansMultiplePages = false;
     
     constructor(raw, index) {
         this.raw = raw;
@@ -70,15 +74,14 @@ export class Row {
 }
 
 export class Cell {
-    raw;
+    raw: HTMLTableCellElement|any;
     styles: any = {};
     text: string|string[] = '';
+    
     contentWidth = 0;
     textPos = {};
     height = 0;
     width = 0;
-    x = 0;
-    y = 0;
     
     colSpan = 1;
     rowSpan = 1;
@@ -100,17 +103,46 @@ export class Cell {
 }
 
 export class Column {
-    dataKey; // string|number
-    index; // number
+    dataKey: string|number;
+    index: number;
     options = {};
-    contentWidth = 0;
+    widthStyle: 'auto'|'wrap'|number = 'auto';
+    
     preferredWidth = 0;
-    widthStyle = 'auto';
+    contentWidth = 0;
     width = 0;
-    x = 0;
     
     constructor(dataKey, index) {
         this.dataKey = dataKey;
         this.index = index;
+    }
+}
+
+export class ATEvent {
+    type: string;
+    table?: Table;
+    pageCount: number;
+    settings: {};
+    doc: any;
+    cursor: {x: number, y: number};
+    addPage: () => void;
+
+    // Depending on the type of element the following 
+    // properties might be set
+    cell?: Cell;
+    row?: Row;
+    column?: Column;
+    
+    constructor(table: Table, row?: Row, column?: Column, cell?: Cell) {
+        this.table = table;
+        this.pageCount = table.pageCount;
+        this.settings = table.settings;
+        this.cursor = table.cursor;
+        this.doc = table.doc;
+        this.addPage = addPage;
+        
+        this.cell = cell;
+        this.row = row;
+        this.column = column;
     }
 }
