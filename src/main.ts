@@ -4,7 +4,7 @@ import * as jsPDF from 'jspdf';
 import {Config} from './config';
 import {drawTable, addPage} from './painter';
 import {calculateWidths} from './calculator';
-import {createModels, validateInput} from './creator';
+import {parseInput, validateInput} from './inputParser';
 import autoText from './autoText';
 
 /**
@@ -24,7 +24,7 @@ jsPDF.API.autoTable = function (headers, data, tableOptions = {}) {
     // 1. Parse and unify user input
     let table = Config.createTable(this);
     Config.initSettings(table, allOptions);
-    createModels(headers, data);
+    parseInput(headers, data);
     
     // 2. Calculate preliminary table, column, row and cell dimensions
     calculateWidths(table);

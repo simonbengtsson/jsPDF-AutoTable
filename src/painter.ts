@@ -118,7 +118,6 @@ function printFullRow(row: Row, drawRowHooks, drawCellHooks) {
 
 function printRow(row, drawRowHooks, drawCellHooks) {
     let table = Config.tableInstance();
-    row.y = table.cursor.y;
     
     for (let hook of drawRowHooks) {
         if (hook(row, new ATEvent(table, row)) === false) {
@@ -129,16 +128,13 @@ function printRow(row, drawRowHooks, drawCellHooks) {
     table.cursor.x = table.margin('left');
     for (let column of table.columns) {
         let cell = row.cells[column.dataKey];
-        let cursorX = table.cursor.x;
         if(!cell) {
             table.cursor.x += column.width;
             continue;
         }
         Config.applyStyles(cell.styles);
 
-        cell.x = cursorX;
-        cell.y = table.cursor.y;
-        
+        let cellX = table.cursor.x;
         if (cell.styles.valign === 'top') {
             cell.textPos.y = table.cursor.y + cell.padding('top');
         } else if (cell.styles.valign === 'bottom') {
@@ -148,11 +144,11 @@ function printRow(row, drawRowHooks, drawCellHooks) {
         }
 
         if (cell.styles.halign === 'right') {
-            cell.textPos.x = cell.x + cell.width - cell.padding('right');
+            cell.textPos.x = cellX + cell.width - cell.padding('right');
         } else if (cell.styles.halign === 'center') {
-            cell.textPos.x = cell.x + cell.width / 2;
+            cell.textPos.x = cellX + cell.width / 2;
         } else {
-            cell.textPos.x = cell.x + cell.padding('left');
+            cell.textPos.x = cellX + cell.padding('left');
         }
 
 
@@ -167,7 +163,7 @@ function printRow(row, drawRowHooks, drawCellHooks) {
         if (shouldDrawCell) {
             let fillStyle = getFillStyle(cell.styles);
             if (fillStyle) {
-                table.doc.rect(cell.x, cell.y, cell.width, cell.height, fillStyle);
+                table.doc.rect(cellX, table.cursor.y, cell.width, cell.height, fillStyle);
             }
             autoText.apply(table.doc, [cell.text, cell.textPos.x, cell.textPos.y, {
                 halign: cell.styles.halign,

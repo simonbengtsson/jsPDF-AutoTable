@@ -1,6 +1,6 @@
 import {Config, FONT_ROW_RATIO} from './config';
 import {getStringWidth, ellipsize} from './common';
-import {Row, Table} from "./models";
+import {Table} from "./models";
 
 declare function require(path: string): any;
 var entries = require('object.entries');
@@ -102,31 +102,40 @@ export function calculateWidths(table: Table) {
             }
             
             let lineCount = Array.isArray(cell.text) ? cell.text.length : 1;
+            lineCount = cell.rowSpan <= 1 ? lineCount : 1;
             let fontHeight = cell.styles.fontSize / Config.scaleFactor() * FONT_ROW_RATIO;
             cell.contentHeight = lineCount * fontHeight + cell.padding('vertical');
 
-            if (cell.rowSpan <= 1 && cell.contentHeight > row.height) {
+            if (cell.contentHeight > row.height) {
                 row.height = cell.contentHeight;
                 row.maxCellHeight = cell.contentHeight;
                 row.maxCellLineCount = lineCount;
             }
         }
 
+        colSpansLeft = 1;
         for (let column of table.columns) {
             let data = rowSpanCells[column.dataKey];
-            if (data) {
+            if (colSpansLeft > 1) {
+                colSpansLeft--;
+                delete row.cells[column.dataKey];
+            } else if(data) {
                 data.cell.height += row.height;
                 if (data.cell.height > row.maxCellHeight) {
                     row.maxCellHeight = data.cell.height;
                     row.maxCellLineCount = Array.isArray(data.cell.text) ? data.cell.text.length : 1;
                 }
+                colSpansLeft = data.cell.colSpan;
                 delete row.cells[column.dataKey];
-                data.left -= 1;
+                data.left--;
                 if (data.left <= 1) {
                     delete rowSpanCells[column.dataKey];
                 }
             } else {
                 var cell = row.cells[column.dataKey];
+                if (!cell) {
+                    continue;
+                }
                 cell.height = row.height;
                 if (cell.rowSpan > 1) {
                     let remaining = all.length - 1 - rowIndex;

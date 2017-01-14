@@ -72,7 +72,7 @@ export function validateInput(headers, data, allOptions) {
  * @param inputHeaders
  * @param inputData
  */
-export function createModels(inputHeaders, inputData) {
+export function parseInput(inputHeaders, inputData) {
     let splitRegex = /\r\n|\r|\n/g;
     let table = Config.tableInstance();
     let settings = table.settings;
