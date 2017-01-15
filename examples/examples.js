@@ -140,6 +140,10 @@ examples.html = function () {
     var elem = document.getElementById("basic-table");
     var res = doc.autoTableHtmlToJson(elem);
     doc.autoTable(res.columns, res.data, {startY: 20});
+
+    doc.text("From HTML with CSS", 14, 80);
+    doc.autoTable(90, {fromHtml: "#basic-table", useCssStyles: true});
+    
     return doc;
 };
 
@@ -237,26 +241,23 @@ examples.spans = function () {
     doc.setTextColor(0);
     doc.setFontStyle('bold');
     doc.text('Col and row span', 40, 50);
+    let cols = getColumns();
     var data = getData(80);
     data.sort(function (a, b) {
         return parseFloat(b.expenses) - parseFloat(a.expenses);
     });
     data = data.concat(data);
     data.unshift({id: 'Priority Group'});
-    data.splice(6, 0, {id: 'Other Groups'});
-    doc.autoTable(getColumns(), data, {
+    data.splice(6, 0, {id: {content: 'Other Groups', colSpan: cols.length, styles: {fontStyle: 'bold', halign: 'center'}}});
+    doc.autoTable(cols, data, {
         theme: 'grid',
         startY: 60,
         margin: {bottom: 0},
         createdCell: function(cell, data) {
             if (data.column.dataKey === 'id') {
-                // Colspan
+                // Colspan styles
                 if (data.row.index === 0) {
                     cell.styles.textColor = [192, 57, 43];
-                    cell.styles.fontStyle = 'bold';
-                    cell.styles.halign = 'center';
-                    cell.colSpan = data.table.columns.length;
-                } else if (data.row.index === 6) {
                     cell.styles.fontStyle = 'bold';
                     cell.styles.halign = 'center';
                     cell.colSpan = data.table.columns.length;
