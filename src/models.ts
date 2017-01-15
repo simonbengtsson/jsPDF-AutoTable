@@ -3,6 +3,7 @@ import {addPage} from "./painter";
 export let table = {};
 
 export class Table {
+    id?: any;
     settings: any;
     cursor: {x: number, y: number};
     doc: any;

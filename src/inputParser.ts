@@ -166,4 +166,5 @@ function parseSettings(table, allOptions) {
 
     // Merge all other options one level
     table.settings = assign(getDefaults(), ...allOptions);
+    table.id = table.settings.tableId;
 }
