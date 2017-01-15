@@ -59,6 +59,7 @@ function parseTableSection(window, sectionElement, includeHidden, useCss): RowRe
     return results;
 }
 
+// TODO convert pixels to used unit
 function parseCss(style, ignored = []): any {
     let result = {};
     

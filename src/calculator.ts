@@ -122,8 +122,8 @@ export function calculateWidths(table: Table) {
             } else if(data) {
                 data.cell.height += row.height;
                 if (data.cell.height > row.maxCellHeight) {
-                    row.maxCellHeight = data.cell.height;
-                    row.maxCellLineCount = Array.isArray(data.cell.text) ? data.cell.text.length : 1;
+                    data.row.maxCellHeight = data.cell.height;
+                    data.row.maxCellLineCount = Array.isArray(data.cell.text) ? data.cell.text.length : 1;
                 }
                 colSpansLeft = data.cell.colSpan;
                 delete row.cells[column.dataKey];
@@ -140,7 +140,7 @@ export function calculateWidths(table: Table) {
                 if (cell.rowSpan > 1) {
                     let remaining = all.length - 1 - rowIndex;
                     let left = cell.rowSpan > remaining ? remaining : cell.rowSpan;
-                    rowSpanCells[column.dataKey] = {cell, left};
+                    rowSpanCells[column.dataKey] = {cell, left, row};
                 }
             }
         }
