@@ -1,5 +1,6 @@
 import {Row, Cell, Column, ATEvent} from './models';
 import {Config, getTheme, getDefaults} from './config';
+import {parseHtml} from "./htmlParser";
 
 declare function require(path: string): any;
 var assign = require('object-assign');
@@ -74,7 +75,14 @@ export function parseInput(doc, allOptions) {
     let table = Config.createTable(doc);
     parseSettings(table, allOptions);
     
-    let splitRegex = /\r\n|\r|\n/g;
+    let head: any[] = table.settings.head;
+    let body = table.settings.body;
+    if (table.settings.fromHtml) {
+        let c = parseHtml(table.settings.fromHtml, table.settings.includeHiddenHtml, table.settings.useCssStyles);
+        if (!head) head = c.head[0] || [];
+        if (!body) body = c.body || [];
+    }
+    
     let settings = table.settings;
     let theme = getTheme(settings.theme);
 
@@ -83,56 +91,39 @@ export function parseInput(doc, allOptions) {
     headerRow.index = -1;
 
     // Columns and header row
-    table.settings.head.forEach(function (rawColumn, index) {
+    for (let index = 0; index < head.length; index++) {
+        let rawCell = head[index];
         let dataKey = index;
-        if (typeof rawColumn.dataKey !== 'undefined') {
-            dataKey = rawColumn.dataKey;
-        } else if (typeof rawColumn.key !== 'undefined' && window.console) {
+        if (typeof rawCell.dataKey !== 'undefined') {
+            dataKey = rawCell.dataKey;
+        } else if (typeof rawCell.key !== 'undefined' && window.console) {
             console.error("Deprecation warning: Use dataKey instead of key");
-            dataKey = rawColumn.key; // deprecated since 2.x
+            dataKey = rawCell.key; // deprecated since 2.x
         }
 
         let col = new Column(dataKey, index);
         col.widthStyle = Config.styles([theme.table, theme.header, table.styles.styles, table.styles.columnStyles[col.dataKey] || {}]).columnWidth;
         table.columns.push(col);
 
-        let cell = new Cell(rawColumn);
-        cell.styles = Config.styles([theme.table, theme.header, table.styles.styles, table.styles.headerStyles]);
-
-        let cellText = '';
-        if (cell.raw instanceof (<any>window).HTMLElement) {
-            cellText = (cell.raw.innerText || '').trim();
-        } else {
-            let text = typeof cell.raw === 'object' ? cell.raw.title : cell.raw;
-            // Stringify 0 and false, but not undefined
-            cellText = typeof cell.raw !== 'undefined' ? '' + text : '';
-        }
-        cell.text = cellText.split(splitRegex);
+        let cellStyles = Config.styles([theme.table, theme.header, table.styles.styles, table.styles.headerStyles]);
+        let cell = new Cell(rawCell, cellStyles);
 
         headerRow.cells[dataKey] = cell;
         for (let hook of table.hooks.createdHeaderCell) {
             hook(cell, {cell: cell, column: col, row: headerRow, settings: settings});
         }
-    });
+    }
     table.headerRow = headerRow;
 
     // Rows och cells
-    table.settings.body.forEach(function (rawRow, i) {
+    for (let i = 0; i < body.length; i++) {
+        let rawRow = body[i];
         let row = new Row(rawRow, i);
         let rowStyles = i % 2 === 0 ? assign({}, theme.alternateRow, table.styles.alternateRowStyles) : {};
         table.columns.forEach(function (column) {
-            let cell = new Cell(rawRow[column.dataKey]);
             let colStyles = table.styles.columnStyles[column.dataKey] || {};
-            cell.styles = Config.styles([theme.table, theme.body, table.styles.styles, table.styles.bodyStyles, rowStyles, colStyles]);
-
-            let text = '';
-            if (cell.raw && cell.raw instanceof (<any>window).HTMLElement) {
-                text = (cell.raw.innerText || '').trim();
-            } else {
-                // Stringify 0 and false, but not undefined
-                text = typeof cell.raw !== 'undefined' ? '' + cell.raw : '';
-            }
-            cell.text = text.split(splitRegex);
+            let cellStyles = Config.styles([theme.table, theme.body, table.styles.styles, table.styles.bodyStyles, rowStyles, colStyles]);
+            let cell = new Cell(rawRow[column.dataKey], cellStyles);
 
             row.cells[column.dataKey] = cell;
             
@@ -141,7 +132,7 @@ export function parseInput(doc, allOptions) {
             }
         });
         table.rows.push(row);
-    });
+    }
 
     table.settings.margin = Config.marginOrPadding(table.settings.margin, getDefaults().margin);
     

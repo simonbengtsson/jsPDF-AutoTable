@@ -15,6 +15,7 @@ jsPDF.API.autoTable = function (tableOptions) {
     jsPDF.autoTableState = jsPDF.autoTableState || {};
     
     if (typeof arguments[0] === 'number') {
+        tableOptions = arguments[1];
         tableOptions.startY = arguments[0];
     } else if (arguments.length >= 2 && Array.isArray(arguments[0])) {
         tableOptions = arguments[2] || {};

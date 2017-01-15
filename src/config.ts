@@ -43,6 +43,13 @@ export function getDefaults() {
         bodyStyles: {},
         alternateRowStyles: {},
         columnStyles: {},
+        
+        // Content
+        head: null,
+        body: null,
+        fromHtml: null,
+        includeHiddenHtml: false,
+        useCssStyles: false,
 
         // Properties
         startY: false, // false indicates the margin top value

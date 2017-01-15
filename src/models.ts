@@ -2,6 +2,9 @@ import {Config, getDefaults} from "./config";
 import {addPage} from "./painter";
 export let table = {};
 
+declare function require(path: string): any;
+var assign = require('object-assign');
+
 export class Table {
     id?: any;
     settings: any;
@@ -78,19 +81,35 @@ export class Row {
 
 export class Cell {
     raw: HTMLTableCellElement|any;
-    styles: any = {};
-    text: string|string[] = '';
+    styles: any;
+    text: string[];
     
     contentWidth = 0;
     textPos = {};
     height = 0;
     width = 0;
     
-    colSpan = 1;
-    rowSpan = 1;
+    colSpan: number;
+    rowSpan: number;
     
-    constructor(raw) {
+    constructor(raw, themeStyles) {
         this.raw = raw;
+        this.rowSpan = raw && raw.rowSpan || 1;
+        this.colSpan = raw && raw.colSpan || 1;
+        this.styles = assign(themeStyles, raw && raw.styles || {});
+
+        let text = '';
+        let content = raw && typeof raw.content !== 'undefined' ? raw.content : raw;
+        content = content && content.dataKey ? content.title : content;
+        if (content && content instanceof (<any>window).HTMLElement) {
+            text = (content.innerText || '').trim();
+        } else {
+            // Stringify 0 and false, but not undefined
+            text = typeof content !== 'undefined' ? '' + content : '';
+        }
+        
+        let splitRegex = /\r\n|\r|\n/g;
+        this.text = text.split(splitRegex);
     }
     
     padding(name) {
@@ -130,7 +149,7 @@ export class ATEvent {
     cursor: {x: number, y: number};
     addPage: () => void;
 
-    // Depending on the type of element the following 
+    // Depending on the type of event the following 
     // properties might be set
     cell?: Cell;
     row?: Row;

@@ -1,12 +1,9 @@
+import {Config} from "./config";
 /**
  * Experimental html and css parser
  */
-
-interface RowResult {
-    content: HTMLTableRowElement,
-    cells: [{content: HTMLTableCellElement, styles: {}, rowSpan: number, colSpan: number}],
-    styles: {}
-}
+declare function require(path: string): any;
+var assign = require('object-assign');
 
 export function parseHtml(input: HTMLTableElement|string, includeHiddenHtml = false, useCss = false) {
     let tableElement;
@@ -26,32 +23,29 @@ export function parseHtml(input: HTMLTableElement|string, includeHiddenHtml = fa
     return {head, body, foot};
 }
 
-function parseTableSection(window, sectionElement, includeHidden, useCss): RowResult[] {
+function parseTableSection(window, sectionElement, includeHidden, useCss) {
     let results = [];
     if (!sectionElement) {
         return results;
     }
     for(let i = 0; i < sectionElement.rows.length; i++) {
         let row = sectionElement.rows[i];
-        let resultRow = {styles: {}, cells: []};
+        let resultRow = [];
+        let rowStyles = parseCss(row, ['cellPadding', 'lineWidth', 'lineColor']);
         for(let i = 0; i < row.cells.length; i++) {
             let cell = row.cells[i];
             let style = window.getComputedStyle(cell);
             if (includeHidden || style.display !== 'none') {
-                let styles = useCss ? parseCss(style) : {};
-                let content = (cell.innerText || '').trim();
-                resultRow.cells.push({
-                    content: content,
-                    rowspan: cell.rowSpan,
-                    colspan: cell.colSpan,
-                    styles: styles,
-                    element: cell
+                let cellStyles = parseCss(cell);
+                resultRow.push({
+                    rowSpan: cell.rowSpan,
+                    colSpan: cell.colSpan,
+                    styles: useCss ? assign(rowStyles, cellStyles) : null,
+                    content: cell
                 });
             }
         }
-        let style = window.getComputedStyle(row);
-        if (resultRow.cells.length > 0 && (includeHidden || style.display !== 'none')) {
-            resultRow.styles = useCss ? parseCss(style, ['cellPadding', 'lineWidth', 'lineColor']): {};
+        if (resultRow.length > 0 && (includeHidden || rowStyles.display !== 'none')) {
             results.push(resultRow);
         }
     }
@@ -59,9 +53,10 @@ function parseTableSection(window, sectionElement, includeHidden, useCss): RowRe
     return results;
 }
 
-// TODO convert pixels to used unit
-function parseCss(style, ignored = []): any {
-    let result = {};
+// Note that border spacing is currently ignored
+function parseCss(element, ignored = []): any {
+    let result: any = {};
+    let style = window.getComputedStyle(element);
     
     function assign(name, value, accepted = []) {
         if ((accepted.length === 0 || accepted.indexOf(value) !== -1) && ignored.indexOf(name) === -1) {
@@ -71,15 +66,16 @@ function parseCss(style, ignored = []): any {
         }
     }
     
-    assign('fillColor', parseColor(style.backgroundColor));
-    assign('lineColor', parseColor(style.borderColor));
+    let pxScaleFactor =  96 / 72;
+    assign('fillColor', parseColor(element, 'backgroundColor'));
+    assign('lineColor', parseColor(element, 'borderColor'));
     assign('fontStyle', parseFontStyle(style));
-    assign('textColor', parseColor(style.color));
+    assign('textColor', parseColor(element, 'color'));
     assign('halign', style.textAlign, ['left', 'right', 'center']);
     assign('valign', style.verticalAlign, ['middle', 'bottom', 'top']);
-    assign('fontSize', parseInt(style.fontSize));
-    assign('cellPadding', parsePadding(style.padding));
-    assign('lineWidth', parseInt(style.borderWidth));
+    assign('fontSize', parseInt(style.fontSize) / pxScaleFactor);
+    assign('cellPadding', parsePadding(style.padding, style.fontSize, style.lineHeight));
+    assign('lineWidth', parseInt(style.borderWidth) / pxScaleFactor / Config.tableInstance().scaleFactor);
     assign('font', (style.fontFamily || '').toLowerCase());
     
     return result;
@@ -96,13 +92,12 @@ function parseFontStyle(style) {
     return res;
 }
 
-function parseColor(cssColor) {
-    if (!cssColor) {
-        return null;
-    }
+function parseColor(element, colorProp) {
+    let cssColor = realColor(element, colorProp);
+    
+    if (!cssColor) return null;
     
     var rgba = cssColor.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d*\.?\d*))?\)$/);
-    
     if (!rgba || !Array.isArray(rgba)) {
         return null;
     }
@@ -117,7 +112,31 @@ function parseColor(cssColor) {
     return color;
 }
 
-function parsePadding(val) {
-    let p = val.split(' ').map((n) => parseInt(n));
-    return Array.isArray(p) && p.length === 1 ? p[0] : p;
+function realColor(elem, colorProp) {
+    if (!elem) return 'rgb(255, 255, 255)';
+
+    var bg = getComputedStyle(elem)[colorProp];
+    if (bg === 'rgba(0, 0, 0, 0)') {
+        return realColor(elem.parentElement, colorProp);
+    } else {
+        return bg;
+    }
+}
+
+function parsePadding(val, fontSize, lineHeight) {
+    let scaleFactor = (96 / (72 / Config.tableInstance().scaleFactor));
+    let linePadding = (parseInt(lineHeight) - parseInt(fontSize)) / scaleFactor / 2;
+    
+    let padding = val.split(' ').map((n) => {
+        return parseInt(n) / scaleFactor;
+    });
+
+    padding = Config.marginOrPadding(padding, 0);
+    if (linePadding > padding.top) {
+        padding.top = linePadding;
+    }
+    if (linePadding > padding.bottom) {
+        padding.bottom = linePadding;
+    }
+    return padding;
 }
