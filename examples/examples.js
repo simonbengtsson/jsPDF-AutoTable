@@ -241,48 +241,31 @@ examples.spans = function () {
     data.sort(function (a, b) {
         return parseFloat(b.expenses) - parseFloat(a.expenses);
     });
+    data = data.concat(data);
+    data.unshift({id: 'Priority Group'});
+    data.splice(6, 0, {id: 'Other Groups'});
     doc.autoTable(getColumns(), data, {
         theme: 'grid',
         startY: 60,
-        drawRow: function (row, data) {
-            // Colspan
-            doc.setFontStyle('bold');
-            doc.setFontSize(10);
-            if (row.index === 0) {
-                doc.setTextColor(200, 0, 0);
-                doc.rect(data.settings.margin.left, row.y, data.table.width, 20, 'S');
-                doc.autoTableText("Priority Group", data.settings.margin.left + data.table.width / 2, row.y + row.height / 2, {
-                    halign: 'center',
-                    valign: 'middle'
-                });
-                data.cursor.y += 20;
-            } else if (row.index === 5) {
-                doc.rect(data.settings.margin.left, row.y, data.table.width, 20, 'S');
-                doc.autoTableText("Other Groups", data.settings.margin.left + data.table.width / 2, row.y + row.height / 2, {
-                    halign: 'center',
-                    valign: 'middle'
-                });
-                data.cursor.y += 20;
-            }
-
-            if (row.index % 5 === 0) {
-                var posY = row.y + row.height * 6 + data.settings.margin.bottom;
-                if (posY > doc.internal.pageSize.height) {
-                    data.addPage();
-                }
-            }
-        },
-        drawCell: function (cell, data) {
-            // Rowspan
+        margin: {bottom: 0},
+        createdCell: function(cell, data) {
             if (data.column.dataKey === 'id') {
-                if (data.row.index % 5 === 0) {
-                    doc.rect(cell.x, cell.y, data.table.width, cell.height * 5, 'S');
-                    doc.autoTableText(data.row.index / 5 + 1 + '', cell.x + cell.width / 2, cell.y + cell.height * 5 / 2, {
-                        halign: 'center',
-                        valign: 'middle'
-                    });
+                // Colspan
+                if (data.row.index === 0) {
+                    cell.styles.textColor = [192, 57, 43];
+                    cell.styles.fontStyle = 'bold';
+                    cell.styles.halign = 'center';
+                    cell.colSpan = data.table.columns.length;
+                } else if (data.row.index === 6) {
+                    cell.styles.fontStyle = 'bold';
+                    cell.styles.halign = 'center';
+                    cell.colSpan = data.table.columns.length;
                 }
-                return false;
+
+                // Rowspan
+                if (data.row.index % 5 === 2 && data.row.index !== 2 || data.row.index == 1) {
+                    cell.rowSpan = 5;
+                }
             }
         }
     });
