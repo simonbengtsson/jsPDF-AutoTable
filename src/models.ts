@@ -6,6 +6,7 @@ export class Table {
     settings: any;
     cursor: {x: number, y: number};
     doc: any;
+    scaleFactor: number;
     userStyles: {};
 
     rows: Row[] = [];
@@ -24,6 +25,7 @@ export class Table {
     
     constructor(doc) {
         this.doc = doc;
+        this.scaleFactor = doc.internal.scaleFactor;
         
         this.userStyles = {
             textColor: 30, // Setting text color to dark gray as it can't be obtained from jsPDF

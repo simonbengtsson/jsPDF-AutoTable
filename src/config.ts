@@ -35,7 +35,6 @@ export let getTheme = function(name) {
 };
 
 export function getDefaults() {
-    let scaleFactor = Config.scaleFactor();
     return {
         // Styling
         theme: 'striped', // 'striped', 'grid' or 'plain'
@@ -47,7 +46,7 @@ export function getDefaults() {
 
         // Properties
         startY: false, // false indicates the margin top value
-        margin: 40 / scaleFactor,
+        margin: 40 / table.scaleFactor,
         pageBreak: 'auto', // 'auto', 'avoid', 'always'
         tableWidth: 'auto', // 'auto'|'wrap'|number (takes precedence over columnWidth style if conflict)
         showHeader: 'everyPage', // 'everyPage', 'firstPage', 'never',
@@ -67,7 +66,6 @@ export function getDefaults() {
 
 // Base style for all themes
 function defaultStyles() {
-    let scaleFactor = Config.scaleFactor();
     return {
         font: "helvetica", // helvetica, times, courier
         fontStyle: 'normal', // normal, bold, italic, bolditalic
@@ -77,9 +75,9 @@ function defaultStyles() {
         halign: 'left', // left, center, right
         valign: 'top', // top, middle, bottom
         fontSize: 10,
-        cellPadding: 5 / scaleFactor, // number or {top,left,right,left,vertical,horizontal}
+        cellPadding: 5 / table.scaleFactor, // number or {top,left,right,left,vertical,horizontal}
         lineColor: 200,
-        lineWidth: 0 / scaleFactor,
+        lineWidth: 0 / table.scaleFactor,
         columnWidth: 'auto'
     }
 }
@@ -101,30 +99,6 @@ export class Config {
     
     static tableInstance(): Table {
         return table;
-    }
-    
-    static scaleFactor() {
-        return table.doc.internal.scaleFactor;
-    }
-    
-    static initSettings(table, allOptions) {
-        // Merge styles one level deeper
-        for (let styleProp of Object.keys(table.styles)) {
-            let styles = allOptions.map(function(opts) { return opts[styleProp] || {}});
-            table.styles[styleProp] = assign({}, ...styles);
-        }
-
-        // Append event handlers instead of replacing them
-        for (let [hookName, list] of entries(table.hooks)) {
-            for (let opts of allOptions) {
-                if (opts && opts[hookName]) {
-                    list.push(opts[hookName]);
-                }
-            }
-        }
-
-        // Merge all other options one level
-        table.settings = assign(getDefaults(), ...allOptions);
     }
     
     // This is messy, only keep array and number format the next major version

@@ -88,6 +88,7 @@ export function calculateWidths(table: Table) {
 
             // Overflow
             Config.applyStyles(cell.styles);
+            let scaleFactor = table.doc.internal.scaleFactor;
             let textSpace = cell.width - cell.padding('horizontal');
             if (cell.styles.overflow === 'linebreak') {
                 cell.text = Array.isArray(cell.text) ? cell.text.join(' ') : cell.text;
@@ -103,7 +104,7 @@ export function calculateWidths(table: Table) {
             
             let lineCount = Array.isArray(cell.text) ? cell.text.length : 1;
             lineCount = cell.rowSpan <= 1 ? lineCount : 1;
-            let fontHeight = cell.styles.fontSize / Config.scaleFactor() * FONT_ROW_RATIO;
+            let fontHeight = cell.styles.fontSize / table.scaleFactor * FONT_ROW_RATIO;
             cell.contentHeight = lineCount * fontHeight + cell.padding('vertical');
 
             if (cell.contentHeight > row.height) {

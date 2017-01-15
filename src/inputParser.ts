@@ -3,19 +3,20 @@ import {Config, getTheme, getDefaults} from './config';
 
 declare function require(path: string): any;
 var assign = require('object-assign');
+var entries = require('object.entries');
 
-export function validateInput(headers, data, allOptions) {
+export function validateInput(allOptions) {
     if (typeof console === 'undefined') {
         var console = {error: function(msg) {}, log: function(msg) {}}
     }
     
-    if (!headers || typeof headers !== 'object') {
-        console.error("The headers should be an object or array, is: " + typeof headers);
-    } else if (!data || typeof data !== 'object') {
-        console.error("The data should be an object or array, is: " + typeof data);
-    }
-    
     for (let settings of allOptions) {
+        if (settings.head && typeof settings.head !== 'object') {
+            console.error("The headers should be an object or array, is: " + typeof settings.head);
+        } else if (settings.body && typeof settings.body !== 'object') {
+            console.error("The data should be an object or array, is: " + typeof settings.body);
+        }
+        
         if (settings && typeof settings !== 'object') {
             console.error("The options parameter should be of type object, is: " + typeof settings);
         }
@@ -68,22 +69,21 @@ export function validateInput(headers, data, allOptions) {
 
 /**
  * Create models from the user input
- *
- * @param inputHeaders
- * @param inputData
  */
-export function parseInput(inputHeaders, inputData) {
+export function parseInput(doc, allOptions) {
+    let table = Config.createTable(doc);
+    parseSettings(table, allOptions);
+    
     let splitRegex = /\r\n|\r|\n/g;
-    let table = Config.tableInstance();
     let settings = table.settings;
     let theme = getTheme(settings.theme);
 
     // Header row and columns
-    let headerRow = new Row(inputHeaders, -1);
+    let headerRow = new Row(table.settings.head, -1);
     headerRow.index = -1;
 
     // Columns and header row
-    inputHeaders.forEach(function (rawColumn, index) {
+    table.settings.head.forEach(function (rawColumn, index) {
         let dataKey = index;
         if (typeof rawColumn.dataKey !== 'undefined') {
             dataKey = rawColumn.dataKey;
@@ -117,7 +117,7 @@ export function parseInput(inputHeaders, inputData) {
     table.headerRow = headerRow;
 
     // Rows och cells
-    inputData.forEach(function (rawRow, i) {
+    table.settings.body.forEach(function (rawRow, i) {
         let row = new Row(rawRow, i);
         let rowStyles = i % 2 === 0 ? assign({}, theme.alternateRow, table.styles.alternateRowStyles) : {};
         table.columns.forEach(function (column) {
@@ -146,4 +146,24 @@ export function parseInput(inputHeaders, inputData) {
     table.settings.margin = Config.marginOrPadding(table.settings.margin, getDefaults().margin);
     
     return table;
+}
+
+function parseSettings(table, allOptions) {
+    // Merge styles one level deeper
+    for (let styleProp of Object.keys(table.styles)) {
+        let styles = allOptions.map(function(opts) { return opts[styleProp] || {}});
+        table.styles[styleProp] = assign({}, ...styles);
+    }
+
+    // Append event handlers instead of replacing them
+    for (let [hookName, list] of entries(table.hooks)) {
+        for (let opts of allOptions) {
+            if (opts && opts[hookName]) {
+                list.push(opts[hookName]);
+            }
+        }
+    }
+
+    // Merge all other options one level
+    table.settings = assign(getDefaults(), ...allOptions);
 }

@@ -2,8 +2,7 @@ import {Config} from './config';
 import {ATEvent} from './models';
 
 export function getStringWidth(text, styles) {
-    let k = Config.scaleFactor();
-    let fontSize = styles.fontSize / k;
+    let fontSize = styles.fontSize / Config.tableInstance().scaleFactor;
     Config.applyStyles(styles);
     text = Array.isArray(text) ? text : [text];
     let maxWidth = 0;
@@ -13,7 +12,7 @@ export function getStringWidth(text, styles) {
             maxWidth = width;
         }
     });
-    let precision = 10000 * k;
+    let precision = 10000 * Config.tableInstance().scaleFactor;
     maxWidth = Math.floor(maxWidth * precision) / precision;
     return maxWidth * fontSize;
 }
@@ -31,7 +30,7 @@ export function ellipsize(text, width, styles, ellipsizeStr = '...') {
         return value;
     }
 
-    let precision = 10000 * Config.scaleFactor();
+    let precision = 10000 * Config.tableInstance().scaleFactor;
     width = Math.ceil(width * precision) / precision;
 
     if (width >= getStringWidth(text, styles)) {

@@ -8,23 +8,25 @@ import {parseInput, validateInput} from './inputParser';
 import autoText from './autoText';
 
 /**
- * Create a table from a set of rows and columns.
- *
- * @param {Object[]|String[]} headers Either as an array of objects or array of strings
- * @param {Object[][]|String[][]} data Either as an array of objects or array of strings
- * @param {Object} [tableOptions={}] Options that will override the default ones
+ * Create a table
  */
-jsPDF.API.autoTable = function (headers, data, tableOptions = {}) {
+jsPDF.API.autoTable = function (tableOptions) {
     this.autoTableState = this.autoTableState || {};
     jsPDF.autoTableState = jsPDF.autoTableState || {};
     
+    if (typeof arguments[0] === 'number') {
+        tableOptions.startY = arguments[0];
+    } else if (arguments.length >= 2 && Array.isArray(arguments[0])) {
+        tableOptions = arguments[2] || {};
+        tableOptions.head = arguments[0];
+        tableOptions.body = arguments[1];
+    }
+    
     let allOptions = [jsPDF.autoTableState.defaults || {}, this.autoTableState.defaults || {}, tableOptions || {}];
-    validateInput(headers, data, allOptions);
+    validateInput(allOptions);
     
     // 1. Parse and unify user input
-    let table = Config.createTable(this);
-    Config.initSettings(table, allOptions);
-    parseInput(headers, data);
+    let table = parseInput(this, allOptions);
     
     // 2. Calculate preliminary table, column, row and cell dimensions
     calculateWidths(table);

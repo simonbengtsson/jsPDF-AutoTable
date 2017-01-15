@@ -70,7 +70,7 @@ function printFullRow(row: Row, drawRowHooks, drawCellHooks) {
                     continue;
                 }
 
-                let fontHeight = cell.styles.fontSize / Config.scaleFactor() * FONT_ROW_RATIO;
+                let fontHeight = cell.styles.fontSize / table.scaleFactor * FONT_ROW_RATIO;
                 let vPadding = cell.padding('vertical');
                 let remainingPageSpace = pageHeight - table.cursor.y - table.margin('bottom');
                 let remainingLineCount = Math.floor((remainingPageSpace - vPadding) / fontHeight);
