@@ -4,7 +4,9 @@
 
 **Generate PDF tables with javascript**
 
-Check out the [demo](https://simonbengtsson.github.io/jsPDF-AutoTable/) to get an overview of what can be done with this plugin. Example uses include participant tables, start lists, result lists etc.
+Check out the [demo](https://simonbengtsson.github.io/jsPDF-AutoTable/) or [examples](https://github.com/simonbengtsson/jsPDF-AutoTable/tree/master/examples) to get an overview of what can be done with this plugin. Example uses include participant tables, start lists, result lists etc.
+
+
 
 ![sample javascript table pdf](samples.png)
 
