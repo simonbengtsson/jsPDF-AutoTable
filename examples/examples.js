@@ -140,10 +140,6 @@ examples.html = function () {
     var elem = document.getElementById("basic-table");
     var res = doc.autoTableHtmlToJson(elem);
     doc.autoTable(res.columns, res.data, {startY: 20});
-
-    doc.text("From HTML with CSS", 14, 80);
-    doc.autoTable(90, {fromHtml: "#basic-table", useCssStyles: true});
-    
     return doc;
 };
 
@@ -171,7 +167,7 @@ examples['header-footer'] = function () {
         doc.setFontSize(10);
         doc.text(str, data.settings.margin.left, doc.internal.pageSize.height - 10);
     };
-    
+
     doc.autoTable(getColumns(), getData(40), {
         addPageContent: pageContent,
         margin: {top: 30}
@@ -192,9 +188,9 @@ examples.defaults = function () {
         columnStyles: {id: {fontStyle: 'bold'}},
         headerStyles: {fillColor: 0},
     });
-    
+
     var doc = new jsPDF();
-    
+
     // Document defaults
     doc.autoTableSetDefaults({
         headerStyles: {fillColor: [155, 89, 182]}, // Purple
@@ -204,20 +200,20 @@ examples.defaults = function () {
             doc.text('Document specific header', data.settings.margin.left, 20);
         }
     });
-    
+
     doc.autoTable(getColumns(), getData());
-    
+
     doc.addPage();
-    
+
     doc.autoTable(getColumns(), getData(), {
         // Will override document and global headerStyles
         headerStyles: {fillColor: [231, 76, 60]} // Red
     });
-    
+
     // Reset defaults
     doc.autoTableSetDefaults(null);
     jsPDF.autoTableSetDefaults(null);
-    
+
     return doc;
 };
 
@@ -241,32 +237,52 @@ examples.spans = function () {
     doc.setTextColor(0);
     doc.setFontStyle('bold');
     doc.text('Col and row span', 40, 50);
-    let cols = getColumns();
     var data = getData(80);
     data.sort(function (a, b) {
         return parseFloat(b.expenses) - parseFloat(a.expenses);
     });
-    data = data.concat(data);
-    data.unshift({id: 'Priority Group'});
-    data.splice(6, 0, {id: {content: 'Other Groups', colSpan: cols.length, styles: {fontStyle: 'bold', halign: 'center'}}});
-    doc.autoTable(cols, data, {
+    doc.autoTable(getColumns(), data, {
         theme: 'grid',
         startY: 60,
-        margin: {bottom: 0},
-        createdCell: function(cell, data) {
-            if (data.column.dataKey === 'id') {
-                // Colspan styles
-                if (data.row.index === 0) {
-                    cell.styles.textColor = [192, 57, 43];
-                    cell.styles.fontStyle = 'bold';
-                    cell.styles.halign = 'center';
-                    cell.colSpan = data.table.columns.length;
-                }
+        drawRow: function (row, data) {
+            // Colspan
+            doc.setFontStyle('bold');
+            doc.setFontSize(10);
+            if (row.index === 0) {
+                doc.setTextColor(200, 0, 0);
+                doc.rect(data.settings.margin.left, row.y, data.table.width, 20, 'S');
+                doc.autoTableText("Priority Group", data.settings.margin.left + data.table.width / 2, row.y + row.height / 2, {
+                    halign: 'center',
+                    valign: 'middle'
+                });
+                data.cursor.y += 20;
+            } else if (row.index === 5) {
+                doc.rect(data.settings.margin.left, row.y, data.table.width, 20, 'S');
+                doc.autoTableText("Other Groups", data.settings.margin.left + data.table.width / 2, row.y + row.height / 2, {
+                    halign: 'center',
+                    valign: 'middle'
+                });
+                data.cursor.y += 20;
+            }
 
-                // Rowspan
-                if (data.row.index % 5 === 2 && data.row.index !== 2 || data.row.index == 1) {
-                    cell.rowSpan = 5;
+            if (row.index % 5 === 0) {
+                var posY = row.y + row.height * 6 + data.settings.margin.bottom;
+                if (posY > doc.internal.pageSize.height) {
+                    data.addPage();
                 }
+            }
+        },
+        drawCell: function (cell, data) {
+            // Rowspan
+            if (data.column.dataKey === 'id') {
+                if (data.row.index % 5 === 0) {
+                    doc.rect(cell.x, cell.y, data.table.width, cell.height * 5, 'S');
+                    doc.autoTableText(data.row.index / 5 + 1 + '', cell.x + cell.width / 2, cell.y + cell.height * 5 / 2, {
+                        halign: 'center',
+                        valign: 'middle'
+                    });
+                }
+                return false;
             }
         }
     });
@@ -319,17 +335,17 @@ examples.custom = function () {
             }
         },
         /*parsedInput: function (cell, data) {
-            if (data.column.dataKey === 'expenses') {
-                cell.styles.halign = 'right';
-                if (cell.raw > 600) {
-                    cell.styles.textColor = [255, 100, 100];
-                    cell.styles.fontStyle = 'bolditalic';
-                }
-                cell.text = '$' + cell.text;
-            } else if (data.column.dataKey === 'name') {
-                cell.text = cell.raw.split(' ')[0]; // only first name
-            }
-        }*/
+         if (data.column.dataKey === 'expenses') {
+         cell.styles.halign = 'right';
+         if (cell.raw > 600) {
+         cell.styles.textColor = [255, 100, 100];
+         cell.styles.fontStyle = 'bolditalic';
+         }
+         cell.text = '$' + cell.text;
+         } else if (data.column.dataKey === 'name') {
+         cell.text = cell.raw.split(' ')[0]; // only first name
+         }
+         }*/
     });
     return doc;
 };
@@ -380,7 +396,7 @@ function shuffleSentence(words) {
 }
 
 imgToBase64('document.jpg', function(base64) {
-    base64Img = base64; 
+    base64Img = base64;
 });
 
 // You could either use a function similar to this or pre convert an image with for example http://dopiaza.org/tools/datauri
