@@ -67,7 +67,6 @@ var rows = [
     ...
 ];
 
-// Only pt supported (not mm or in)
 var doc = new jsPDF('p', 'pt');
 doc.autoTable(columns, rows, {
     styles: {fillColor: [100, 255, 255]},
