@@ -106,6 +106,10 @@ export function calculateWidths(table: Table) {
             lineCount = cell.rowSpan <= 1 ? lineCount : 1;
             let fontHeight = cell.styles.fontSize / table.scaleFactor * FONT_ROW_RATIO;
             cell.contentHeight = lineCount * fontHeight + cell.padding('vertical');
+            
+            if (cell.styles.minCellHeight > cell.contentHeight) {
+                cell.contentHeight = cell.styles.minCellHeight;
+            }
 
             if (cell.contentHeight > row.height) {
                 row.height = cell.contentHeight;

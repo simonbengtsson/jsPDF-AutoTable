@@ -1,5 +1,5 @@
 import {Config, FONT_ROW_RATIO} from './config';
-import {getFillStyle, addTableBorder, addContentHooks} from './common';
+import {getFillStyle, addTableBorder} from './common';
 import {Row, Table, ATEvent} from "./models";
 import autoText from './autoText';
 
@@ -23,12 +23,12 @@ export function drawTable(table: Table, tableOptions) {
 
     Config.applyUserStyles();
     if (settings.showHeader === true || settings.showHeader === 'firstPage' || settings.showHeader === 'everyPage') {
-        printRow(table.headerRow, table.hooks.drawHeaderRow, table.hooks.drawHeaderCell);
+        printRow(table.headerRow);
     }
     Config.applyUserStyles();
 
     table.rows.forEach(function (row) {
-        printFullRow(row, table.hooks.drawRow, table.hooks.drawCell);
+        printFullRow(row);
     });
 
     addTableBorder();
@@ -36,17 +36,17 @@ export function drawTable(table: Table, tableOptions) {
     // Don't call global and document addPageContent more than once for each page
     let pageNumber = table.doc.internal.getCurrentPageInfo().pageNumber;
     if (table.doc.autoTableState.addPageHookPages && table.doc.autoTableState.addPageHookPages[pageNumber]) {
-        if (typeof tableOptions['addPageContent'] === 'function') {
-            tableOptions['addPageContent'](new ATEvent(table));
+        if (typeof tableOptions.eventHandler === 'function') {
+            tableOptions.eventHandler(new ATEvent('endedPage', table));
         }
     } else {
         if (!table.doc.autoTableState.addPageHookPages) table.doc.autoTableState.addPageHookPages = {};
         table.doc.autoTableState.addPageHookPages[pageNumber] = true;
-        addContentHooks(table);
+        table.emitEvent(new ATEvent('endedPage', table));
     }
 }
 
-function printFullRow(row: Row, drawRowHooks, drawCellHooks) {
+function printFullRow(row: Row) {
     let remainingRowHeight = 0;
     let remainingTexts = {};
 
@@ -97,7 +97,7 @@ function printFullRow(row: Row, drawRowHooks, drawCellHooks) {
         }
     }
 
-    printRow(row, drawRowHooks, drawCellHooks);
+    printRow(row);
 
     // Parts of the row is now printed. Time for adding a new page, prune 
     // the text and start over
@@ -112,20 +112,27 @@ function printFullRow(row: Row, drawRowHooks, drawCellHooks) {
         addPage();
         row.pageCount++;
         row.height = remainingRowHeight;
-        printFullRow(row, drawRowHooks, drawCellHooks);
+        printFullRow(row);
     }
 }
 
-function printRow(row, drawRowHooks, drawCellHooks) {
+function printRow(row) {
     let table = Config.tableInstance();
-    
-    for (let hook of drawRowHooks) {
-        if (hook(row, new ATEvent(table, row)) === false) {
-            return;
-        }
-    }
 
     table.cursor.x = table.margin('left');
+    row.y = table.cursor.y;
+    row.x = table.cursor.x;
+    
+    if (table.emitEvent(new ATEvent('addingRow', table, row)) === false) {
+        table.cursor.y += row.height;
+        return;
+    }
+
+    // For backwards compatibility reset those after addingRow event
+    table.cursor.x = table.margin('left');
+    row.y = table.cursor.y;
+    row.x = table.cursor.x;
+    
     for (let column of table.columns) {
         let cell = row.cells[column.dataKey];
         if(!cell) {
@@ -134,7 +141,8 @@ function printRow(row, drawRowHooks, drawCellHooks) {
         }
         Config.applyStyles(cell.styles);
 
-        let cellX = table.cursor.x;
+        cell.x = table.cursor.x;
+        cell.y = row.y;
         if (cell.styles.valign === 'top') {
             cell.textPos.y = table.cursor.y + cell.padding('top');
         } else if (cell.styles.valign === 'bottom') {
@@ -144,32 +152,26 @@ function printRow(row, drawRowHooks, drawCellHooks) {
         }
 
         if (cell.styles.halign === 'right') {
-            cell.textPos.x = cellX + cell.width - cell.padding('right');
+            cell.textPos.x = cell.x + cell.width - cell.padding('right');
         } else if (cell.styles.halign === 'center') {
-            cell.textPos.x = cellX + cell.width / 2;
+            cell.textPos.x = cell.x + cell.width / 2;
         } else {
-            cell.textPos.x = cellX + cell.padding('left');
+            cell.textPos.x = cell.x + cell.padding('left');
         }
 
-
-        let shouldDrawCell = true;
-        let event = new ATEvent(table, row, column, cell);
-        for (let hook of drawCellHooks) {
-            if (hook(cell, event) === false) {
-                shouldDrawCell = false;
-            }
+        if (table.emitEvent(new ATEvent('addingCell', table, row, column, cell)) === false) {
+            table.cursor.x += column.width;
+            continue;
         }
-
-        if (shouldDrawCell) {
-            let fillStyle = getFillStyle(cell.styles);
-            if (fillStyle) {
-                table.doc.rect(cellX, table.cursor.y, cell.width, cell.height, fillStyle);
-            }
-            autoText.apply(table.doc, [cell.text, cell.textPos.x, cell.textPos.y, {
-                halign: cell.styles.halign,
-                valign: cell.styles.valign
-            }]);
+        
+        let fillStyle = getFillStyle(cell.styles);
+        if (fillStyle) {
+            table.doc.rect(cell.x, table.cursor.y, cell.width, cell.height, fillStyle);
         }
+        autoText.apply(table.doc, [cell.text, cell.textPos.x, cell.textPos.y, {
+            halign: cell.styles.halign,
+            valign: cell.styles.valign
+        }]);
 
         table.cursor.x += column.width;
     }
@@ -189,7 +191,7 @@ export function addPage() {
 
     // Add user content just before adding new page ensure it will 
     // be drawn above other things on the page
-    addContentHooks(table);
+    table.emitEvent(new ATEvent('endedPage', table));
     addTableBorder();
     table.doc.addPage();
     table.pageCount++;
@@ -197,6 +199,6 @@ export function addPage() {
     table.pageStartX = table.cursor.x;
     table.pageStartY = table.cursor.y;
     if (table.settings.showHeader === true || table.settings.showHeader === 'everyPage') {
-        printRow(table.headerRow, table.hooks.drawHeaderRow, table.hooks.drawHeaderCell);
+        printRow(table.headerRow);
     }
 }

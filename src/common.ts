@@ -55,14 +55,6 @@ export function addTableBorder() {
     }
 }
 
-export function addContentHooks(table) {
-    for (let hook of Config.tableInstance().hooks.addPageContent) {
-        Config.applyUserStyles();
-        hook(new ATEvent(table));
-    }
-    Config.applyUserStyles();
-}
-
 export function getFillStyle(styles) {
     let drawLine = styles.lineWidth > 0;
     let drawBackground = styles.fillColor || styles.fillColor === 0;

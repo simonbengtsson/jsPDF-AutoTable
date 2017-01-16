@@ -1,4 +1,4 @@
-import {Row, Cell, Column, ATEvent} from './models';
+import {Row, Cell, Column, ATEvent, Table} from './models';
 import {Config, getTheme, getDefaults} from './config';
 import {parseHtml} from "./htmlParser";
 
@@ -62,7 +62,8 @@ export function validateInput(allOptions) {
             if (settings[styleProp] && typeof settings[styleProp] !== 'object') {
                 console.error("The " + styleProp + " style should be of type object, is: " + typeof settings[styleProp]);
             } else if (settings[styleProp] && settings[styleProp].rowHeight) {
-                console.error("Use of deprecated style: rowHeight, use vertical cell padding instead");
+                console.error("Use of deprecated style rowHeight. It is renamed to minCellHeight.");
+                settings[styleProp].minCellHeight = settings[styleProp].rowHeight;
             }
         }
     }
@@ -87,7 +88,7 @@ export function parseInput(doc, allOptions) {
     let theme = getTheme(settings.theme);
 
     // Header row and columns
-    let headerRow = new Row(table.settings.head, -1);
+    let headerRow = new Row(table.settings.head, 0, 'head');
     headerRow.index = -1;
 
     // Columns and header row
@@ -106,30 +107,27 @@ export function parseInput(doc, allOptions) {
         table.columns.push(col);
 
         let cellStyles = Config.styles([theme.table, theme.header, table.styles.styles, table.styles.headerStyles]);
-        let cell = new Cell(rawCell, cellStyles);
+        let cell = new Cell(rawCell, cellStyles, 'head');
 
         headerRow.cells[dataKey] = cell;
-        for (let hook of table.hooks.createdHeaderCell) {
-            hook(cell, {cell: cell, column: col, row: headerRow, settings: settings});
-        }
+        
+        table.emitEvent(new ATEvent('parsedCell', table, headerRow, col, cell));
     }
     table.headerRow = headerRow;
 
     // Rows och cells
     for (let i = 0; i < body.length; i++) {
         let rawRow = body[i];
-        let row = new Row(rawRow, i);
+        let row = new Row(rawRow, i, 'body');
         let rowStyles = i % 2 === 0 ? assign({}, theme.alternateRow, table.styles.alternateRowStyles) : {};
         table.columns.forEach(function (column) {
             let colStyles = table.styles.columnStyles[column.dataKey] || {};
             let cellStyles = Config.styles([theme.table, theme.body, table.styles.styles, table.styles.bodyStyles, rowStyles, colStyles]);
-            let cell = new Cell(rawRow[column.dataKey], cellStyles);
+            let cell = new Cell(rawRow[column.dataKey], cellStyles, 'body');
 
             row.cells[column.dataKey] = cell;
             
-            for (let hook of table.hooks.createdCell) {
-                hook(cell, new ATEvent(table, row, column, cell));
-            }
+            table.emitEvent(new ATEvent('parsedCell', table, row, column, cell));
         });
         table.rows.push(row);
     }
@@ -139,23 +137,67 @@ export function parseInput(doc, allOptions) {
     return table;
 }
 
-function parseSettings(table, allOptions) {
+function parseSettings(table: Table, allOptions) {    
     // Merge styles one level deeper
     for (let styleProp of Object.keys(table.styles)) {
         let styles = allOptions.map(function(opts) { return opts[styleProp] || {}});
         table.styles[styleProp] = assign({}, ...styles);
     }
 
-    // Append event handlers instead of replacing them
-    for (let [hookName, list] of entries(table.hooks)) {
-        for (let opts of allOptions) {
-            if (opts && opts[hookName]) {
-                list.push(opts[hookName]);
-            }
+    for (let opts of allOptions) {
+        // Append event handlers instead of replacing them
+        if (opts && opts.eventHandler) {
+            table.eventHandlers.push(opts.eventHandler);
+        }
+        if (opts) {
+            // Backwards compatibility
+            table.eventHandlers.push(hookEventHandler(opts));
         }
     }
 
     // Merge all other options one level
     table.settings = assign(getDefaults(), ...allOptions);
     table.id = table.settings.tableId;
+}
+
+function hookEventHandler(opts) {
+    return function(event) {
+        switch(event.name) {
+            case 'parsedCell':
+                if (event.section === 'head' && typeof opts.createdHeaderCell === 'function') {
+                    opts.createdHeaderCell(event.cell, event);
+                } else if (event.section === 'body' && typeof opts.createdCell === 'function') {
+                    opts.createdCell(event.cell, event);
+                }
+                break;
+            case 'parsedRow':
+                if (event.section === 'head' && typeof opts.createdHeaderRow === 'function') {
+                    opts.createdHeaderRow(event.cell, event);
+                } else if (event.section === 'body' && typeof opts.createdRow === 'function') {
+                    opts.createdRow(event.cell, event);
+                }
+                break;
+            case 'addingCell':
+                if (event.section === 'head' && typeof opts.drawHeaderCell === 'function') {
+                    return opts.drawHeaderRow(event.cell, event);
+                } else if (event.section === 'body' && typeof opts.drawCell === 'function') {
+                    return opts.drawCell(event.cell, event);
+                }
+                break;
+            case 'addingRow':
+                if (event.section === 'head' && typeof opts.drawHeaderRow === 'function') {
+                    return opts.drawHeaderRow(event.row, event);
+                } else if (event.section === 'body' && typeof opts.drawRow === 'function') {
+                    return opts.drawRow(event.row, event);
+                }
+                break;
+            case 'endedPage':
+                if (typeof opts.addPageContent === 'function') {
+                    opts.addPageContent(event);
+                }
+                break;
+            default:
+                break;
+        }
+    };
 }

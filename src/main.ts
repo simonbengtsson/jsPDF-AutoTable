@@ -72,11 +72,7 @@ jsPDF.autoTableSetDefaults = function(defaults) {
 };
 
 /**
- * Parses an html table
- *
- * @param tableElem Html table element
- * @param includeHiddenElements If to include hidden rows and columns (defaults to false)
- * @returns Object Object with two properties, columns and rows
+ * @Deprecated. Use fromHtml option instead
  */
 jsPDF.API.autoTableHtmlToJson = function (tableElem, includeHiddenElements) {
     includeHiddenElements = includeHiddenElements || false;

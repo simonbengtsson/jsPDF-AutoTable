@@ -59,6 +59,8 @@ export function getDefaults() {
         showHeader: 'everyPage', // 'everyPage', 'firstPage', 'never',
         tableLineWidth: 0,
         tableLineColor: 200,
+        tableId: null,
+        eventHandler: null,
 
         // Hooks
         createdHeaderCell: function (cell, data) {},
@@ -85,7 +87,8 @@ function defaultStyles() {
         cellPadding: 5 / table.scaleFactor, // number or {top,left,right,left,vertical,horizontal}
         lineColor: 200,
         lineWidth: 0 / table.scaleFactor,
-        columnWidth: 'auto'
+        columnWidth: 'auto',
+        minCellHeight: 0
     }
 }
 
