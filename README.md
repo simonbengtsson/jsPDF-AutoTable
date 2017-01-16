@@ -44,8 +44,7 @@ var rows = [
     ...
 ];
 
-// Only pt supported (not mm or in)
-var doc = new jsPDF('p', 'pt');
+var doc = new jsPDF();
 doc.autoTable(columns, rows);
 doc.save('table.pdf');
 ```
