@@ -173,9 +173,13 @@ function printRow(row) {
             valign: cell.styles.valign
         }]);
 
+        table.emitEvent(new ATEvent('addedCell', table, row, column, cell));
+
         table.cursor.x += column.width;
     }
 
+    table.emitEvent(new ATEvent('addedRow', table, row));
+    
     table.cursor.y += row.height;
 }
 
