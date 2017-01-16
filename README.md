@@ -11,7 +11,7 @@ Check out the [demo](https://simonbengtsson.github.io/jsPDF-AutoTable/) or [exam
 ![sample javascript table pdf](samples.png)
 
 ### Install
-Download and include [jspdf.plugin.autotable.js](https://raw.githubusercontent.com/simonbengtsson/jsPDF-AutoTable/master/dist/jspdf.plugin.autotable.js) and [jspdf.min.js](https://raw.githubusercontent.com/MrRio/jsPDF/master/dist/jspdf.min.js).
+Download and include [jspdf.min.js](https://raw.githubusercontent.com/MrRio/jsPDF/master/dist/jspdf.min.js) and [jspdf.plugin.autotable.js](https://raw.githubusercontent.com/simonbengtsson/jsPDF-AutoTable/master/dist/jspdf.plugin.autotable.js).
 
 ```html
 <script src="bower_components/jspdf/dist/jspdf.min.js"></script>
