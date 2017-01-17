@@ -2,7 +2,7 @@
 
 import * as jsPDF from 'jspdf';
 import {Config, FONT_ROW_RATIO, getDefaults} from './config';
-import {addContentHooks, addPage, addTableBorder} from './common';
+import {addContentHooks, addPage, nextPage, addTableBorder} from './common';
 import {printRow, printFullRow} from './painter';
 import {calculateWidths} from './calculator';
 import {createModels, validateInput} from './creator';
@@ -42,7 +42,7 @@ jsPDF.API.autoTable = function (headers, data, tableOptions = {}) {
     let pageHeight = Config.pageSize().height;
     if ((settings.pageBreak === 'always' && settings.startY !== false) ||
         (settings.startY !== false && minTableBottomPos > pageHeight)) {
-        table.doc.addPage();
+        nextPage(table.doc);
         table.cursor.y = table.margin('top');
     }
     table.pageStartX = table.cursor.x;

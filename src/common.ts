@@ -64,7 +64,7 @@ export function addPage() {
     // be drawn above other things on the page
     addContentHooks();
     addTableBorder();
-    table.doc.addPage();
+    nextPage(table.doc);
     table.pageCount++;
     table.cursor = {x: table.margin('left'), y: table.margin('top')};
     table.pageStartX = table.cursor.x;
@@ -93,5 +93,15 @@ export function getFillStyle(styles) {
         return 'F'; // Only fill, no stroke
     } else {
         return false;
+    }
+}
+
+export function nextPage(doc) {
+    let current = doc.internal.getCurrentPageInfo().pageNumber;
+    doc.setPage(current + 1);
+    let newCurrent = doc.internal.getCurrentPageInfo().pageNumber;
+
+    if (newCurrent === current) {
+        doc.addPage();
     }
 }
