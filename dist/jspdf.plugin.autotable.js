@@ -1,11 +1,11 @@
 /*!
- * jsPDF AutoTable plugin v2.3.0
+ * jsPDF AutoTable plugin v2.3.1
  * Copyright (c) 2014 Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable 
  * 
  * Licensed under the MIT License.
  * http://opensource.org/licenses/mit-license
  * 
- * */if (typeof window === 'object') window.jspdfAutoTableVersion = '2.3.0';/*
+ * */if (typeof window === 'object') window.jspdfAutoTableVersion = '2.3.1';/*
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
@@ -361,7 +361,7 @@ function addPage() {
     // be drawn above other things on the page
     addContentHooks();
     addTableBorder();
-    table.doc.addPage();
+    nextPage(table.doc);
     table.pageCount++;
     table.cursor = { x: table.margin('left'), y: table.margin('top') };
     table.pageStartX = table.cursor.x;
@@ -397,6 +397,15 @@ function getFillStyle(styles) {
     }
 }
 exports.getFillStyle = getFillStyle;
+function nextPage(doc) {
+    var current = doc.internal.getCurrentPageInfo().pageNumber;
+    doc.setPage(current + 1);
+    var newCurrent = doc.internal.getCurrentPageInfo().pageNumber;
+    if (newCurrent === current) {
+        doc.addPage();
+    }
+}
+exports.nextPage = nextPage;
 
 
 /***/ },
@@ -2173,7 +2182,7 @@ jsPDF.API.autoTable = function (headers, data, tableOptions) {
     var pageHeight = config_1.Config.pageSize().height;
     if ((settings.pageBreak === 'always' && settings.startY !== false) ||
         (settings.startY !== false && minTableBottomPos > pageHeight)) {
-        table.doc.addPage();
+        common_1.nextPage(table.doc);
         table.cursor.y = table.margin('top');
     }
     table.pageStartX = table.cursor.x;
