@@ -111,15 +111,19 @@ examples.multiple = function () {
     doc.text("Multiple tables", 14, 20);
     doc.setFontSize(12);
 
-    doc.autoTable(getColumns().slice(0, 2), getData(), {
-        startY: 30,
-        pageBreak: 'avoid',
+    doc.autoTable(getColumns(), getData(25), {startY: 30});
+
+    doc.autoTable(getColumns().slice(0, 2), getData(15), {
+        startY: 240,
+        showHeader: 'firstPage',
         margin: {right: 107}
     });
+    
+    doc.setPage(1 + doc.internal.getCurrentPageInfo().pageNumber - doc.autoTable.previous.pageCount);
 
-    doc.autoTable(getColumns().slice(0, 2), getData(), {
-        startY: 30,
-        pageBreak: 'avoid',
+    doc.autoTable(getColumns().slice(0, 2), getData(15), {
+        startY: 240,
+        showHeader: 'firstPage',
         margin: {left: 107}
     });
 
