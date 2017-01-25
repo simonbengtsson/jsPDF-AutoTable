@@ -59,14 +59,14 @@ jsPDF.API.autoTable = function (tableOptions) {
     drawTable(table, tableOptions);
     
     table.finalY = table.cursor.y;
-    this.autoTable.previous = table;
+    this.previousAutoTable = table;
     Config.applyUserStyles();
     
     return this;
 };
 
-// Enables doc.autoTable.previous.finalY || 40;
-jsPDF.API.autoTable.previous = false;
+// Enables doc.previousAutoTable.finalY || 40;
+jsPDF.API.previousAutoTable = false;
 
 jsPDF.API.autoTableSetDefaults = function(defaults) {
     if (!this.autoTableState) this.autoTableState = {};
@@ -148,7 +148,7 @@ jsPDF.API.autoTableText = autoText;
  * @deprecated Use doc.autoTable.previous.finalY instead
  */
 jsPDF.API.autoTableEndPosY = function () {
-    let prev = this.autoTable.previous;
+    let prev = this.previousAutoTable;
     if (prev.cursor && typeof prev.cursor.y === 'number') {
         return prev.cursor.y;
     } else {
