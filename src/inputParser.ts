@@ -12,12 +12,6 @@ export function validateInput(allOptions) {
     }
     
     for (let settings of allOptions) {
-        if (settings.head && typeof settings.head !== 'object') {
-            console.error("The headers should be an object or array, is: " + typeof settings.head);
-        } else if (settings.body && typeof settings.body !== 'object') {
-            console.error("The data should be an object or array, is: " + typeof settings.body);
-        }
-        
         if (settings && typeof settings !== 'object') {
             console.error("The options parameter should be of type object, is: " + typeof settings);
         }
@@ -76,62 +70,57 @@ export function parseInput(doc, allOptions) {
     let table = Config.createTable(doc);
     parseSettings(table, allOptions);
     
-    let head: any[] = table.settings.head;
-    let body = table.settings.body;
-    if (table.settings.fromHtml) {
-        let c = parseHtml(table.settings.fromHtml, table.settings.includeHiddenHtml, table.settings.useCssStyles);
-        if (!head) head = c.head[0] || [];
-        if (!body) body = c.body || [];
-    }
-    
     let settings = table.settings;
     let theme = getTheme(settings.theme);
 
-    // Header row and columns
-    let headerRow = new Row(table.settings.head, 0, 'head');
-    headerRow.index = -1;
+    let cellStyles = {
+        head: [theme.table, theme.header, table.styles.styles, table.styles.headerStyles],
+        body: [theme.table, theme.body, table.styles.styles, table.styles.bodyStyles],
+        foot: []
+    };
+    
+    var htmlContent = table.settings.fromHtml ? parseHtml(settings.fromHtml, settings.includeHiddenHtml, settings.useCssStyles) : {};
+    let columnMap = {};
+    for (let sectionName of ['head', 'body', 'foot']) {
+        let section = table.settings[sectionName] || htmlContent[sectionName] || [[]];
+        let rowColumns = [];
+        for (let rowIndex = 0; rowIndex < section.length; rowIndex++) {
+            let rawRow = section[rowIndex];
+            let row = new Row(rawRow, rowIndex, sectionName);
+            let rowStyles = sectionName === 'body' && rowIndex % 2 === 0 ? assign({}, theme.alternateRow, table.styles.alternateRowStyles) : {};
 
-    // Columns and header row
-    for (let index = 0; index < head.length; index++) {
-        let rawCell = head[index];
-        let dataKey = index;
-        if (typeof rawCell.dataKey !== 'undefined') {
-            dataKey = rawCell.dataKey;
-        } else if (typeof rawCell.key !== 'undefined' && window.console) {
-            console.error("Deprecation warning: Use dataKey instead of key");
-            dataKey = rawCell.key; // deprecated since 2.x
+            let keys = Object.keys(rawRow);
+            for (let i = 0; i < keys.length; i++) {
+                let rawCell = rawRow[keys[i]];
+                let dataKey = rawCell.dataKey || rawCell.key || (Array.isArray(rawRow) ? i : keys[i]);
+
+                let colStyles = sectionName === 'body' ? table.styles.columnStyles[dataKey] || {} : {};
+                let column = columnMap[dataKey];
+                if (!column) {
+                    column = new Column(dataKey, colStyles.columnWidth || 'auto');
+                }
+                rowColumns.push(column);
+
+                let style = Config.styles(cellStyles[sectionName].concat([rowStyles, colStyles]));
+                let cell = new Cell(rawCell, style, sectionName);
+
+                if (table.emitEvent(new ATEvent('parsingCell', table, row, column, cell)) !== false) {
+                    row.cells[dataKey] = cell;
+                }
+            }
+            if (table.emitEvent(new ATEvent('parsingCell', table, row)) !== false) {
+                table[sectionName].push(row);
+                for (let i = 0; i < rowColumns.length; i++) {
+                    let column = rowColumns[i];
+                    if (!columnMap[column.dataKey]) {
+                        table.columns.splice(i, 0, column);
+                        columnMap[column.dataKey] = column;
+                    }
+                }
+            }
         }
-
-        let col = new Column(dataKey, index);
-        col.widthStyle = Config.styles([theme.table, theme.header, table.styles.styles, table.styles.columnStyles[col.dataKey] || {}]).columnWidth;
-        table.columns.push(col);
-
-        let cellStyles = Config.styles([theme.table, theme.header, table.styles.styles, table.styles.headerStyles]);
-        let cell = new Cell(rawCell, cellStyles, 'head');
-
-        headerRow.cells[dataKey] = cell;
-        
-        table.emitEvent(new ATEvent('parsedCell', table, headerRow, col, cell));
     }
-    table.headerRow = headerRow;
-
-    // Rows och cells
-    for (let i = 0; i < body.length; i++) {
-        let rawRow = body[i];
-        let row = new Row(rawRow, i, 'body');
-        let rowStyles = i % 2 === 0 ? assign({}, theme.alternateRow, table.styles.alternateRowStyles) : {};
-        table.columns.forEach(function (column) {
-            let colStyles = table.styles.columnStyles[column.dataKey] || {};
-            let cellStyles = Config.styles([theme.table, theme.body, table.styles.styles, table.styles.bodyStyles, rowStyles, colStyles]);
-            let cell = new Cell(rawRow[column.dataKey], cellStyles, 'body');
-
-            row.cells[column.dataKey] = cell;
-            
-            table.emitEvent(new ATEvent('parsedCell', table, row, column, cell));
-        });
-        table.rows.push(row);
-    }
-
+    
     table.settings.margin = Config.marginOrPadding(table.settings.margin, getDefaults().margin);
     
     return table;
@@ -163,18 +152,18 @@ function parseSettings(table: Table, allOptions) {
 function hookEventHandler(opts) {
     return function(event) {
         switch(event.name) {
-            case 'parsedCell':
+            case 'parsingCell':
                 if (event.section === 'head' && typeof opts.createdHeaderCell === 'function') {
-                    opts.createdHeaderCell(event.cell, event);
+                    return opts.createdHeaderCell(event.cell, event);
                 } else if (event.section === 'body' && typeof opts.createdCell === 'function') {
-                    opts.createdCell(event.cell, event);
+                    return opts.createdCell(event.cell, event);
                 }
                 break;
-            case 'parsedRow':
+            case 'parsingRow':
                 if (event.section === 'head' && typeof opts.createdHeaderRow === 'function') {
-                    opts.createdHeaderRow(event.cell, event);
+                    return opts.createdHeaderRow(event.cell, event);
                 } else if (event.section === 'body' && typeof opts.createdRow === 'function') {
-                    opts.createdRow(event.cell, event);
+                    return opts.createdRow(event.cell, event);
                 }
                 break;
             case 'addingCell':

@@ -13,9 +13,11 @@ export class Table {
     scaleFactor: number;
     userStyles: {};
 
-    rows: Row[] = [];
     columns: Column[] = [];
-    headerRow: Row = null;
+    
+    head: Row[] = [];
+    body: Row[] = [];
+    foot: Row[] = [];
     
     height = 0;
     width = 0;
@@ -46,6 +48,10 @@ export class Table {
             fontSize: doc.internal.getFontSize(),
             fontStyle: doc.internal.getFont().fontStyle
         };
+    }
+    
+    allRows() {
+        return this.head.concat(this.body);
     }
     
     emitEvent(event: ATEvent): void|boolean {
@@ -105,15 +111,15 @@ export class Cell {
         this.colSpan = raw && raw.colSpan || 1;
         this.styles = assign(themeStyles, raw && raw.styles || {});
         this.section = section;
-
+        
         let text = '';
         let content = raw && typeof raw.content !== 'undefined' ? raw.content : raw;
-        content = content && content.dataKey ? content.title : content;
+        content = content != undefined && content.dataKey != undefined ? content.title : content;
         if (content && content instanceof (<any>window).HTMLElement) {
             text = (content.innerText || '').trim();
         } else {
-            // Stringify 0 and false, but not undefined
-            text = typeof content !== 'undefined' ? '' + content : '';
+            // Stringify 0 and false, but not undefined or null
+            text = content != undefined ? '' + content : '';
         }
         
         let splitRegex = /\r\n|\r|\n/g;
@@ -134,17 +140,15 @@ export class Cell {
 
 export class Column {
     dataKey: string|number;
-    index: number;
-    options = {};
     widthStyle: 'auto'|'wrap'|number = 'auto';
     
     preferredWidth = 0;
     contentWidth = 0;
     width = 0;
     
-    constructor(dataKey, index) {
+    constructor(dataKey, widthStyle) {
         this.dataKey = dataKey;
-        this.index = index;
+        this.widthStyle = widthStyle;
     }
 }
 

@@ -10,7 +10,7 @@ export function drawTable(table: Table, tableOptions) {
         y: settings.startY === false ? table.margin('top') : settings.startY
     };
 
-    let minTableBottomPos = settings.startY + table.margin('bottom') + table.headerRow.maxCellHeight;
+    let minTableBottomPos = settings.startY + table.margin('bottom') + (table.head.length > 0 ? table.head[0].maxCellHeight : 0);
     if (settings.pageBreak === 'avoid') {
         minTableBottomPos += table.height;
     }
@@ -23,11 +23,11 @@ export function drawTable(table: Table, tableOptions) {
 
     Config.applyUserStyles();
     if (settings.showHeader === true || settings.showHeader === 'firstPage' || settings.showHeader === 'everyPage') {
-        printRow(table.headerRow);
+        table.head.forEach((row) => printRow(row))
     }
     Config.applyUserStyles();
 
-    table.rows.forEach(function (row) {
+    table.body.forEach(function (row) {
         printFullRow(row);
     });
 
@@ -118,7 +118,7 @@ function printFullRow(row: Row) {
 
 function printRow(row) {
     let table = Config.tableInstance();
-
+    
     table.cursor.x = table.margin('left');
     row.y = table.cursor.y;
     row.x = table.cursor.x;
@@ -203,7 +203,7 @@ export function addPage() {
     table.pageStartX = table.cursor.x;
     table.pageStartY = table.cursor.y;
     if (table.settings.showHeader === true || table.settings.showHeader === 'everyPage') {
-        printRow(table.headerRow);
+        table.head.forEach((row) => printRow(row));
     }
 }
 

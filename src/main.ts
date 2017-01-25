@@ -19,8 +19,31 @@ jsPDF.API.autoTable = function (tableOptions) {
         tableOptions.startY = arguments[0];
     } else if (arguments.length >= 2 && Array.isArray(arguments[0])) {
         tableOptions = arguments[2] || {};
-        tableOptions.head = arguments[0];
-        tableOptions.body = arguments[1];
+        if (!tableOptions.columns && !tableOptions.head && !tableOptions.body) {
+            tableOptions.columns = [];
+
+            let headers = arguments[0];
+            if (!tableOptions.head) tableOptions.head = [[]];
+            let dataKeys = [];
+            headers.forEach(function (item, i) {
+                if (item && item.dataKey != undefined) {
+                    item = {dataKey: item.dataKey, content: item.title};
+                } else {
+                    item = {dataKey: i, content: item};
+                }
+                dataKeys.push(item.dataKey);
+                tableOptions.head[0].push(item);
+            });
+
+            tableOptions.body = [];
+            for (let rawRow of arguments[1]) {
+                let row = {};
+                for (let dataKey of dataKeys) {
+                    row[dataKey] = rawRow[dataKey];
+                }
+                tableOptions.body.push(row);
+            }
+        }
     }
     
     let allOptions = [jsPDF.autoTableState.defaults || {}, this.autoTableState.defaults || {}, tableOptions || {}];
@@ -57,8 +80,10 @@ jsPDF.API.autoTableSetDefaults = function(defaults) {
     return this;
 };
 
-jsPDF.autoTableSetDefaults = function(defaults) {
-    if (!jsPDF.autoTableState) jsPDF.autoTableState = {};
+let stat: any = jsPDF;
+stat.autoTableSetDefaults = function(defaults) {
+    let stat: any = jsPDF;
+    if (!stat.autoTableState) stat.autoTableState = {};
     
     if (defaults && typeof defaults === 'object') {
         this.autoTableState.defaults = defaults;

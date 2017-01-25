@@ -47,6 +47,7 @@ export function getDefaults() {
         // Content
         head: null,
         body: null,
+        foot: null,
         fromHtml: null,
         includeHiddenHtml: false,
         useCssStyles: false,

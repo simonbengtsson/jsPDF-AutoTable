@@ -143,6 +143,7 @@ examples.html = function () {
     doc.text("From HTML", 14, 16);
     var elem = document.getElementById("basic-table");
     var res = doc.autoTableHtmlToJson(elem);
+    console.log(res);
     doc.autoTable(res.columns, res.data, {startY: 20});
     return doc;
 };
@@ -359,6 +360,36 @@ examples.custom = function () {
  | Below is some helper functions for the examples
  |--------------------------------------------------------------------------
  */
+
+function body(rowCount, includeText) {
+    rowCount = rowCount || 10;
+    let body = [];
+    var sentence = faker.lorem.words(20);
+    for (var j = 1; j <= rowCount; j++) {
+        let row = {
+            id: j,
+            name: faker.name.findName(),
+            email: faker.internet.email(),
+            city: faker.address.city(),
+            expenses: faker.finance.amount(),
+        };
+        if (includeText) {
+            row.push(shuffleSentence(sentence));
+            row.push(shuffleSentence(sentence));
+        }
+        body.push(row);
+    }
+    return body;
+}
+
+function head(includeText) {
+    let row = {id: 'ID', name: 'Name', email: 'Email', city: 'City', expenses: 'Expenses'};
+    if (includeText) {
+        row['text'] = 'Text';
+        row['text2'] = 'Text 2';
+    }
+    return [row, row];
+}
 
 // Returns a new array each time to avoid pointer issues
 var getColumns = function () {

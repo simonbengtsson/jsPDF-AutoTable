@@ -15,7 +15,7 @@ export function calculateWidths(table: Table) {
     let dynamicColumns = [];
     table.columns.forEach(function (column) {
         column.contentWidth = 0;
-        table.rows.concat(table.headerRow).forEach(function (row) {
+        table.allRows().forEach(function (row) {
             let cell = row.cells[column.dataKey];
             cell.contentWidth = cell.padding('horizontal') + getStringWidth(cell.text, cell.styles);
             if (cell.colSpan <= 1 && cell.contentWidth > column.contentWidth) {
@@ -53,7 +53,7 @@ export function calculateWidths(table: Table) {
     let rowSpanCells = {};
     
     // Row height, table height and text overflow
-    let all = table.rows.concat(table.headerRow);
+    let all = table.allRows();
     for (let rowIndex = 0; rowIndex < all.length; rowIndex++) {
         let row = all[rowIndex];
         
