@@ -17,18 +17,21 @@ export let getTheme = function(name) {
     let themes = {
         'striped': {
             table: {fillColor: 255, textColor: 80, fontStyle: 'normal'},
-            header: {textColor: 255, fillColor: [41, 128, 185], fontStyle: 'bold'},
+            head: {textColor: 255, fillColor: [41, 128, 185], fontStyle: 'bold'},
             body: {},
+            foot: {textColor: 255, fillColor: [41, 128, 185], fontStyle: 'bold'},
             alternateRow: {fillColor: 245}
         },
         'grid': {
             table: {fillColor: 255, textColor: 80, fontStyle: 'normal', lineWidth: 0.1},
-            header: {textColor: 255, fillColor: [26, 188, 156], fontStyle: 'bold', lineWidth: 0},
+            head: {textColor: 255, fillColor: [26, 188, 156], fontStyle: 'bold', lineWidth: 0},
             body: {},
+            foot: {textColor: 255, fillColor: [26, 188, 156], fontStyle: 'bold', lineWidth: 0},
             alternateRow: {}
         },
         'plain': {
-            header: {fontStyle: 'bold'}
+            head: {fontStyle: 'bold'},
+            foot: {fontStyle: 'bold'}
         }
     };
     return themes[name];
@@ -39,8 +42,9 @@ export function getDefaults() {
         // Styling
         theme: 'striped', // 'striped', 'grid' or 'plain'
         styles: {},
-        headerStyles: {},
+        headStyles: {},
         bodyStyles: {},
+        footStyles: {},
         alternateRowStyles: {},
         columnStyles: {},
         
@@ -57,7 +61,8 @@ export function getDefaults() {
         margin: 40 / table.scaleFactor,
         pageBreak: 'auto', // 'auto', 'avoid', 'always'
         tableWidth: 'auto', // 'auto'|'wrap'|number (takes precedence over columnWidth style if conflict)
-        showHeader: 'everyPage', // 'everyPage', 'firstPage', 'never',
+        showHead: 'everyPage', // 'everyPage', 'firstPage', 'never',
+        showFoot: 'everyPage', // 'everyPage', 'lastPage', 'never',
         tableLineWidth: 0,
         tableLineColor: 200,
         tableId: null,

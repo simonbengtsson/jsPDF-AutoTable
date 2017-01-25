@@ -23,6 +23,14 @@ export function validateInput(allOptions) {
             if (typeof settings.margin === 'undefined') settings.margin = settings.margins;
             console.error("Use of deprecated option: margins, use margin instead.");
         }
+        if (typeof settings.showHeader !== 'undefined') {
+            if (settings.showHead == undefined) settings.showHead = settings.showHeader;
+            console.error("Deprecation warning: showHeader renamed to showHead");
+        }
+        if (typeof settings.headerStyles !== 'undefined') {
+            if (settings.headStyles == undefined) settings.headStyles = settings.headerStyles;
+            console.error("Deprecation warning: headerStyles renamed to headStyles");
+        }
         if (typeof settings.afterPageContent !== 'undefined' || typeof settings.beforePageContent !== 'undefined' || typeof settings.afterPageAdd !== 'undefined') {
             console.error("The afterPageContent, beforePageContent and afterPageAdd hooks are deprecated. Use addPageContent instead");
             if (typeof settings.addPageContent === 'undefined') {
@@ -52,7 +60,7 @@ export function validateInput(allOptions) {
             }
         });
         
-        for (let styleProp of ['styles', 'bodyStyles', 'headerStyles', 'columnStyles']) {
+        for (let styleProp of ['styles', 'bodyStyles', 'headStyles', 'footStyles', 'columnStyles']) {
             if (settings[styleProp] && typeof settings[styleProp] !== 'object') {
                 console.error("The " + styleProp + " style should be of type object, is: " + typeof settings[styleProp]);
             } else if (settings[styleProp] && settings[styleProp].rowHeight) {
@@ -74,9 +82,9 @@ export function parseInput(doc, allOptions) {
     let theme = getTheme(settings.theme);
 
     let cellStyles = {
-        head: [theme.table, theme.header, table.styles.styles, table.styles.headerStyles],
+        head: [theme.table, theme.foot, table.styles.styles, table.styles.headStyles],
         body: [theme.table, theme.body, table.styles.styles, table.styles.bodyStyles],
-        foot: []
+        foot: [theme.table, theme.foot, table.styles.styles, table.styles.footStyles]
     };
     
     var htmlContent = table.settings.fromHtml ? parseHtml(settings.fromHtml, settings.includeHiddenHtml, settings.useCssStyles) : {};
@@ -108,7 +116,7 @@ export function parseInput(doc, allOptions) {
                     row.cells[dataKey] = cell;
                 }
             }
-            if (table.emitEvent(new ATEvent('parsingCell', table, row)) !== false) {
+            if (keys.length > 0 && table.emitEvent(new ATEvent('parsingRow', table, row)) !== false) {
                 table[sectionName].push(row);
                 for (let i = 0; i < rowColumns.length; i++) {
                     let column = rowColumns[i];

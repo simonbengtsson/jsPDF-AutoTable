@@ -23,6 +23,8 @@ export class Table {
     width = 0;
     contentWidth = 0;
     preferredWidth = 0;
+    headHeight = 0;
+    footHeight = 0;
     
     pageCount = 1;
     pageStartX: number;
@@ -31,8 +33,9 @@ export class Table {
 
     styles = {
         styles: {},
-        headerStyles: {},
+        headStyles: {},
         bodyStyles: {},
+        footStyles: {},
         alternateRowStyles: {},
         columnStyles: {},
     };
@@ -51,7 +54,7 @@ export class Table {
     }
     
     allRows() {
-        return this.head.concat(this.body);
+        return this.head.concat(this.body).concat(this.foot);
     }
     
     emitEvent(event: ATEvent): void|boolean {

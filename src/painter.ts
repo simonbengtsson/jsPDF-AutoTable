@@ -9,8 +9,8 @@ export function drawTable(table: Table, tableOptions) {
         x: table.margin('left'),
         y: settings.startY === false ? table.margin('top') : settings.startY
     };
-
-    let minTableBottomPos = settings.startY + table.margin('bottom') + (table.head.length > 0 ? table.head[0].maxCellHeight : 0);
+    
+    let minTableBottomPos = settings.startY + table.margin('bottom') + table.headHeight + table.footHeight;
     if (settings.pageBreak === 'avoid') {
         minTableBottomPos += table.height;
     }
@@ -22,14 +22,17 @@ export function drawTable(table: Table, tableOptions) {
     table.pageStartY = table.cursor.y;
 
     Config.applyUserStyles();
-    if (settings.showHeader === true || settings.showHeader === 'firstPage' || settings.showHeader === 'everyPage') {
+    if (settings.showHead === true || settings.showHead === 'firstPage' || settings.showHead === 'everyPage') {
         table.head.forEach((row) => printRow(row))
     }
     Config.applyUserStyles();
-
     table.body.forEach(function (row) {
         printFullRow(row);
     });
+    Config.applyUserStyles();
+    if (settings.showFoot === true || settings.showFoot === 'lastPage' || settings.showFoot === 'everyPage') {
+        table.foot.forEach((row) => printRow(row))
+    }
 
     addTableBorder();
 
@@ -185,12 +188,23 @@ function printRow(row) {
 
 function canFitOnPage(rowHeight) {
     let table = Config.tableInstance();
-    let pos = rowHeight + table.cursor.y + table.margin('bottom');
+    let bottomContentHeight = table.margin('bottom');
+    let showFoot = table.settings.showFoot;
+    if (showFoot === true || showFoot === 'everyPage' || showFoot === 'lastPage') {
+        bottomContentHeight += table.footHeight;
+    }
+    let pos = rowHeight + table.cursor.y + bottomContentHeight;
     return pos < Config.pageSize().height;
 }
 
 export function addPage() {
     let table = Config.tableInstance();
+    
+    Config.applyUserStyles();
+    if (table.settings.showFoot === true || table.settings.showFoot === 'everyPage') {
+        table.foot.forEach((row) => printRow(row))
+    }
+    
     table.finalY = table.cursor.y;
 
     // Add user content just before adding new page ensure it will 
@@ -202,7 +216,7 @@ export function addPage() {
     table.cursor = {x: table.margin('left'), y: table.margin('top')};
     table.pageStartX = table.cursor.x;
     table.pageStartY = table.cursor.y;
-    if (table.settings.showHeader === true || table.settings.showHeader === 'everyPage') {
+    if (table.settings.showHead === true || table.settings.showHead === 'everyPage') {
         table.head.forEach((row) => printRow(row));
     }
 }

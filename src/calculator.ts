@@ -150,6 +150,13 @@ export function calculateWidths(table: Table) {
             }
         }
         
+        if (row.section === 'head') {
+            table.headHeight += row.maxCellHeight;
+        }
+        if (row.section === 'foot') {
+            table.footHeight += row.maxCellHeight;
+        }
+        
         table.height += row.height;
     }
 }
