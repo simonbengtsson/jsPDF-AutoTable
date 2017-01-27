@@ -143,7 +143,6 @@ examples.html = function () {
     doc.text("From HTML", 14, 16);
     var elem = document.getElementById("basic-table");
     var res = doc.autoTableHtmlToJson(elem);
-    console.log(res);
     doc.autoTable(res.columns, res.data, {startY: 20});
     return doc;
 };
@@ -361,6 +360,24 @@ examples.custom = function () {
  |--------------------------------------------------------------------------
  */
 
+function head(includeText) {
+    let row = {id: 'ID', name: 'Name', email: 'Email', city: 'City', expenses: 'Expenses'};
+    if (includeText) {
+        row['text'] = 'Text';
+        row['text2'] = 'Text 2';
+    }
+    return [row, row];
+}
+
+function foot(includeText) {
+    let row = {id: 'ID', name: 'Name', email: 'Email', city: 'City', expenses: 'Expenses'};
+    if (includeText) {
+        row['text'] = 'Text';
+        row['text2'] = 'Text 2';
+    }
+    return [row, row];
+}
+
 function body(rowCount, includeText) {
     rowCount = rowCount || 10;
     let body = [];
@@ -380,15 +397,6 @@ function body(rowCount, includeText) {
         body.push(row);
     }
     return body;
-}
-
-function head(includeText) {
-    let row = {id: 'ID', name: 'Name', email: 'Email', city: 'City', expenses: 'Expenses'};
-    if (includeText) {
-        row['text'] = 'Text';
-        row['text2'] = 'Text 2';
-    }
-    return [row, row];
 }
 
 // Returns a new array each time to avoid pointer issues
