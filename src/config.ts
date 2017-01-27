@@ -59,7 +59,8 @@ export function getDefaults() {
         // Properties
         startY: false, // false indicates the margin top value
         margin: 40 / scaleFactor,
-        pageBreak: 'auto', // 'auto', 'avoid', 'always'
+        avoidTableSplit: false,
+        avoidRowSplit: false,
         tableWidth: 'auto', // 'auto'|'wrap'|number (takes precedence over columnWidth style if conflict)
         showHead: 'everyPage', // 'everyPage', 'firstPage', 'never',
         showFoot: 'everyPage', // 'everyPage', 'lastPage', 'never',

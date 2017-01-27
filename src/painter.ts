@@ -12,7 +12,7 @@ export function drawTable(table: Table) {
     };
     
     let minTableBottomPos = settings.startY + table.margin('bottom') + table.headHeight + table.footHeight;
-    if (settings.pageBreak === 'avoid') {
+    if (settings.avoidTableSplit) {
         minTableBottomPos += table.height;
     }
     if (settings.startY !== false && minTableBottomPos > Config.pageSize().height) {
@@ -61,7 +61,8 @@ function printFullRow(row: Row) {
     let table = Config.tableInstance();
 
     if (!canFitOnPage(row.maxCellHeight)) {
-        if (row.maxCellLineCount <= 1) {
+        let maxTableHeight = table.doc.internal.pageSize.height - table.margin('top') - table.margin('bottom');
+        if (row.maxCellLineCount <= 1 || (table.settings.avoidRowSplit && row.maxCellHeight < maxTableHeight)) {
             addPage();
         } else {
             // Modify the row to fit the current page and calculate text and height of partial row

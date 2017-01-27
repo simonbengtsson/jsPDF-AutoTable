@@ -61,8 +61,7 @@ describe('css parser', function () {
         assert(!styles.cellPadding, 'Empty string padding');
         assert(!styles.fontStyle, 'No font style');
         assert(!styles.fontSize, 'No font size');
-
-
+        
         delete global.window;
     });
 });
