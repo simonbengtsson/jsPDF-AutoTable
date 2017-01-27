@@ -119,7 +119,8 @@ export function parseInput(doc, allOptions) {
     validateInput(allOptions);
     
     let table = Config.createTable(doc);
-    let settings = parseSettings(table, allOptions);
+    let defaults = getDefaults();
+    let settings = parseSettings(table, allOptions, defaults);
     
     table.id = settings.tableId;
     
@@ -197,14 +198,14 @@ export function parseInput(doc, allOptions) {
         }
     }
     
-    table.settings.margin = Config.marginOrPadding(table.settings.margin, getDefaults().margin);
+    table.settings.margin = Config.marginOrPadding(table.settings.margin, defaults.margin);
     
     return table;
 }
 
-function parseSettings(table: Table, allOptions) {    
+function parseSettings(table: Table, allOptions, defaults) {    
     // Merge styles one level deeper
-    for (let styleProp of Object.keys(table.styles)) {
+    for (let styleProp of Object.keys(table.styles)) {  
         let styles = allOptions.map(function(opts) { return opts[styleProp] || {}});
         table.styles[styleProp] = assign({}, ...styles);
     }
@@ -221,7 +222,7 @@ function parseSettings(table: Table, allOptions) {
     }
 
     // Merge all other options one level
-    table.settings = assign(getDefaults(), ...allOptions);
+    table.settings = assign(defaults, ...allOptions);
     
     return table.settings;
 }

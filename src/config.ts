@@ -3,7 +3,7 @@
  */
 export let FONT_ROW_RATIO = 1.15;
 import {Table} from './models';
-
+import {scaleFactor} from './state';
 let table: Table = null;
 
 declare function require(path: string): any;
@@ -58,7 +58,7 @@ export function getDefaults() {
 
         // Properties
         startY: false, // false indicates the margin top value
-        margin: 40 / table.scaleFactor,
+        margin: 40 / scaleFactor,
         pageBreak: 'auto', // 'auto', 'avoid', 'always'
         tableWidth: 'auto', // 'auto'|'wrap'|number (takes precedence over columnWidth style if conflict)
         showHead: 'everyPage', // 'everyPage', 'firstPage', 'never',
@@ -90,9 +90,9 @@ function defaultStyles() {
         halign: 'left', // left, center, right
         valign: 'top', // top, middle, bottom
         fontSize: 10,
-        cellPadding: 5 / table.scaleFactor, // number or {top,left,right,left,vertical,horizontal}
+        cellPadding: 5 / scaleFactor, // number or {top,left,right,left,vertical,horizontal}
         lineColor: 200,
-        lineWidth: 0 / table.scaleFactor,
+        lineWidth: 0 / scaleFactor,
         columnWidth: 'auto',
         minCellHeight: 0
     }

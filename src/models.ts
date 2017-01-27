@@ -118,7 +118,7 @@ export class Cell {
         let text = '';
         let content = raw && typeof raw.content !== 'undefined' ? raw.content : raw;
         content = content != undefined && content.dataKey != undefined ? content.title : content;
-        if (content && content instanceof (<any>window).HTMLElement) {
+        if (content && typeof window === 'object' && (<any>window).HTMLElement && content instanceof (<any>window).HTMLElement) {
             text = (content.innerText || '').trim();
         } else {
             // Stringify 0 and false, but not undefined or null
