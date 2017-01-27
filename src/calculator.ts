@@ -1,9 +1,10 @@
-import {Config, FONT_ROW_RATIO} from './config';
+import {Config, FONT_ROW_RATIO, getTheme} from './config';
 import {getStringWidth, ellipsize} from './common';
-import {Table} from "./models";
+import {Table, Cell} from "./models";
 
 declare function require(path: string): any;
 var entries = require('object.entries');
+var assign = require('object-assign');
 
 /**
  * Calculate the column widths
@@ -17,6 +18,19 @@ export function calculateWidths(table: Table) {
         column.contentWidth = 0;
         table.allRows().forEach(function (row) {
             let cell = row.cells[column.dataKey];
+            if (!cell) {
+                let theme = getTheme(table.settings.theme);
+                let cellStyles = {
+                    head: [theme.table, theme.foot, table.styles.styles, table.styles.headStyles],
+                    body: [theme.table, theme.body, table.styles.styles, table.styles.bodyStyles],
+                    foot: [theme.table, theme.foot, table.styles.styles, table.styles.footStyles]
+                };
+                let colStyles = row.section === 'body' ? table.styles.columnStyles[column.dataKey] || {} : {};
+                let rowStyles = row.section === 'body' && row.index % 2 === 0 ? assign({}, theme.alternateRow, table.styles.alternateRowStyles) : {};
+                let style = Config.styles(cellStyles[row.section].concat([rowStyles, colStyles]));
+                cell = new Cell('', style, row.section);
+                row.cells[column.dataKey] = cell;
+            }
             cell.contentWidth = cell.padding('horizontal') + getStringWidth(cell.text, cell.styles);
             if (cell.colSpan <= 1 && cell.contentWidth > column.contentWidth) {
                 column.contentWidth = cell.contentWidth;

@@ -40,7 +40,7 @@ export let getTheme = function(name) {
 export function getDefaults() {
     return {
         // Styling
-        theme: 'striped', // 'striped', 'grid' or 'plain'
+        theme: 'auto', // 'striped', 'grid' or 'plain'
         styles: {},
         headStyles: {},
         bodyStyles: {},

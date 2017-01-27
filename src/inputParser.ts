@@ -1,6 +1,7 @@
-import {Row, Cell, Column, ATEvent, Table} from './models';
+import {Row, Cell, Column, Table} from './models';
 import {Config, getTheme, getDefaults} from './config';
 import {parseHtml} from "./htmlParser";
+import {ATEvent} from "./ATEvent";
 
 declare function require(path: string): any;
 var assign = require('object-assign');
@@ -71,14 +72,61 @@ export function validateInput(allOptions) {
     }
 }
 
+export function parseArguments(args) {
+    if (typeof args[0] === 'number') {
+        let opts = args[1];
+        opts.startY = args[0];
+        return opts;
+    } else if (Array.isArray(args[0])) {
+        // Deprecated initialization
+        let opts = args[2] || {};
+        
+        if (!opts.columns && !opts.head && !opts.body) {
+            opts.columns = [];
+
+            let headers = args[0];
+            if (!opts.head) opts.head = [[]];
+            let dataKeys = [];
+            headers.forEach(function (item, i) {
+                if (item && item.dataKey != undefined) {
+                    item = {dataKey: item.dataKey, content: item.title};
+                } else {
+                    item = {dataKey: i, content: item};
+                }
+                dataKeys.push(item.dataKey);
+                opts.head[0].push(item);
+            });
+
+            opts.body = [];
+            for (let rawRow of args[1]) {
+                let row = {};
+                for (let dataKey of dataKeys) {
+                    row[dataKey] = rawRow[dataKey];
+                }
+                opts.body.push(row);
+            }
+        }
+        return opts;
+    } else {
+        return args[0];
+    }
+}
+
 /**
  * Create models from the user input
  */
 export function parseInput(doc, allOptions) {
-    let table = Config.createTable(doc);
-    parseSettings(table, allOptions);
+    validateInput(allOptions);
     
-    let settings = table.settings;
+    let table = Config.createTable(doc);
+    let settings = parseSettings(table, allOptions);
+    
+    table.id = settings.tableId;
+    
+    if (settings.theme === 'auto' && !settings.useCssStyles) {
+        settings.theme = 'striped';
+    }
+    
     let theme = getTheme(settings.theme);
 
     let cellStyles = {
@@ -87,10 +135,11 @@ export function parseInput(doc, allOptions) {
         foot: [theme.table, theme.foot, table.styles.styles, table.styles.footStyles]
     };
     
-    var htmlContent = table.settings.fromHtml ? parseHtml(settings.fromHtml, settings.includeHiddenHtml, settings.useCssStyles) : {};
+    var htmlContent: any = table.settings.fromHtml ? parseHtml(settings.fromHtml, settings.includeHiddenHtml, settings.useCssStyles) : {};
     let columnMap = {};
+    let spanColumns = {};
     for (let sectionName of ['head', 'body', 'foot']) {
-        let section = table.settings[sectionName] || htmlContent[sectionName] || [[]];
+        let section = table.settings[sectionName] || htmlContent[sectionName] || [];
         let rowColumns = [];
         for (let rowIndex = 0; rowIndex < section.length; rowIndex++) {
             let rawRow = section[rowIndex];
@@ -98,23 +147,42 @@ export function parseInput(doc, allOptions) {
             let rowStyles = sectionName === 'body' && rowIndex % 2 === 0 ? assign({}, theme.alternateRow, table.styles.alternateRowStyles) : {};
 
             let keys = Object.keys(rawRow);
+            let columnIndex = 0;
             for (let i = 0; i < keys.length; i++) {
                 let rawCell = rawRow[keys[i]];
-                let dataKey = rawCell.dataKey || rawCell.key || (Array.isArray(rawRow) ? i : keys[i]);
+                let dataKey = rawCell.dataKey || rawCell.key || (Array.isArray(rawRow) ? columnIndex : keys[i]);
 
                 let colStyles = sectionName === 'body' ? table.styles.columnStyles[dataKey] || {} : {};
                 let column = columnMap[dataKey];
                 if (!column) {
-                    column = new Column(dataKey, colStyles.columnWidth || 'auto');
+                    if (spanColumns[columnIndex]) {
+                        column = spanColumns[columnIndex];
+                        column.dataKey = dataKey;
+                        column.widthStyle = colStyles.columnWidth || 'auto';
+                    } else {
+                        column = new Column(dataKey, colStyles.columnWidth || 'auto'); 
+                    }
                 }
                 rowColumns.push(column);
 
                 let style = Config.styles(cellStyles[sectionName].concat([rowStyles, colStyles]));
                 let cell = new Cell(rawCell, style, sectionName);
 
+                if (Array.isArray(rawRow)) {
+                    for (var j = 0; j < cell.colSpan - 1; j++) {
+                        columnIndex++;
+                        let colStyles = sectionName === 'body' ? table.styles.columnStyles[columnIndex] || {} : {};
+                        let column = new Column(columnIndex, colStyles.columnWidth || 'auto');
+                        spanColumns[columnIndex] = column;
+                        rowColumns.push(column);
+                    }
+                }
+
                 if (table.emitEvent(new ATEvent('parsingCell', table, row, column, cell)) !== false) {
                     row.cells[dataKey] = cell;
                 }
+                
+                columnIndex++;
             }
             if (keys.length > 0 && table.emitEvent(new ATEvent('parsingRow', table, row)) !== false) {
                 table[sectionName].push(row);
@@ -154,7 +222,8 @@ function parseSettings(table: Table, allOptions) {
 
     // Merge all other options one level
     table.settings = assign(getDefaults(), ...allOptions);
-    table.id = table.settings.tableId;
+    
+    return table.settings;
 }
 
 function hookEventHandler(opts) {

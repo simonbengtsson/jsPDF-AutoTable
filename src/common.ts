@@ -1,5 +1,4 @@
 import {Config} from './config';
-import {ATEvent} from './models';
 
 export function getStringWidth(text, styles) {
     let fontSize = styles.fontSize / Config.tableInstance().scaleFactor;

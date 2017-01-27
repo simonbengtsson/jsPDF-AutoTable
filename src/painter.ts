@@ -1,9 +1,10 @@
 import {Config, FONT_ROW_RATIO} from './config';
 import {getFillStyle, addTableBorder} from './common';
-import {Row, Table, ATEvent} from "./models";
-import autoText from './autoText';
+import {Row, Table} from "./models";
+import autoText from './autoTableText';
+import {ATEvent} from "./ATEvent";
 
-export function drawTable(table: Table, tableOptions) {
+export function drawTable(table: Table) {
     let settings = table.settings;
     table.cursor = {
         x: table.margin('left'),
@@ -36,6 +37,8 @@ export function drawTable(table: Table, tableOptions) {
 
     addTableBorder();
 
+    table.emitEvent(new ATEvent('endedPage', table));
+    /*
     // Don't call global and document addPageContent more than once for each page
     let pageNumber = table.doc.internal.getCurrentPageInfo().pageNumber;
     if (table.doc.autoTableState.addPageHookPages && table.doc.autoTableState.addPageHookPages[pageNumber]) {
@@ -43,10 +46,12 @@ export function drawTable(table: Table, tableOptions) {
             tableOptions.eventHandler(new ATEvent('endedPage', table));
         }
     } else {
-        if (!table.doc.autoTableState.addPageHookPages) table.doc.autoTableState.addPageHookPages = {};
+        if (!table.doc.autoTableState.addPageHookPages) {
+            table.doc.autoTableState.addPageHookPages = {};
+        }
         table.doc.autoTableState.addPageHookPages[pageNumber] = true;
-        table.emitEvent(new ATEvent('endedPage', table));
     }
+    */
 }
 
 function printFullRow(row: Row) {

@@ -4,95 +4,47 @@ import * as jsPDF from 'jspdf';
 import {Config} from './config';
 import {drawTable, addPage} from './painter';
 import {calculateWidths} from './calculator';
-import {parseInput, validateInput} from './inputParser';
-import autoText from './autoText';
+import {parseInput, validateInput, parseArguments} from './inputParser';
+import * as state from '../src/state';
+import './autoTableText';
 
 /**
  * Create a table
  */
-jsPDF.API.autoTable = function (tableOptions) {
-    this.autoTableState = this.autoTableState || {};
-    jsPDF.autoTableState = jsPDF.autoTableState || {};
-    
-    if (typeof arguments[0] === 'number') {
-        tableOptions = arguments[1];
-        tableOptions.startY = arguments[0];
-    } else if (arguments.length >= 2 && Array.isArray(arguments[0])) {
-        tableOptions = arguments[2] || {};
-        if (!tableOptions.columns && !tableOptions.head && !tableOptions.body) {
-            tableOptions.columns = [];
-
-            let headers = arguments[0];
-            if (!tableOptions.head) tableOptions.head = [[]];
-            let dataKeys = [];
-            headers.forEach(function (item, i) {
-                if (item && item.dataKey != undefined) {
-                    item = {dataKey: item.dataKey, content: item.title};
-                } else {
-                    item = {dataKey: i, content: item};
-                }
-                dataKeys.push(item.dataKey);
-                tableOptions.head[0].push(item);
-            });
-
-            tableOptions.body = [];
-            for (let rawRow of arguments[1]) {
-                let row = {};
-                for (let dataKey of dataKeys) {
-                    row[dataKey] = rawRow[dataKey];
-                }
-                tableOptions.body.push(row);
-            }
-        }
-    }
-    
-    let allOptions = [jsPDF.autoTableState.defaults || {}, this.autoTableState.defaults || {}, tableOptions || {}];
-    validateInput(allOptions);
+jsPDF.API.autoTable = function () {
+    state.init(this);
+    let tableSettings = parseArguments(arguments) || {};
     
     // 1. Parse and unify user input
-    let table = parseInput(this, allOptions);
+    let table = parseInput(this, [state.globalSettings, state.documentSettings, tableSettings]);
+    state.setTable(table);
     
     // 2. Calculate preliminary table, column, row and cell dimensions
     calculateWidths(table);
     
     // 3. Output table to pdf
-    drawTable(table, tableOptions);
+    drawTable(table);
     
     table.finalY = table.cursor.y;
     this.previousAutoTable = table;
-    Config.applyUserStyles();
+    this.autoTable.previous = table; // Deprecated
     
+    Config.applyUserStyles();
+    state.clean();
     return this;
 };
 
 // Enables doc.previousAutoTable.finalY || 40;
 jsPDF.API.previousAutoTable = false;
+jsPDF.API.autoTable.previous = false; // Deprecated
 
 jsPDF.API.autoTableSetDefaults = function(defaults) {
-    if (!this.autoTableState) this.autoTableState = {};
-    
-    if (defaults && typeof defaults === 'object') {
-        this.autoTableState.defaults = defaults;
-    } else {
-        delete this.autoTableState.defaults;
-    }
-    
+    state.setDefaults(defaults, this);
     return this;
 };
 
-let stat: any = jsPDF;
-stat.autoTableSetDefaults = function(defaults) {
-    let stat: any = jsPDF;
-    if (!stat.autoTableState) stat.autoTableState = {};
-    
-    if (defaults && typeof defaults === 'object') {
-        this.autoTableState.defaults = defaults;
-    } else {
-        delete this.autoTableState.defaults;
-    }
-    
-    jsPDF.autoTableState.defaults = defaults;
-    
+jsPDF.autoTableSetDefaults = function(defaults, doc) {
+    state.setDefaults(defaults, doc);
     return this;
 };
 
@@ -137,12 +89,6 @@ jsPDF.API.autoTableHtmlToJson = function (tableElem, includeHiddenElements) {
     let values = Object.keys(columns).map(function(key) { return columns[key] });
     return {columns: values, rows: rows, data: rows};
 };
-
-/**
- * Improved text function with halign and valign support
- * Inspiration from: http://stackoverflow.com/questions/28327510/align-text-right-using-jspdf/28433113#28433113
- */
-jsPDF.API.autoTableText = autoText;
 
 /**
  * @deprecated Use doc.autoTable.previous.finalY instead
