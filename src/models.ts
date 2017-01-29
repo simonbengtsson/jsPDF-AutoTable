@@ -143,14 +143,12 @@ export class Cell {
 
 export class Column {
     dataKey: string|number;
-    widthStyle: 'auto'|'wrap'|number = 'auto';
     
     preferredWidth = 0;
     contentWidth = 0;
     width = 0;
     
-    constructor(dataKey, widthStyle) {
+    constructor(dataKey) {
         this.dataKey = dataKey;
-        this.widthStyle = widthStyle;
     }
 }

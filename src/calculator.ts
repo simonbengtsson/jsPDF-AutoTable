@@ -14,6 +14,8 @@ export function calculateWidths(table: Table) {
     let dynamicColumns = [];
     table.columns.forEach(function (column) {
         column.contentWidth = 0;
+        let autoColumn = false;
+        let maxCellWidth = null;
         table.allRows().forEach(function (row) {
             let cell = row.cells[column.dataKey];
             if (!cell && cell !== false) {
@@ -33,21 +35,32 @@ export function calculateWidths(table: Table) {
             if (cell.colSpan <= 1 && cell.contentWidth > column.contentWidth) {
                 column.contentWidth = cell.contentWidth;
             }
+            
+            let cellWidth = 0;
+            if (typeof cell.styles.minCellWidth === 'number') {
+                cellWidth = cell.styles.minCellWidth;
+            } else if(cell.styles.minCellWidth === 'wrap') {
+                cellWidth = cell.contentWidth;
+            } else {
+                cellWidth = cell.contentWidth;
+            }
+            if (cellWidth > maxCellWidth) {
+                maxCellWidth = cellWidth;
+                if (typeof cell.styles.minCellWidth !== 'number' && cell.styles.minCellWidth !== 'wrap') {
+                    autoColumn = true;
+                }
+            }
         });
         table.contentWidth += column.contentWidth;
-        if (typeof column.widthStyle === 'number') {
-            column.preferredWidth = column.widthStyle;
-            fixedWidth += column.preferredWidth;
-            column.width = column.preferredWidth;
-        } else if (column.widthStyle === 'wrap') {
-            column.preferredWidth = column.contentWidth;
-            fixedWidth += column.preferredWidth;
-            column.width = column.preferredWidth;
-        } else {
-            column.preferredWidth = column.contentWidth;
-            autoWidth += column.contentWidth;
+
+        if (autoColumn) {
+            autoWidth += maxCellWidth;
             dynamicColumns.push(column);
+        } else {
+            fixedWidth += maxCellWidth;
+            column.width = maxCellWidth;
         }
+        column.preferredWidth = maxCellWidth;
         table.preferredWidth += column.preferredWidth;
     });
 

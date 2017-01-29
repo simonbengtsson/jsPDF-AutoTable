@@ -56,15 +56,15 @@ export function getDefaults() {
         margin: 40 / state().scaleFactor,
         avoidTableSplit: false,
         avoidRowSplit: false,
-        tableWidth: 'auto', // 'auto'|'wrap'|number (takes precedence over columnWidth style if conflict)
+        tableWidth: 'auto', // 'auto'|'wrap'|number
         showHead: 'everyPage', // 'everyPage', 'firstPage', 'never',
         showFoot: 'everyPage', // 'everyPage', 'lastPage', 'never',
         tableLineWidth: 0,
         tableLineColor: 200,
         tableId: null,
-        eventHandler: null,
+        eventHandler: null, // (event) => {}
 
-        // Hooks
+        // Deprecated (use eventHandler instead)
         createdHeaderCell: function (cell, data) {},
         createdCell: function (cell, data) {},
         drawHeaderRow: function (row, data) {},
@@ -89,7 +89,7 @@ function defaultStyles() {
         cellPadding: 5 / state().scaleFactor, // number or {top,left,right,left,vertical,horizontal}
         lineColor: 200,
         lineWidth: 0 / state().scaleFactor,
-        columnWidth: 'auto',
+        minCellWidth: 'auto', // 'auto'|'wrap'|number
         minCellHeight: 0
     }
 }
@@ -129,7 +129,7 @@ export class Config {
             }
             
             for (let side of ['top', 'right', 'bottom', 'left']) {
-                newValue[side] = value[side] || value[side] === 0 ? value[side] : defaultValue;
+                newValue[side] = (value[side] || value[side] === 0) ? value[side] : defaultValue;
             }
         }
         

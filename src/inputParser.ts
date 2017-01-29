@@ -5,10 +5,6 @@ import {ATEvent} from "./ATEvent";
 import {assign} from './polyfills';
 
 export function validateInput(allOptions) {
-    if (typeof console === 'undefined') {
-        var console = {error: function(msg) {}, log: function(msg) {}}
-    }
-    
     for (let settings of allOptions) {
         if (settings && typeof settings !== 'object') {
             console.error("The options parameter should be of type object, is: " + typeof settings);
@@ -62,13 +58,27 @@ export function validateInput(allOptions) {
             }
         });
         
-        for (let styleProp of ['styles', 'bodyStyles', 'headStyles', 'footStyles', 'columnStyles']) {
-            if (settings[styleProp] && typeof settings[styleProp] !== 'object') {
-                console.error("The " + styleProp + " style should be of type object, is: " + typeof settings[styleProp]);
-            } else if (settings[styleProp] && settings[styleProp].rowHeight) {
+        var checkStyles = function(styles) {
+            if (styles.rowHeight) {
                 console.error("Use of deprecated style rowHeight. It is renamed to minCellHeight.");
-                settings[styleProp].minCellHeight = settings[styleProp].rowHeight;
+                if (!styles.minCellHeight) {
+                    styles.minCellHeight = styles.rowHeight;
+                }
+            } else if (styles.columnWidth) {
+                console.error("Use of deprecated style columnWidth. It is renamed to minCellWidth.");
+                if (!styles.minCellWidth) {
+                    styles.minCellWidth = styles.columnWidth;
+                }
             }
+        };
+        
+        for (let styleProp of ['styles', 'bodyStyles', 'headStyles', 'footStyles']) {
+            checkStyles(settings[styleProp] || {});
+        }
+        
+        let columnStyles = settings['columnStyles'] || {};
+        for (let dataKey of Object.keys(columnStyles)) {
+            checkStyles(columnStyles[dataKey] || {});
         }
     }
 }
@@ -159,9 +169,8 @@ export function parseInput(doc, allOptions) {
                     if (spanColumns[columnIndex]) {
                         column = spanColumns[columnIndex];
                         column.dataKey = dataKey;
-                        column.widthStyle = colStyles.columnWidth || 'auto';
                     } else {
-                        column = new Column(dataKey, colStyles.columnWidth || 'auto'); 
+                        column = new Column(dataKey); 
                     }
                 }
                 rowColumns.push(column);
@@ -172,8 +181,7 @@ export function parseInput(doc, allOptions) {
                 if (Array.isArray(rawRow)) {
                     for (var j = 0; j < cell.colSpan - 1; j++) {
                         columnIndex++;
-                        let colStyles = sectionName === 'body' ? table.styles.columnStyles[columnIndex] || {} : {};
-                        let column = new Column(columnIndex, colStyles.columnWidth || 'auto');
+                        let column = new Column(columnIndex);
                         spanColumns[columnIndex] = column;
                         rowColumns.push(column);
                     }
@@ -198,7 +206,7 @@ export function parseInput(doc, allOptions) {
         }
     }
     
-    table.settings.margin = Config.marginOrPadding(table.settings.margin, defaults.margin);
+    table.settings.margin = Config.marginOrPadding(table.settings.margin, getDefaults().margin);
     
     return table;
 }

@@ -55,9 +55,7 @@ jsPDF.API.autoTableHtmlToJson = function (tableElem, includeHiddenElements) {
     includeHiddenElements = includeHiddenElements || false;
     
     if (!tableElem || !(tableElem instanceof HTMLTableElement)) {
-        if (window.console) {
-            console.error("A HTMLTableElement has to be sent to autoTableHtmlToJson");
-        }
+        console.error("A HTMLTableElement has to be sent to autoTableHtmlToJson");
         return null;
     }
     

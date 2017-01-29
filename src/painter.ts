@@ -1,7 +1,6 @@
 import {Config, FONT_ROW_RATIO} from './config';
 import {getFillStyle, addTableBorder} from './common';
 import {Row, Table} from "./models";
-import autoText from './autoTableText';
 import {ATEvent} from "./ATEvent";
 import state from "./state";
 
@@ -164,10 +163,10 @@ function printRow(row) {
         if (fillStyle) {
             table.doc.rect(cell.x, table.cursor.y, cell.width, cell.height, fillStyle);
         }
-        autoText.apply(table.doc, [cell.text, cell.textPos.x, cell.textPos.y, {
+        state().doc.autoTableText(cell.text, cell.textPos.x, cell.textPos.y, {
             halign: cell.styles.halign,
             valign: cell.styles.valign
-        }]);
+        });
 
         table.emitEvent(new ATEvent('addedCell', state().table, row, column, cell));
 

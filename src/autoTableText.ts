@@ -50,5 +50,3 @@ jsPDF.API.autoTableText = function (text, x, y, styles) {
 
     return this;
 };
-
-export default jsPDF.API.autoTableText;
