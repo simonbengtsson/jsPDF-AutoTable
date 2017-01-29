@@ -274,7 +274,7 @@
     };
 
     function update(shouldDownload) {
-        var funcStr = window.location.hash.replace(/#/g, '') || 'auto';
+        var funcStr = window.location.hash.replace(/#/g, '') || 'basic';
         var doc = examples[funcStr]();
 
         doc.setProperties({

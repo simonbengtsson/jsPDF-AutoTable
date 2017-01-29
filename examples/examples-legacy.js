@@ -32,9 +32,19 @@ var base64Img = null;
 var examples = {};
 
 // Default - shows what a default table looks like
-examples.auto = function () {
+examples.basic = function () {
     var doc = new jsPDF();
     doc.autoTable(getColumns(), getData());
+    return doc;
+};
+
+// From html - shows how pdf tables can be be drawn from html tables
+examples.html = function () {
+    var doc = new jsPDF();
+    doc.text("From HTML", 14, 16);
+    var elem = document.getElementById("basic-table");
+    var res = doc.autoTableHtmlToJson(elem);
+    doc.autoTable(res.columns, res.data, {startY: 20});
     return doc;
 };
 
@@ -134,16 +144,6 @@ examples.multiple = function () {
         });
     }
 
-    return doc;
-};
-
-// From html - shows how pdf tables can be be drawn from html tables
-examples.html = function () {
-    var doc = new jsPDF();
-    doc.text("From HTML", 14, 16);
-    var elem = document.getElementById("basic-table");
-    var res = doc.autoTableHtmlToJson(elem);
-    doc.autoTable(res.columns, res.data, {startY: 20});
     return doc;
 };
 
