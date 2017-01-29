@@ -25,7 +25,7 @@
   "scripts": {
     "start": "webpack-dev-server --open",
     "dev": "webpack-dev-server",
-    "build": "webpack && cp ./dist/jspdf.plugin.autotable.js ./dist/jspdf.plugin.autotable.src.js || true",
+    "build": "webpack",
     "copyLib": "cp ./node_modules/jspdf/dist/jspdf.debug.js ./examples/libs/jspdf.debug.js && cp ./dist/jspdf.plugin.autotable.js ./dist/jspdf.plugin.autotable.src.js && cp ./dist/jspdf.plugin.autotable.js ./examples/libs/jspdf.plugin.autotable.js",
     "examples": "npm run copyLib && cd examples/webpack && npm update && npm run build && cd ../browserify && npm update && npm run build ../../",
     "version": "npm run build && npm run copyLib && git add -A dist && git add -A examples && git add README.md",
