@@ -42,11 +42,12 @@ examples.basic = function () {
 examples.html = function () {
     var doc = new jsPDF();
     doc.text("From HTML", 14, 16);
-    doc.autoTable({fromHtml: '.table', startY: 14});
-    doc.text("From HTML with CSS");
+    doc.autoTable({fromHtml: '.table', startY: 20});
+    var finalY = doc.previousAutoTable.finalY;
+    doc.text("From HTML with CSS", 14, finalY + 15);
     doc.autoTable({
-        startY: doc.previousAutoTable.finalY + 30,
-        fromHtml: '.advanced-table', 
+        startY: finalY + 20,
+        fromHtml: '.table', 
         useCss: true,
     });
     return doc;
