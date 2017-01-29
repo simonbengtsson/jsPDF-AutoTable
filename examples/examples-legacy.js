@@ -31,33 +31,17 @@ var base64Img = null;
 
 var examples = {};
 
-// Basic - shows what a default table looks like
-examples.basic = function () {
+// Default - shows what a default table looks like
+examples.auto = function () {
     var doc = new jsPDF();
-    doc.autoTable({head: head(), body: body()});
-    return doc;
-};
-
-// From html - shows how pdf tables can be be drawn from html tables
-examples.html = function () {
-    var doc = new jsPDF();
-    doc.text("From HTML", 14, 16);
-    doc.autoTable({fromHtml: '.table', startY: 14});
-    doc.text("From HTML with CSS");
-    doc.autoTable({
-        startY: doc.previousAutoTable.finalY + 30,
-        fromHtml: '.advanced-table', 
-        useCss: true,
-    });
+    doc.autoTable(getColumns(), getData());
     return doc;
 };
 
 // Minimal - shows how compact tables can be drawn
 examples.minimal = function () {
     var doc = new jsPDF();
-    doc.autoTable({
-        head: head(), 
-        body: body(),
+    doc.autoTable(getColumns(), getData(), {
         tableWidth: 'wrap',
         styles: {cellPadding: 0.5, fontSize: 8}
     });
@@ -153,6 +137,16 @@ examples.multiple = function () {
     return doc;
 };
 
+// From html - shows how pdf tables can be be drawn from html tables
+examples.html = function () {
+    var doc = new jsPDF();
+    doc.text("From HTML", 14, 16);
+    var elem = document.getElementById("basic-table");
+    var res = doc.autoTableHtmlToJson(elem);
+    doc.autoTable(res.columns, res.data, {startY: 20});
+    return doc;
+};
+
 // Header and footers - shows how header and footers can be drawn
 examples['header-footer'] = function () {
     var doc = new jsPDF();
@@ -231,7 +225,7 @@ examples.defaults = function () {
 examples.colstyles = function () {
     var doc = new jsPDF();
     doc.autoTable(getColumns().splice(1, 4), getData(), {
-        showHeader: false,
+        showHeader: 'never',
         columnStyles: {
             name: {fillColor: [41, 128, 185], textColor: 255, fontStyle: 'bold'}
         }
@@ -366,43 +360,36 @@ examples.custom = function () {
  |--------------------------------------------------------------------------
  */
 
-function head(includeText) {
-    let row = {id: 'ID', name: 'Name', email: 'Email', city: 'City', expenses: 'Expenses'};
-    if (includeText) {
-        row['text'] = 'Text';
-        row['text2'] = 'Text 2';
-    }
-    return [row];
-}
+// Returns a new array each time to avoid pointer issues
+var getColumns = function () {
+    return [
+        {title: "ID", dataKey: "id"},
+        {title: "Name", dataKey: "name"},
+        {title: "Email", dataKey: "email"},
+        {title: "City", dataKey: "city"},
+        {title: "Expenses", dataKey: "expenses"}
+    ];
+};
 
-function foot(includeText) {
-    let row = {id: 'ID', name: 'Name', email: 'Email', city: 'City', expenses: 'Expenses'};
-    if (includeText) {
-        row['text'] = 'Text';
-        row['text2'] = 'Text 2';
-    }
-    return [row, row];
-}
-
-function body(rowCount, includeText) {
-    rowCount = rowCount || 10;
-    let body = [];
+// Uses the faker.js library to get random data.
+function getData(rowCount) {
+    rowCount = rowCount || 4;
+    //var sentence = "Minima quis totam nobis nihil et molestiae architecto accusantium qui necessitatibus sit ducimus cupiditate qui ullam et aspernatur esse et dolores ut voluptatem odit quasi ea sit ad sint voluptatem est dignissimos voluptatem vel adipisci facere consequuntur et reprehenderit cum unde debitis ab cumque sint quo ut officiis rerum aut quia quia expedita ut consectetur animiqui voluptas suscipit Monsequatur";
     var sentence = faker.lorem.words(20);
+    var data = [];
     for (var j = 1; j <= rowCount; j++) {
-        let row = {
+        data.push({
             id: j,
             name: faker.name.findName(),
             email: faker.internet.email(),
+            country: faker.address.country(),
             city: faker.address.city(),
             expenses: faker.finance.amount(),
-        };
-        if (includeText) {
-            row.push(shuffleSentence(sentence));
-            row.push(shuffleSentence(sentence));
-        }
-        body.push(row);
+            text: shuffleSentence(sentence),
+            text2: faker.lorem.words(1)
+        });
     }
-    return body;
+    return data;
 }
 
 function shuffleSentence(words) {
