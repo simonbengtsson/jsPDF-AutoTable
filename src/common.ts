@@ -1,17 +1,18 @@
 import {Config} from './config';
+import state from './state';
 
 export function getStringWidth(text, styles) {
-    let fontSize = styles.fontSize / Config.tableInstance().scaleFactor;
+    let fontSize = styles.fontSize / state().scaleFactor;
     Config.applyStyles(styles);
     text = Array.isArray(text) ? text : [text];
     let maxWidth = 0;
     text.forEach(function(line) {
-        let width = Config.tableInstance().doc.getStringUnitWidth(line);
+        let width = state().doc.getStringUnitWidth(line);
         if (width > maxWidth) {
             maxWidth = width;
         }
     });
-    let precision = 10000 * Config.tableInstance().scaleFactor;
+    let precision = 10000 * state().scaleFactor;
     maxWidth = Math.floor(maxWidth * precision) / precision;
     return maxWidth * fontSize;
 }
@@ -29,7 +30,7 @@ export function ellipsize(text, width, styles, ellipsizeStr = '...') {
         return value;
     }
 
-    let precision = 10000 * Config.tableInstance().scaleFactor;
+    let precision = 10000 * state().scaleFactor;
     width = Math.ceil(width * precision) / precision;
 
     if (width >= getStringWidth(text, styles)) {
@@ -45,7 +46,7 @@ export function ellipsize(text, width, styles, ellipsizeStr = '...') {
 }
 
 export function addTableBorder() {
-    let table = Config.tableInstance();
+    let table = state().table;
     let styles = {lineWidth: table.settings.tableLineWidth, lineColor: table.settings.tableLineColor};
     Config.applyStyles(styles);
     let fs = getFillStyle(styles);

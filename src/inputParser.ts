@@ -2,10 +2,7 @@ import {Row, Cell, Column, Table} from './models';
 import {Config, getTheme, getDefaults} from './config';
 import {parseHtml} from "./htmlParser";
 import {ATEvent} from "./ATEvent";
-
-declare function require(path: string): any;
-var assign = require('object-assign');
-var entries = require('object.entries');
+import {assign} from './polyfills';
 
 export function validateInput(allOptions) {
     if (typeof console === 'undefined') {
@@ -31,6 +28,10 @@ export function validateInput(allOptions) {
         if (typeof settings.headerStyles !== 'undefined') {
             if (settings.headStyles == undefined) settings.headStyles = settings.headerStyles;
             console.error("Deprecation warning: headerStyles renamed to headStyles");
+        }
+        if (settings.pageBreak != undefined) {
+            if (settings.avoidTableSplit == undefined) settings.avoidTableSplit = settings.pageBreak === 'avoid';
+            console.error("Deprecation warning: pageBreak renamed to avoidTableSplit");
         }
         if (typeof settings.afterPageContent !== 'undefined' || typeof settings.beforePageContent !== 'undefined' || typeof settings.afterPageAdd !== 'undefined') {
             console.error("The afterPageContent, beforePageContent and afterPageAdd hooks are deprecated. Use addPageContent instead");
@@ -118,14 +119,13 @@ export function parseArguments(args) {
 export function parseInput(doc, allOptions) {
     validateInput(allOptions);
     
-    let table = Config.createTable(doc);
+    let table = new Table(doc);
     let defaults = getDefaults();
     let settings = parseSettings(table, allOptions, defaults);
-    
     table.id = settings.tableId;
     
-    if (settings.theme === 'auto' && !settings.useCssStyles) {
-        settings.theme = 'striped';
+    if (settings.theme === 'auto') {
+        settings.theme = settings.useCss ? 'plain' : 'striped';
     }
     
     let theme = getTheme(settings.theme);
@@ -136,7 +136,7 @@ export function parseInput(doc, allOptions) {
         foot: [theme.table, theme.foot, table.styles.styles, table.styles.footStyles]
     };
     
-    var htmlContent: any = table.settings.fromHtml ? parseHtml(settings.fromHtml, settings.includeHiddenHtml, settings.useCssStyles) : {};
+    var htmlContent: any = table.settings.fromHtml ? parseHtml(settings.fromHtml, settings.includeHiddenHtml, settings.useCss) : {};
     let columnMap = {};
     let spanColumns = {};
     for (let sectionName of ['head', 'body', 'foot']) {

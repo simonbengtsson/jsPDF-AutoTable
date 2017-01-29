@@ -2,13 +2,8 @@
  * Ratio between font size and font height. The number comes from jspdf's source code
  */
 export let FONT_ROW_RATIO = 1.15;
-import {Table} from './models';
-import {scaleFactor} from './state';
-let table: Table = null;
-
-declare function require(path: string): any;
-var assign = require('object-assign');
-var entries = require('object.entries');
+import state from './state';
+import {assign} from './polyfills';
 
 /**
  * Styles for the themes (overriding the default styles)
@@ -54,11 +49,11 @@ export function getDefaults() {
         foot: null,
         fromHtml: null,
         includeHiddenHtml: false,
-        useCssStyles: false,
+        useCss: false,
 
         // Properties
         startY: false, // false indicates the margin top value
-        margin: 40 / scaleFactor,
+        margin: 40 / state().scaleFactor,
         avoidTableSplit: false,
         avoidRowSplit: false,
         tableWidth: 'auto', // 'auto'|'wrap'|number (takes precedence over columnWidth style if conflict)
@@ -91,9 +86,9 @@ function defaultStyles() {
         halign: 'left', // left, center, right
         valign: 'top', // top, middle, bottom
         fontSize: 10,
-        cellPadding: 5 / scaleFactor, // number or {top,left,right,left,vertical,horizontal}
+        cellPadding: 5 / state().scaleFactor, // number or {top,left,right,left,vertical,horizontal}
         lineColor: 200,
-        lineWidth: 0 / scaleFactor,
+        lineWidth: 0 / state().scaleFactor,
         columnWidth: 'auto',
         minCellHeight: 0
     }
@@ -102,20 +97,11 @@ function defaultStyles() {
 export class Config {
     
     static pageSize() {
-        return table.doc.internal.pageSize;
+        return state().doc.internal.pageSize;
     }
     
     static applyUserStyles() {
-        Config.applyStyles(table.userStyles);
-    }
-    
-    static createTable(doc) {
-        table = new Table(doc);
-        return table;
-    }
-    
-    static tableInstance(): Table {
-        return table;
+        Config.applyStyles(state().table.userStyles);
     }
     
     // This is messy, only keep array and number format the next major version
@@ -160,7 +146,7 @@ export class Config {
     }
 
     static applyStyles(styles) {
-        let doc = table.doc;
+        let doc = state().doc;
         let styleModifiers = {
             fillColor: doc.setFillColor,
             textColor: doc.setTextColor,

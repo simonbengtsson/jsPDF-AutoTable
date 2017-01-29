@@ -1,10 +1,8 @@
 import {Config, FONT_ROW_RATIO, getTheme} from './config';
 import {getStringWidth, ellipsize} from './common';
 import {Table, Cell} from "./models";
-
-declare function require(path: string): any;
-var entries = require('object.entries');
-var assign = require('object-assign');
+import {assign} from './polyfills';
+import state from "./state";
 
 /**
  * Calculate the column widths
@@ -18,7 +16,7 @@ export function calculateWidths(table: Table) {
         column.contentWidth = 0;
         table.allRows().forEach(function (row) {
             let cell = row.cells[column.dataKey];
-            if (!cell) {
+            if (!cell && cell !== false) {
                 let theme = getTheme(table.settings.theme);
                 let cellStyles = {
                     head: [theme.table, theme.foot, table.styles.styles, table.styles.headStyles],
@@ -157,7 +155,7 @@ export function calculateWidths(table: Table) {
                 }
                 cell.height = row.height;
                 if (cell.rowSpan > 1) {
-                    let remaining = all.length - 1 - rowIndex;
+                    let remaining = all.length - rowIndex;
                     let left = cell.rowSpan > remaining ? remaining : cell.rowSpan;
                     rowSpanCells[column.dataKey] = {cell, left, row};
                 }
@@ -176,7 +174,7 @@ export function calculateWidths(table: Table) {
 }
 
 function distributeWidth(dynamicColumns, staticWidth, dynamicColumnsContentWidth, fairWidth) {
-    let table = Config.tableInstance();
+    let table = state().table;
     let extraWidth = table.width - staticWidth - dynamicColumnsContentWidth;
     for (let i = 0; i < dynamicColumns.length; i++) {
         let col = dynamicColumns[i];

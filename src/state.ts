@@ -1,38 +1,57 @@
 import {Table} from "./models";
 
-export var table: Table;
-export var doc;
-export var scaleFactor;
-export var documentSettings = {};
-export var globalSettings = {};
-
 let defaultsDocument = null;
+let previousTableState;
 
-export function init(document) {
-    doc = document;
-    scaleFactor = doc.internal.scaleFactor;
+let tableState = null;
+export let globalDefaults = {};
+export let documentDefaults = {};
+
+export default function() {
+    return tableState;
+}
+
+export function globalSettings() {
+    return globalDefaults;
+}
+
+export function documentSettings() {
+    return documentDefaults;
+}
+
+class TableState {
+    table: Table;
+    doc;
+    scaleFactor;
     
+    constructor(doc) {
+       this.doc = doc;
+       this.scaleFactor = doc.internal.scaleFactor;
+    }
+    
+    pageHeight() { return this.doc.internal.pageSize.height; };
+    pageWidth() { return this.doc.internal.pageSize.width; }
+}
+
+export function setupState(doc) {
+    previousTableState = tableState;
+    tableState = new TableState(doc);
+
     if (doc !== defaultsDocument) {
-        documentSettings = {};
+        defaultsDocument = doc;
+        documentDefaults = {};
     }
 }
 
-// TODO Find way to not have table in state
-export function setTable(tableInstance) {
-    table = tableInstance;
-}
-
-export function clean() {
-    table = null;
-    doc = null;
-    scaleFactor = null;
+export function resetState() {
+    tableState = previousTableState;
 }
 
 export function setDefaults(defaults, doc = null) {
     if (doc) {
-        documentSettings = defaults || {};
+        documentDefaults = defaults || {};
         defaultsDocument = doc;
     } else {
-        globalSettings = defaults || {};
+        globalDefaults = defaults || {};
     }
 }

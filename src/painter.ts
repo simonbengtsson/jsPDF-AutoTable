@@ -3,6 +3,7 @@ import {getFillStyle, addTableBorder} from './common';
 import {Row, Table} from "./models";
 import autoText from './autoTableText';
 import {ATEvent} from "./ATEvent";
+import state from "./state";
 
 export function drawTable(table: Table) {
     let settings = table.settings;
@@ -37,28 +38,14 @@ export function drawTable(table: Table) {
 
     addTableBorder();
 
-    table.emitEvent(new ATEvent('endedPage', table));
-    /*
-    // Don't call global and document addPageContent more than once for each page
-    let pageNumber = table.doc.internal.getCurrentPageInfo().pageNumber;
-    if (table.doc.autoTableState.addPageHookPages && table.doc.autoTableState.addPageHookPages[pageNumber]) {
-        if (typeof tableOptions.eventHandler === 'function') {
-            tableOptions.eventHandler(new ATEvent('endedPage', table));
-        }
-    } else {
-        if (!table.doc.autoTableState.addPageHookPages) {
-            table.doc.autoTableState.addPageHookPages = {};
-        }
-        table.doc.autoTableState.addPageHookPages[pageNumber] = true;
-    }
-    */
+    table.emitEvent(new ATEvent('endedPage', state().table));
 }
 
 function printFullRow(row: Row) {
     let remainingRowHeight = 0;
     let remainingTexts = {};
 
-    let table = Config.tableInstance();
+    let table = state().table;
 
     if (!canFitOnPage(row.maxCellHeight)) {
         let maxTableHeight = table.doc.internal.pageSize.height - table.margin('top') - table.margin('bottom');
@@ -126,13 +113,13 @@ function printFullRow(row: Row) {
 }
 
 function printRow(row) {
-    let table = Config.tableInstance();
+    let table = state().table;
     
     table.cursor.x = table.margin('left');
     row.y = table.cursor.y;
     row.x = table.cursor.x;
     
-    if (table.emitEvent(new ATEvent('addingRow', table, row)) === false) {
+    if (table.emitEvent(new ATEvent('addingRow', state().table, row)) === false) {
         table.cursor.y += row.height;
         return;
     }
@@ -167,8 +154,8 @@ function printRow(row) {
         } else {
             cell.textPos.x = cell.x + cell.padding('left');
         }
-
-        if (table.emitEvent(new ATEvent('addingCell', table, row, column, cell)) === false) {
+        
+        if (table.emitEvent(new ATEvent('addingCell', state().table, row, column, cell)) === false) {
             table.cursor.x += column.width;
             continue;
         }
@@ -182,18 +169,18 @@ function printRow(row) {
             valign: cell.styles.valign
         }]);
 
-        table.emitEvent(new ATEvent('addedCell', table, row, column, cell));
+        table.emitEvent(new ATEvent('addedCell', state().table, row, column, cell));
 
         table.cursor.x += column.width;
     }
 
-    table.emitEvent(new ATEvent('addedRow', table, row));
+    table.emitEvent(new ATEvent('addedRow', state().table, row));
     
     table.cursor.y += row.height;
 }
 
 function canFitOnPage(rowHeight) {
-    let table = Config.tableInstance();
+    let table = state().table;
     let bottomContentHeight = table.margin('bottom');
     let showFoot = table.settings.showFoot;
     if (showFoot === true || showFoot === 'everyPage' || showFoot === 'lastPage') {
@@ -204,7 +191,7 @@ function canFitOnPage(rowHeight) {
 }
 
 export function addPage() {
-    let table = Config.tableInstance();
+    let table = state().table;
     
     Config.applyUserStyles();
     if (table.settings.showFoot === true || table.settings.showFoot === 'everyPage') {
@@ -215,7 +202,7 @@ export function addPage() {
 
     // Add user content just before adding new page ensure it will 
     // be drawn above other things on the page
-    table.emitEvent(new ATEvent('endedPage', table));
+    table.emitEvent(new ATEvent('endedPage', state().table));
     addTableBorder();
     nextPage(table.doc);
     table.pageCount++;

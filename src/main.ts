@@ -4,20 +4,20 @@ import * as jsPDF from 'jspdf';
 import {Config} from './config';
 import {drawTable, addPage} from './painter';
 import {calculateWidths} from './calculator';
-import {parseInput, validateInput, parseArguments} from './inputParser';
-import * as state from '../src/state';
+import {parseInput, parseArguments} from './inputParser';
+import state, {setDefaults, setupState, resetState, globalSettings, documentSettings} from './state';
 import './autoTableText';
 
 /**
  * Create a table
  */
 jsPDF.API.autoTable = function () {
-    state.init(this);
+    setupState(this);
     let tableSettings = parseArguments(arguments) || {};
     
     // 1. Parse and unify user input
-    let table = parseInput(this, [state.globalSettings, state.documentSettings, tableSettings]);
-    state.setTable(table);
+    let table = parseInput(this, [globalSettings(), documentSettings(), tableSettings]);
+    state().table = table;
     
     // 2. Calculate preliminary table, column, row and cell dimensions
     calculateWidths(table);
@@ -30,7 +30,7 @@ jsPDF.API.autoTable = function () {
     this.autoTable.previous = table; // Deprecated
     
     Config.applyUserStyles();
-    state.clean();
+    resetState();
     return this;
 };
 
@@ -39,12 +39,12 @@ jsPDF.API.previousAutoTable = false;
 jsPDF.API.autoTable.previous = false; // Deprecated
 
 jsPDF.API.autoTableSetDefaults = function(defaults) {
-    state.setDefaults(defaults, this);
+    setDefaults(defaults, this);
     return this;
 };
 
 jsPDF.autoTableSetDefaults = function(defaults, doc) {
-    state.setDefaults(defaults, doc);
+    setDefaults(defaults, doc);
     return this;
 };
 
