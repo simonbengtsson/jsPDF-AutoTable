@@ -89,7 +89,7 @@ function defaultStyles() {
         cellPadding: 5 / state().scaleFactor, // number or {top,left,right,left,vertical,horizontal}
         lineColor: 200,
         lineWidth: 0 / state().scaleFactor,
-        minCellWidth: 'auto', // 'auto'|'wrap'|number
+        cellWidth: 'auto', // 'auto'|'wrap'|number
         minCellHeight: 0
     }
 }

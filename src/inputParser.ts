@@ -66,9 +66,9 @@ export function validateInput(allOptions) {
                     styles.minCellHeight = styles.rowHeight;
                 }
             } else if (styles.columnWidth) {
-                console.error("Use of deprecated style columnWidth. It is renamed to minCellWidth.");
-                if (!styles.minCellWidth) {
-                    styles.minCellWidth = styles.columnWidth;
+                console.error("Use of deprecated style columnWidth. It is renamed to cellWidth.");
+                if (!styles.cellWidth) {
+                    styles.cellWidth = styles.columnWidth;
                 }
             }
         };

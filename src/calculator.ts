@@ -24,16 +24,16 @@ export function calculateWidths(table: Table) {
             }
 
             let cellWidth = 0;
-            if (typeof cell.styles.minCellWidth === 'number') {
-                cellWidth = cell.styles.minCellWidth;
-            } else if(cell.styles.minCellWidth === 'wrap') {
+            if (typeof cell.styles.cellWidth === 'number') {
+                cellWidth = cell.styles.cellWidth;
+            } else if(cell.styles.cellWidth === 'wrap') {
                 cellWidth = cell.contentWidth;
             } else {
                 cellWidth = cell.contentWidth;
             }
             if (cellWidth > maxCellWidth) {
                 maxCellWidth = cellWidth;
-                autoColumn = typeof cell.styles.minCellWidth !== 'number' && cell.styles.minCellWidth !== 'wrap';
+                autoColumn = typeof cell.styles.cellWidth !== 'number' && cell.styles.cellWidth !== 'wrap';
             }
         }
         table.contentWidth += column.contentWidth;
