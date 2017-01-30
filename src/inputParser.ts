@@ -212,6 +212,15 @@ export function parseInput(doc, allOptions) {
     }
     
     table.settings.margin = Config.marginOrPadding(table.settings.margin, getDefaults().margin);
+
+    if (typeof table.settings.tableWidth === 'number') {
+        table.width = table.settings.tableWidth;
+    } else if (table.settings.tableWidth === 'wrap') {
+        table.width = table.preferredWidth;
+    } else {
+        let pageWidth = Config.pageSize().width;
+        table.width = pageWidth - table.margin('left') - table.margin('right');
+    }
     
     return table;
 }

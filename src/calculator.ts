@@ -18,7 +18,7 @@ export function calculateWidths(table: Table) {
         let maxCellWidth = null;
         for (let row of table.allRows()) {
             let cell = row.cells[column.dataKey];
-            if (!cell) continue;
+            if (!cell || cell.colSpan > 1) continue;
             if (cell.colSpan <= 1 && cell.contentWidth > column.contentWidth) {
                 column.contentWidth = cell.contentWidth;
             }
@@ -47,15 +47,6 @@ export function calculateWidths(table: Table) {
         }
         column.preferredWidth = maxCellWidth;
         table.preferredWidth += column.preferredWidth;
-    }
-
-    if (typeof table.settings.tableWidth === 'number') {
-        table.width = table.settings.tableWidth;
-    } else if (table.settings.tableWidth === 'wrap') {
-        table.width = table.preferredWidth;
-    } else {
-        let pageWidth = Config.pageSize().width;
-        table.width = pageWidth - table.margin('left') - table.margin('right');
     }
 
     distributeWidth(dynamicColumns, fixedWidth, autoWidth, 10);
