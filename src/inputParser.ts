@@ -3,6 +3,7 @@ import {Config, getTheme, getDefaults} from './config';
 import {parseHtml} from "./htmlParser";
 import {ATEvent} from "./ATEvent";
 import {assign} from './polyfills';
+import {getStringWidth, ellipsize} from './common';
 
 export function validateInput(allOptions) {
     for (let settings of allOptions) {
@@ -130,8 +131,7 @@ export function parseInput(doc, allOptions) {
     validateInput(allOptions);
     
     let table = new Table(doc);
-    let defaults = getDefaults();
-    let settings = parseSettings(table, allOptions, defaults);
+    let settings = parseSettings(table, allOptions, getDefaults());
     table.id = settings.tableId;
     
     if (settings.theme === 'auto') {
@@ -139,14 +139,18 @@ export function parseInput(doc, allOptions) {
     }
     
     let theme = getTheme(settings.theme);
-
+ 
     let cellStyles = {
         head: [theme.table, theme.foot, table.styles.styles, table.styles.headStyles],
         body: [theme.table, theme.body, table.styles.styles, table.styles.bodyStyles],
         foot: [theme.table, theme.foot, table.styles.styles, table.styles.footStyles]
     };
     
-    var htmlContent: any = table.settings.fromHtml ? parseHtml(settings.fromHtml, settings.includeHiddenHtml, settings.useCss) : {};
+    let htmlContent = {};
+    if (table.settings.fromHtml) {
+        htmlContent = parseHtml(settings.fromHtml, settings.includeHiddenHtml, settings.useCss);
+        if (!htmlContent) htmlContent = {};
+    }
     let columnMap = {};
     let spanColumns = {};
     for (let sectionName of ['head', 'body', 'foot']) {
@@ -189,6 +193,7 @@ export function parseInput(doc, allOptions) {
 
                 if (table.emitEvent(new ATEvent('parsingCell', table, row, column, cell)) !== false) {
                     row.cells[dataKey] = cell;
+                    cell.contentWidth = cell.padding('horizontal') + getStringWidth(cell.text, cell.styles);
                 }
                 
                 columnIndex++;

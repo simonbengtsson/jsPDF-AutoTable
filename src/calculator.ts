@@ -1,7 +1,6 @@
 import {Config, FONT_ROW_RATIO, getTheme} from './config';
-import {getStringWidth, ellipsize} from './common';
+import {ellipsize} from './common';
 import {Table, Cell} from "./models";
-import {assign} from './polyfills';
 import state from "./state";
 
 /**
@@ -12,30 +11,18 @@ export function calculateWidths(table: Table) {
     let fixedWidth = 0;
     let autoWidth = 0;
     let dynamicColumns = [];
-    table.columns.forEach(function (column) {
+    
+    for (let column of table.columns) {
         column.contentWidth = 0;
         let autoColumn = false;
         let maxCellWidth = null;
-        table.allRows().forEach(function (row) {
+        for (let row of table.allRows()) {
             let cell = row.cells[column.dataKey];
-            if (!cell && cell !== false) {
-                let theme = getTheme(table.settings.theme);
-                let cellStyles = {
-                    head: [theme.table, theme.foot, table.styles.styles, table.styles.headStyles],
-                    body: [theme.table, theme.body, table.styles.styles, table.styles.bodyStyles],
-                    foot: [theme.table, theme.foot, table.styles.styles, table.styles.footStyles]
-                };
-                let colStyles = row.section === 'body' ? table.styles.columnStyles[column.dataKey] || {} : {};
-                let rowStyles = row.section === 'body' && row.index % 2 === 0 ? assign({}, theme.alternateRow, table.styles.alternateRowStyles) : {};
-                let style = Config.styles(cellStyles[row.section].concat([rowStyles, colStyles]));
-                cell = new Cell('', style, row.section);
-                row.cells[column.dataKey] = cell;
-            }
-            cell.contentWidth = cell.padding('horizontal') + getStringWidth(cell.text, cell.styles);
+            if (!cell) continue;
             if (cell.colSpan <= 1 && cell.contentWidth > column.contentWidth) {
                 column.contentWidth = cell.contentWidth;
             }
-            
+
             let cellWidth = 0;
             if (typeof cell.styles.minCellWidth === 'number') {
                 cellWidth = cell.styles.minCellWidth;
@@ -46,11 +33,9 @@ export function calculateWidths(table: Table) {
             }
             if (cellWidth > maxCellWidth) {
                 maxCellWidth = cellWidth;
-                if (typeof cell.styles.minCellWidth !== 'number' && cell.styles.minCellWidth !== 'wrap') {
-                    autoColumn = true;
-                }
+                autoColumn = typeof cell.styles.minCellWidth !== 'number' && cell.styles.minCellWidth !== 'wrap';
             }
-        });
+        }
         table.contentWidth += column.contentWidth;
 
         if (autoColumn) {
@@ -62,7 +47,7 @@ export function calculateWidths(table: Table) {
         }
         column.preferredWidth = maxCellWidth;
         table.preferredWidth += column.preferredWidth;
-    });
+    }
 
     if (typeof table.settings.tableWidth === 'number') {
         table.width = table.settings.tableWidth;
@@ -73,7 +58,7 @@ export function calculateWidths(table: Table) {
         table.width = pageWidth - table.margin('left') - table.margin('right');
     }
 
-    distributeWidth(dynamicColumns, fixedWidth, autoWidth, 0);
+    distributeWidth(dynamicColumns, fixedWidth, autoWidth, 10);
 
     let rowSpanCells = {};
     
@@ -101,6 +86,7 @@ export function calculateWidths(table: Table) {
                 colSpanCell = null;
             } else {
                 cell = row.cells[col.dataKey];
+                if (!cell) continue;
                 colSpansLeft = cell.colSpan;
                 combinedColSpanWidth = 0;
                 if (cell.colSpan > 1) {
@@ -113,7 +99,6 @@ export function calculateWidths(table: Table) {
 
             // Overflow
             Config.applyStyles(cell.styles);
-            let scaleFactor = table.doc.internal.scaleFactor;
             let textSpace = cell.width - cell.padding('horizontal');
             if (cell.styles.overflow === 'linebreak') {
                 cell.text = Array.isArray(cell.text) ? cell.text.join(' ') : cell.text;

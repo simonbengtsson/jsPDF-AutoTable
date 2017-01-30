@@ -1,6 +1,7 @@
 import {Config} from "./config";
 import {parseCss} from "./cssParser";
 import state from "./state";
+import {table} from "./models";
 /**
  * Experimental html and css parser
  */
@@ -10,9 +11,14 @@ var assign = require('object-assign');
 export function parseHtml(input: HTMLTableElement|string, includeHiddenHtml = false, useCss = false) {
     let tableElement;
     if (typeof input === 'string') {
-        tableElement = window.document.querySelector(input);
+        tableElement = <HTMLTableElement>window.document.querySelector(input);
     } else {
         tableElement = input;
+    }
+    
+    if (!tableElement) {
+        console.error("Html table could not be found with input: ", input);
+        return;
     }
     
     let head = parseTableSection(window, tableElement.tHead, includeHiddenHtml, useCss);
