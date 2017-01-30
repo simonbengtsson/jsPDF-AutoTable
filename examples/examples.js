@@ -20,7 +20,7 @@
  |     [3, "Hanna", 21, "Stockholm"]
  | ];
  |
- | var doc = new jsPDF('p', 'pt');
+ | var doc = new jsPDF();
  | doc.autoTable(columns, data);
  | doc.save("table.pdf");
  |
@@ -34,7 +34,7 @@ var examples = {};
 // Basic - shows what a default table looks like
 examples.basic = function () {
     var doc = new jsPDF();
-    doc.autoTable({head: head(), body: body()});
+    doc.autoTable({head: headRows(), body: bodyRows()});
     return doc;
 };
 
@@ -57,8 +57,8 @@ examples.html = function () {
 examples.minimal = function () {
     var doc = new jsPDF();
     doc.autoTable({
-        head: head(), 
-        body: body(),
+        head: headRows(), 
+        body: bodyRows(),
         tableWidth: 'wrap',
         styles: {cellPadding: 0.5, fontSize: 8}
     });
@@ -68,30 +68,31 @@ examples.minimal = function () {
 // Long data - shows how the overflow features looks and can be used
 examples.long = function () {
     var doc = new jsPDF('l');
-    doc.text(7, 15, "Overflow 'ellipsize' (default)");
+    doc.text("Overflow 'ellipsize' (default)", 14, 15);
+    let head = headRows();
+    head[0]['text'] = 'Text';
+    let body = bodyRows(4);
+    body.forEach(function(row) {row['text'] = faker.lorem.sentence(20)});
     doc.autoTable(20, {
-        head: head(true),
-        body: body(3, true),
-        margin: {horizontal: 7},
+        head: head,
+        body: body,
         styles: {minCellWidth: 'wrap'},
         columnStyles: {text: {minCellWidth: 'auto'}}
     });
-    doc.text("Overflow 'hidden'", 7, doc.previousAutoTable.finalY + 10);
+    doc.text("Overflow 'hidden'", 14, doc.previousAutoTable.finalY + 10);
     doc.autoTable({
         startY: doc.autoTable.previous.finalY + 15,
-        head: head(true),
-        body: body(3, true),
-        margin: {horizontal: 7},
+        head: head,
+        body: body,
         styles: {overflow: 'hidden', minCellWidth: 'wrap'},
         columnStyles: {text: {minCellWidth: 'auto'}}
     });
 
-    doc.text("Overflow 'linebreak'", 7, doc.previousAutoTable.finalY  + 10);
+    doc.text("Overflow 'linebreak'", 14, doc.previousAutoTable.finalY  + 10);
     doc.autoTable({
         startY: doc.autoTable.previous.finalY + 15,
-        head: head(true),
-        body: body(3, true),
-        margin: {horizontal: 7},
+        head: head,
+        body: body,
         bodyStyles: {valign: 'top'},
         styles: {overflow: 'linebreak', minCellWidth: 'wrap'},
         columnStyles: {text: {minCellWidth: 'auto'}}
@@ -105,15 +106,15 @@ examples.content = function () {
     var doc = new jsPDF();
 
     doc.setFontSize(18);
-    doc.text('A story about a person', 14, 22);
+    doc.text('With content', 14, 22);
     doc.setFontSize(11);
     doc.setTextColor(100);
-    var text = doc.splitTextToSize(shuffleSentence(faker.lorem.words(55)) + '.', doc.internal.pageSize.width - 35, {});
+    var text = doc.splitTextToSize(faker.lorem.sentence(45), doc.internal.pageSize.width - 35, {});
     doc.text(text, 14, 30);
 
     doc.autoTable({
-        head: head(),
-        body: body(40),
+        head: headRows(),
+        body: bodyRows(40),
         startY: 50, 
         showHead: 'firstPage'
     });
@@ -130,29 +131,31 @@ examples.multiple = function () {
     doc.text("Multiple tables", 14, 20);
     doc.setFontSize(12);
 
-    doc.autoTable(30, {head: head(), body: body(25)});
+    doc.autoTable(30, {head: headRows(), body: bodyRows(25)});
+    
+    let pageNumber = doc.internal.getCurrentPageInfo().pageNumber;
 
     doc.autoTable({
-        head: head(), body: body(15),
+        head: headRows(), body: bodyRows(15),
         startY: 240,
         showHead: 'firstPage',
         margin: {right: 107}
     });
     
-    doc.setPage(1 + doc.internal.getCurrentPageInfo().pageNumber - doc.autoTable.previous.pageCount);
+    doc.setPage(pageNumber);
 
     doc.autoTable({
-        head: head(), 
-        body: body(15),
+        head: headRows(), 
+        body: bodyRows(15),
         startY: 240,
         showHead: 'firstPage',
         margin: {left: 107}
     });
 
-    for (var j = 0; j < 6; j++) {
+    for (var j = 0; j < 3; j++) {
         doc.autoTable({
-            head: head(), 
-            body: body(9),
+            head: headRows(), 
+            body: bodyRows(),
             startY: doc.autoTable.previous.finalY + 10,
             avoidTableSplit: true,
         });
@@ -167,8 +170,8 @@ examples['header-footer'] = function () {
     var totalPagesExp = "{total_pages_count_string}";
 
     doc.autoTable({
-        head: head(), 
-        body: body(40),
+        head: headRows(), 
+        body: bodyRows(40),
         eventHandler: function(event) {
             if (event.name === 'endedPage') {
                 // Header
@@ -221,13 +224,13 @@ examples.defaults = function () {
         }
     });
 
-    doc.autoTable({head: head(), body: body()});
+    doc.autoTable({head: headRows(), body: bodyRows()});
 
     doc.addPage();
 
     doc.autoTable({
-        head: head(), 
-        body: body(),
+        head: headRows(), 
+        body: bodyRows(),
         // Will override document and global headerStyles
         headStyles: {fillColor: [231, 76, 60]} // Red
     });
@@ -243,8 +246,8 @@ examples.defaults = function () {
 examples.colstyles = function () {
     var doc = new jsPDF();
     doc.autoTable({
-        head: head(), 
-        body: body(),
+        head: headRows(), 
+        body: bodyRows(),
         showHead: false,
         columnStyles: {
             id: {fillColor: [41, 128, 185], textColor: 255, fontStyle: 'bold'}
@@ -255,62 +258,28 @@ examples.colstyles = function () {
 
 
 // Custom style - shows how custom styles can be applied to tables
-examples.spans = function () {
+examples.spans = function() {
     var doc = new jsPDF('p', 'pt');
     doc.setFontSize(12);
     doc.setTextColor(0);
     doc.setFontStyle('bold');
-    doc.text('Col and row span', 40, 50);
-    var data = body(80);
-    data.sort(function (a, b) {
-        return parseFloat(b.expenses) - parseFloat(a.expenses);
-    });
-    doc.autoTable({
-        head: head(), 
-        body: data,
-        theme: 'grid',
-        startY: 60,
-        drawRow: function (row, data) {
-            // Colspan
-            doc.setFontStyle('bold');
-            doc.setFontSize(10);
-            if (row.index === 0) {
-                doc.setTextColor(200, 0, 0);
-                doc.rect(data.settings.margin.left, row.y, data.table.width, 20, 'S');
-                doc.autoTableText("Priority Group", data.settings.margin.left + data.table.width / 2, row.y + row.height / 2, {
-                    halign: 'center',
-                    valign: 'middle'
-                });
-                data.cursor.y += 20;
-            } else if (row.index === 5) {
-                doc.rect(data.settings.margin.left, row.y, data.table.width, 20, 'S');
-                doc.autoTableText("Other Groups", data.settings.margin.left + data.table.width / 2, row.y + row.height / 2, {
-                    halign: 'center',
-                    valign: 'middle'
-                });
-                data.cursor.y += 20;
-            }
+    doc.text('Rowspan and colspan', 40, 50);
 
-            if (row.index % 5 === 0) {
-                var posY = row.y + row.height * 6 + data.settings.margin.bottom;
-                if (posY > doc.internal.pageSize.height) {
-                    data.addPage();
-                }
-            }
-        },
-        drawCell: function (cell, data) {
-            // Rowspan
-            if (data.column.dataKey === 'id') {
-                if (data.row.index % 5 === 0) {
-                    doc.rect(cell.x, cell.y, data.table.width, cell.height * 5, 'S');
-                    doc.autoTableText(data.row.index / 5 + 1 + '', cell.x + cell.width / 2, cell.y + cell.height * 5 / 2, {
-                        halign: 'center',
-                        valign: 'middle'
-                    });
-                }
-                return false;
-            }
+    let body = bodyRows(40);
+    for (var i = 0; i < body.length; i++) {
+        var row = body[i];
+        if (i % 5 === 0) {
+            row['id'] = {rowSpan: 5, content: i / 5 + 1, styles: {valign: 'middle', halign: 'center'}};
         }
+    }
+    let head = headRows();
+    head.push({id: {content: 'Table Name', colSpan: 5, styles: {halign: 'center', fillColor: [22, 160, 133]}}});
+    
+    doc.autoTable({
+        startY: 60,
+        head: head, 
+        body: body,
+        theme: 'grid'
     });
     return doc;
 };
@@ -322,13 +291,13 @@ examples.themes = function () {
     doc.setFontStyle('bold');
 
     doc.text('Theme "striped"', 14, 16);
-    doc.autoTable({head: head(), body: body(5), startY: 20});
+    doc.autoTable({head: headRows(), body: bodyRows(5), startY: 20});
 
     doc.text('Theme "grid"', 14, doc.autoTable.previous.finalY + 10);
-    doc.autoTable({head: head(), body: body(5), startY: doc.autoTable.previous.finalY + 14, theme: 'grid'});
+    doc.autoTable({head: headRows(), body: bodyRows(5), startY: doc.autoTable.previous.finalY + 14, theme: 'grid'});
 
     doc.text('Theme "plain"', 14, doc.autoTable.previous.finalY + 10);
-    doc.autoTable({head: head(), body: body(5), startY: doc.autoTable.previous.finalY + 14, theme: 'plain'});
+    doc.autoTable({head: headRows(), body: bodyRows(5), startY: doc.autoTable.previous.finalY + 14, theme: 'plain'});
 
     return doc;
 };
@@ -337,7 +306,7 @@ examples.themes = function () {
 examples.custom = function () {
     var doc = new jsPDF();
     doc.autoTable({
-        head: head(), body: body(),
+        head: headRows(), body: bodyRows(),
         tableLineColor: [189, 195, 199],
         tableLineWidth: 0.75,
         styles: {
@@ -371,47 +340,27 @@ examples.custom = function () {
  |--------------------------------------------------------------------------
  */
 
-function head(includeText) {
-    let row = {id: 'ID', name: 'Name', email: 'Email', city: 'City', expenses: 'Expenses'};
-    if (includeText) {
-        row['text'] = 'Text';
-    }
-    return [row];
+function headRows() {
+    return [{id: 'ID', name: 'Name', email: 'Email', city: 'City', expenses: 'Expenses'}];
 }
 
-function foot(includeText) {
-    let row = {id: 'ID', name: 'Name', email: 'Email', city: 'City', expenses: 'Expenses'};
-    if (includeText) {
-        row['text'] = 'Text';
-    }
-    return [row, row];
+function footRows() {
+    return [{id: 'ID', name: 'Name', email: 'Email', city: 'City', expenses: 'Expenses'}];
 }
 
-function body(rowCount, includeText) {
+function bodyRows(rowCount) {
     rowCount = rowCount || 10;
     let body = [];
-    var sentence = faker.lorem.words(20);
     for (var j = 1; j <= rowCount; j++) {
-        let row = {
+        body.push({
             id: j,
             name: faker.name.findName(),
             email: faker.internet.email(),
             city: faker.address.city(),
             expenses: faker.finance.amount(),
-        };
-        if (includeText) {
-            row['text'] = shuffleSentence(sentence);
-        }
-        body.push(row);
+        });
     }
     return body;
-}
-
-function shuffleSentence(words) {
-    if (typeof words === 'string') return words;
-    words = words || faker.lorem.words(8);
-    var str = faker.helpers.shuffle(words).join(' ').trim();
-    return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
 imgToBase64('document.jpg', function(base64) {
