@@ -46,10 +46,10 @@ export function calculateWidths(table: Table) {
         table.width = state().pageWidth() - table.margin('left') - table.margin('right');
     }
     
+    // TODO Fix those cases
     if (tableMinWidth > table.width) {
         console.warn('We have a problem!');
     }
-    
     if (columnMinWidth * table.columns.length > table.width) {
         console.warn('We have a serious problem!!');
     }
@@ -168,23 +168,22 @@ export function calculateWidths(table: Table) {
     }
 }
 
-function distributeWidth(tableWidth, autoColumns, fixedWidth, wrappedTableWidth) {
-    let diffWidth = tableWidth - fixedWidth - wrappedTableWidth;
+function distributeWidth(tableWidth, autoColumns, fixedWidth, wrappedAutoColumnsWidth) {
+    let diffWidth = tableWidth - fixedWidth - wrappedAutoColumnsWidth;
     
     for (let i = 0; i < autoColumns.length; i++) {
         let column = autoColumns[i];
-        let ratio = column.wrappedWidth / wrappedTableWidth;
-        let propRatio = widthRatio(ratio);
+        let ratio = column.wrappedWidth / wrappedAutoColumnsWidth;
         let suggestedWidth = column.wrappedWidth + diffWidth * ratio;
         if (suggestedWidth >= column.minWidth) {
             column.width = suggestedWidth;
         } else {
             // We can't reduce the width of this column. Mark as none auto column and start over
             column.width = column.minWidth;
-            wrappedTableWidth -= column.wrappedWidth;
+            wrappedAutoColumnsWidth -= column.wrappedWidth;
             fixedWidth += column.width;
             autoColumns.splice(i, 1);
-            distributeWidth(tableWidth, autoColumns, fixedWidth, wrappedTableWidth);
+            distributeWidth(tableWidth, autoColumns, fixedWidth, wrappedAutoColumnsWidth);
             break;
         }
     }
