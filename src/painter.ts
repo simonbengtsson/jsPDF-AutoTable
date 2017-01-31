@@ -59,8 +59,8 @@ function printFullRow(row: Row) {
             let maxRowSpanCellHeight = 0;
 
             for (let j = 0; j < table.columns.length; j++) {
-                let col = table.columns[j];
-                let cell = row.cells[col.dataKey];
+                let column = table.columns[j];
+                let cell = row.cells[column.dataKey];
                 if (!cell) {
                     continue;
                 }
@@ -72,7 +72,7 @@ function printFullRow(row: Row) {
 
                 if (Array.isArray(cell.text) && cell.text.length > remainingLineCount) {
                     let remainingLines = cell.text.splice(remainingLineCount, cell.text.length);
-                    remainingTexts[col.dataKey] = remainingLines;
+                    remainingTexts[column.dataKey] = remainingLines;
 
                     let cellHeight = cell.text.length * fontHeight + vPadding;
                     if (cellHeight > maxCellHeight) {

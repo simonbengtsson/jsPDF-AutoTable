@@ -7,49 +7,55 @@ import state from "./state";
  * Calculate the column widths
  */
 export function calculateWidths(table: Table) {
-    // Column and table content width
-    let fixedWidth = 0;
-    let autoWidth = 0;
-    let dynamicColumns = [];
+    let tableMinWidth = 0;
+    let columnMinWidth = 10 / state().scaleFactor;
+    let tableWrappedWidth = 0;
     
     for (let column of table.columns) {
-        column.contentWidth = 0;
-        let autoColumn = false;
-        let maxCellWidth = null;
         for (let row of table.allRows()) {
             let cell = row.cells[column.dataKey];
             if (!cell || cell.colSpan > 1) continue;
-            if (cell.colSpan <= 1 && cell.contentWidth > column.contentWidth) {
-                column.contentWidth = cell.contentWidth;
-            }
-
-            let cellWidth = 0;
+            let cellWrappedWidth = 0;
             if (typeof cell.styles.cellWidth === 'number') {
-                cellWidth = cell.styles.cellWidth;
-            } else if(cell.styles.cellWidth === 'wrap') {
-                cellWidth = cell.contentWidth;
+                cell.minWidth = cell.styles.cellWidth;
+                cellWrappedWidth = cell.minWidth;
+            } else if (cell.styles.cellWidth === 'wrap') {
+                cell.minWidth = cell.contentWidth;
+                cellWrappedWidth = cell.minWidth;
             } else {
-                cellWidth = cell.contentWidth;
+                cell.minWidth = columnMinWidth;
+                cellWrappedWidth = cell.contentWidth;
             }
-            if (cellWidth > maxCellWidth) {
-                maxCellWidth = cellWidth;
-                autoColumn = typeof cell.styles.cellWidth !== 'number' && cell.styles.cellWidth !== 'wrap';
+            
+            if (cell.colSpan <= 1 && cellWrappedWidth > column.wrappedWidth) {
+                column.wrappedWidth = cellWrappedWidth;
+            }
+            if (cell.minWidth > column.minWidth) {
+                column.minWidth = cell.minWidth;
             }
         }
-        table.contentWidth += column.contentWidth;
-
-        if (autoColumn) {
-            autoWidth += maxCellWidth;
-            dynamicColumns.push(column);
-        } else {
-            fixedWidth += maxCellWidth;
-            column.width = maxCellWidth;
-        }
-        column.preferredWidth = maxCellWidth;
-        table.preferredWidth += column.preferredWidth;
+        tableMinWidth += column.minWidth;
+        tableWrappedWidth += column.wrappedWidth;
     }
 
-    distributeWidth(dynamicColumns, fixedWidth, autoWidth, 10);
+    if (typeof table.settings.tableWidth === 'number') {
+        table.width = table.settings.tableWidth;
+    } else if (table.settings.tableWidth === 'wrap') {
+        table.width = tableWrappedWidth;
+    } else {
+        table.width = state().pageWidth() - table.margin('left') - table.margin('right');
+    }
+    
+    if (tableMinWidth > table.width) {
+        console.warn('We have a problem!');
+    }
+    
+    if (columnMinWidth * table.columns.length > table.width) {
+        console.warn('We have a serious problem!!');
+    }
+
+    let copy = table.columns.slice(0);
+    distributeWidth(table.width, copy, 0, tableWrappedWidth);
 
     let rowSpanCells = {};
     
@@ -62,31 +68,31 @@ export function calculateWidths(table: Table) {
         let combinedColSpanWidth = 0;
         let colSpansLeft = 0;
         for (var columnIndex = 0; columnIndex < table.columns.length; columnIndex++) {
-            let col = table.columns[columnIndex];
+            let column = table.columns[columnIndex];
             let cell = null;
             
             // Width and colspan
             colSpansLeft -= 1;
             if (colSpansLeft > 1 && table.columns[columnIndex + 1]) {
-                combinedColSpanWidth += col.width;
-                delete row.cells[col.dataKey];
+                combinedColSpanWidth += column.width;
+                delete row.cells[column.dataKey];
                 continue;
             } else if (colSpanCell) {
                 cell = colSpanCell;
-                delete row.cells[col.dataKey];
+                delete row.cells[column.dataKey];
                 colSpanCell = null;
             } else {
-                cell = row.cells[col.dataKey];
+                cell = row.cells[column.dataKey];
                 if (!cell) continue;
                 colSpansLeft = cell.colSpan;
                 combinedColSpanWidth = 0;
                 if (cell.colSpan > 1) {
                     colSpanCell = cell;
-                    combinedColSpanWidth += col.width;
+                    combinedColSpanWidth += column.width;
                     continue;
                 } 
             }
-            cell.width = col.width + combinedColSpanWidth;
+            cell.width = column.width + combinedColSpanWidth;
 
             // Overflow
             Config.applyStyles(cell.styles);
@@ -162,23 +168,28 @@ export function calculateWidths(table: Table) {
     }
 }
 
-function distributeWidth(dynamicColumns, staticWidth, dynamicColumnsContentWidth, fairWidth) {
-    let table = state().table;
-    let extraWidth = table.width - staticWidth - dynamicColumnsContentWidth;
-    for (let i = 0; i < dynamicColumns.length; i++) {
-        let col = dynamicColumns[i];
-        let ratio = col.contentWidth / dynamicColumnsContentWidth;
-        // A column turned out to be none dynamic, start over recursively
-        let isNoneDynamic = col.contentWidth + extraWidth * ratio < fairWidth;
-        if (extraWidth < 0 && isNoneDynamic) {
-            dynamicColumns.splice(i, 1);
-            dynamicColumnsContentWidth -= col.contentWidth;
-            col.width = fairWidth;
-            staticWidth += col.width;
-            distributeWidth(dynamicColumns, staticWidth, dynamicColumnsContentWidth, fairWidth);
-            break;
+function distributeWidth(tableWidth, autoColumns, fixedWidth, wrappedTableWidth) {
+    let diffWidth = tableWidth - fixedWidth - wrappedTableWidth;
+    
+    for (let i = 0; i < autoColumns.length; i++) {
+        let column = autoColumns[i];
+        let ratio = column.wrappedWidth / wrappedTableWidth;
+        let propRatio = widthRatio(ratio);
+        let suggestedWidth = column.wrappedWidth + diffWidth * ratio;
+        if (suggestedWidth >= column.minWidth) {
+            column.width = suggestedWidth;
         } else {
-            col.width = col.contentWidth + extraWidth * ratio;
+            // We can't reduce the width of this column. Mark as none auto column and start over
+            column.width = column.minWidth;
+            wrappedTableWidth -= column.wrappedWidth;
+            fixedWidth += column.width;
+            autoColumns.splice(i, 1);
+            distributeWidth(tableWidth, autoColumns, fixedWidth, wrappedTableWidth);
+            break;
         }
     }
+}
+
+function widthRatio(ratio) {
+    return 1 / (1 - ratio) - 1;
 }

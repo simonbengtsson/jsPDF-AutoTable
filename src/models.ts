@@ -21,7 +21,6 @@ export class Table {
     
     height = 0;
     width = 0;
-    contentWidth = 0;
     preferredWidth = 0;
     headHeight = 0;
     footHeight = 0;
@@ -145,7 +144,8 @@ export class Column {
     dataKey: string|number;
     
     preferredWidth = 0;
-    contentWidth = 0;
+    minWidth = 0;
+    wrappedWidth = 0;
     width = 0;
     
     constructor(dataKey) {

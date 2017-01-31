@@ -76,16 +76,16 @@ examples.long = function () {
     doc.autoTable(20, {
         head: head,
         body: body,
-        styles: {minCellWidth: 'wrap'},
-        columnStyles: {text: {minCellWidth: 'auto'}}
+        styles: {cellWidth: 'wrap'},
+        columnStyles: {text: {cellWidth: 'auto'}}
     });
     doc.text("Overflow 'hidden'", 14, doc.previousAutoTable.finalY + 10);
     doc.autoTable({
         startY: doc.autoTable.previous.finalY + 15,
         head: head,
         body: body,
-        styles: {overflow: 'hidden', minCellWidth: 'wrap'},
-        columnStyles: {text: {minCellWidth: 'auto'}}
+        styles: {overflow: 'hidden', cellWidth: 'wrap'},
+        columnStyles: {text: {cellWidth: 'auto'}}
     });
 
     doc.text("Overflow 'linebreak'", 14, doc.previousAutoTable.finalY  + 10);
@@ -94,8 +94,8 @@ examples.long = function () {
         head: head,
         body: body,
         bodyStyles: {valign: 'top'},
-        styles: {overflow: 'linebreak', minCellWidth: 'wrap'},
-        columnStyles: {text: {minCellWidth: 'auto'}}
+        styles: {overflow: 'linebreak', cellWidth: 'wrap'},
+        columnStyles: {text: {cellWidth: 'auto'}}
     });
 
     return doc;
