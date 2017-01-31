@@ -4,6 +4,7 @@ import {parseHtml} from "./htmlParser";
 import {ATEvent} from "./ATEvent";
 import {assign} from './polyfills';
 import {getStringWidth, ellipsize} from './common';
+import state from './state';
 
 export function validateInput(allOptions) {
     for (let settings of allOptions) {
@@ -194,6 +195,23 @@ export function parseInput(doc, allOptions) {
                 if (table.emitEvent(new ATEvent('parsingCell', table, row, column, cell)) !== false) {
                     row.cells[dataKey] = cell;
                     cell.contentWidth = cell.padding('horizontal') + getStringWidth(cell.text, cell.styles);
+                    if (typeof cell.styles.cellWidth === 'number') {
+                        cell.minWidth = cell.styles.cellWidth;
+                        cell.wrappedWidth = cell.styles.cellWidth;
+                    } else if (cell.styles.cellWidth === 'wrap') {
+                        cell.minWidth = cell.contentWidth;
+                        cell.wrappedWidth = cell.contentWidth;
+                    } else {
+                        cell.minWidth = 10 / state().scaleFactor;
+                        cell.wrappedWidth = cell.contentWidth;
+                    }
+                    
+                    if (cell.wrappedWidth > column.wrappedWidth) {
+                        column.wrappedWidth = cell.wrappedWidth;
+                    }
+                    if (cell.minWidth > column.minWidth) {
+                        column.minWidth = cell.minWidth;
+                    }
                 }
                 
                 columnIndex++;
@@ -209,6 +227,19 @@ export function parseInput(doc, allOptions) {
                 }
             }
         }
+    }
+    
+    for (let column of table.columns) {
+        table.minWidth += column.minWidth;
+        table.wrappedWidth += column.wrappedWidth;
+    }
+
+    if (typeof table.settings.tableWidth === 'number') {
+        table.width = table.settings.tableWidth;
+    } else if (table.settings.tableWidth === 'wrap') {
+        table.width = table.wrappedWidth;
+    } else {
+        table.width = state().pageWidth() - table.margin('left') - table.margin('right');
     }
     
     table.settings.margin = Config.marginOrPadding(table.settings.margin, getDefaults().margin);
