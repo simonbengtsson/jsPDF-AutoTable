@@ -1,13 +1,12 @@
 # Changelog
 
-### Consider
-- Change case from autoTable to autotable
-- Rewrite examples to one parameter initialization
-
 ### 3.0
 - Changed initialization to `doc.autoTable({head: ..., body: ...})`
 - Changed from hooks to eventHandler
 - Changed getting previous autoTable to `doc.previousAutoTable`
+- Changed default overflow method to linebreak (previously it was ellipsize)
+- Changed `rowHeight` style to `minCellHeight`
+- Changed `columnWidth` style to `cellWidth`
 - Added native rowspan and colspan support
 - Added `fromHtml: HTMLTableElement|string`. If set to string it should be a css selector pointing to a table element.
 - Added `useCss: boolean` option which decides if css styles should be used when using fromHtml.
@@ -16,8 +15,6 @@
 - Added `footStyles` option (similar to headStyles)
 - Added `avoidRowSplit` option
 - Renamed `pageBreak` option to `avoidTableSplit`
-- Renamed the `rowHeight` style to `minCellHeight`
-- Renamed the `columnWidth` style to `minCellWidth`
 - Renamed headerStyles to headStyles
 - Renamed showHeader to showHead
 
