@@ -57,7 +57,7 @@ examples.html = function () {
 examples.minimal = function () {
     var doc = new jsPDF();
     doc.autoTable({
-        head: headRows(), 
+        head: headRows(),
         body: bodyRows(),
         tableWidth: 'wrap',
         styles: {cellPadding: 0.5, fontSize: 8}
@@ -68,7 +68,7 @@ examples.minimal = function () {
 // Long data - shows how the overflow features looks and can be used
 examples.long = function () {
     var doc = new jsPDF('l');
-    doc.text("Overflow 'ellipsize' (default)", 14, 15);
+    doc.text("Overflow 'ellipsize'", 14, 15);
     let head = headRows();
     head[0]['text'] = 'Text';
     let body = bodyRows(4);
@@ -76,7 +76,7 @@ examples.long = function () {
     doc.autoTable(20, {
         head: head,
         body: body,
-        styles: {cellWidth: 'wrap'},
+        styles: {overflow: 'ellipsize', cellWidth: 'wrap'},
         columnStyles: {text: {cellWidth: 'auto'}}
     });
     doc.text("Overflow 'hidden'", 14, doc.previousAutoTable.finalY + 10);
@@ -88,7 +88,7 @@ examples.long = function () {
         columnStyles: {text: {cellWidth: 'auto'}}
     });
 
-    doc.text("Overflow 'linebreak'", 14, doc.previousAutoTable.finalY  + 10);
+    doc.text("Overflow 'linebreak' (default)", 14, doc.previousAutoTable.finalY  + 10);
     doc.autoTable({
         startY: doc.autoTable.previous.finalY + 15,
         head: head,
@@ -139,16 +139,18 @@ examples.multiple = function () {
         head: headRows(), body: bodyRows(15),
         startY: 240,
         showHead: 'firstPage',
+        styles: {overflow: 'hidden'},
         margin: {right: 107}
     });
     
     doc.setPage(pageNumber);
 
     doc.autoTable({
-        head: headRows(), 
+        head: headRows(),
         body: bodyRows(15),
         startY: 240,
         showHead: 'firstPage',
+        styles: {overflow: 'hidden'},
         margin: {left: 107}
     });
 
@@ -207,6 +209,7 @@ examples['header-footer'] = function () {
 // Minimal - shows how compact tables can be drawn
 examples.defaults = function () {
     // Global defaults
+    // (would apply to all documents if more than one were created)
     jsPDF.autoTableSetDefaults({
         columnStyles: {id: {fontStyle: 'bold'}},
         headStyles: {fillColor: 0},
@@ -220,7 +223,7 @@ examples.defaults = function () {
         margin: {top: 25},
         addPageContent: function(data) {
             doc.setFontSize(20);
-            doc.text('Document specific header', data.settings.margin.left, 20);
+            doc.text('Default options', data.settings.margin.left, 20);
         }
     });
 
@@ -231,7 +234,7 @@ examples.defaults = function () {
     doc.autoTable({
         head: headRows(), 
         body: bodyRows(),
-        // Will override document and global headerStyles
+        // Will override document and global head tyles
         headStyles: {fillColor: [231, 76, 60]} // Red
     });
 
@@ -249,6 +252,9 @@ examples.colstyles = function () {
         head: headRows(), 
         body: bodyRows(),
         showHead: false,
+        // Note that the "id" key below is the same as the column's dataKey used in 
+        // the head and body rows. If your data is in array based instead you can 
+        // use index based selector instead: `columnStyles: {0: {fillColor: [41, 128, 185], ...}}`
         columnStyles: {
             id: {fillColor: [41, 128, 185], textColor: 255, fontStyle: 'bold'}
         }
@@ -307,12 +313,12 @@ examples.custom = function () {
     var doc = new jsPDF();
     doc.autoTable({
         head: headRows(), body: bodyRows(),
-        tableLineColor: [189, 195, 199],
+        tableLineColor: [231, 76, 60],
         tableLineWidth: 0.75,
         styles: {
             font: 'courier',
             lineColor: [44, 62, 80],
-            lineWidth: 0.75
+            lineWidth: 1
         },
         headStyles: {
             fillColor: [44, 62, 80],
