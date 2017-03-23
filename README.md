@@ -4,34 +4,29 @@
 
 **Generate PDF tables with javascript**
 
-Check out the [demo](https://simonbengtsson.github.io/jsPDF-AutoTable/) or [examples](https://github.com/simonbengtsson/jsPDF-AutoTable/tree/master/examples) to get an overview of what can be done with this plugin. Example uses include participant tables, start lists, result lists etc.
-
-
+Check out the [demo](https://simonbengtsson.github.io/jsPDF-AutoTable/) or [examples](https://github.com/simonbengtsson/jsPDF-AutoTable/tree/master/examples).
 
 ![sample javascript table pdf](samples.png)
 
 ### Install
-Download and include [jspdf.min.js](https://raw.githubusercontent.com/MrRio/jsPDF/master/dist/jspdf.min.js) and [jspdf.plugin.autotable.js](https://raw.githubusercontent.com/simonbengtsson/jsPDF-AutoTable/master/dist/jspdf.plugin.autotable.js).
+Download and include [jspdf.min.js](https://raw.githubusercontent.com/MrRio/jsPDF/master/dist/jspdf.min.js) and [jspdf.plugin.autotable.js](https://raw.githubusercontent.com/simonbengtsson/jsPDF-AutoTable/master/dist/jspdf.plugin.autotable.min.js).
 
 ```html
-<script src="bower_components/jspdf/dist/jspdf.min.js"></script>
-<script src="bower_components/jspdf-autotable/dist/jspdf.plugin.autotable.js"></script>
+<script src="jspdf.min.js"></script>
+<script src="jspdf.plugin.autotable.min.js"></script>
 ```
 
 You can also get the plugin with a package manager:
 - `bower install jspdf-autotable`
 - `npm install jspdf-autotable` (only client side usage)
 
-It is also available on cdnjs:
+Or CDN:
 ```html
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/2.3.0/jspdf.plugin.autotable.js"></script>
+<script src="https://unpkg.com/jspdf-autotable"></script>
+<script src="https://unpkg.com/jspdf"></script>
 ```
 
-Note! If you are using meteor, use the npm release. Do not use the `jspdf:autotable` package on atmosphere as it is currently outdated.
-
-### Browser support
-
-Tested with IE10, IE11 and modern browsers (chrome, edge, firefox and safari).
+Note! If you are using meteor, use the npm release. Do not use the `jspdf:autotable` package on atmosphere (outdated and not supported).
 
 ### Usage
 
@@ -83,44 +78,6 @@ doc.save('table.pdf');
 
 See other examples in `/examples/examples.js` which is also the source code for the [demo](https://simonbengtsson.github.io/jsPDF-AutoTable/) documents. 
 
-
-
-### Usage with Angular 2 (angular cli v1.0.0-beta.14)
-
-- In an angular cli project run `npm install jspdf-autotable --save`
-- Add the `jspdf` and `jspdf-autotable` files to the scripts section in `angular-cli.json` (see below)
-- Declare jsPDF as a global variable `declare var jsPDF: any;`, and use as normal in any component
-
-```js
-// angular-cli.json
-"scripts": [
-    "../node_modules/jspdf/dist/jspdf.min.js",
-    "../node_modules/jspdf-autotable/dist/jspdf.plugin.autotable.js"
-],
-```
-
-```js
-// app.component.ts or any other component
-import { Component } from '@angular/core';
-
-declare var jsPDF: any; // Important
-
-@Component({
-  selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css']
-})
-export class AppComponent {
-  title = 'app works!';
-  
-  constructor() {
-    var doc = new jsPDF('p', 'pt');
-    doc.autoTable(columns, data);
-    doc.save("table.pdf");
-  }
-}
-```
-
 ### Options
 All options below are used in `examples.js` so be sure to check it out if in doubt.
 
@@ -139,19 +96,12 @@ All options below are used in `examples.js` so be sure to check it out if in dou
     margin: 40, // a number, array or object
     pageBreak: 'auto', // 'auto', 'avoid'
     tableWidth: 'auto', // 'auto', 'wrap' or a number, 
-    showHeader: 'everyPage' // 'everyPage', 'firstPage', 'never',
+    showHead: 'everyPage' // 'everyPage', 'firstPage', 'never',
+    showFoot: 'everyPage' // 'everyPage', 'lastPage', 'never',
     tableLineColor: 200, // number, array (see color section below)
     tableLineWidth: 0,
-
-    // Hooks
-    createdHeaderCell: function (cell, data) {},
-    createdCell: function (cell, data) {},
-    drawHeaderRow: function (row, data) {},
-    drawRow: function (row, data) {},
-    drawHeaderCell: function (cell, data) {},
-    drawCell: function (cell, data) {},
-    addPageContent: function (data) {}
- };
+    eventHandler: function(event) {}
+};
 ```
 
 ### Styles
@@ -159,7 +109,7 @@ Styles work similar to css and can be overridden by more specific styles. The ov
 
 ```javascript
 {
-	cellPadding: 5, // a number, array or object (see margin below)
+    cellPadding: 5, // a number, array or object (see margin below)
     fontSize: 10,
     font: "helvetica", // helvetica, times, courier
     lineColor: 200,
@@ -170,14 +120,10 @@ Styles work similar to css and can be overridden by more specific styles. The ov
     textColor: 20,
     halign: 'left', // left, center, right
     valign: 'middle', // top, middle, bottom
-    columnWidth: 'auto' // 'auto', 'wrap' or a number
+    minCellWidth: 'auto' // 'auto'|'wrap'|number
 }
 ```
-All colors can either be specified as a number (255 white and 0 for black) or an array [red, green, blue] e.g. [255, 255, 255].
-
-Every style above can be changed on a cell by cell basis except for columnWidth.
-
-Many of the styles has a matching jspdf set method. For example `lineWidth` corresponds to `doc.setLineWidth()`. More information about those can be found in the jspdf documentation.
+Colors can be specified as a number (255 for white and 0 for black) or an array [red, green, blue] e.g. [255, 0, 0] for red.
 
 ### Properties
 - `startY` Indicates where the table should start to be drawn on the first page (overriding the margin top value). It can be used for example to draw content before the table. Many examples use this option, but the above use case is presented in the `With content` example.

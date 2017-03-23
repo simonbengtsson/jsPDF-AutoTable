@@ -112,7 +112,7 @@ jsPDF.API.autoTableAddPageContent = function (hook) {
 };
 
 /**
- * @deprecated Use data.addPage in hooks instead
+ * @deprecated Use event.addPage() in eventHandler instead
  */
 jsPDF.API.autoTableAddPage = function() {
     addPage();
