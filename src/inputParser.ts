@@ -201,7 +201,7 @@ export function parseInput(doc, allOptions) {
                     } else if (cell.styles.cellWidth === 'wrap') {
                         cell.minWidth = cell.contentWidth;
                         cell.wrappedWidth = cell.contentWidth;
-                    } else {
+                    } else { // auto
                         cell.minWidth = 10 / state().scaleFactor;
                         cell.wrappedWidth = cell.contentWidth;
                     }

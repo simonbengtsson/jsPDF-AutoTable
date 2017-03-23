@@ -80,7 +80,7 @@ function defaultStyles() {
     return {
         font: "helvetica", // helvetica, times, courier
         fontStyle: 'normal', // normal, bold, italic, bolditalic
-        overflow: 'ellipsize', // visible, hidden, ellipsize or linebreak
+        overflow: 'linebreak', // linebreak, ellipsize, visible or hidden
         fillColor: false, // Either false for transparent, rbg array e.g. [255, 255, 255] or gray level e.g 200
         textColor: 20,
         halign: 'left', // left, center, right
