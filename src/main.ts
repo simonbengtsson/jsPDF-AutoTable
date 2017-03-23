@@ -34,7 +34,7 @@ jsPDF.API.autoTable = function () {
     return this;
 };
 
-// Enables doc.previousAutoTable.finalY || 40;
+// Enables sugar doc.previousAutoTable.finalY || 40;
 jsPDF.API.previousAutoTable = false;
 jsPDF.API.autoTable.previous = false; // Deprecated
 
@@ -52,6 +52,7 @@ jsPDF.autoTableSetDefaults = function(defaults, doc) {
  * @Deprecated. Use fromHtml option instead
  */
 jsPDF.API.autoTableHtmlToJson = function (tableElem, includeHiddenElements) {
+    console.error("Use of deprecated function: autoTableHtmlToJson. Use fromHtml option instead.");
     includeHiddenElements = includeHiddenElements || false;
     
     if (!tableElem || !(tableElem instanceof HTMLTableElement)) {
@@ -89,9 +90,10 @@ jsPDF.API.autoTableHtmlToJson = function (tableElem, includeHiddenElements) {
 };
 
 /**
- * @deprecated Use doc.autoTable.previous.finalY instead
+ * @deprecated
  */
 jsPDF.API.autoTableEndPosY = function () {
+    console.error("Use of deprecated function: autoTableEndPosY. Use doc.autoTable.previous.finalY instead.");
     let prev = this.previousAutoTable;
     if (prev.cursor && typeof prev.cursor.y === 'number') {
         return prev.cursor.y;
@@ -101,9 +103,10 @@ jsPDF.API.autoTableEndPosY = function () {
 };
 
 /**
- * @deprecated Use jsPDF.autoTableSetDefaults({addPageContent: function() {}}) instead
+ * @deprecated
  */
 jsPDF.API.autoTableAddPageContent = function (hook) {
+    console.error("Use of deprecated function: autoTableAddPageContent. Use jsPDF.autoTableSetDefaults({addPageContent: function() {}}) instead.");
     if (!jsPDF.API.autoTable.globalDefaults) {
         jsPDF.API.autoTable.globalDefaults = {};
     }
@@ -112,9 +115,10 @@ jsPDF.API.autoTableAddPageContent = function (hook) {
 };
 
 /**
- * @deprecated Use event.addPage() in eventHandler instead
+ * @deprecated
  */
 jsPDF.API.autoTableAddPage = function() {
+    console.error("Use of deprecated function: autoTableAddPage. Use event.addPage() in eventHandler instead.");
     addPage();
     return this;
 };
