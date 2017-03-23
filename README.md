@@ -82,72 +82,99 @@ See other examples in `/examples/examples.js` which is also the source code for 
 All options below are used in `examples.js` so be sure to check it out if in doubt.
 
 ```javascript
-{
+{    
+    // Content
+    head: null,
+    body: null,
+    foot: null,
+    fromHtml: null,
+    includeHiddenHtml: false,
+    useCss: false,
+    
     // Styling
-    theme: 'striped', // 'striped', 'grid' or 'plain'
+    theme: 'auto', // 'striped', 'grid' or 'plain'
     styles: {},
-    headerStyles: {},
+    headStyles: {},
     bodyStyles: {},
+    footStyles: {},
     alternateRowStyles: {},
     columnStyles: {},
 
     // Properties
-    startY: false, // false (indicates margin top value) or a number
+    startY: false, // false or number (false indicates the margin top value)
     margin: 40, // a number, array or object
-    pageBreak: 'auto', // 'auto', 'avoid'
-    tableWidth: 'auto', // 'auto', 'wrap' or a number, 
-    showHead: 'everyPage' // 'everyPage', 'firstPage', 'never',
-    showFoot: 'everyPage' // 'everyPage', 'lastPage', 'never',
-    tableLineColor: 200, // number, array (see color section below)
+    avoidTableSplit: false,
+    avoidRowSplit: false,
+    tableWidth: 'auto', // 'auto'|'wrap'|number
+    showHead: 'everyPage', // 'everyPage', 'firstPage', 'never',
+    showFoot: 'everyPage', // 'everyPage', 'lastPage', 'never',
     tableLineWidth: 0,
-    eventHandler: function(event) {}
+    tableLineColor: 200, // number, array (see color section below)
+    tableId: null,
+    eventHandler: null, // function handling events
 };
 ```
 
+### Content
+TODO
+
 ### Styles
-Styles work similar to css and can be overridden by more specific styles. The overriding order is as follows: Default styles <- theme styles <- `styles` <- `headerStyles` and `bodyStyles` <- `alternateRowStyles` and `columnStyles`. It is also possible to override specific cell or row styles using for example the `createdCell` hook. Checkout the `Custom style` example for more information.
+Styles work similar to css and can be overridden by more specific styles. The overriding order is as follows: Default styles <- theme styles <- `styles` <- `headStyles`, `bodyStyles` and `footStyles` <- `alternateRowStyles` <- `columnStyles`. It is also possible to override specific cell or row styles using the eventHandler. Checkout the `Custom style` example for more information.
 
 ```javascript
 {
-    cellPadding: 5, // a number, array or object (see margin below)
-    fontSize: 10,
     font: "helvetica", // helvetica, times, courier
-    lineColor: 200,
-    lineWidth: 0,
     fontStyle: 'normal', // normal, bold, italic, bolditalic
-    overflow: 'ellipsize', // visible, hidden, ellipsize or linebreak
-    fillColor: false, // false for transparent or a color as described below
+    overflow: 'linebreak', // linebreak, ellipsize, visible or hidden
+    fillColor: false, // Either false for transparent, rbg array e.g. [255, 255, 255] or gray level e.g 200
     textColor: 20,
     halign: 'left', // left, center, right
-    valign: 'middle', // top, middle, bottom
-    minCellWidth: 'auto' // 'auto'|'wrap'|number
+    valign: 'top', // top, middle, bottom
+    fontSize: 10,
+    cellPadding: 5 / state().scaleFactor, // number or {top,left,right,left,vertical,horizontal}
+    lineColor: 200, // cell line/border color
+    lineWidth: 0 / state().scaleFactor, // cell line/border width
+    cellWidth: 'auto', // 'auto'|'wrap'|number
+    minCellHeight: 0
 }
 ```
+
+TODO: Mention cell styles
+
 Colors can be specified as a number (255 for white and 0 for black) or an array [red, green, blue] e.g. [255, 0, 0] for red.
 
 ### Properties
-- `startY` Indicates where the table should start to be drawn on the first page (overriding the margin top value). It can be used for example to draw content before the table. Many examples use this option, but the above use case is presented in the `With content` example.
+- `startY` Indicates where the table should start to be drawn on the first page (overriding the margin top value). It can be used for example to draw content before the table. Many examples use this option, but the above use case is presented in the `With content` example. This option can also be specified as a the first argument for autoTable: `doc.autoTable(40, {head: ..., body: ...})`.
 - `margin` Similar to margin in css it sets how much spacing it should be around the table on each page. The startY option can be used if the margin top value should be different on the first page. The margin option accepts both a number, an array [top, right, bottom, left] and an object {top: 40, right: 40, bottom: 40, left: 40}. If you want to use the default value and only change one side you can specify it like this: {top: 60}.
-- `pageBreak` This option defines the behavior of the table when it will span more than one page. If set to 'avoid' it will start on a new page if there is not enough room to fit the entire table on the current page. If set to 'auto' it will add a new page only when the next row doesn't fit.
+- `avoidTableSplit` This option defines the behavior of the table when it will span more than one page. If set to 'true' it will start on a new page if not enough room exists to fit the entire table on the current page.
+- `avoidRowSplit` This option defines the behavior of a row when it will span more than one page (using the linebreak overflow method). If set to 'true' it will start on a new page if not enough room exists to fit the entire row on the current page.
 - `tableWidth` This option defines the fixed width of the table if set to a number. If set to 'auto' it will be 100% of width of the page and if set to 'wrap' it will only be as wide as its content is.  
-- `showHeader` Set to `firstPage`, `everyPage` or `never`
+- `showHead` If set to `firstPage` a header is only drawn on the first page.
+- `showFoot` If set to `firstPage` a footer is only drawn on the first page.
+- `tableLineWidth` The thickness of the table line/border (0 means no line)
+- `tableLineColor`, The table line/border color
+- `tableId` Table id that can be set to differntiate between tables in the default option functions. Not used by the plugin itself.
+- `eventHandler` Function that handles events. See event handling section.
 
-### Hooks
-There are 9 different hooks that gets called at various times during the drawing of the table. If applicable, information about the current cell, row or column are provided to the hook function. In addition to that the following general information is always provided in the `data` parameter:
+### Event handling
+Multiple events gets fired and can be handled by the `eventHandler` function at various times when the table is drawn. If applicable, information about the current cell, row or column are provided to the hook function. In addition to that the following general information is always provided in the `data` parameter:
 - `pageCount` - The number of pages it currently spans
 - `settings` - The user options merged with the default options
 - `table` - Information about the table such as the rows, columns and dimensions
 - `doc` - The current jspdf instance
-- `cursor` - The position at which the next table cell will be drawn. This can be assigned new values to create column and row spans. Checkout the Colspan and Rowspan example for more information.
+- `cursor` - The position at which the next table cell will be drawn. This can be assigned new values to create advanced tables.
 
-*OBS!* Only the `drawCell` hook can be used with the native style jspdf style changes such as `doc.setLineWidth`. If you use the other hooks for changing styles, they will be overridden.
+See the custom styles example for further information.
+
+TODO: List the available events and example usages
+
+*OBS!* Only the `drawCell` event can be used with the native style jspdf style changes such as `doc.setLineWidth`. If you use the other hooks for changing styles, they will be overridden.
 
 ### Helper functions
-- `autoTableHtmlToJson(tableElem, includeHiddenElements)` Use it to generate the javascript objects required for this library from an html table (see `from html` example). If includeHiddenElements is set to true hidden rows and columns will be included otherwise excluded.
 - `doc.autoTableSetDefaults({ ... })`. Use for setting default options for all tables on the specific document. Settings and styles will be overridden in the following order `global` < `document` < `table`. Hooks will be added and not overridden.
 - `jsPDF.autoTableSetDefaults({ ... })` Use for setting global defaults which will be applied for all document and tabels.
 
-If you want to know something about the last table that was drawn you can use `doc.autoTable.previous`. It has a `doc.autoTable.previous.finalY` property among other things that has the value of the last printed y coordinate on a page. This can be used to draw text, multiple tables or other content after a table.
+If you want to know something about the last table that was drawn you can use `doc.previousAutoTable`. It has a `doc.previousAutoTable.finalY` property among other things that has the value of the last printed y coordinate on a page. This can be used to draw text, multiple tables or other content after a table.
 
 ### Other pdf libraries
 
