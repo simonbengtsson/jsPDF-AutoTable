@@ -37,7 +37,7 @@ export function drawTable(table: Table) {
 
     addTableBorder();
 
-    table.emitEvent(new ATEvent('endedPage', state().table));
+    table.emitEvent(new ATEvent('addingPage', state().table));
 }
 
 function printFullRow(row: Row) {
@@ -201,7 +201,7 @@ export function addPage() {
 
     // Add user content just before adding new page ensure it will 
     // be drawn above other things on the page
-    table.emitEvent(new ATEvent('endedPage', state().table));
+    table.emitEvent(new ATEvent('addingPage', state().table));
     addTableBorder();
     nextPage(table.doc);
     table.pageCount++;

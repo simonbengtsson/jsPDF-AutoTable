@@ -2,6 +2,7 @@ import {addPage} from "./painter";
 import {Table, Cell, Row, Column} from "./models";
 
 export class ATEvent {
+    type: string; //
     name: string;
     table?: Table;
     pageCount: number;
@@ -17,8 +18,8 @@ export class ATEvent {
     column?: Column;
     section?: 'head'|'body'|'foot';
 
-    constructor(name: string, table: Table, row?: Row, column?: Column, cell?: Cell) {
-        this.name = name;
+    constructor(type: string, table: Table, row?: Row, column?: Column, cell?: Cell) {
+        this.type = type;
         this.table = table;
         this.pageCount = table.pageCount;
         this.settings = table.settings;

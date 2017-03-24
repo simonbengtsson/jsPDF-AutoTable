@@ -175,7 +175,7 @@ examples['header-footer'] = function () {
         head: headRows(), 
         body: bodyRows(40),
         eventHandler: function(event) {
-            if (event.name === 'endedPage') {
+            if (event.type === 'endedPage') {
                 // Header
                 doc.setFontSize(20);
                 doc.setTextColor(40);
@@ -263,7 +263,7 @@ examples.colstyles = function () {
 };
 
 
-// Custom style - shows how custom styles can be applied to tables
+// Col spans and row spans
 examples.spans = function() {
     var doc = new jsPDF('p', 'pt');
     doc.setFontSize(12);
@@ -336,6 +336,11 @@ examples.custom = function () {
                 fontStyle: 'bold'
             }
         },
+        eventHandler: function(event) {
+            if (event.type === '') {
+                
+            }
+        }
     });
     return doc;
 };

@@ -76,10 +76,10 @@ doc.autoTable(columns, rows, {
 doc.save('table.pdf');
 ```
 
-See other examples in `/examples/examples.js` which is also the source code for the [demo](https://simonbengtsson.github.io/jsPDF-AutoTable/) documents. 
+Checkout more examples in [examples.js](examples) which is also the source code for the [demo](https://simonbengtsson.github.io/jsPDF-AutoTable/) documents. 
 
 ### Options
-All options below are used in `examples.js` so be sure to check it out if in doubt.
+Below is a list of all options supported in the plugin. All of them are used in the [examples](examples) so be sure to check them out if in doubt.
 
 ```javascript
 {    
@@ -116,10 +116,15 @@ All options below are used in `examples.js` so be sure to check it out if in dou
 ```
 
 ### Content
-TODO
+    head: null,
+    body: null,
+    foot: null,
+    fromHtml: null,
+    includeHiddenHtml: false,
+    useCss: false,
 
 ### Styles
-Styles work similar to css and can be overridden by more specific styles. The overriding order is as follows: Default styles <- theme styles <- `styles` <- `headStyles`, `bodyStyles` and `footStyles` <- `alternateRowStyles` <- `columnStyles`. It is also possible to override specific cell or row styles using the eventHandler. Checkout the `Custom style` example for more information.
+Styles work similar to css and can be overridden by more specific styles. The overriding order is as follows: Default styles <- theme styles <- `styles` <- `headStyles`, `bodyStyles` and `footStyles` <- `alternateRowStyles` <- `columnStyles`.
 
 ```javascript
 {
@@ -139,7 +144,7 @@ Styles work similar to css and can be overridden by more specific styles. The ov
 }
 ```
 
-TODO: Mention cell styles
+Styles for specific cells can also be applied using either the `eventHandler` (see `Custom style` example) or the `styles` property on the cell definition object (see content section above).
 
 Colors can be specified as a number (255 for white and 0 for black) or an array [red, green, blue] e.g. [255, 0, 0] for red.
 
@@ -157,16 +162,40 @@ Colors can be specified as a number (255 for white and 0 for black) or an array 
 - `eventHandler` Function that handles events. See event handling section.
 
 ### Event handling
-Multiple events gets fired and can be handled by the `eventHandler` function at various times when the table is drawn. If applicable, information about the current cell, row or column are provided to the hook function. In addition to that the following general information is always provided in the `data` parameter:
-- `pageCount` - The number of pages it currently spans
+You can customize the content and styling of the table by setting an `eventHandler` and modify the different properties of the event object.
+
+
+- `pageCount` - The number of pages the table currently spans
 - `settings` - The user options merged with the default options
 - `table` - Information about the table such as the rows, columns and dimensions
 - `doc` - The current jspdf instance
-- `cursor` - The position at which the next table cell will be drawn. This can be assigned new values to create advanced tables.
+- `cursor` - 
+
+Event objects have the following definition:
+```javascript
+{
+    type: string; // The event types are listed below
+    pageCount: number; // The number of pages the table currently spans
+    settings: {}; // User options merged with default options
+    doc: any; // The jspdf instance
+    cursor: {x: number, y: number}; // The position at which the next table cell will be drawn. This can be assigned new values to create advanced tables.
+    addPage: () => void; // A function that can be called to split the table at a current row. Use with the addingRow and addedRow events.
+
+    // Depending on the type of event the following content properties might also be set.
+    table?: Table;
+    cell?: Cell;
+    row?: Row;
+    column?: Column;
+    section?: 'head'|'body'|'foot';
+}
+```
 
 See the custom styles example for further information.
 
-TODO: List the available events and example usages
+- `parsingCell` and `parsingRow` - Fired before any calculation has taken place. Can be used to change content for specific cells or rows.
+- `addingCell` and `addingRow` - Fired before a cell or row is added on page. Can be used to specify custom styles.
+- `addedCell` and `addedRow` - Fired after a cell or row has been added to the page. Can be used to draw content such as images or rectangles etc.
+- `addingPage` - Fired each time the plugin adds a new page. Can be used to for example add headers and footers.
 
 *OBS!* Only the `drawCell` event can be used with the native style jspdf style changes such as `doc.setLineWidth`. If you use the other hooks for changing styles, they will be overridden.
 

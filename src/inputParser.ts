@@ -273,7 +273,7 @@ function parseSettings(table: Table, allOptions, defaults) {
 
 function hookEventHandler(opts) {
     return function(event) {
-        switch(event.name) {
+        switch(event.type) {
             case 'parsingCell':
                 if (event.section === 'head' && typeof opts.createdHeaderCell === 'function') {
                     return opts.createdHeaderCell(event.cell, event);
@@ -302,7 +302,7 @@ function hookEventHandler(opts) {
                     return opts.drawRow(event.row, event);
                 }
                 break;
-            case 'endedPage':
+            case 'addingPage':
                 if (typeof opts.addPageContent === 'function') {
                     opts.addPageContent(event);
                 }

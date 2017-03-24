@@ -1,3 +1,7 @@
+# BEFORE RELEASE
+- Go through events and see if they make change
+- Write new example showcasing events (adding images, cell styles etc)
+
 # Changelog
 
 ### 3.0
