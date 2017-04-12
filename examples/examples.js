@@ -252,9 +252,9 @@ examples.colstyles = function () {
         head: headRows(), 
         body: bodyRows(),
         showHead: false,
-        // Note that the "id" key below is the same as the column's dataKey used in 
-        // the head and body rows. If your data is in array based instead you can 
-        // use index based selector instead: `columnStyles: {0: {fillColor: [41, 128, 185], ...}}`
+        // Note that the "id" key below is the same as the column's dataKey used for 
+        // the head and body rows. If your data is entered in array form instead you have to 
+        // use the integer index instead i.e. `columnStyles: {5: {fillColor: [41, 128, 185], ...}}`
         columnStyles: {
             id: {fillColor: [41, 128, 185], textColor: 255, fontStyle: 'bold'}
         }
@@ -308,12 +308,19 @@ examples.themes = function () {
     return doc;
 };
 
+// Event handler - shows how the event handler can be used to create a customized table
+examples.events = function () {
+    var doc = new jsPDF();
+    // TODO
+    return doc;
+};
+
 // Custom style - shows how custom styles can be applied
 examples.custom = function () {
     var doc = new jsPDF();
     doc.autoTable({
         head: headRows(), body: bodyRows(),
-        tableLineColor: [231, 76, 60],
+        tableLineColor: [243, 156, 18],
         tableLineWidth: 0.75,
         styles: {
             font: 'courier',
@@ -331,14 +338,25 @@ examples.custom = function () {
         alternateRowStyles: {
             fillColor: [74, 96, 117]
         },
+        // Note that the "email" key below is the same as the column's dataKey used for 
+        // the head and body rows. If your data is entered in array form instead you have to 
+        // use the integer index instead i.e. `columnStyles: {5: {fillColor: [41, 128, 185], ...}}`
         columnStyles: {
             email: {
                 fontStyle: 'bold'
             }
         },
         eventHandler: function(event) {
-            if (event.type === '') {
-                
+            // You can use the native jspdf styling functions in the addingCell event
+            if (event.type === 'addingCell' && event.column.dataKey === "expenses" && event.row.section === 'body') {
+                console.log(event.cell.raw);
+                if (event.cell.raw > 500) {
+                    doc.setFillColor(190, 60, 40);
+                }
+            }
+            // You can also add styles to cells or rows in the parsingCell event
+            if (event.type === 'parsingCell' && event.row.index === 5 && event.row.section === 'body') {
+                event.cell.styles.fillColor = [40, 170, 100];
             }
         }
     });

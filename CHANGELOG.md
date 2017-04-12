@@ -1,6 +1,8 @@
 # BEFORE RELEASE
 - Go through events and see if they make change
 - Write new example showcasing events (adding images, cell styles etc)
+- Change events back to callbacks/hooks if possible. It is a unessessary change (?). Have seen other libraries using 
+callbacks like that now. But check out how other libs are doing it. Good examples probably are graphing libs. D3? Charts?
 
 # Changelog
 
