@@ -174,29 +174,24 @@ examples['header-footer'] = function () {
     doc.autoTable({
         head: headRows(), 
         body: bodyRows(40),
-        didEndPage: function (data) {
-            console.log('test');
-        },
-        eventHandler: function(event) {
-            if (event.type === 'endedPage') {
-                // Header
-                doc.setFontSize(20);
-                doc.setTextColor(40);
-                doc.setFontStyle('normal');
-                if (base64Img) {
-                    doc.addImage(base64Img, 'JPEG', event.settings.margin.left, 15, 10, 10);
-                }
-                doc.text("Report", event.settings.margin.left + 15, 22);
-
-                // Footer
-                var str = "Page " + event.pageCount;
-                // Total page number plugin only available in jspdf v1.0+
-                if (typeof doc.putTotalPages === 'function') {
-                    str = str + " of " + totalPagesExp;
-                }
-                doc.setFontSize(10);
-                doc.text(str, event.settings.margin.left, doc.internal.pageSize.height - 10);
+        didDrawPage: function (data) {
+            // Header
+            doc.setFontSize(20);
+            doc.setTextColor(40);
+            doc.setFontStyle('normal');
+            if (base64Img) {
+                doc.addImage(base64Img, 'JPEG', data.settings.margin.left, 15, 10, 10);
             }
+            doc.text("Report", data.settings.margin.left + 15, 22);
+
+            // Footer
+            var str = "Page " + data.pageCount;
+            // Total page number plugin only available in jspdf v1.0+
+            if (typeof doc.putTotalPages === 'function') {
+                str = str + " of " + totalPagesExp;
+            }
+            doc.setFontSize(10);
+            doc.text(str, data.settings.margin.left, doc.internal.pageSize.height - 10);
         },
         margin: {top: 30}
     });

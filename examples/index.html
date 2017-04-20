@@ -85,12 +85,7 @@
 <body>
 
 <header class="navbar">
-    <h1>
-        AutoTable - Generate PDF tables and lists (jsPDF plugin)
-        <!--<iframe style="display: inline; vertical-align: middle; margin-left: 10px;"
-                src="https://ghbtns.com/github-btn.html?user=simonbengtsson&repo=jsPDF-AutoTable&type=star&count=true&size=medium"
-                frameborder="0" scrolling="0" width="160px" height="20px"></iframe>-->
-    </h1>
+    <h1>AutoTable - Generate PDF tables and lists (jsPDF plugin)</h1>
 </header>
 <div class="pure-g" style="padding-top: 50px; height: 100%;">
     <div id="panel" class="pure-u-1 pure-u-md-1-5">
@@ -116,7 +111,10 @@
     </div>
 
     <div id="wrapper" class="pure-u-1 pure-u-md-4-5">
-        <iframe id="output"></iframe>
+        <!--<iframe id="output"></iframe>-->
+        <object id="output" type="application/pdf">
+            <p>It appears you don't have PDF support in this web browser. <a href="#" id="download-link">Click here to download the PDF</a>.</p>
+        </object>
     </div>
 </div>
 
@@ -211,6 +209,10 @@
         update(true);
     };
 
+    document.getElementById('download-link').onclick = function () {
+        update(true);
+    };
+
     function update(shouldDownload) {
         var funcStr = window.location.hash.replace(/#/g, '') || 'basic';
         var doc = examples[funcStr]();
@@ -223,7 +225,7 @@
         if (shouldDownload) {
             doc.save('table.pdf');
         } else {
-            document.getElementById("output").src = doc.output('datauristring');
+            document.getElementById("output").data = doc.output('datauristring');
         }
     }
 
