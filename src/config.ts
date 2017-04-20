@@ -43,10 +43,12 @@ export function getDefaults() {
         alternateRowStyles: {},
         columnStyles: {},
         
-        // Content
+        // Custom content
         head: null,
         body: null,
         foot: null,
+        
+        // Html content
         fromHtml: null,
         includeHiddenHtml: false,
         useCss: false,
@@ -62,17 +64,15 @@ export function getDefaults() {
         tableLineWidth: 0,
         tableLineColor: 200,
         tableId: null,
-        eventHandler: null, // (event) => {}
 
-        // Deprecated (use eventHandler instead)
-        createdHeaderCell: function (cell, data) {},
-        createdCell: function (cell, data) {},
-        drawHeaderRow: function (row, data) {},
-        drawRow: function (row, data) {},
-        drawHeaderCell: function (cell, data) {},
-        drawCell: function (cell, data) {},
-        addPageContent: function (data) {}
-    }
+        // Hooks
+        willParseCell: function(data) {},
+        didParseCell: function(data) {},
+        willDrawCell: function(data) {},
+        didDrawCell: function(data) {},
+        didEndPage: function(data) {},
+        allSectionHooks: false, // By default the cell hooks are only called for body hooks
+    } 
 }
 
 // Base style for all themes

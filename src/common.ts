@@ -14,7 +14,7 @@ export function getStringWidth(text, styles) {
     });
     let precision = 10000 * state().scaleFactor;
     maxWidth = Math.floor(maxWidth * precision) / precision;
-    return maxWidth * fontSize;
+    return maxWidth * fontSize; 
 }
 
 /**

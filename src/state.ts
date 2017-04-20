@@ -3,7 +3,7 @@ import {Table} from "./models";
 let defaultsDocument = null;
 let previousTableState;
 
-let tableState = null;
+let tableState: TableState = null;
 export let globalDefaults = {};
 export let documentDefaults = {};
 

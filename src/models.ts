@@ -1,9 +1,22 @@
 import {Config, getDefaults} from "./config";
-import {ATEvent} from "./ATEvent";   
+import state from './state';
+import {CellHookData, HookData} from "./HookData";
+import {addPage} from "./painter";   
 export let table = {};
 
 declare function require(path: string): any;
 var assign = require('object-assign');
+
+type HookHandler = (data: HookData) => void|boolean;
+type CellHookHandler = (data: CellHookData) => void|boolean;
+
+class CellHooks {
+    willParseCell: CellHookHandler[] = [];
+    didParseCell: CellHookHandler[] = [];
+    willDrawCell: CellHookHandler[] = [];
+    didDrawCell: CellHookHandler[] = [];
+    didEndPage: HookHandler[] = [];
+}
 
 export class Table {
     id?: any;
@@ -40,9 +53,9 @@ export class Table {
         alternateRowStyles: {},
         columnStyles: {},
     };
-
-    eventHandlers: ((event: ATEvent) => void|boolean)[] = [];
-
+    
+    cellHooks: CellHooks = new CellHooks();
+    
     constructor(doc) {
         this.doc = doc;
         this.scaleFactor = doc.internal.scaleFactor;
@@ -57,12 +70,19 @@ export class Table {
     allRows() {
         return this.head.concat(this.body).concat(this.foot);
     }
-    
-    emitEvent(event: ATEvent): void|boolean {
-        for (let handler of this.eventHandlers) {
-            if (handler(event) === false) {
+
+    callCellHooks(handlers: HookHandler[], cell: Cell, row: Row, column: Column): boolean {
+        for (let handler of handlers) {
+            if (handler(new CellHookData(cell, row, column)) === false) {
                 return false;
             }
+        }
+        return true;
+    }
+    
+    callEndPageHooks() {
+        for (let handler of this.cellHooks.didEndPage) {
+            handler(new HookData());
         }
     }
     

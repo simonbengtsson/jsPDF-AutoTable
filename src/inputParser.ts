@@ -1,7 +1,6 @@
 import {Row, Cell, Column, Table} from './models';
 import {Config, getTheme, getDefaults} from './config';
 import {parseHtml} from "./htmlParser";
-import {ATEvent} from "./ATEvent";
 import {assign} from './polyfills';
 import {getStringWidth, ellipsize} from './common';
 import state from './state';
@@ -48,7 +47,14 @@ export function validateInput(allOptions) {
                 }
             }
         }
-
+        
+        let oldHooks = ["createdHeaderCell", "createdCell", "drawHeaderRow", "drawRow", "drawHeaderCell", "drawCell", "addPageContent"];
+        for (let hookName of oldHooks) {
+            if (settings[hookName]) {
+                console.error(`The hook "${hookName}" has been removed/renamed in version 3.0 of jspdf-autotable. Make sure you update your project according to the migration guide.`);
+            } 
+        }
+        
         [['padding', 'cellPadding'], ['lineHeight', 'rowHeight'], 'fontSize', 'overflow'].forEach(function (o) {
             let deprecatedOption = typeof o === 'string' ? o : o[0];
             let style = typeof o === 'string' ? o : o[1];
@@ -192,7 +198,7 @@ export function parseInput(doc, allOptions) {
                     }
                 }
 
-                if (table.emitEvent(new ATEvent('parsingCell', table, row, column, cell)) !== false) {
+                if (table.callCellHooks(table.cellHooks.willParseCell, cell, row, column) !== false) {
                     row.cells[dataKey] = cell;
                     cell.contentWidth = cell.padding('horizontal') + getStringWidth(cell.text, cell.styles);
                     if (typeof cell.styles.cellWidth === 'number') {
@@ -216,16 +222,17 @@ export function parseInput(doc, allOptions) {
                 
                 columnIndex++;
             }
-            if (keys.length > 0 && table.emitEvent(new ATEvent('parsingRow', table, row)) !== false) {
-                table[sectionName].push(row);
-                for (let i = 0; i < rowColumns.length; i++) {
-                    let column = rowColumns[i];
-                    if (!columnMap[column.dataKey]) {
-                        table.columns.splice(i, 0, column);
-                        columnMap[column.dataKey] = column;
-                    }
+            
+            //if (keys.length > 0 && table.emitEvent(new HookData('parsingRow', table, row)) !== false) {
+            table[sectionName].push(row);
+            for (let i = 0; i < rowColumns.length; i++) {
+                let column = rowColumns[i];
+                if (!columnMap[column.dataKey]) {
+                    table.columns.splice(i, 0, column);
+                    columnMap[column.dataKey] = column;
                 }
             }
+            //}
         }
     }
     
@@ -250,18 +257,17 @@ export function parseInput(doc, allOptions) {
 function parseSettings(table: Table, allOptions, defaults) {    
     // Merge styles one level deeper
     for (let styleProp of Object.keys(table.styles)) {  
-        let styles = allOptions.map(function(opts) { return opts[styleProp] || {}});
+        let styles = allOptions.map(opts => (opts[styleProp] || {}));
         table.styles[styleProp] = assign({}, ...styles);
     }
 
+    // Append hooks
     for (let opts of allOptions) {
-        // Append event handlers instead of replacing them
-        if (opts && opts.eventHandler) {
-            table.eventHandlers.push(opts.eventHandler);
-        }
-        if (opts) {
-            // Backwards compatibility
-            table.eventHandlers.push(hookEventHandler(opts));
+        for (let hookName of Object.keys(table.cellHooks)) {
+            if (opts && opts[hookName]) {
+                table.cellHooks[hookName].push(opts[hookName]);
+                delete opts[hookName];
+            }
         }
     }
 
@@ -269,46 +275,4 @@ function parseSettings(table: Table, allOptions, defaults) {
     table.settings = assign(defaults, ...allOptions);
     
     return table.settings;
-}
-
-function hookEventHandler(opts) {
-    return function(event) {
-        switch(event.type) {
-            case 'parsingCell':
-                if (event.section === 'head' && typeof opts.createdHeaderCell === 'function') {
-                    return opts.createdHeaderCell(event.cell, event);
-                } else if (event.section === 'body' && typeof opts.createdCell === 'function') {
-                    return opts.createdCell(event.cell, event);
-                }
-                break;
-            case 'parsingRow':
-                if (event.section === 'head' && typeof opts.createdHeaderRow === 'function') {
-                    return opts.createdHeaderRow(event.cell, event);
-                } else if (event.section === 'body' && typeof opts.createdRow === 'function') {
-                    return opts.createdRow(event.cell, event);
-                }
-                break;
-            case 'addingCell':
-                if (event.section === 'head' && typeof opts.drawHeaderCell === 'function') {
-                    return opts.drawHeaderRow(event.cell, event);
-                } else if (event.section === 'body' && typeof opts.drawCell === 'function') {
-                    return opts.drawCell(event.cell, event);
-                }
-                break;
-            case 'addingRow':
-                if (event.section === 'head' && typeof opts.drawHeaderRow === 'function') {
-                    return opts.drawHeaderRow(event.row, event);
-                } else if (event.section === 'body' && typeof opts.drawRow === 'function') {
-                    return opts.drawRow(event.row, event);
-                }
-                break;
-            case 'addingPage':
-                if (typeof opts.addPageContent === 'function') {
-                    opts.addPageContent(event);
-                }
-                break;
-            default:
-                break;
-        }
-    };
 }

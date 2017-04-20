@@ -1,8 +1,12 @@
 # BEFORE RELEASE
-- Go through events and see if they make change
-- Write new example showcasing events (adding images, cell styles etc)
-- Change events back to callbacks/hooks if possible. It is a unessessary change (?). Have seen other libraries using 
-callbacks like that now. But check out how other libs are doing it. Good examples probably are graphing libs. D3? Charts?
+- Write new example showcasing hooks (adding images, cell styles etc)
+- Make sure row hooks not needed
+
+Deprecation warnings for:
+
+cell.raw.className → cell.raw.content.className
+data.row.raw[i].className → data.row.raw[i].content.className
+data.row.raw[i].textContent → data.row.raw[i].content.textContent
 
 # Changelog
 

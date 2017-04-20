@@ -174,6 +174,9 @@ examples['header-footer'] = function () {
     doc.autoTable({
         head: headRows(), 
         body: bodyRows(40),
+        didEndPage: function (data) {
+            console.log('test');
+        },
         eventHandler: function(event) {
             if (event.type === 'endedPage') {
                 // Header
@@ -311,7 +314,39 @@ examples.themes = function () {
 // Event handler - shows how the event handler can be used to create a customized table
 examples.events = function () {
     var doc = new jsPDF();
-    // TODO
+
+    doc.autoTable({
+        allSectionHooks: false,
+        
+        // Use for customizing texts or styles of specific cells. 
+        willParseCell: function(cell, event) {
+            if (cell.sectionName === 'body') {
+                
+            }
+        },
+        // Use for customizing texts or styles of specific cells after they have been formatted by this plugin. 
+        // This hook is called just before the column width and other features are computed.
+        didParseCell: function(cell, data) {
+            
+        },
+        // Use for changing styles with jspdf functions or customize the positioning of cells or cell text
+        // just before they are drawn to the page.
+        willDrawCell: function(cell, data) {
+            
+        },
+        // Use for adding content to the cells after they are drawn. This could be images or links.
+        // You can also use this to draw other custom jspdf content to cells with doc.text or doc.rect 
+        // for example.
+        didDrawCell: function(cell, data) {
+            
+        },
+        // Use this to add content to each page that has the autoTable on it. This includes page headers,
+        // page footers and page numbers for example.
+        didEndPage: function(event) {
+            
+        },
+    });
+    
     return doc;
 };
 
