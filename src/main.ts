@@ -17,7 +17,6 @@ jsPDF.API.autoTable = function () {
     
     // 1. Parse and unify user input
     let table = parseInput(this, [globalSettings(), documentSettings(), tableSettings]);
-    state().table = table;
     
     // 2. Calculate preliminary table, column, row and cell dimensions
     calculateWidths(table);

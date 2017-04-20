@@ -70,7 +70,7 @@ export function getDefaults() {
         didParseCell: function(data) {},
         willDrawCell: function(data) {},
         didDrawCell: function(data) {},
-        didEndPage: function(data) {},
+        didDrawPage: function(data) {},
         allSectionHooks: false, // By default the cell hooks are only called for body hooks
     } 
 }

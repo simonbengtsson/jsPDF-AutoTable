@@ -15,7 +15,7 @@ class CellHooks {
     didParseCell: CellHookHandler[] = [];
     willDrawCell: CellHookHandler[] = [];
     didDrawCell: CellHookHandler[] = [];
-    didEndPage: HookHandler[] = [];
+    didDrawPage: HookHandler[] = [];
 }
 
 export class Table {
@@ -81,7 +81,7 @@ export class Table {
     }
     
     callEndPageHooks() {
-        for (let handler of this.cellHooks.didEndPage) {
+        for (let handler of this.cellHooks.didDrawPage) {
             handler(new HookData());
         }
     }

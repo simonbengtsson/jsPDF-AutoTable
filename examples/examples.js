@@ -314,30 +314,30 @@ examples.events = function () {
         allSectionHooks: false,
         
         // Use for customizing texts or styles of specific cells. 
-        willParseCell: function(cell, event) {
-            if (cell.sectionName === 'body') {
+        willParseCell: function(data) {
+            if (cell.section === 'body') {
                 
             }
         },
         // Use for customizing texts or styles of specific cells after they have been formatted by this plugin. 
         // This hook is called just before the column width and other features are computed.
-        didParseCell: function(cell, data) {
+        didParseCell: function(data) {
             
         },
         // Use for changing styles with jspdf functions or customize the positioning of cells or cell text
         // just before they are drawn to the page.
-        willDrawCell: function(cell, data) {
+        willDrawCell: function(data) {
             
         },
         // Use for adding content to the cells after they are drawn. This could be images or links.
         // You can also use this to draw other custom jspdf content to cells with doc.text or doc.rect 
         // for example.
-        didDrawCell: function(cell, data) {
+        didDrawCell: function(data) {
             
         },
         // Use this to add content to each page that has the autoTable on it. This includes page headers,
         // page footers and page numbers for example.
-        didEndPage: function(event) {
+        didDrawPage: function(data) {
             
         },
     });
@@ -376,19 +376,18 @@ examples.custom = function () {
                 fontStyle: 'bold'
             }
         },
-        eventHandler: function(event) {
-            // You can use the native jspdf styling functions in the addingCell event
-            if (event.type === 'addingCell' && event.column.dataKey === "expenses" && event.row.section === 'body') {
-                console.log(event.cell.raw);
-                if (event.cell.raw > 500) {
-                    doc.setFillColor(190, 60, 40);
-                }
+        willParseCell: function(data) {
+            // You can add jspdf-autotable styles to cells or rows in the cell parsing hooks hook
+            if (data.row.index === 5) {
+                data.cell.styles.fillColor = [40, 170, 100];
             }
-            // You can also add styles to cells or rows in the parsingCell event
-            if (event.type === 'parsingCell' && event.row.index === 5 && event.row.section === 'body') {
-                event.cell.styles.fillColor = [40, 170, 100];
+        },
+        willDrawCell: function(data) {
+            // You can use the native jspdf styling functions in the willDrawCell hook
+            if (data.column.dataKey === "expenses" && data.cell.raw > 500) {
+                doc.setFillColor(190, 60, 40);
             }
-        }
+        },
     });
     return doc;
 };

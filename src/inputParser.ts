@@ -140,6 +140,7 @@ export function parseInput(doc, allOptions) {
     let table = new Table(doc);
     let settings = parseSettings(table, allOptions, getDefaults());
     table.id = settings.tableId;
+    state().table = table;
     
     if (settings.theme === 'auto') {
         settings.theme = settings.useCss ? 'plain' : 'striped';
