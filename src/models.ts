@@ -165,6 +165,7 @@ export class Cell {
 }
 
 export class Column {
+    raw: any;
     dataKey: string|number;
     
     preferredWidth = 0;
