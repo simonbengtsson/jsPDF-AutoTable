@@ -1,11 +1,11 @@
 /*!
- * jsPDF AutoTable plugin v2.3.1
+ * jsPDF AutoTable plugin v2.3.2
  * Copyright (c) 2014 Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable 
  * 
  * Licensed under the MIT License.
  * http://opensource.org/licenses/mit-license
  * 
- * */if (typeof window === 'object') window.jspdfAutoTableVersion = '2.3.1';/*
+ * */if (typeof window === 'object') window.jspdfAutoTableVersion = '2.3.2';/*
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
@@ -16,45 +16,45 @@
 		var a = typeof exports === 'object' ? factory(require("jspdf")) : factory(root["jsPDF"]);
 		for(var i in a) (typeof exports === 'object' ? exports : root)[i] = a[i];
 	}
-})(this, function(__WEBPACK_EXTERNAL_MODULE_18__) {
+})(this, function(__WEBPACK_EXTERNAL_MODULE_19__) {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
-
+/******/
 /******/ 	// The require function
 /******/ 	function __webpack_require__(moduleId) {
-
+/******/
 /******/ 		// Check if module is in cache
 /******/ 		if(installedModules[moduleId])
 /******/ 			return installedModules[moduleId].exports;
-
+/******/
 /******/ 		// Create a new module (and put it into the cache)
 /******/ 		var module = installedModules[moduleId] = {
 /******/ 			i: moduleId,
 /******/ 			l: false,
 /******/ 			exports: {}
 /******/ 		};
-
+/******/
 /******/ 		// Execute the module function
 /******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
-
+/******/
 /******/ 		// Flag the module as loaded
 /******/ 		module.l = true;
-
+/******/
 /******/ 		// Return the exports of the module
 /******/ 		return module.exports;
 /******/ 	}
-
-
+/******/
+/******/
 /******/ 	// expose the modules object (__webpack_modules__)
 /******/ 	__webpack_require__.m = modules;
-
+/******/
 /******/ 	// expose the module cache
 /******/ 	__webpack_require__.c = installedModules;
-
+/******/
 /******/ 	// identity function for calling harmony imports with the correct context
 /******/ 	__webpack_require__.i = function(value) { return value; };
-
+/******/
 /******/ 	// define getter function for harmony exports
 /******/ 	__webpack_require__.d = function(exports, name, getter) {
 /******/ 		if(!__webpack_require__.o(exports, name)) {
@@ -65,7 +65,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 			});
 /******/ 		}
 /******/ 	};
-
+/******/
 /******/ 	// getDefaultExport function for compatibility with non-harmony modules
 /******/ 	__webpack_require__.n = function(module) {
 /******/ 		var getter = module && module.__esModule ?
@@ -74,30 +74,31 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 		__webpack_require__.d(getter, 'a', getter);
 /******/ 		return getter;
 /******/ 	};
-
+/******/
 /******/ 	// Object.prototype.hasOwnProperty.call
 /******/ 	__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
-
+/******/
 /******/ 	// __webpack_public_path__
 /******/ 	__webpack_require__.p = "";
-
+/******/
 /******/ 	// Load entry module and return exports
 /******/ 	return __webpack_require__(__webpack_require__.s = 35);
 /******/ })
 /************************************************************************/
 /******/ ([
 /* 0 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
+exports.__esModule = true;
 /**
  * Ratio between font size and font height. The number comes from jspdf's source code
  */
 exports.FONT_ROW_RATIO = 1.15;
-var models_1 = __webpack_require__(15);
+var models_1 = __webpack_require__(16);
 var table = null;
-var assign = __webpack_require__(12);
+var assign = __webpack_require__(13);
 var entries = __webpack_require__(33);
 /**
  * Styles for the themes (overriding the default styles)
@@ -293,12 +294,13 @@ var Config = (function () {
 exports.Config = Config;
 
 
-/***/ },
+/***/ }),
 /* 1 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
+exports.__esModule = true;
 var config_1 = __webpack_require__(0);
 var painter_1 = __webpack_require__(4);
 function getStringWidth(text, styles) {
@@ -408,18 +410,18 @@ function nextPage(doc) {
 exports.nextPage = nextPage;
 
 
-/***/ },
+/***/ }),
 /* 2 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
-var implementation = __webpack_require__(26);
+var implementation = __webpack_require__(27);
 
 module.exports = Function.prototype.bind || implementation;
 
 
-/***/ },
+/***/ }),
 /* 3 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -463,12 +465,13 @@ module.exports = function isCallable(value) {
 };
 
 
-/***/ },
+/***/ }),
 /* 4 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
+exports.__esModule = true;
 var config_1 = __webpack_require__(0);
 var common_1 = __webpack_require__(1);
 function printFullRow(row, drawRowHooks, drawCellHooks) {
@@ -593,15 +596,15 @@ function canFitOnPage(rowHeight) {
 }
 
 
-/***/ },
+/***/ }),
 /* 5 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
 var keys = __webpack_require__(31);
-var foreach = __webpack_require__(25);
+var foreach = __webpack_require__(26);
 var hasSymbols = typeof Symbol === 'function' && typeof Symbol() === 'symbol';
 
 var toStr = Object.prototype.toString;
@@ -656,9 +659,9 @@ defineProperties.supportsDescriptors = !!supportsDescriptors;
 module.exports = defineProperties;
 
 
-/***/ },
+/***/ }),
 /* 6 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 var has = Object.prototype.hasOwnProperty;
 module.exports = Object.assign || function assign(target, source) {
@@ -671,27 +674,27 @@ module.exports = Object.assign || function assign(target, source) {
 };
 
 
-/***/ },
+/***/ }),
 /* 7 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 var $isNaN = Number.isNaN || function (a) { return a !== a; };
 
 module.exports = Number.isFinite || function (x) { return typeof x === 'number' && !$isNaN(x) && x !== Infinity && x !== -Infinity; };
 
 
-/***/ },
+/***/ }),
 /* 8 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 module.exports = Number.isNaN || function isNaN(a) {
 	return a !== a;
 };
 
 
-/***/ },
+/***/ }),
 /* 9 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 module.exports = function mod(number, modulo) {
 	var remain = number % modulo;
@@ -699,31 +702,47 @@ module.exports = function mod(number, modulo) {
 };
 
 
-/***/ },
+/***/ }),
 /* 10 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 module.exports = function sign(number) {
 	return number >= 0 ? 1 : -1;
 };
 
 
-/***/ },
+/***/ }),
 /* 11 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 module.exports = function isPrimitive(value) {
 	return value === null || (typeof value !== 'function' && typeof value !== 'object');
 };
 
 
-/***/ },
+/***/ }),
 /* 12 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
+
+var bind = __webpack_require__(2);
+
+module.exports = bind.call(Function.call, Object.prototype.hasOwnProperty);
+
+
+/***/ }),
+/* 13 */
+/***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
+/*
+object-assign
+(c) Sindre Sorhus
+@license MIT
+*/
+
 
 /* eslint-disable no-unused-vars */
+var getOwnPropertySymbols = Object.getOwnPropertySymbols;
 var hasOwnProperty = Object.prototype.hasOwnProperty;
 var propIsEnumerable = Object.prototype.propertyIsEnumerable;
 
@@ -744,7 +763,7 @@ function shouldUseNative() {
 		// Detect buggy property enumeration order in older V8 versions.
 
 		// https://bugs.chromium.org/p/v8/issues/detail?id=4118
-		var test1 = new String('abc');  // eslint-disable-line
+		var test1 = new String('abc');  // eslint-disable-line no-new-wrappers
 		test1[5] = 'de';
 		if (Object.getOwnPropertyNames(test1)[0] === '5') {
 			return false;
@@ -773,7 +792,7 @@ function shouldUseNative() {
 		}
 
 		return true;
-	} catch (e) {
+	} catch (err) {
 		// We don't expect any of the above to throw, but better to be safe.
 		return false;
 	}
@@ -793,8 +812,8 @@ module.exports = shouldUseNative() ? Object.assign : function (target, source) {
 			}
 		}
 
-		if (Object.getOwnPropertySymbols) {
-			symbols = Object.getOwnPropertySymbols(from);
+		if (getOwnPropertySymbols) {
+			symbols = getOwnPropertySymbols(from);
 			for (var i = 0; i < symbols.length; i++) {
 				if (propIsEnumerable.call(from, symbols[i])) {
 					to[symbols[i]] = from[symbols[i]];
@@ -807,15 +826,15 @@ module.exports = shouldUseNative() ? Object.assign : function (target, source) {
 };
 
 
-/***/ },
-/* 13 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ }),
+/* 14 */
+/***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var ES = __webpack_require__(21);
-var has = __webpack_require__(27);
+var ES = __webpack_require__(22);
+var has = __webpack_require__(12);
 var bind = __webpack_require__(2);
 var isEnumerable = bind.call(Function.call, Object.prototype.propertyIsEnumerable);
 
@@ -831,26 +850,27 @@ module.exports = function entries(O) {
 };
 
 
-/***/ },
-/* 14 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ }),
+/* 15 */
+/***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var implementation = __webpack_require__(13);
+var implementation = __webpack_require__(14);
 
 module.exports = function getPolyfill() {
 	return typeof Object.entries === 'function' ? Object.entries : implementation;
 };
 
 
-/***/ },
-/* 15 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ }),
+/* 16 */
+/***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
+exports.__esModule = true;
 var config_1 = __webpack_require__(0);
 exports.table = {};
 var Table = (function () {
@@ -880,7 +900,6 @@ var Table = (function () {
             columnStyles: {}
         };
         this.doc = doc;
-        console.log(doc.internal.getFontSize());
         this.userStyles = {
             textColor: 30,
             fontSize: doc.internal.getFontSize(),
@@ -950,12 +969,13 @@ var Column = (function () {
 exports.Column = Column;
 
 
-/***/ },
-/* 16 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ }),
+/* 17 */
+/***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
+exports.__esModule = true;
 var config_1 = __webpack_require__(0);
 var common_1 = __webpack_require__(1);
 /**
@@ -1029,6 +1049,7 @@ function calculateWidths(doc, pageWidth) {
                 cell.text = common_1.ellipsize(cell.text, textSpace, cell.styles);
             }
             else if (cell.styles.overflow === 'visible') {
+                // Do nothing
             }
             else if (cell.styles.overflow === 'hidden') {
                 cell.text = common_1.ellipsize(cell.text, textSpace, cell.styles, '');
@@ -1075,15 +1096,16 @@ function distributeWidth(dynamicColumns, staticWidth, dynamicColumnsContentWidth
 }
 
 
-/***/ },
-/* 17 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ }),
+/* 18 */
+/***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
-var models_1 = __webpack_require__(15);
+exports.__esModule = true;
+var models_1 = __webpack_require__(16);
 var config_1 = __webpack_require__(0);
-var assign = __webpack_require__(12);
+var assign = __webpack_require__(13);
 function validateInput(headers, data, allOptions) {
     if (!headers || typeof headers !== 'object') {
         console.error("The headers should be an object or array, is: " + typeof headers);
@@ -1173,6 +1195,7 @@ function createModels(inputHeaders, inputData) {
             dataKey = rawColumn.key; // deprecated since 2.x
         }
         var col = new models_1.Column(dataKey, index);
+        col.raw = rawColumn;
         col.widthStyle = config_1.Config.styles([theme.table, theme.header, table.styles.styles, table.styles.columnStyles[col.dataKey] || {}]).columnWidth;
         table.columns.push(col);
         var cell = new models_1.Cell(rawColumn);
@@ -1221,15 +1244,15 @@ function createModels(inputHeaders, inputData) {
 exports.createModels = createModels;
 
 
-/***/ },
-/* 18 */
-/***/ function(module, exports) {
-
-module.exports = __WEBPACK_EXTERNAL_MODULE_18__;
-
-/***/ },
+/***/ }),
 /* 19 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports) {
+
+module.exports = __WEBPACK_EXTERNAL_MODULE_19__;
+
+/***/ }),
+/* 20 */
+/***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -1241,7 +1264,7 @@ var sign = __webpack_require__(10);
 var mod = __webpack_require__(9);
 
 var IsCallable = __webpack_require__(3);
-var toPrimitive = __webpack_require__(23);
+var toPrimitive = __webpack_require__(24);
 
 // https://es5.github.io/#x9
 var ES5 = {
@@ -1320,9 +1343,9 @@ var ES5 = {
 module.exports = ES5;
 
 
-/***/ },
-/* 20 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ }),
+/* 21 */
+/***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -1338,8 +1361,8 @@ var MAX_SAFE_INTEGER = Number.MAX_SAFE_INTEGER || Math.pow(2, 53) - 1;
 var assign = __webpack_require__(6);
 var sign = __webpack_require__(10);
 var mod = __webpack_require__(9);
-var isPrimitive = __webpack_require__(22);
-var toPrimitive = __webpack_require__(24);
+var isPrimitive = __webpack_require__(23);
+var toPrimitive = __webpack_require__(25);
 var parseInteger = parseInt;
 var bind = __webpack_require__(2);
 var strSlice = bind.call(Function.call, String.prototype.slice);
@@ -1348,7 +1371,7 @@ var isOctal = bind.call(Function.call, RegExp.prototype.test, /^0o[0-7]+$/i);
 var nonWS = ['\u0085', '\u200b', '\ufffe'].join('');
 var nonWSregex = new RegExp('[' + nonWS + ']', 'g');
 var hasNonWS = bind.call(Function.call, RegExp.prototype.test, nonWSregex);
-var invalidHexLiteral = /^[\-\+]0x[0-9a-f]+$/i;
+var invalidHexLiteral = /^[-+]0x[0-9a-f]+$/i;
 var isInvalidHexLiteral = bind.call(Function.call, RegExp.prototype.test, invalidHexLiteral);
 
 // whitespace from: http://es5.github.io/#x15.5.4.20
@@ -1364,7 +1387,7 @@ var trim = function (value) {
 	return replace(value, trimRegex, '');
 };
 
-var ES5 = __webpack_require__(19);
+var ES5 = __webpack_require__(20);
 
 var hasRegExpMatcher = __webpack_require__(29);
 
@@ -1553,6 +1576,77 @@ var ES6 = assign(assign({}, ES5), {
 		return (x === y) || ($isNaN(x) && $isNaN(y));
 	},
 
+	/**
+	 * 7.3.2 GetV (V, P)
+	 * 1. Assert: IsPropertyKey(P) is true.
+	 * 2. Let O be ToObject(V).
+	 * 3. ReturnIfAbrupt(O).
+	 * 4. Return O.[[Get]](P, V).
+	 */
+	GetV: function GetV(V, P) {
+		// 7.3.2.1
+		if (!this.IsPropertyKey(P)) {
+			throw new TypeError('Assertion failed: IsPropertyKey(P) is not true');
+		}
+
+		// 7.3.2.2-3
+		var O = this.ToObject(V);
+
+		// 7.3.2.4
+		return O[P];
+	},
+
+	/**
+	 * 7.3.9 - http://www.ecma-international.org/ecma-262/6.0/#sec-getmethod
+	 * 1. Assert: IsPropertyKey(P) is true.
+	 * 2. Let func be GetV(O, P).
+	 * 3. ReturnIfAbrupt(func).
+	 * 4. If func is either undefined or null, return undefined.
+	 * 5. If IsCallable(func) is false, throw a TypeError exception.
+	 * 6. Return func.
+	 */
+	GetMethod: function GetMethod(O, P) {
+		// 7.3.9.1
+		if (!this.IsPropertyKey(P)) {
+			throw new TypeError('Assertion failed: IsPropertyKey(P) is not true');
+		}
+
+		// 7.3.9.2
+		var func = this.GetV(O, P);
+
+		// 7.3.9.4
+		if (func == null) {
+			return undefined;
+		}
+
+		// 7.3.9.5
+		if (!this.IsCallable(func)) {
+			throw new TypeError(P + 'is not a function');
+		}
+
+		// 7.3.9.6
+		return func;
+	},
+
+	/**
+	 * 7.3.1 Get (O, P) - http://www.ecma-international.org/ecma-262/6.0/#sec-get-o-p
+	 * 1. Assert: Type(O) is Object.
+	 * 2. Assert: IsPropertyKey(P) is true.
+	 * 3. Return O.[[Get]](P, O).
+	 */
+	Get: function Get(O, P) {
+		// 7.3.1.1
+		if (this.Type(O) !== 'Object') {
+			throw new TypeError('Assertion failed: Type(O) is not Object');
+		}
+		// 7.3.1.2
+		if (!this.IsPropertyKey(P)) {
+			throw new TypeError('Assertion failed: IsPropertyKey(P) is not true');
+		}
+		// 7.3.1.3
+		return O[P];
+	},
+
 	Type: function Type(x) {
 		if (typeof x === 'symbol') {
 			return 'Symbol';
@@ -1588,14 +1682,14 @@ delete ES6.CheckObjectCoercible; // renamed in ES6 to RequireObjectCoercible
 module.exports = ES6;
 
 
-/***/ },
-/* 21 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ }),
+/* 22 */
+/***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var ES6 = __webpack_require__(20);
+var ES6 = __webpack_require__(21);
 var assign = __webpack_require__(6);
 
 var ES7 = assign(ES6, {
@@ -1611,18 +1705,18 @@ var ES7 = assign(ES6, {
 module.exports = ES7;
 
 
-/***/ },
-/* 22 */
-/***/ function(module, exports) {
+/***/ }),
+/* 23 */
+/***/ (function(module, exports) {
 
 module.exports = function isPrimitive(value) {
 	return value === null || (typeof value !== 'function' && typeof value !== 'object');
 };
 
 
-/***/ },
-/* 23 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ }),
+/* 24 */
+/***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -1664,9 +1758,9 @@ module.exports = function ToPrimitive(input, PreferredType) {
 };
 
 
-/***/ },
-/* 24 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ }),
+/* 25 */
+/***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -1745,9 +1839,9 @@ module.exports = function ToPrimitive(input, PreferredType) {
 };
 
 
-/***/ },
-/* 25 */
-/***/ function(module, exports) {
+/***/ }),
+/* 26 */
+/***/ (function(module, exports) {
 
 
 var hasOwn = Object.prototype.hasOwnProperty;
@@ -1773,9 +1867,9 @@ module.exports = function forEach (obj, fn, ctx) {
 
 
 
-/***/ },
-/* 26 */
-/***/ function(module, exports) {
+/***/ }),
+/* 27 */
+/***/ (function(module, exports) {
 
 var ERROR_MESSAGE = 'Function.prototype.bind called on incompatible ';
 var slice = Array.prototype.slice;
@@ -1827,18 +1921,9 @@ module.exports = function bind(that) {
 };
 
 
-/***/ },
-/* 27 */
-/***/ function(module, exports, __webpack_require__) {
-
-var bind = __webpack_require__(2);
-
-module.exports = bind.call(Function.call, Object.prototype.hasOwnProperty);
-
-
-/***/ },
+/***/ }),
 /* 28 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -1863,20 +1948,28 @@ module.exports = function isDateObject(value) {
 };
 
 
-/***/ },
+/***/ }),
 /* 29 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
+var has = __webpack_require__(12);
 var regexExec = RegExp.prototype.exec;
-var tryRegexExec = function tryRegexExec(value) {
+var gOPD = Object.getOwnPropertyDescriptor;
+
+var tryRegexExecCall = function tryRegexExec(value) {
 	try {
+		var lastIndex = value.lastIndex;
+		value.lastIndex = 0;
+
 		regexExec.call(value);
 		return true;
 	} catch (e) {
 		return false;
+	} finally {
+		value.lastIndex = lastIndex;
 	}
 };
 var toStr = Object.prototype.toString;
@@ -1884,14 +1977,26 @@ var regexClass = '[object RegExp]';
 var hasToStringTag = typeof Symbol === 'function' && typeof Symbol.toStringTag === 'symbol';
 
 module.exports = function isRegex(value) {
-	if (typeof value !== 'object') { return false; }
-	return hasToStringTag ? tryRegexExec(value) : toStr.call(value) === regexClass;
+	if (!value || typeof value !== 'object') {
+		return false;
+	}
+	if (!hasToStringTag) {
+		return toStr.call(value) === regexClass;
+	}
+
+	var descriptor = gOPD(value, 'lastIndex');
+	var hasLastIndexDataProperty = descriptor && has(descriptor, 'value');
+	if (!hasLastIndexDataProperty) {
+		return false;
+	}
+
+	return tryRegexExecCall(value);
 };
 
 
-/***/ },
+/***/ }),
 /* 30 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -1923,9 +2028,9 @@ if (hasSymbols) {
 }
 
 
-/***/ },
+/***/ }),
 /* 31 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -2070,9 +2175,9 @@ keysShim.shim = function shimObjectKeys() {
 module.exports = keysShim;
 
 
-/***/ },
+/***/ }),
 /* 32 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -2094,17 +2199,17 @@ module.exports = function isArguments(value) {
 };
 
 
-/***/ },
+/***/ }),
 /* 33 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
 var define = __webpack_require__(5);
 
-var implementation = __webpack_require__(13);
-var getPolyfill = __webpack_require__(14);
+var implementation = __webpack_require__(14);
+var getPolyfill = __webpack_require__(15);
 var shim = __webpack_require__(34);
 
 var polyfill = getPolyfill();
@@ -2118,14 +2223,14 @@ define(polyfill, {
 module.exports = polyfill;
 
 
-/***/ },
+/***/ }),
 /* 34 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var getPolyfill = __webpack_require__(14);
+var getPolyfill = __webpack_require__(15);
 var define = __webpack_require__(5);
 
 module.exports = function shimEntries() {
@@ -2139,18 +2244,19 @@ module.exports = function shimEntries() {
 };
 
 
-/***/ },
+/***/ }),
 /* 35 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
-var jsPDF = __webpack_require__(18);
+exports.__esModule = true;
+var jsPDF = __webpack_require__(19);
 var config_1 = __webpack_require__(0);
 var common_1 = __webpack_require__(1);
 var painter_1 = __webpack_require__(4);
-var calculator_1 = __webpack_require__(16);
-var creator_1 = __webpack_require__(17);
+var calculator_1 = __webpack_require__(17);
+var creator_1 = __webpack_require__(18);
 /**
  * Create a table from a set of rows and columns.
  *
@@ -2348,6 +2454,6 @@ jsPDF.API.autoTableAddPage = function () {
 };
 
 
-/***/ }
+/***/ })
 /******/ ]);
 });
