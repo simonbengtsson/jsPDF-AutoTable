@@ -1,6 +1,7 @@
 # BEFORE RELEASE
 - Write new example showcasing hooks (adding images, cell styles etc)
 - Make sure row hooks not needed
+- Fix column.raw as in v2.3.2
 
 Deprecation warnings for:
 
