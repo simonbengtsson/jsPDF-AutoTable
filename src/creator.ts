@@ -91,6 +91,7 @@ export function createModels(inputHeaders, inputData) {
         }
 
         let col = new Column(dataKey, index);
+        col.raw = rawColumn;
         col.widthStyle = Config.styles([theme.table, theme.header, table.styles.styles, table.styles.columnStyles[col.dataKey] || {}]).columnWidth;
         table.columns.push(col);
 

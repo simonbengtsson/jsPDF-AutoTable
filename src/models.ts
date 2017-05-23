@@ -96,6 +96,7 @@ export class Cell {
 }
 
 export class Column {
+    raw;
     dataKey; // string|number
     index; // number
     options = {};
