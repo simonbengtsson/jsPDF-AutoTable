@@ -1,6 +1,11 @@
 # BEFORE RELEASE
+- Decide on hooks api (will/did is winner)
+  - Check if will/did parse cell can be removed
+  - Make sure row hooks not needed
+- Decide on custom content api
+  - Explore if columnDefs can be used
+  - Explore how other table libs are specifying content
 - Write new example showcasing hooks (adding images, cell styles etc)
-- Make sure row hooks not needed
 - Fix column.raw as in v2.3.2
 
 Deprecation warnings for:
