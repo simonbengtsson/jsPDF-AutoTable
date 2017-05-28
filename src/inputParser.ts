@@ -1,8 +1,8 @@
 import {Row, Cell, Column, Table} from './models';
-import {Config, getTheme, getDefaults} from './config';
+import {getTheme, defaultConfig} from './config';
 import {parseHtml} from "./htmlParser";
 import {assign} from './polyfills';
-import {getStringWidth, ellipsize} from './common';
+import {getStringWidth, ellipsize, applyUserStyles, marginOrPadding, styles} from './common';
 import state from './state';
 
 export function validateInput(allOptions) {
@@ -34,16 +34,16 @@ export function validateInput(allOptions) {
             console.error("The afterPageContent, beforePageContent and afterPageAdd hooks are deprecated. Use addPageContent instead");
             if (typeof settings.addPageContent === 'undefined') {
                 settings.addPageContent = function(data) {
-                    Config.applyUserStyles();
+                    applyUserStyles();
                     if (settings.beforePageContent) settings.beforePageContent(data);
-                    Config.applyUserStyles();
+                    applyUserStyles();
                     if (settings.afterPageContent) settings.afterPageContent(data);
-                    Config.applyUserStyles();
+                    applyUserStyles();
 
                     if (settings.afterPageAdd && data.pageCount > 1) {
                         data.afterPageAdd(data);
                     }
-                    Config.applyUserStyles();
+                    applyUserStyles();
                 }
             }
         }
@@ -138,7 +138,7 @@ export function parseInput(doc, allOptions) {
     validateInput(allOptions);
     
     let table = new Table(doc);
-    let settings = parseSettings(table, allOptions, getDefaults());
+    let settings = parseSettings(table, allOptions, defaultConfig());
     table.id = settings.tableId;
     state().table = table;
     
@@ -187,7 +187,7 @@ export function parseInput(doc, allOptions) {
                 }
                 rowColumns.push(column);
 
-                let style = Config.styles(cellStyles[sectionName].concat([rowStyles, colStyles]));
+                let style = styles(cellStyles[sectionName].concat([rowStyles, colStyles]));
                 let cell = new Cell(rawCell, style, sectionName);
 
                 if (Array.isArray(rawRow)) {
@@ -250,7 +250,7 @@ export function parseInput(doc, allOptions) {
         table.width = state().pageWidth() - table.margin('left') - table.margin('right');
     }
     
-    table.settings.margin = Config.marginOrPadding(table.settings.margin, getDefaults().margin);
+    table.settings.margin = marginOrPadding(table.settings.margin, defaultConfig().margin);
     
     return table;
 }

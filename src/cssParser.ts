@@ -1,8 +1,7 @@
-import {Config} from "./config";
-
 // Limitations
 // - No support for border spacing
 // - No support for transparency
+import {marginOrPadding} from "./common";
 export function parseCss(element, scaleFactor, ignored = []) {
     let result: any = {};
     let style = window.getComputedStyle(element);
@@ -81,7 +80,7 @@ function parsePadding(val, fontSize, lineHeight, scaleFactor) {
         return parseInt(n) / pxScaleFactor;
     });
 
-    padding = Config.marginOrPadding(padding, 0);
+    padding = marginOrPadding(padding, 0);
     if (linePadding > padding.top) {
         padding.top = linePadding;
     }

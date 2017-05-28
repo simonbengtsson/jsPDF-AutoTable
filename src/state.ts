@@ -30,7 +30,8 @@ class TableState {
     }
     
     pageHeight() { return this.doc.internal.pageSize.height; };
-    pageWidth() { return this.doc.internal.pageSize.width; }
+    pageWidth() { return this.doc.internal.pageSize.width; };
+    pageSize() { return this.doc.internal.pageSize };
 }
 
 export function setupState(doc) {

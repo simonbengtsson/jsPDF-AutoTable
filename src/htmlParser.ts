@@ -1,12 +1,7 @@
-import {Config} from "./config";
 import {parseCss} from "./cssParser";
 import state from "./state";
 import {table} from "./models";
-/**
- * Experimental html and css parser
- */
-declare function require(path: string): any;
-var assign = require('object-assign');
+import {assign} from './polyfills';
 
 export function parseHtml(input: HTMLTableElement|string, includeHiddenHtml = false, useCss = false) {
     let tableElement;

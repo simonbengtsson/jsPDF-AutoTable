@@ -1,7 +1,8 @@
-import {Config, getDefaults} from "./config";
+import {defaultConfig} from "./config";
 import state from './state';
 import {CellHookData, HookData} from "./HookData";
-import {addPage} from "./painter";   
+import {addPage} from "./painter";
+import {marginOrPadding, styles} from "./common";
 export let table = {};
 
 declare function require(path: string): any;
@@ -87,7 +88,7 @@ export class Table {
     }
     
     margin(side) {
-        return Config.marginOrPadding(this.settings.margin, getDefaults().margin)[side];
+        return marginOrPadding(this.settings.margin, defaultConfig().margin)[side];
     }
 }
 
@@ -153,7 +154,7 @@ export class Cell {
     }
     
     padding(name) {
-        let padding = Config.marginOrPadding(this.styles.cellPadding, Config.styles([]).cellPadding);
+        let padding = marginOrPadding(this.styles.cellPadding, styles([]).cellPadding);
         if (name === 'vertical') {
             return padding.top + padding.bottom;
         } else if (name === 'horizontal') {

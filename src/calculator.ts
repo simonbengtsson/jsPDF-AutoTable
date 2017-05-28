@@ -1,5 +1,5 @@
-import {Config, FONT_ROW_RATIO, getTheme} from './config';
-import {ellipsize} from './common';
+import {FONT_ROW_RATIO, getTheme} from './config';
+import {ellipsize, applyStyles} from './common';
 import {Table, Cell} from "./models";
 import state from "./state";
 
@@ -116,7 +116,7 @@ function fitContent(table) {
             let cell = row.cells[column.dataKey];
             if (!cell) continue;
             
-            Config.applyStyles(cell.styles);
+            applyStyles(cell.styles);
             let textSpace = cell.width - cell.padding('horizontal');
             if (cell.styles.overflow === 'linebreak') {
                 cell.text = Array.isArray(cell.text) ? cell.text.join(' ') : cell.text;

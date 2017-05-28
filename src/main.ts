@@ -1,12 +1,12 @@
 'use strict';
 
 import * as jsPDF from 'jspdf';
-import {Config} from './config';
 import {drawTable, addPage} from './painter';
 import {calculateWidths} from './calculator';
 import {parseInput, parseArguments} from './inputParser';
 import state, {setDefaults, setupState, resetState, globalSettings, documentSettings} from './state';
 import './autoTableText';
+import {applyUserStyles} from "./common";
 
 /**
  * Create a table
@@ -28,7 +28,7 @@ jsPDF.API.autoTable = function () {
     this.previousAutoTable = table;
     this.autoTable.previous = table; // Deprecated
     
-    Config.applyUserStyles();
+    applyUserStyles();
     resetState();
     return this;
 };

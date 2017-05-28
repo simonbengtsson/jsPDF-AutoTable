@@ -1,5 +1,5 @@
-import {Config, FONT_ROW_RATIO} from './config';
-import {getFillStyle, addTableBorder} from './common';
+import {FONT_ROW_RATIO} from './config';
+import {getFillStyle, addTableBorder, applyStyles, applyUserStyles} from './common';
 import {Row, Table} from "./models";
 import state from "./state";
 
@@ -14,22 +14,22 @@ export function drawTable(table: Table) {
     if (settings.avoidTableSplit) {
         minTableBottomPos += table.height;
     }
-    if (settings.startY !== false && minTableBottomPos > Config.pageSize().height) {
+    if (settings.startY !== false && minTableBottomPos > state().pageHeight()) {
         nextPage(table.doc);
         table.cursor.y = table.margin('top');
     }
     table.pageStartX = table.cursor.x;
     table.pageStartY = table.cursor.y;
 
-    Config.applyUserStyles();
+    applyUserStyles();
     if (settings.showHead === true || settings.showHead === 'firstPage' || settings.showHead === 'everyPage') {
         table.head.forEach((row) => printRow(row))
     }
-    Config.applyUserStyles();
+    applyUserStyles();
     table.body.forEach(function (row) {
         printFullRow(row);
     });
-    Config.applyUserStyles();
+    applyUserStyles();
     if (settings.showFoot === true || settings.showFoot === 'lastPage' || settings.showFoot === 'everyPage') {
         table.foot.forEach((row) => printRow(row))
     }
@@ -135,7 +135,7 @@ function printRow(row) {
             table.cursor.x += column.width;
             continue;
         }
-        Config.applyStyles(cell.styles);
+        applyStyles(cell.styles);
 
         cell.x = table.cursor.x;
         cell.y = row.y;
@@ -188,13 +188,13 @@ function canFitOnPage(rowHeight) {
         bottomContentHeight += table.footHeight;
     }
     let pos = rowHeight + table.cursor.y + bottomContentHeight;
-    return pos < Config.pageSize().height;
+    return pos < state().pageHeight();
 }
 
 export function addPage() {
     let table: Table = state().table;
     
-    Config.applyUserStyles();
+    applyUserStyles();
     if (table.settings.showFoot === true || table.settings.showFoot === 'everyPage') {
         table.foot.forEach((row) => printRow(row))
     }

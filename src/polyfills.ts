@@ -1,3 +1,7 @@
+/*
+ * Include common small polyfills instead of requiring the user to to do it
+ */
+
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/assign
 export function assign(target: any, ...varArgs) {
     'use strict';
