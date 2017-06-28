@@ -1,11 +1,9 @@
-# AutoTable - Table plugin for jsPDF
-
-[![Join the chat at https://gitter.im/simonbengtsson/jsPDF-AutoTable](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/simonbengtsson/jsPDF-AutoTable?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-
 <a href='https://ko-fi.com/A535IR4' target='_blank'>
 <img height='36' style='border:0px;height:36px;' src='https://az743702.vo.msecnd.net/cdn/kofi4.png?v=f' border='0' alt='Buy Me a Coffee at ko-fi.com' />
 </a> 
 
+
+# AutoTable - Table plugin for jsPDF
 
 **Generate PDF tables with javascript**
 
