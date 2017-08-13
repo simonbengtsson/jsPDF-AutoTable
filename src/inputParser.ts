@@ -133,7 +133,7 @@ export function parseInput(doc, ...allOptions) {
     
     let htmlContent = {};
     if (table.settings.html) {
-        htmlContent = parseHtml(settings.html, settings.includeHiddenHtml, settings.useCss) || {};
+        htmlContent = parseHtml(settings.html, settings.includeHiddenHTML, settings.useCss) || {};
     }
     let columnMap = {};
     let spanColumns = {};

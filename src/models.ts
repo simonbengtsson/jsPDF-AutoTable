@@ -23,7 +23,7 @@ type MarginPadding = number|[number, number]|[number, number, number, number]
 
 interface Properties {
     theme: 'auto'|'striped'|'grid'|'plain', // default: striped
-    includeHiddenHtml: boolean,
+    includeHiddenHTML: boolean,
     useCss: boolean,
     startY: false|number,
     margin: MarginPadding,
@@ -108,7 +108,7 @@ export class Table {
         // Override properties
         let defaultConfig: Properties = {
             theme: 'auto', // 'striped', 'grid' or 'plain'
-            includeHiddenHtml: false,
+            includeHiddenHTML: false,
             useCss: false,
             startY: false, // false indicates the margin top value
             margin: 40 / state().scaleFactor,

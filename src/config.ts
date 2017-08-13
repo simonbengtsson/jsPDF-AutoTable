@@ -146,7 +146,7 @@ export function defaultConfig() {
 
         // Properties
         theme: 'auto', // 'striped', 'grid' or 'plain'
-        includeHiddenHtml: false,
+        includeHiddenHTML: false,
         useCss: false,
         startY: false, // false indicates the margin top value
         margin: 40 / state().scaleFactor,
