@@ -1,5 +1,7 @@
 {
-  "strictNullChecks": true,
+  "compilerOptions": {
+    "strictNullChecks": false
+  },
   "include": [
     "src/**/*"
   ]

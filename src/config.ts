@@ -1,32 +1,153 @@
+import {CellHookData, HookData} from "./HookData";
+
 /**
  * Ratio between font size and font height. The number comes from jspdf's source code
  */
 export let FONT_ROW_RATIO = 1.15;
 import state from './state';
 import {assign} from './polyfills';
+import {Table} from "./models";
+
+interface ColumnOption {
+    header?: string;
+    title?: string; // deprecated (same as header)
+    footer?: string;
+    dataKey?: string|number;
+}
+
+interface UserOptions {
+    columns?: string[]|ColumnOption[];
+    data?: any[][];
+    
+    html?: HTMLTableElement|string;
+    hiddenHTML?: boolean;
+    useCSS?: boolean;
+
+    headerRows?: number;
+    footerRows?: number;
+    
+    startY?: number;
+    margin?: MarginPadding;
+    pageBreakTable?: boolean;
+    pageBreakRow?: boolean;
+    tableWidth?: 'auto'|'wrap'|number;
+    showHeader?: 'everyPage'|'firstPage'|'never';
+    showFooter?: 'everyPage'|'lastPage'|'never';
+    tableLineWidth?: number;
+    tableLineColor?: Color;
+    allSectionHooks?: boolean;
+    tableId?: any;
+
+    theme?: 'striped'|'plain'|'grid'|'css';
+    styles?: Styles;
+    headerStyles?: Styles;
+    bodyStyles?: Styles;
+    footerStyles?: Styles;
+    alternateRowStyles?: Styles;
+    columnStyles?: Styles; // Prefer using the parseCell hook instead of this
+
+    drawPageHeader?: () => {}; // Alias to didDrawPage
+    drawPageFooter?: () => {}; // Alias to didDrawPage
+    drawCellContent?: () => {}; // Alias to didDrawCell
+    
+    didParseCell?: () => {};
+    willDrawCell?: () => {};
+    didDrawCell?: () => {};
+    didDrawPage?: () => {};
+
+    createdCell?: () => {}; // Deprecated (renamed to parseCell)
+    drawCell?: () => {}; // Deprecated (renamed to willDrawCell)
+    addPageContent?: () => {}; // Deprecated (renamed to didDrawPage)
+}
+
+export function parseSettings(table: Table, allOptions) {
+
+    
+}
+
+type Color = [number, number, number]|number|'transparent'|false;
+type MarginPadding = number|{top?: number, right?: number, bottom?: number, left?: number}
+
+interface Styles {
+    font?: 'helvetica'|'times'|'courier',
+    fontStyle?: 'normal'|'bold'|'italic'|'bolditalic',
+    overflow?: 'linebreak'|'ellipsize'|'visible'|'hidden',
+    fillColor?: Color,
+    textColor?: Color,
+    halign?: 'left'|'center'|'right',
+    valign?: 'top'|'middle'|'bottom',
+    fontSize?: number,
+    cellPadding?: number,
+    lineColor?: Color,
+    lineWidth?: number,
+    cellWidth?: 'auto'|'wrap'|number,
+    minCellHeight?: number
+}
+
+interface CellDefinition {
+    rowSpan?: number,
+    colSpan?: number,
+    styles?: Styles,
+}
+
+type CellType = null|string|number|boolean|CellDefinition
+type MultipleRowType = CellType[][]|{string: CellType}[]
+type SingleRowType = CellType[]|{string: CellType}
+
+interface BaseConfig {
+    // Properties
+    theme?: 'auto'|'striped'|'grid'|'plain', // default: striped
+    startY?: false|number,
+    margin?: MarginPadding,
+    avoidTableSplit?: boolean,
+    avoidRowSplit?: boolean,
+    tableWidth?: 'auto'|'wrap'|number,
+    showHead?: 'everyPage'|'firstPage'|'never',
+    showFoot?: 'everyPage'|'lastPage'|'never',
+    tableLineWidth?: number,
+    tableLineColor?: Color,
+    allSectionHooks?: boolean; // default: false
+    tableId?: any,
+
+    // Styles
+    styles?: Styles,
+    bodyStyles?: Styles,
+    headStyles?: Styles,
+    footStyles?: Styles,
+    alternateRowStyles?: Styles,
+    columnStyles?: Styles,
+    
+    // Hooks
+    didParseCell?: (data: CellHookData) => void;
+    willDrawCell?: (data: CellHookData) => void;
+    didDrawCell?: (data: CellHookData) => void;
+    didDrawPage?: (data: CellHookData) => void;
+}
+
+export interface ContentConfig extends BaseConfig {
+    head?: SingleRowType|MultipleRowType
+    foot?: SingleRowType|MultipleRowType
+    body: MultipleRowType
+}
+
+export interface HTMLConfig extends BaseConfig {
+    html: string|HTMLElement;
+}
 
 export function defaultConfig() {
     return {
-        // Styling
-        theme: 'auto', // 'striped', 'grid' or 'plain'
-        styles: {},
-        headStyles: {},
-        bodyStyles: {},
-        footStyles: {},
-        alternateRowStyles: {},
-        columnStyles: {},
-
+        // Html content
+        fromHtml: null,
+        
         // Custom content
         head: null,
         body: null,
         foot: null,
 
-        // Html content
-        fromHtml: null,
+        // Properties
+        theme: 'auto', // 'striped', 'grid' or 'plain'
         includeHiddenHtml: false,
         useCss: false,
-
-        // Properties
         startY: false, // false indicates the margin top value
         margin: 40 / state().scaleFactor,
         avoidTableSplit: false,
@@ -36,15 +157,22 @@ export function defaultConfig() {
         showFoot: 'everyPage', // 'everyPage', 'lastPage', 'never',
         tableLineWidth: 0,
         tableLineColor: 200,
+        allSectionHooks: false, // Set to true if you want the hooks to be called for cells outside of the body section (i.e. head and foot)
         tableId: null,
 
+        // Styling
+        styles: {},
+        headStyles: {},
+        bodyStyles: {},
+        footStyles: {},
+        alternateRowStyles: {},
+        columnStyles: {},
+        
         // Hooks
-        willParseCell: function(data) {},
         didParseCell: function(data) {},
         willDrawCell: function(data) {},
         didDrawCell: function(data) {},
         didDrawPage: function(data) {},
-        allSectionHooks: false, // By default the cell hooks are only called for body hooks
     }
 }
 

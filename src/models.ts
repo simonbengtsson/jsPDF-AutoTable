@@ -3,7 +3,6 @@ import state from './state';
 import {CellHookData, HookData} from "./HookData";
 import {addPage} from "./painter";
 import {marginOrPadding, styles} from "./common";
-export let table = {};
 
 declare function require(path: string): any;
 var assign = require('object-assign');
@@ -19,14 +18,34 @@ class CellHooks {
     didDrawPage: HookHandler[] = [];
 }
 
+type Color = [number, number, number]|number|'transparent'|false;
+type MarginPadding = number|[number, number]|[number, number, number, number]
+
+interface Properties {
+    theme: 'auto'|'striped'|'grid'|'plain', // default: striped
+    includeHiddenHtml: boolean,
+    useCss: boolean,
+    startY: false|number,
+    margin: MarginPadding,
+    avoidTableSplit: boolean,
+    avoidRowSplit: boolean,
+    tableWidth: 'auto'|'wrap'|number,
+    showHead: 'everyPage'|'firstPage'|'never',
+    showFoot: 'everyPage'|'lastPage'|'never',
+    tableLineWidth: number,
+    tableLineColor: Color,
+    allSectionHooks: boolean;
+    tableId: any,
+}
+
 export class Table {
     id?: any;
-    settings: any;
     cursor: {x: number, y: number};
     doc: any;
     scaleFactor: number;
     userStyles: {};
-
+    settings: any;
+    
     columns: Column[] = [];
     
     head: Row[] = [];
@@ -57,15 +76,57 @@ export class Table {
     
     cellHooks: CellHooks = new CellHooks();
     
-    constructor(doc) {
+    constructor(doc, tableSettings, documentSettings, globalSettings) {
+        this.id = tableSettings.tableId;
         this.doc = doc;
         this.scaleFactor = doc.internal.scaleFactor;
+        
+        let allOptions = [globalSettings, documentSettings, tableSettings];
 
         this.userStyles = {
             textColor: 30, // Setting text color to dark gray as it can't be obtained from jsPDF
             fontSize: doc.internal.getFontSize(),
             fontStyle: doc.internal.getFont().fontStyle
         };
+
+        // Merge styles one level deeper
+        for (let styleProp of Object.keys(this.styles)) {
+            let styles = allOptions.map(opts => (opts[styleProp] || {}));
+            this.styles[styleProp] = assign({}, ...styles);
+        }
+
+        // Append hooks
+        for (let opts of allOptions) {
+            for (let hookName of Object.keys(this.cellHooks)) {
+                if (opts && opts[hookName]) {
+                    this.cellHooks[hookName].push(opts[hookName]);
+                    delete opts[hookName];
+                }
+            }
+        }
+
+        // Override properties
+        let defaultConfig: Properties = {
+            theme: 'auto', // 'striped', 'grid' or 'plain'
+            includeHiddenHtml: false,
+            useCss: false,
+            startY: false, // false indicates the margin top value
+            margin: 40 / state().scaleFactor,
+            avoidTableSplit: false,
+            avoidRowSplit: false,
+            tableWidth: 'auto', // 'auto'|'wrap'|number
+            showHead: 'everyPage', // 'everyPage', 'firstPage', 'never',
+            showFoot: 'everyPage', // 'everyPage', 'lastPage', 'never',
+            tableLineWidth: 0,
+            tableLineColor: 200,
+            allSectionHooks: false, // Set to true if you want the hooks to be called for cells outside of the body section (i.e. head and foot)
+            tableId: null,
+        };
+        this.settings = assign({}, defaultConfig, ...allOptions);
+
+        if (this.settings.theme === 'auto') {
+            this.settings.theme = this.settings.useCss ? 'plain' : 'striped';
+        }
     }
     
     allRows() {

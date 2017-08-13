@@ -16,7 +16,7 @@ jsPDF.API.autoTable = function () {
     let tableSettings = parseArguments(arguments) || {};
     
     // 1. Parse and unify user input
-    let table = parseInput(this, [globalSettings(), documentSettings(), tableSettings]);
+    let table = parseInput(this, globalSettings(), documentSettings(), tableSettings);
     
     // 2. Calculate preliminary table, column, row and cell dimensions
     calculateWidths(table);
@@ -33,9 +33,8 @@ jsPDF.API.autoTable = function () {
     return this;
 };
 
-// Enables sugar doc.previousAutoTable.finalY || 40;
+// Assign false to enable `doc.previousAutoTable.finalY || 40` sugar;
 jsPDF.API.previousAutoTable = false;
-jsPDF.API.autoTable.previous = false; // Deprecated
 
 jsPDF.API.autoTableSetDefaults = function(defaults) {
     setDefaults(defaults, this);
@@ -46,6 +45,9 @@ jsPDF.autoTableSetDefaults = function(defaults, doc) {
     setDefaults(defaults, doc);
     return this;
 };
+
+// @deprecated
+jsPDF.API.autoTable.previous = false;
 
 /**
  * @Deprecated. Use fromHtml option instead

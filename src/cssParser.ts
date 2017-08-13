@@ -2,11 +2,12 @@
 // - No support for border spacing
 // - No support for transparency
 import {marginOrPadding} from "./common";
-export function parseCss(element, scaleFactor, ignored = []) {
+
+export function parseCss(element, scaleFactor, ignored: string[] = []) {
     let result: any = {};
     let style = window.getComputedStyle(element);
 
-    function assign(name, value, accepted = []) {
+    function assign(name, value, accepted: string[] = []) {
         if ((accepted.length === 0 || accepted.indexOf(value) !== -1) && ignored.indexOf(name) === -1) {
             if (value === 0 || value) {
                 result[name] = value;
@@ -21,9 +22,9 @@ export function parseCss(element, scaleFactor, ignored = []) {
     assign('textColor', parseColor(element, 'color'));
     assign('halign', style.textAlign, ['left', 'right', 'center']);
     assign('valign', style.verticalAlign, ['middle', 'bottom', 'top']);
-    assign('fontSize', parseInt(style.fontSize) / pxScaleFactor);
+    assign('fontSize', parseInt(style.fontSize || '') / pxScaleFactor);
     assign('cellPadding', parsePadding(style.padding, style.fontSize, style.lineHeight, scaleFactor));
-    assign('lineWidth', parseInt(style.borderWidth) / pxScaleFactor / scaleFactor);
+    assign('lineWidth', parseInt(style.borderWidth || '') / pxScaleFactor / scaleFactor);
     assign('font', (style.fontFamily || '').toLowerCase());
 
     return result;

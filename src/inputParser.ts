@@ -1,5 +1,5 @@
 import {Row, Cell, Column, Table} from './models';
-import {getTheme, defaultConfig} from './config';
+import {getTheme, defaultConfig, parseSettings} from './config';
 import {parseHtml} from "./htmlParser";
 import {assign} from './polyfills';
 import {getStringWidth, ellipsize, applyUserStyles, marginOrPadding, styles} from './common';
@@ -17,18 +17,6 @@ export function validateInput(allOptions) {
         if (typeof settings.margins !== 'undefined') {
             if (typeof settings.margin === 'undefined') settings.margin = settings.margins;
             console.error("Use of deprecated option: margins, use margin instead.");
-        }
-        if (typeof settings.showHeader !== 'undefined') {
-            if (settings.showHead == undefined) settings.showHead = settings.showHeader;
-            console.error("Deprecation warning: showHeader renamed to showHead");
-        }
-        if (typeof settings.headerStyles !== 'undefined') {
-            if (settings.headStyles == undefined) settings.headStyles = settings.headerStyles;
-            console.error("Deprecation warning: headerStyles renamed to headStyles");
-        }
-        if (settings.pageBreak != undefined) {
-            if (settings.avoidTableSplit == undefined) settings.avoidTableSplit = settings.pageBreak === 'avoid';
-            console.error("Deprecation warning: pageBreak renamed to avoidTableSplit");
         }
         if (typeof settings.afterPageContent !== 'undefined' || typeof settings.beforePageContent !== 'undefined' || typeof settings.afterPageAdd !== 'undefined') {
             console.error("The afterPageContent, beforePageContent and afterPageAdd hooks are deprecated. Use addPageContent instead");
@@ -134,36 +122,24 @@ export function parseArguments(args) {
 /**
  * Create models from the user input
  */
-export function parseInput(doc, allOptions) {
+export function parseInput(doc, ...allOptions) {
     validateInput(allOptions);
     
-    let table = new Table(doc);
-    let settings = parseSettings(table, allOptions, defaultConfig());
-    table.id = settings.tableId;
+    let table = new Table(doc, allOptions[0], allOptions[1], allOptions[2]);
+    let settings = table.settings;
     state().table = table;
     
-    if (settings.theme === 'auto') {
-        settings.theme = settings.useCss ? 'plain' : 'striped';
-    }
-    
     let theme = getTheme(settings.theme);
- 
-    let cellStyles = {
-        head: [theme.table, theme.foot, table.styles.styles, table.styles.headStyles],
-        body: [theme.table, theme.body, table.styles.styles, table.styles.bodyStyles],
-        foot: [theme.table, theme.foot, table.styles.styles, table.styles.footStyles]
-    };
     
     let htmlContent = {};
     if (table.settings.fromHtml) {
-        htmlContent = parseHtml(settings.fromHtml, settings.includeHiddenHtml, settings.useCss);
-        if (!htmlContent) htmlContent = {};
+        htmlContent = parseHtml(settings.fromHtml, settings.includeHiddenHtml, settings.useCss) || {};
     }
     let columnMap = {};
     let spanColumns = {};
     for (let sectionName of ['head', 'body', 'foot']) {
         let section = table.settings[sectionName] || htmlContent[sectionName] || [];
-        let rowColumns = [];
+        let rowColumns: Column[] = [];
         for (let rowIndex = 0; rowIndex < section.length; rowIndex++) {
             let rawRow = section[rowIndex];
             let row = new Row(rawRow, rowIndex, sectionName);
@@ -187,6 +163,11 @@ export function parseInput(doc, allOptions) {
                 }
                 rowColumns.push(column);
 
+                let cellStyles = {
+                    head: [theme.table, theme.foot, table.styles.styles, table.styles.headStyles],
+                    body: [theme.table, theme.body, table.styles.styles, table.styles.bodyStyles],
+                    foot: [theme.table, theme.foot, table.styles.styles, table.styles.footStyles]
+                };
                 let style = styles(cellStyles[sectionName].concat([rowStyles, colStyles]));
                 let cell = new Cell(rawCell, style, sectionName);
 
@@ -253,27 +234,4 @@ export function parseInput(doc, allOptions) {
     table.settings.margin = marginOrPadding(table.settings.margin, defaultConfig().margin);
     
     return table;
-}
-
-function parseSettings(table: Table, allOptions, defaults) {    
-    // Merge styles one level deeper
-    for (let styleProp of Object.keys(table.styles)) {  
-        let styles = allOptions.map(opts => (opts[styleProp] || {}));
-        table.styles[styleProp] = assign({}, ...styles);
-    }
-
-    // Append hooks
-    for (let opts of allOptions) {
-        for (let hookName of Object.keys(table.cellHooks)) {
-            if (opts && opts[hookName]) {
-                table.cellHooks[hookName].push(opts[hookName]);
-                delete opts[hookName];
-            }
-        }
-    }
-
-    // Merge all other options one level
-    table.settings = assign(defaults, ...allOptions);
-    
-    return table.settings;
 }

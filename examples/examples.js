@@ -34,6 +34,10 @@ var examples = {};
 // Basic - shows what a default table looks like
 examples.basic = function () {
     var doc = new jsPDF();
+    doc.autoTable({
+        columns: columns(),
+        data: data(),
+    });
     doc.autoTable({head: headRows(), body: bodyRows()});
     return doc;
 };
@@ -311,6 +315,46 @@ examples.events = function () {
     var doc = new jsPDF();
 
     doc.autoTable({
+        head: ['ID', 'Name', 'Age'],
+        body: [[1, 'Simon', 25], [2, 'Karl', 20]],
+        foot: ['ID', 'Name', 'Age'],
+    });
+    
+    // 1. Array only columns and body
+    // 2. Raw json data from server {name: 'String'} style
+    // Multiple header rows
+    // Footer
+    // Colspan and rowspan
+
+    doc.autoTable({
+        head: {id: 'ID', name: 'Name', age: 'Age'},
+        body: [{id: 1, name: 'Simon', age: 25}, {id: 2, name: 'Karl', age: 25}],
+        foot: {id: 'ID', name: 'Name', age: 'Age'},
+    });
+
+    doc.autoTable({
+        head: {id: 'ID', name: 'Name', age: 'Age'},
+        body: [{id: 1, name: 'Simon', age: 25}, {id: 2, name: 'Karl', age: 25}],
+        foot: {id: 'ID', name: 'Name', age: 'Age'},
+    });
+    
+    doc.autoTable({
+        head: [{title: 'ID', field: 'id'}, {title: 'Name', field: 'name'}, {title: 'Age', field: 'age'}],
+        body: [{id: 1, name: 'Simon', age: 25}, {id: 2, name: 'Karl', age: 25}],
+        foot: [{title: 'ID', field: 'id'}, {title: 'Name', field: 'name'}, {title: 'Age', field: 'age'}],
+    });
+
+    doc.autoTable({
+        columns: ['ID', 'Name', 'Age'],
+        content: [[1, 'Simon', 25], [2, 'Karl', 20]],
+    });
+
+    doc.autoTable({
+        columns: {id: 'ID', name: 'Name', age: 'Age'},
+        content: [{id: 1, 1: 'Simon', 2: 25}, [2, 'Karl', 20]],
+    });
+
+    doc.autoTable({
         allSectionHooks: false,
         
         // Use for customizing texts or styles of specific cells. 
@@ -404,6 +448,31 @@ function headRows() {
 
 function footRows() {
     return [{id: 'ID', name: 'Name', email: 'Email', city: 'City', expenses: 'Expenses'}];
+}
+
+function columns() {
+    return [
+        {header: 'ID', dataKey: 'id'},
+        {header: 'Name', dataKey: 'name'},
+        {header: 'Email', dataKey: 'email'},
+        {header: 'City', dataKey: 'city'},
+        {header: 'Exp', dataKey: 'expenses'},
+    ]
+}
+
+function data(rowCount) {
+    rowCount = rowCount || 10;
+    let body = [];
+    for (var j = 1; j <= rowCount; j++) {
+        body.push({
+            id: j,
+            name: faker.name.findName(),
+            email: faker.internet.email(),
+            city: faker.address.city(),
+            expenses: faker.finance.amount(),
+        });
+    }
+    return body;
 }
 
 function bodyRows(rowCount) {

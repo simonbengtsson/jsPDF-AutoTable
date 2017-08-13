@@ -1,6 +1,5 @@
 import {parseCss} from "./cssParser";
 import state from "./state";
-import {table} from "./models";
 import {assign} from './polyfills';
 
 export function parseHtml(input: HTMLTableElement|string, includeHiddenHtml = false, useCss = false) {
