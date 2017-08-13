@@ -137,7 +137,7 @@ export interface HTMLConfig extends BaseConfig {
 export function defaultConfig() {
     return {
         // Html content
-        fromHtml: null,
+        html: null,
         
         // Custom content
         head: null,

@@ -87,7 +87,7 @@ Below is a list of all options supported in the plugin. All of them are used in 
     head: null,
     body: null,
     foot: null,
-    fromHtml: null,
+    html: null,
     includeHiddenHtml: false,
     useCss: false,
     
@@ -119,7 +119,7 @@ Below is a list of all options supported in the plugin. All of them are used in 
     head: null,
     body: null,
     foot: null,
-    fromHtml: null,
+    html: null,
     includeHiddenHtml: false,
     useCss: false,
 

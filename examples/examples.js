@@ -45,13 +45,13 @@ examples.basic = function () {
 // From html - shows how pdf tables can be be drawn from html tables
 examples.html = function () {
     var doc = new jsPDF();
-    doc.text("From HTML", 14, 16);
-    doc.autoTable({fromHtml: '.table', startY: 20});
+    doc.text("From HTML Table", 14, 16);
+    doc.autoTable({html: '.table', startY: 20});
     var finalY = doc.previousAutoTable.finalY;
-    doc.text("From HTML with CSS", 14, finalY + 15);
+    doc.text("From HTML Table with CSS", 14, finalY + 15);
     doc.autoTable({
         startY: finalY + 20,
-        fromHtml: '.table', 
+        html: '.table', 
         useCss: true,
     });
     return doc;

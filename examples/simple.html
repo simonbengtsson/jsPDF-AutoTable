@@ -63,7 +63,7 @@
 
         var doc = new jsPDF();
         doc.autoTable({head: head, body: body});
-        doc.autoTable(70, {fromHtml: '#table'});
+        doc.autoTable({html: '#table', startY: 100});
         doc.output("dataurlnewwindow");
     }
 </script>

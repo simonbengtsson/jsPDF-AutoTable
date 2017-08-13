@@ -132,8 +132,8 @@ export function parseInput(doc, ...allOptions) {
     let theme = getTheme(settings.theme);
     
     let htmlContent = {};
-    if (table.settings.fromHtml) {
-        htmlContent = parseHtml(settings.fromHtml, settings.includeHiddenHtml, settings.useCss) || {};
+    if (table.settings.html) {
+        htmlContent = parseHtml(settings.html, settings.includeHiddenHtml, settings.useCss) || {};
     }
     let columnMap = {};
     let spanColumns = {};

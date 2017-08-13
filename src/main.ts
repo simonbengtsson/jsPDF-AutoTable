@@ -50,10 +50,10 @@ jsPDF.autoTableSetDefaults = function(defaults, doc) {
 jsPDF.API.autoTable.previous = false;
 
 /**
- * @Deprecated. Use fromHtml option instead
+ * @Deprecated. Use html option instead
  */
 jsPDF.API.autoTableHtmlToJson = function (tableElem, includeHiddenElements) {
-    console.error("Use of deprecated function: autoTableHtmlToJson. Use fromHtml option instead.");
+    console.error("Use of deprecated function: autoTableHtmlToJson. Use html option instead.");
     includeHiddenElements = includeHiddenElements || false;
     
     if (!tableElem || !(tableElem instanceof HTMLTableElement)) {
