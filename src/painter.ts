@@ -22,7 +22,7 @@ export function drawTable(table: Table) {
     table.pageStartY = table.cursor.y;
 
     applyUserStyles();
-    if (settings.showHead === true || settings.showHead === 'firstPage' || settings.showHead === 'everyPage') {
+    if (settings.showHeader === true || settings.showHeader === 'firstPage' || settings.showHeader === 'everyPage') {
         table.head.forEach((row) => printRow(row))
     }
     applyUserStyles();
@@ -30,7 +30,7 @@ export function drawTable(table: Table) {
         printFullRow(row);
     });
     applyUserStyles();
-    if (settings.showFoot === true || settings.showFoot === 'lastPage' || settings.showFoot === 'everyPage') {
+    if (settings.showFooter === true || settings.showFooter === 'lastPage' || settings.showFooter === 'everyPage') {
         table.foot.forEach((row) => printRow(row))
     }
 
@@ -183,8 +183,8 @@ function printRow(row) {
 function canFitOnPage(rowHeight) {
     let table = state().table;
     let bottomContentHeight = table.margin('bottom');
-    let showFoot = table.settings.showFoot;
-    if (showFoot === true || showFoot === 'everyPage' || showFoot === 'lastPage') {
+    let showFooter = table.settings.showFooter;
+    if (showFooter === true || showFooter === 'everyPage' || showFooter === 'lastPage') {
         bottomContentHeight += table.footHeight;
     }
     let pos = rowHeight + table.cursor.y + bottomContentHeight;
@@ -195,7 +195,7 @@ export function addPage() {
     let table: Table = state().table;
     
     applyUserStyles();
-    if (table.settings.showFoot === true || table.settings.showFoot === 'everyPage') {
+    if (table.settings.showFooter === true || table.settings.showFooter === 'everyPage') {
         table.foot.forEach((row) => printRow(row))
     }
     
@@ -210,7 +210,7 @@ export function addPage() {
     table.cursor = {x: table.margin('left'), y: table.margin('top')};
     table.pageStartX = table.cursor.x;
     table.pageStartY = table.cursor.y;
-    if (table.settings.showHead === true || table.settings.showHead === 'everyPage') {
+    if (table.settings.showHeader === true || table.settings.showHeader === 'everyPage') {
         table.head.forEach((row) => printRow(row));
     }
 }

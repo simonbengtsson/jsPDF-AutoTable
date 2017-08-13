@@ -106,8 +106,8 @@ Below is a list of all options supported in the plugin. All of them are used in 
     avoidTableSplit: false,
     avoidRowSplit: false,
     tableWidth: 'auto', // 'auto'|'wrap'|number
-    showHead: 'everyPage', // 'everyPage', 'firstPage', 'never',
-    showFoot: 'everyPage', // 'everyPage', 'lastPage', 'never',
+    showHeader: 'everyPage', // 'everyPage', 'firstPage', 'never',
+    showFooter: 'everyPage', // 'everyPage', 'lastPage', 'never',
     tableLineWidth: 0,
     tableLineColor: 200, // number, array (see color section below)
     tableId: null,
@@ -154,8 +154,8 @@ Colors can be specified as a number (255 for white and 0 for black) or an array 
 - `avoidTableSplit` This option defines the behavior of the table when it will span more than one page. If set to 'true' it will start on a new page if not enough room exists to fit the entire table on the current page.
 - `avoidRowSplit` This option defines the behavior of a row when it will span more than one page (using the linebreak overflow method). If set to 'true' it will start on a new page if not enough room exists to fit the entire row on the current page.
 - `tableWidth` This option defines the fixed width of the table if set to a number. If set to 'auto' it will be 100% of width of the page and if set to 'wrap' it will only be as wide as its content is.  
-- `showHead` If set to `firstPage` a header is only drawn on the first page.
-- `showFoot` If set to `firstPage` a footer is only drawn on the first page.
+- `showHeader` If set to `firstPage` a header is only drawn on the first page.
+- `showFooter` If set to `firstPage` a footer is only drawn on the first page.
 - `tableLineWidth` The thickness of the table line/border (0 means no line)
 - `tableLineColor`, The table line/border color
 - `tableId` Table id that can be set to differntiate between tables in the default option functions. Not used by the plugin itself.

@@ -102,8 +102,8 @@ interface BaseConfig {
     avoidTableSplit?: boolean,
     avoidRowSplit?: boolean,
     tableWidth?: 'auto'|'wrap'|number,
-    showHead?: 'everyPage'|'firstPage'|'never',
-    showFoot?: 'everyPage'|'lastPage'|'never',
+    showHeader?: 'everyPage'|'firstPage'|'never',
+    showFooter?: 'everyPage'|'lastPage'|'never',
     tableLineWidth?: number,
     tableLineColor?: Color,
     allSectionHooks?: boolean; // default: false
@@ -153,8 +153,8 @@ export function defaultConfig() {
         avoidTableSplit: false,
         avoidRowSplit: false,
         tableWidth: 'auto', // 'auto'|'wrap'|number
-        showHead: 'everyPage', // 'everyPage', 'firstPage', 'never',
-        showFoot: 'everyPage', // 'everyPage', 'lastPage', 'never',
+        showHeader: 'everyPage', // 'everyPage', 'firstPage', 'never',
+        showFooter: 'everyPage', // 'everyPage', 'lastPage', 'never',
         tableLineWidth: 0,
         tableLineColor: 200,
         allSectionHooks: false, // Set to true if you want the hooks to be called for cells outside of the body section (i.e. head and foot)
