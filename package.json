@@ -18,6 +18,7 @@
     "object.entries": "^1.0.4",
     "ts-loader": "^2.0.3",
     "ts-node": "^3.0.2",
+    "typedoc": "^0.8.0",
     "typescript": "^2.3.0",
     "webpack": "^2.3.3",
     "webpack-dev-server": "^2.4.2"
@@ -49,8 +50,5 @@
   "bugs": {
     "url": "https://github.com/simonbengtsson/jsPDF-AutoTable/issues"
   },
-  "homepage": "https://simonbengtsson.github.io/jsPDF-AutoTable/",
-  "dependencies": {
-    "typedoc": "^0.8.0"
-  }
+  "homepage": "https://simonbengtsson.github.io/jsPDF-AutoTable/"
 }

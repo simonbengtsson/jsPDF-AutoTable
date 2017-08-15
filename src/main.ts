@@ -1,17 +1,20 @@
 'use strict';
 
-import * as jsPDF from 'jspdf';
 import {drawTable, addPage} from './painter';
 import {calculateWidths} from './calculator';
 import {parseInput, parseArguments} from './inputParser';
 import state, {setDefaults, setupState, resetState, globalSettings, documentSettings} from './state';
 import './autoTableText';
 import {applyUserStyles} from "./common";
+import {UserOptions} from "./config";
+
+const jsPDF = require('jspdf');
 
 /**
- * Create a table
+ * @param {number} [options.startY] - The y coordinate that the table with be drawn at
+ * @param {string} [options.tableWidth='auto'] - The y coordinate that the table with be drawn at
  */
-jsPDF.API.autoTable = function () {
+jsPDF.API.autoTable = function(options: UserOptions) {
     setupState(this);
     let tableSettings = parseArguments(arguments) || {};
     

@@ -1,4 +1,4 @@
-import * as jsPDF from 'jspdf';
+const jsPDF = require('jspdf');
 
 /**
  * Improved text function with halign and valign support

@@ -15,12 +15,19 @@ interface ColumnOption {
     dataKey?: string|number;
 }
 
-interface UserOptions {
+/**
+ * Properties
+ */
+export interface UserOptions {
+    
+}
+
+export interface UserOptions {
     columns?: string[]|ColumnOption[];
     data?: any[][];
     
     html?: HTMLTableElement|string;
-    hiddenHTML?: boolean;
+    includeHiddenHTML?: boolean;
     useCSS?: boolean;
 
     headerRows?: number;
@@ -45,23 +52,14 @@ interface UserOptions {
     footerStyles?: Styles;
     alternateRowStyles?: Styles;
     columnStyles?: Styles; // Prefer using the parseCell hook instead of this
-
-    drawPageHeader?: () => {}; // Alias to didDrawPage
-    drawPageFooter?: () => {}; // Alias to didDrawPage
-    drawCellContent?: () => {}; // Alias to didDrawCell
     
-    didParseCell?: () => {};
-    willDrawCell?: () => {};
+    createdCell?: () => {};
+    drawCell?: () => {};
     didDrawCell?: () => {};
-    didDrawPage?: () => {};
-
-    createdCell?: () => {}; // Deprecated (renamed to parseCell)
-    drawCell?: () => {}; // Deprecated (renamed to willDrawCell)
-    addPageContent?: () => {}; // Deprecated (renamed to didDrawPage)
+    addPageContent?: () => {};
 }
 
 export function parseSettings(table: Table, allOptions) {
-
     
 }
 
@@ -94,7 +92,7 @@ type CellType = null|string|number|boolean|CellDefinition
 type MultipleRowType = CellType[][]|{string: CellType}[]
 type SingleRowType = CellType[]|{string: CellType}
 
-interface BaseConfig {
+export interface BaseConfig {
     // Properties
     theme?: 'auto'|'striped'|'grid'|'plain', // default: striped
     startY?: false|number,
@@ -143,11 +141,10 @@ export function defaultConfig() {
         head: null,
         body: null,
         foot: null,
-
+        data: null,
+        
         // Properties
-        theme: 'auto', // 'striped', 'grid' or 'plain'
         includeHiddenHTML: false,
-        useCss: false,
         startY: false, // false indicates the margin top value
         margin: 40 / state().scaleFactor,
         avoidTableSplit: false,
@@ -157,10 +154,11 @@ export function defaultConfig() {
         showFooter: 'everyPage', // 'everyPage', 'lastPage', 'never',
         tableLineWidth: 0,
         tableLineColor: 200,
-        allSectionHooks: false, // Set to true if you want the hooks to be called for cells outside of the body section (i.e. head and foot)
         tableId: null,
 
         // Styling
+        theme: 'auto', // 'striped', 'grid' or 'plain'
+        useCss: false,
         styles: {},
         headStyles: {},
         bodyStyles: {},
@@ -173,6 +171,7 @@ export function defaultConfig() {
         willDrawCell: function(data) {},
         didDrawCell: function(data) {},
         didDrawPage: function(data) {},
+        allSectionHooks: false, // Set to true if you want the cell hooks to be called for cells in the header and footer
     }
 }
 
