@@ -1,6 +1,7 @@
 var webpack = require("webpack");
 var fs = require("fs");
 var path = require('path');
+const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
 
 var newVersion = require('./package.json').version;
 var readme = "" + fs.readFileSync('./README.md');
@@ -46,18 +47,17 @@ module.exports = {
         }
     },
     plugins: [
-        new webpack.BannerPlugin(""
-            + "jsPDF AutoTable plugin v" + newVersion + "\n"
-            + "Copyright (c) 2014 Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable \n"
-            + "\n"
-            + "Licensed under the MIT License.\n"
-            + "http://opensource.org/licenses/mit-license\n"
-            + "\n"
-            + "*/if (typeof window === 'object') window.jspdfAutoTableVersion = '" + newVersion + "';/*"
-            + ""),
-        new webpack.optimize.UglifyJsPlugin({
+        new webpack.BannerPlugin(`
+            jsPDF AutoTable plugin v${newVersion}
+            
+            Copyright (c) 2014 Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable
+            Licensed under the MIT License.
+            http://opensource.org/licenses/mit-license
+            
+            */if (typeof window === 'object') window.jspdfAutoTableVersion = '" + newVersion + "';/*"
+        `),
+        new UglifyJSPlugin({
             include: /\.min\.js$/,
-            minimize: true
         })
     ]
 };
