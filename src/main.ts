@@ -97,7 +97,7 @@ jsPDF.API.autoTableHtmlToJson = function (tableElem, includeHiddenElements) {
  * @deprecated
  */
 jsPDF.API.autoTableEndPosY = function () {
-    console.error("Use of deprecated function: autoTableEndPosY. Use doc.autoTable.previous.finalY instead.");
+    console.error("Use of deprecated function: autoTableEndPosY. Use doc.previousAutoTable.finalY instead.");
     let prev = this.previousAutoTable;
     if (prev.cursor && typeof prev.cursor.y === 'number') {
         return prev.cursor.y;
