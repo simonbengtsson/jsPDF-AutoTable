@@ -11,11 +11,11 @@ export default function() {
     return tableState;
 }
 
-export function globalSettings() {
+export function getGlobalOptions() {
     return globalDefaults;
 }
 
-export function documentSettings() {
+export function getDocumentOptions() {
     return documentDefaults;
 }
 

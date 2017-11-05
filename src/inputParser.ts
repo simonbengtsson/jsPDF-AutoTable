@@ -3,38 +3,40 @@ import {getTheme, defaultConfig} from './config';
 import {parseHtml} from "./htmlParser";
 import {assign} from './polyfills';
 import {getStringWidth, ellipsize, applyUserStyles, marginOrPadding, styles} from './common';
-import state from './state';
+import state, {getGlobalOptions, getDocumentOptions} from './state';
 import validateInput from './inputValidator';
 
 /**
  * Create models from the user input
  */
-export function parseInput(doc, globalSettings, documentSettings, args) {
-    let tableSettings = parseUserArguments(args);
-    let allOptions = [globalSettings, documentSettings, tableSettings];
+export function parseInput(args) {
+    let tableOptions = parseUserArguments(args);
+    let globalOptions = getGlobalOptions();
+    let documentOptions = getDocumentOptions();
+    let allOptions = [globalOptions, documentOptions, tableOptions];
     validateInput(allOptions);
     
     let table = new Table();
 
-    table.id = tableSettings.tableId;
-    table.doc = doc;
-    table.scaleFactor = doc.internal.scaleFactor;
+    table.id = tableOptions.tableId;
+    table.doc = state().doc;
+    table.scaleFactor = state().doc.internal.scaleFactor;
 
     table.userStyles = {
         textColor: 30, // Setting text color to dark gray as it can't be obtained from jsPDF
-        fontSize: doc.internal.getFontSize(),
-        fontStyle: doc.internal.getFont().fontStyle
+        fontSize: state().doc.internal.getFontSize(),
+        fontStyle: state().doc.internal.getFont().fontStyle
     };
 
     // Merge styles one level deeper
-    for (let styleProp of Object.keys(this.styles)) {
+    for (let styleProp of Object.keys(table.styles)) {
         let styles = allOptions.map(opts => (opts[styleProp] || {}));
         table.styles[styleProp] = assign({}, ...styles);
     }
 
     // Append hooks
     for (let opts of allOptions) {
-        for (let hookName of Object.keys(this.cellHooks)) {
+        for (let hookName of Object.keys(table.cellHooks)) {
             if (opts && opts[hookName]) {
                 table.cellHooks[hookName].push(opts[hookName]);
                 delete opts[hookName];
@@ -45,7 +47,7 @@ export function parseInput(doc, globalSettings, documentSettings, args) {
     table.settings = assign({}, defaultConfig(), ...allOptions);
 
     if (table.settings.theme === 'auto') {
-        table.settings.theme = this.settings.useCss ? 'plain' : 'striped';
+        table.settings.theme = table.settings.useCss ? 'plain' : 'striped';
     }
     
     let settings = table.settings;
@@ -173,7 +175,7 @@ function parseUserArguments(args) {
 
     // Deprecated initialization on format doc.autoTable(columns, body, [options])
     if (args.length > 1 && args[0] && args[1]) {
-        throw 'TODO Fix deprecated initialization';
+        //throw 'TODO Fix deprecated initialization';
         let opts = args[2] || {};
         opts.columns = args[0];
         opts.body = args[1];
