@@ -135,13 +135,12 @@ export interface HTMLConfig extends BaseConfig {
 export function defaultConfig() {
     return {
         // Html content
-        html: null,
+        html: null, // HTML table element or a CSS selector pointing towards
         
         // Custom content
         head: null,
         body: null,
         foot: null,
-        data: null,
         
         // Properties
         includeHiddenHTML: false,
@@ -157,7 +156,7 @@ export function defaultConfig() {
         tableId: null,
 
         // Styling
-        theme: 'auto', // 'striped', 'grid' or 'plain'
+        theme: 'striped', // 'striped', 'grid', 'plain', 'css'
         useCss: false,
         styles: {},
         headStyles: {},

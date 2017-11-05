@@ -76,59 +76,6 @@ export class Table {
     
     cellHooks: CellHooks = new CellHooks();
     
-    constructor(doc, tableSettings, documentSettings, globalSettings) {
-        this.id = tableSettings.tableId;
-        this.doc = doc;
-        this.scaleFactor = doc.internal.scaleFactor;
-        
-        let allOptions = [globalSettings, documentSettings, tableSettings];
-
-        this.userStyles = {
-            textColor: 30, // Setting text color to dark gray as it can't be obtained from jsPDF
-            fontSize: doc.internal.getFontSize(),
-            fontStyle: doc.internal.getFont().fontStyle
-        };
-
-        // Merge styles one level deeper
-        for (let styleProp of Object.keys(this.styles)) {
-            let styles = allOptions.map(opts => (opts[styleProp] || {}));
-            this.styles[styleProp] = assign({}, ...styles);
-        }
-
-        // Append hooks
-        for (let opts of allOptions) {
-            for (let hookName of Object.keys(this.cellHooks)) {
-                if (opts && opts[hookName]) {
-                    this.cellHooks[hookName].push(opts[hookName]);
-                    delete opts[hookName];
-                }
-            }
-        }
-
-        // Override properties
-        let defaultConfig: Properties = {
-            theme: 'auto', // 'striped', 'grid' or 'plain'
-            includeHiddenHTML: false,
-            useCss: false,
-            startY: false, // false indicates the margin top value
-            margin: 40 / state().scaleFactor,
-            avoidTableSplit: false,
-            avoidRowSplit: false,
-            tableWidth: 'auto', // 'auto'|'wrap'|number
-            showHeader: 'everyPage', // 'everyPage', 'firstPage', 'never',
-            showFooter: 'everyPage', // 'everyPage', 'lastPage', 'never',
-            tableLineWidth: 0,
-            tableLineColor: 200,
-            allSectionHooks: false, // Set to true if you want the hooks to be called for cells outside of the body section (i.e. head and foot)
-            tableId: null,
-        };
-        this.settings = assign({}, defaultConfig, ...allOptions);
-
-        if (this.settings.theme === 'auto') {
-            this.settings.theme = this.settings.useCss ? 'plain' : 'striped';
-        }
-    }
-    
     allRows() {
         return this.head.concat(this.body).concat(this.foot);
     }

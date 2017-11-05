@@ -2,7 +2,7 @@
 
 import {drawTable, addPage} from './painter';
 import {calculateWidths} from './calculator';
-import {parseInput, parseArguments} from './inputParser';
+import {parseInput} from './inputParser';
 import state, {setDefaults, setupState, resetState, globalSettings, documentSettings} from './state';
 import './autoTableText';
 import {applyUserStyles} from "./common";
@@ -10,16 +10,11 @@ import {UserOptions} from "./config";
 
 const jsPDF = require('jspdf');
 
-/**
- * @param {number} [options.startY] - The y coordinate that the table with be drawn at
- * @param {string} [options.tableWidth='auto'] - The y coordinate that the table with be drawn at
- */
-jsPDF.API.autoTable = function(options: UserOptions) {
+jsPDF.API.autoTable = function() {
     setupState(this);
-    let tableSettings = parseArguments(arguments) || {};
     
     // 1. Parse and unify user input
-    let table = parseInput(this, globalSettings(), documentSettings(), tableSettings);
+    let table = parseInput(this, globalSettings(), documentSettings(), arguments);
     
     // 2. Calculate preliminary table, column, row and cell dimensions
     calculateWidths(table);

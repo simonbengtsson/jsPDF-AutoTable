@@ -1,58 +1,53 @@
 import {Row, Cell, Column, Table} from './models';
-import {getTheme, defaultConfig, parseSettings} from './config';
+import {getTheme, defaultConfig} from './config';
 import {parseHtml} from "./htmlParser";
 import {assign} from './polyfills';
 import {getStringWidth, ellipsize, applyUserStyles, marginOrPadding, styles} from './common';
 import state from './state';
 import validateInput from './inputValidator';
 
-export function parseArguments(args) {
-    if (typeof args[0] === 'number') {
-        let opts = args[1];
-        opts.startY = args[0];
-        return opts;
-    } else if (Array.isArray(args[0])) {
-        // Deprecated initialization
-        let opts = args[2] || {};
-        
-        if (!opts.columns && !opts.head && !opts.body) {
-            opts.columns = [];
-
-            let headers = args[0];
-            if (!opts.head) opts.head = [[]];
-            let dataKeys = [];
-            headers.forEach(function (item, i) {
-                if (item && item.dataKey != undefined) {
-                    item = {dataKey: item.dataKey, content: item.title};
-                } else {
-                    item = {dataKey: i, content: item};
-                }
-                dataKeys.push(item.dataKey);
-                opts.head[0].push(item);
-            });
-
-            opts.body = [];
-            for (let rawRow of args[1]) {
-                let row = {};
-                for (let dataKey of dataKeys) {
-                    row[dataKey] = rawRow[dataKey];
-                }
-                opts.body.push(row);
-            }
-        }
-        return opts;
-    } else {
-        return args[0];
-    }
-}
-
 /**
  * Create models from the user input
  */
-export function parseInput(doc, ...allOptions) {
+export function parseInput(doc, globalSettings, documentSettings, args) {
+    let tableSettings = parseUserArguments(args);
+    let allOptions = [globalSettings, documentSettings, tableSettings];
     validateInput(allOptions);
     
-    let table = new Table(doc, allOptions[0], allOptions[1], allOptions[2]);
+    let table = new Table();
+
+    table.id = tableSettings.tableId;
+    table.doc = doc;
+    table.scaleFactor = doc.internal.scaleFactor;
+
+    table.userStyles = {
+        textColor: 30, // Setting text color to dark gray as it can't be obtained from jsPDF
+        fontSize: doc.internal.getFontSize(),
+        fontStyle: doc.internal.getFont().fontStyle
+    };
+
+    // Merge styles one level deeper
+    for (let styleProp of Object.keys(this.styles)) {
+        let styles = allOptions.map(opts => (opts[styleProp] || {}));
+        table.styles[styleProp] = assign({}, ...styles);
+    }
+
+    // Append hooks
+    for (let opts of allOptions) {
+        for (let hookName of Object.keys(this.cellHooks)) {
+            if (opts && opts[hookName]) {
+                table.cellHooks[hookName].push(opts[hookName]);
+                delete opts[hookName];
+            }
+        }
+    }
+    
+    table.settings = assign({}, defaultConfig(), ...allOptions);
+
+    if (table.settings.theme === 'auto') {
+        table.settings.theme = this.settings.useCss ? 'plain' : 'striped';
+    }
+    
     let settings = table.settings;
     state().table = table;
     
@@ -161,4 +156,29 @@ export function parseInput(doc, ...allOptions) {
     table.settings.margin = marginOrPadding(table.settings.margin, defaultConfig().margin);
     
     return table;
+}
+
+function parseUserArguments(args) {
+    // Initialization on format doc.autoTable(100, options) where 100 is startY 
+    if (args.length === 2 && typeof args[0] === 'number') {
+        let opts = args[1];
+        opts.startY = args[0];
+        return opts;
+    }
+
+    if (args.length === 1) {
+        // Normal initialization on format doc.autoTable(options)
+        return args[0];
+    }
+
+    // Deprecated initialization on format doc.autoTable(columns, body, [options])
+    if (args.length > 1 && args[0] && args[1]) {
+        throw 'TODO Fix deprecated initialization';
+        let opts = args[2] || {};
+        opts.columns = args[0];
+        opts.body = args[1];
+        return opts;
+    }
+
+    throw 'Unsupported autoTable parameters'
 }
