@@ -2,7 +2,7 @@ import {defaultConfig} from "./config";
 import state from './state';
 import {CellHookData, HookData} from "./HookData";
 import {addPage} from "./painter";
-import {marginOrPadding, styles} from "./common";
+import {getStringWidth, marginOrPadding, styles} from "./common";
 
 declare function require(path: string): any;
 var assign = require('object-assign');
@@ -158,6 +158,18 @@ export class Cell {
         
         let splitRegex = /\r\n|\r|\n/g;
         this.text = text.split(splitRegex);
+
+        this.contentWidth = this.padding('horizontal') + getStringWidth(this.text, this.styles);
+        if (typeof this.styles.cellWidth === 'number') {
+            this.minWidth = this.styles.cellWidth;
+            this.wrappedWidth = this.styles.cellWidth;
+        } else if (this.styles.cellWidth === 'wrap') {
+            this.minWidth = this.contentWidth;
+            this.wrappedWidth = this.contentWidth;
+        } else { // auto
+            this.minWidth = 10 / state().scaleFactor();
+            this.wrappedWidth = this.contentWidth;
+        }
     }
     
     padding(name) {

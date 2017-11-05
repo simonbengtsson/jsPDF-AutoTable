@@ -35,10 +35,9 @@ var examples = {};
 examples.basic = function () {
     var doc = new jsPDF();
     doc.autoTable({
-        columns: columns(),
-        data: data(),
+        head: headRows(),
+        body: bodyRows(),
     });
-    doc.autoTable({head: headRows(), body: bodyRows()});
     return doc;
 };
 

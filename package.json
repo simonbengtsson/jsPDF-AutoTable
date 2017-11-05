@@ -25,7 +25,7 @@
     "webpack-dev-server": "^2.9.3"
   },
   "scripts": {
-    "start": "webpack-dev-server --open",
+    "start": "webpack-dev-server -d --open",
     "dev": "webpack-dev-server",
     "build": "webpack",
     "copyLib": "cp ./node_modules/jspdf/dist/jspdf.debug.js ./examples/libs/jspdf.debug.js && cp ./dist/jspdf.plugin.autotable.js ./dist/jspdf.plugin.autotable.src.js && cp ./dist/jspdf.plugin.autotable.js ./examples/libs/jspdf.plugin.autotable.js",
@@ -35,7 +35,7 @@
     "deploy": "git push && git push --tags && npm publish && npm run hosted",
     "clean": "git checkout dist examples/libs/jspdf.plugin.autotable.src.js",
     "testone": "mocha --compilers ts:ts-node/register",
-    "test": "mocha --compilers ts:ts-node/register test/*.js || true"
+    "test": "mocha --compilers ts:ts-node/register"
   },
   "repository": {
     "type": "git",
