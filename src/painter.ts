@@ -64,7 +64,7 @@ function printFullRow(row: Row) {
                     continue;
                 }
 
-                let fontHeight = cell.styles.fontSize / table.scaleFactor * FONT_ROW_RATIO;
+                let fontHeight = cell.styles.fontSize / state().scaleFactor() * FONT_ROW_RATIO;
                 let vPadding = cell.padding('vertical');
                 let remainingPageSpace = pageHeight - table.cursor.y - table.margin('bottom');
                 let remainingLineCount = Math.floor((remainingPageSpace - vPadding) / fontHeight);

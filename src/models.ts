@@ -42,7 +42,6 @@ export class Table {
     id?: any;
     cursor: {x: number, y: number};
     doc: any;
-    scaleFactor: number;
     userStyles: {};
     settings: any;
     

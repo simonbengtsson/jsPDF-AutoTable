@@ -8,7 +8,7 @@ import state from "./state";
  */
 export function calculateWidths(table: Table) {
     // TODO Fix those cases
-    let columnMinWidth = 10 / state().scaleFactor;
+    let columnMinWidth = 10 / state().scaleFactor();
     if (columnMinWidth * table.columns.length > table.width) { 
         console.error('Columns could not fit on page');
     } else if (table.minWidth > table.width) {
@@ -132,7 +132,7 @@ function fitContent(table) {
 
             let lineCount = Array.isArray(cell.text) ? cell.text.length : 1;
             lineCount = cell.rowSpan <= 1 ? lineCount : 1;
-            let fontHeight = cell.styles.fontSize / state().scaleFactor * FONT_ROW_RATIO;
+            let fontHeight = cell.styles.fontSize / state().scaleFactor() * FONT_ROW_RATIO;
             cell.contentHeight = lineCount * fontHeight + cell.padding('vertical');
 
             if (cell.styles.minCellHeight > cell.contentHeight) {

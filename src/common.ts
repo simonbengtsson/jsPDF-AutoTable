@@ -3,7 +3,7 @@ import state from './state';
 import {assign} from "./polyfills";
 
 export function getStringWidth(text, styles) {
-    let fontSize = styles.fontSize / state().scaleFactor;
+    let fontSize = styles.fontSize / state().scaleFactor();
     applyStyles(styles);
     text = Array.isArray(text) ? text : [text];
     let maxWidth = 0;
@@ -13,7 +13,7 @@ export function getStringWidth(text, styles) {
             maxWidth = width;
         }
     });
-    let precision = 10000 * state().scaleFactor;
+    let precision = 10000 * state().scaleFactor();
     maxWidth = Math.floor(maxWidth * precision) / precision;
     return maxWidth * fontSize; 
 }
@@ -31,7 +31,7 @@ export function ellipsize(text, width, styles, ellipsizeStr = '...') {
         return value;
     }
 
-    let precision = 10000 * state().scaleFactor;
+    let precision = 10000 * state().scaleFactor();
     width = Math.ceil(width * precision) / precision;
 
     if (width >= getStringWidth(text, styles)) {

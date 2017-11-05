@@ -33,12 +33,12 @@ function parseTableSection(window, sectionElement, includeHidden, useCss) {
     for(let i = 0; i < sectionElement.rows.length; i++) {
         let row = sectionElement.rows[i];
         let resultRow = [];
-        let rowStyles = useCss ? parseCss(row, state().scaleFactor, ['cellPadding', 'lineWidth', 'lineColor']) : {};
+        let rowStyles = useCss ? parseCss(row, state().scaleFactor(), ['cellPadding', 'lineWidth', 'lineColor']) : {};
         for(let i = 0; i < row.cells.length; i++) {
             let cell = row.cells[i];
             let style = window.getComputedStyle(cell);
             if (includeHidden || style.display !== 'none') {
-                let cellStyles = useCss ? parseCss(cell, state().scaleFactor) : {};
+                let cellStyles = useCss ? parseCss(cell, state().scaleFactor()) : {};
                 resultRow.push({
                     rowSpan: cell.rowSpan,
                     colSpan: cell.colSpan,

@@ -145,7 +145,7 @@ export function defaultConfig() {
         // Properties
         includeHiddenHTML: false,
         startY: false, // false indicates the margin top value
-        margin: 40 / state().scaleFactor,
+        margin: 40 / state().scaleFactor(),
         avoidTableSplit: false,
         avoidRowSplit: false,
         tableWidth: 'auto', // 'auto'|'wrap'|number
@@ -185,9 +185,9 @@ export function defaultStyles() {
         halign: 'left', // left, center, right
         valign: 'top', // top, middle, bottom
         fontSize: 10,
-        cellPadding: 5 / state().scaleFactor, // number or {top,left,right,left,vertical,horizontal}
+        cellPadding: 5 / state().scaleFactor(), // number or {top,left,right,left,vertical,horizontal}
         lineColor: 200,
-        lineWidth: 0 / state().scaleFactor,
+        lineWidth: 0 / state().scaleFactor(),
         cellWidth: 'auto', // 'auto'|'wrap'|number
         minCellHeight: 0
     }

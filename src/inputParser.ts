@@ -20,7 +20,6 @@ export function parseInput(args) {
 
     table.id = tableOptions.tableId;
     table.doc = state().doc;
-    table.scaleFactor = state().doc.internal.scaleFactor;
 
     table.userStyles = {
         textColor: 30, // Setting text color to dark gray as it can't be obtained from jsPDF
@@ -114,7 +113,7 @@ export function parseInput(args) {
                         cell.minWidth = cell.contentWidth;
                         cell.wrappedWidth = cell.contentWidth;
                     } else { // auto
-                        cell.minWidth = 10 / state().scaleFactor;
+                        cell.minWidth = 10 / state().scaleFactor();
                         cell.wrappedWidth = cell.contentWidth;
                     }
                     

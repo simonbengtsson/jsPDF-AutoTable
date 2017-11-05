@@ -22,16 +22,15 @@ export function getDocumentOptions() {
 class TableState {
     table: Table;
     doc;
-    scaleFactor;
     
     constructor(doc) {
        this.doc = doc;
-       this.scaleFactor = doc.internal.scaleFactor;
     }
     
     pageHeight() { return this.doc.internal.pageSize.height; };
     pageWidth() { return this.doc.internal.pageSize.width; };
     pageSize() { return this.doc.internal.pageSize };
+    scaleFactor() { return this.doc.internal.scaleFactor };
 }
 
 export function setupState(doc) {
