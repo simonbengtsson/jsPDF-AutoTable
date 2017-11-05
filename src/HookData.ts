@@ -16,7 +16,7 @@ export class HookData {
         this.pageCount = table.pageCount;
         this.settings = table.settings;
         this.cursor = table.cursor;
-        this.doc = table.doc;
+        this.doc = state().doc;
         this.addPage = addPage;
     }
 }

@@ -52,7 +52,7 @@ export function addTableBorder() {
     applyStyles(styles);
     let fs = getFillStyle(styles);
     if (fs) {
-        table.doc.rect(table.pageStartX, table.pageStartY, table.width, table.cursor.y - table.pageStartY, fs); 
+        state().doc.rect(table.pageStartX, table.pageStartY, table.width, table.cursor.y - table.pageStartY, fs); 
     }
 }
 

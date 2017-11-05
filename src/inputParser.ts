@@ -19,7 +19,6 @@ export function parseInput(args) {
     let table = new Table();
 
     table.id = tableOptions.tableId;
-    table.doc = state().doc;
 
     table.userStyles = {
         textColor: 30, // Setting text color to dark gray as it can't be obtained from jsPDF
@@ -36,9 +35,8 @@ export function parseInput(args) {
     // Append hooks
     for (let opts of allOptions) {
         for (let hookName of Object.keys(table.cellHooks)) {
-            if (opts && opts[hookName]) {
+            if (opts && typeof opts[hookName] === 'function') {
                 table.cellHooks[hookName].push(opts[hookName]);
-                delete opts[hookName];
             }
         }
     }

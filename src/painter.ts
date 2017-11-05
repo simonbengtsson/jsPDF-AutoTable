@@ -15,7 +15,7 @@ export function drawTable(table: Table) {
         minTableBottomPos += table.height;
     }
     if (settings.startY !== false && minTableBottomPos > state().pageHeight()) {
-        nextPage(table.doc);
+        nextPage(state().doc);
         table.cursor.y = table.margin('top');
     }
     table.pageStartX = table.cursor.x;
@@ -46,14 +46,14 @@ function printFullRow(row: Row) {
     let table = state().table;
 
     if (!canFitOnPage(row.maxCellHeight)) {
-        let maxTableHeight = table.doc.internal.pageSize.height - table.margin('top') - table.margin('bottom');
+        let maxTableHeight = state().doc.internal.pageSize.height - table.margin('top') - table.margin('bottom');
         if (row.maxCellLineCount <= 1 || (table.settings.avoidRowSplit && row.maxCellHeight < maxTableHeight)) {
             addPage();
         } else {
             // Modify the row to fit the current page and calculate text and height of partial row
             row.spansMultiplePages = true;
 
-            let pageHeight = table.doc.internal.pageSize.height;
+            let pageHeight = state().doc.internal.pageSize.height;
             let maxCellHeight = 0;
             let maxRowSpanCellHeight = 0;
 
@@ -162,7 +162,7 @@ function printRow(row) {
         
         let fillStyle = getFillStyle(cell.styles);
         if (fillStyle) {
-            table.doc.rect(cell.x, table.cursor.y, cell.width, cell.height, fillStyle);
+            state().doc.rect(cell.x, table.cursor.y, cell.width, cell.height, fillStyle);
         }
         state().doc.autoTableText(cell.text, cell.textPos.x, cell.textPos.y, {
             halign: cell.styles.halign,
@@ -205,7 +205,7 @@ export function addPage() {
     // be drawn above other things on the page
     table.callEndPageHooks();
     addTableBorder();
-    nextPage(table.doc);
+    nextPage(state().doc);
     table.pageCount++;
     table.cursor = {x: table.margin('left'), y: table.margin('top')};
     table.pageStartX = table.cursor.x;
