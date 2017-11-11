@@ -11,14 +11,14 @@
   },
   "devDependencies": {
     "jspdf": "^1.3.5",
-    "mocha": "^3.5.3",
+    "mocha": "^4.0.1",
     "mock-browser": "^0.92.14",
     "mock-require": "^2.0.2",
     "object-assign": "^4.1.1",
     "object.entries": "^1.0.4",
-    "ts-loader": "^2.3.7",
+    "ts-loader": "^3.1.1",
     "ts-node": "^3.3.0",
-    "typedoc": "^0.8.0",
+    "typedoc": "^0.9.0",
     "typescript": "^2.5.3",
     "uglifyjs-webpack-plugin": "^1.0.1",
     "webpack": "^3.8.1",
@@ -26,16 +26,12 @@
   },
   "scripts": {
     "start": "webpack-dev-server -d --open",
-    "dev": "webpack-dev-server",
     "build": "webpack",
-    "copyLib": "cp ./node_modules/jspdf/dist/jspdf.debug.js ./examples/libs/jspdf.debug.js && cp ./dist/jspdf.plugin.autotable.js ./dist/jspdf.plugin.autotable.src.js && cp ./dist/jspdf.plugin.autotable.js ./examples/libs/jspdf.plugin.autotable.js",
-    "examples": "npm run copyLib && cd examples/webpack && npm update && npm run build && cd ../browserify && npm update && npm run build ../../",
+    "copyLib": "cp ./node_modules/jspdf/dist/jspdf.debug.js ./examples/libs/jspdf.debug.js && cp ./dist/jspdf.plugin.autotable.js ./examples/libs/jspdf.plugin.autotable.js",
     "version": "npm run build && npm run copyLib && git add -A dist && git add -A examples && git add README.md",
     "hosted": "git checkout gh-pages && npm run build && git add -A && git commit -m \"Updated to latest version\" && git push && git checkout master && git clean -f -d",
     "deploy": "git push && git push --tags && npm publish && npm run hosted",
-    "clean": "git checkout dist examples/libs/jspdf.plugin.autotable.src.js",
-    "testone": "mocha --compilers ts:ts-node/register",
-    "test": "mocha --compilers ts:ts-node/register"
+    "test": "mocha --require ts-node/register"
   },
   "repository": {
     "type": "git",
