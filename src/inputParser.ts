@@ -55,8 +55,8 @@ export function parseInput(args) {
         htmlContent = parseHtml(table.settings.html, table.settings.includeHiddenHTML, table.settings.useCss) || {};
     }
     table.settings.head = htmlContent.head || table.settings.head || [];
-    table.settings.body = htmlContent.head || table.settings.body || [];
-    table.settings.foot = htmlContent.head || table.settings.foot || [];
+    table.settings.body = htmlContent.body || table.settings.body || [];
+    table.settings.foot = htmlContent.foot || table.settings.foot || [];
 
     parseContent(table);
 
@@ -117,6 +117,9 @@ function parseContent(table) {
                         let rawCell = rawRow[column.dataKey];
                         let cell = new Cell(rawCell, styles, sectionName);
                         row.cells[column.dataKey] = cell;
+
+                        table.callCellHooks(table.cellHooks.didParseCell, cell, row, column);
+                        
                         columnSpansLeft = cell.colSpan - 1;
                         rowSpansLeft = cell.rowSpan - 1;
 

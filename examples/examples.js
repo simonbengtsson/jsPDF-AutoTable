@@ -27,7 +27,6 @@
  */
 
 var faker = window.faker;
-var base64Img = null;
 
 var examples = {};
 
@@ -309,91 +308,12 @@ examples.themes = function () {
     return doc;
 };
 
-// Event handler - shows how the event handler can be used to create a customized table
-examples.events = function () {
-    var doc = new jsPDF();
-
-    doc.autoTable({
-        head: ['ID', 'Name', 'Age'],
-        body: [[1, 'Simon', 25], [2, 'Karl', 20]],
-        foot: ['ID', 'Name', 'Age'],
-    });
-    
-    // 1. Array only columns and body
-    // 2. Raw json data from server {name: 'String'} style
-    // Multiple header rows
-    // Footer
-    // Colspan and rowspan
-
-    doc.autoTable({
-        head: {id: 'ID', name: 'Name', age: 'Age'},
-        body: [{id: 1, name: 'Simon', age: 25}, {id: 2, name: 'Karl', age: 25}],
-        foot: {id: 'ID', name: 'Name', age: 'Age'},
-    });
-
-    doc.autoTable({
-        head: {id: 'ID', name: 'Name', age: 'Age'},
-        body: [{id: 1, name: 'Simon', age: 25}, {id: 2, name: 'Karl', age: 25}],
-        foot: {id: 'ID', name: 'Name', age: 'Age'},
-    });
-    
-    doc.autoTable({
-        head: [{title: 'ID', field: 'id'}, {title: 'Name', field: 'name'}, {title: 'Age', field: 'age'}],
-        body: [{id: 1, name: 'Simon', age: 25}, {id: 2, name: 'Karl', age: 25}],
-        foot: [{title: 'ID', field: 'id'}, {title: 'Name', field: 'name'}, {title: 'Age', field: 'age'}],
-    });
-
-    doc.autoTable({
-        columns: ['ID', 'Name', 'Age'],
-        content: [[1, 'Simon', 25], [2, 'Karl', 20]],
-    });
-
-    doc.autoTable({
-        columns: {id: 'ID', name: 'Name', age: 'Age'},
-        content: [{id: 1, 1: 'Simon', 2: 25}, [2, 'Karl', 20]],
-    });
-
-    doc.autoTable({
-        allSectionHooks: false,
-        
-        // Use for customizing texts or styles of specific cells. 
-        willParseCell: function(data) {
-            if (cell.section === 'body') {
-                
-            }
-        },
-        // Use for customizing texts or styles of specific cells after they have been formatted by this plugin. 
-        // This hook is called just before the column width and other features are computed.
-        didParseCell: function(data) {
-            
-        },
-        // Use for changing styles with jspdf functions or customize the positioning of cells or cell text
-        // just before they are drawn to the page.
-        willDrawCell: function(data) {
-            
-        },
-        // Use for adding content to the cells after they are drawn. This could be images or links.
-        // You can also use this to draw other custom jspdf content to cells with doc.text or doc.rect 
-        // for example.
-        didDrawCell: function(data) {
-            
-        },
-        // Use this to add content to each page that has the autoTable on it. This includes page headers,
-        // page footers and page numbers for example.
-        didDrawPage: function(data) {
-            
-        },
-    });
-    
-    return doc;
-};
-
 // Custom style - shows how custom styles can be applied
 examples.custom = function () {
     var doc = new jsPDF();
     doc.autoTable({
         head: headRows(), body: bodyRows(),
-        tableLineColor: [243, 156, 18],
+        tableLineColor: [52, 73, 94],
         tableLineWidth: 0.75,
         styles: {
             font: 'courier',
@@ -401,7 +321,7 @@ examples.custom = function () {
             lineWidth: 1
         },
         headStyles: {
-            fillColor: [44, 62, 80],
+            fillColor: [241, 196, 15],
             fontSize: 15
         },
         bodyStyles: {
@@ -411,6 +331,7 @@ examples.custom = function () {
         alternateRowStyles: {
             fillColor: [74, 96, 117]
         },
+        allSectionHooks: true,
         // Note that the "email" key below is the same as the column's dataKey used for 
         // the head and body rows. If your data is entered in array form instead you have to 
         // use the integer index instead i.e. `columnStyles: {5: {fillColor: [41, 128, 185], ...}}`
@@ -419,17 +340,37 @@ examples.custom = function () {
                 fontStyle: 'bold'
             }
         },
-        willParseCell: function(data) {
-            // You can add jspdf-autotable styles to cells or rows in the cell parsing hooks hook
+        // Use for customizing texts or styles of specific cells after they have been formatted by this plugin. 
+        // This hook is called just before the column width and other features are computed.
+        didParseCell: function(data) {
+            // You can add jspdf-autotable styles to cells in the cell parsing hook
             if (data.row.index === 5) {
                 data.cell.styles.fillColor = [40, 170, 100];
             }
         },
+        // Use for changing styles with jspdf functions or customize the positioning of cells or cell text
+        // just before they are drawn to the page.
         willDrawCell: function(data) {
+            if (data.row.section === 'head' && data.column.dataKey === "city") {
+                doc.addImage(base64Img, 'JPEG', data.cell.x + data.cell.wrappedWidth, 10, 5, 5);
+            }
+        },
+        // Use for adding content to the cells after they are drawn. This could be images or links.
+        // You can also use this to draw other custom jspdf content to cells with doc.text or doc.rect 
+        // for example.
+        didDrawCell: function(data) {
+            if (data.row.section === 'body' && data.row.index === 2 && data.column.dataKey === 'expenses') {
+                //data.addPage();
+            }
             // You can use the native jspdf styling functions in the willDrawCell hook
             if (data.column.dataKey === "expenses" && data.cell.raw > 500) {
                 doc.setFillColor(190, 60, 40);
             }
+        },
+        // Use this to add content to each page that has the autoTable on it. This includes page headers,
+        // page footers and page numbers for example.
+        didDrawPage: function(data) {
+
         },
     });
     return doc;
@@ -442,11 +383,11 @@ examples.custom = function () {
  */
 
 function headRows() {
-    return [{id: 'ID', name: 'Name', email: 'Email', city: 'City', expenses: 'Expenses'}];
+    return [{id: 'ID', name: 'Name', email: 'Email', city: 'City', expenses: 'Sum'}];
 }
 
 function footRows() {
-    return [{id: 'ID', name: 'Name', email: 'Email', city: 'City', expenses: 'Expenses'}];
+    return [{id: 'ID', name: 'Name', email: 'Email', city: 'City', expenses: 'Sum'}];
 }
 
 function columns() {
@@ -487,28 +428,4 @@ function bodyRows(rowCount) {
         });
     }
     return body;
-}
-
-imgToBase64('document.jpg', function(base64) {
-    base64Img = base64;
-});
-
-// You could either use a function similar to this or pre convert an image with for example http://dopiaza.org/tools/datauri
-// http://stackoverflow.com/questions/6150289/how-to-convert-image-into-base64-string-using-javascript
-function imgToBase64(url, callback) {
-    if (!window.FileReader) {
-        callback(null);
-        return;
-    }
-    var xhr = new XMLHttpRequest();
-    xhr.responseType = 'blob';
-    xhr.onload = function() {
-        var reader = new FileReader();
-        reader.onloadend = function() {
-            callback(reader.result.replace('text/xml', 'image/jpeg'));
-        };
-        reader.readAsDataURL(xhr.response);
-    };
-    xhr.open('GET', url);
-    xhr.send();
 }

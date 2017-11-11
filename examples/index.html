@@ -101,7 +101,6 @@
             <li><a href="#colstyles">Column styles</a></li>
             <li><a href="#spans">Rowspan and colspan</a></li>
             <li><a href="#themes">Themes</a></li>
-            <li><a href="#events">Event handling</a></li>
             <li><a href="#custom">Custom style</a></li>
         </ul>
 
@@ -230,7 +229,31 @@
         }
     }
 
-    update();
+    let base64Img;
+    imgToBase64('document.jpg', function(base64) {
+        base64Img = base64;
+        update();
+    });
+
+    // You could either use a function similar to this or pre convert an image with for example http://dopiaza.org/tools/datauri
+    // http://stackoverflow.com/questions/6150289/how-to-convert-image-into-base64-string-using-javascript
+    function imgToBase64(url, callback) {
+        if (!window.FileReader) {
+            callback(null);
+            return;
+        }
+        var xhr = new XMLHttpRequest();
+        xhr.responseType = 'blob';
+        xhr.onload = function() {
+            var reader = new FileReader();
+            reader.onloadend = function() {
+                callback(reader.result.replace('text/xml', 'image/jpeg'));
+            };
+            reader.readAsDataURL(xhr.response);
+        };
+        xhr.open('GET', url);
+        xhr.send();
+    }
 </script>
 
 </body>

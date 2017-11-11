@@ -116,13 +116,6 @@ function printRow(row) {
     table.cursor.x = table.margin('left');
     row.y = table.cursor.y;
     row.x = table.cursor.x;
-    
-    /*
-    if (table.emitEvent(new ATEvent('addingRow', state().table, row)) === false) {
-        table.cursor.y += row.height;
-        return;
-    }
-    */
 
     // For backwards compatibility reset those after addingRow event
     table.cursor.x = table.margin('left');
@@ -168,14 +161,11 @@ function printRow(row) {
             halign: cell.styles.halign,
             valign: cell.styles.valign
         });
-
-
+        
         table.callCellHooks(table.cellHooks.didDrawCell, cell, row, column);
 
         table.cursor.x += column.width;
     }
-
-    //table.emitEvent(new ATEvent('addedRow', state().table, row));
     
     table.cursor.y += row.height;
 }
