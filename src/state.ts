@@ -42,6 +42,10 @@ class TableState {
     scaleFactor() {
         return this.doc.internal.scaleFactor
     };
+    
+    pageNumber() {
+        return  this.doc.internal.getCurrentPageInfo().pageNumber;
+    }
 }
 
 export function setupState(doc) {
