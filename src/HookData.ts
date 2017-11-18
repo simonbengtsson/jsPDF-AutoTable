@@ -1,4 +1,4 @@
-import {addPage} from "./painter";
+import {addPage} from "./tableDrawer";
 import state from './state';
 import {Table, Cell, Row, Column} from "./models";
 

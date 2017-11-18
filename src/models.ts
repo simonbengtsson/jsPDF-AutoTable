@@ -1,7 +1,7 @@
 import {defaultConfig} from "./config";
 import state from './state';
 import {CellHookData, HookData} from "./HookData";
-import {addPage} from "./painter";
+import {addPage} from "./tableDrawer";
 import {getStringWidth, marginOrPadding, styles} from "./common";
 
 declare function require(path: string): any;
