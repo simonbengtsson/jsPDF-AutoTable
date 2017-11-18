@@ -29,10 +29,10 @@ examples.basic = function () {
 // From html - shows how pdf tables can be be drawn from html tables
 examples.html = function () {
     var doc = new jsPDF();
-    doc.text("From HTML Table", 14, 16);
+    doc.text("From HTML", 14, 16);
     doc.autoTable({html: '.table', startY: 20});
     var finalY = doc.previousAutoTable.finalY;
-    doc.text("From HTML Table with CSS", 14, finalY + 15);
+    doc.text("From HTML with CSS", 14, finalY + 15);
     doc.autoTable({
         startY: finalY + 20,
         html: '.table', 
@@ -63,7 +63,8 @@ examples.long = function () {
     body.forEach(function(row) {row['text'] = faker.lorem.sentence(20)});
     
     doc.text("Overflow 'linebreak' (default)", 14, 15);
-    doc.autoTable(20, {
+    doc.autoTable({
+        startY: 20,
         head: head,
         body: body,
         bodyStyles: {valign: 'top'},
@@ -120,7 +121,7 @@ examples.multiple = function () {
     doc.text("Multiple tables", 14, 20);
     doc.setFontSize(12);
 
-    doc.autoTable(30, {head: headRows(), body: bodyRows(25)});
+    doc.autoTable({startY: 30, head: headRows(), body: bodyRows(25)});
     
     let pageNumber = doc.internal.getCurrentPageInfo().pageNumber;
 

@@ -75,14 +75,14 @@ export function parseInput(args) {
 }
 
 function parseUserArguments(args) {
+     // Normal initialization on format doc.autoTable(options)
     if (args.length === 1) {
-        // Normal initialization on format doc.autoTable(options)
         return args[0];
     }
 
     // Deprecated initialization on format doc.autoTable(columns, body, [options])
     else {
-        //throw 'TODO Fix deprecated initialization';
+        // TODO Fix deprecated initialization
         let opts = args[2] || {};
         opts.columns = args[0];
         opts.body = args[1];
