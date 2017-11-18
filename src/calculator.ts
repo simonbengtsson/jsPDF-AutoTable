@@ -166,7 +166,3 @@ function distributeWidth(autoColumns, diffWidth, wrappedAutoColumnsWidth) {
         }
     }
 }
-
-function widthRatio(ratio) {
-    return 1 / (1 - ratio) - 1;
-}
