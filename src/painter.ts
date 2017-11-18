@@ -26,7 +26,7 @@ export function drawTable(table: Table) {
         table.head.forEach((row) => printRow(row))
     }
     applyUserStyles();
-    table.body.forEach(function (row) {
+    table.body.forEach(function(row) {
         printFullRow(row);
     });
     applyUserStyles();
@@ -112,7 +112,7 @@ function printFullRow(row: Row) {
 
 function printRow(row) {
     let table: Table = state().table;
-    
+
     table.cursor.x = table.margin('left');
     row.y = table.cursor.y;
     row.x = table.cursor.x;
@@ -121,10 +121,10 @@ function printRow(row) {
     table.cursor.x = table.margin('left');
     row.y = table.cursor.y;
     row.x = table.cursor.x;
-    
+
     for (let column of table.columns) {
         let cell = row.cells[column.dataKey];
-        if(!cell) {
+        if (!cell) {
             table.cursor.x += column.width;
             continue;
         }
@@ -147,12 +147,12 @@ function printRow(row) {
         } else {
             cell.textPos.x = cell.x + cell.padding('left');
         }
-        
+
         if (table.callCellHooks(table.cellHooks.willDrawCell, cell, row, column) === false) {
             table.cursor.x += column.width;
             continue;
         }
-        
+
         let fillStyle = getFillStyle(cell.styles);
         if (fillStyle) {
             state().doc.rect(cell.x, table.cursor.y, cell.width, cell.height, fillStyle);
@@ -161,12 +161,12 @@ function printRow(row) {
             halign: cell.styles.halign,
             valign: cell.styles.valign
         });
-        
+
         table.callCellHooks(table.cellHooks.didDrawCell, cell, row, column);
 
         table.cursor.x += column.width;
     }
-    
+
     table.cursor.y += row.height;
 }
 
@@ -183,12 +183,12 @@ function canFitOnPage(rowHeight) {
 
 export function addPage() {
     let table: Table = state().table;
-    
+
     applyUserStyles();
     if (table.settings.showFooter === true || table.settings.showFooter === 'everyPage') {
         table.foot.forEach((row) => printRow(row))
     }
-    
+
     table.finalY = table.cursor.y;
 
     // Add user content just before adding new page ensure it will 

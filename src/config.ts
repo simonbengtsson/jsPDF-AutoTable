@@ -12,47 +12,47 @@ interface ColumnOption {
     header?: string;
     title?: string; // deprecated (same as header)
     footer?: string;
-    dataKey?: string|number;
+    dataKey?: string | number;
 }
 
 /**
  * Properties
  */
 export interface UserOptions {
-    
+
 }
 
 export interface UserOptions {
-    columns?: string[]|ColumnOption[];
+    columns?: string[] | ColumnOption[];
     data?: any[][];
-    
-    html?: HTMLTableElement|string;
+
+    html?: HTMLTableElement | string;
     includeHiddenHTML?: boolean;
     useCSS?: boolean;
 
     headerRows?: number;
     footerRows?: number;
-    
+
     startY?: number;
     margin?: MarginPadding;
     pageBreakTable?: boolean;
     pageBreakRow?: boolean;
-    tableWidth?: 'auto'|'wrap'|number;
-    showHeader?: 'everyPage'|'firstPage'|'never';
-    showFooter?: 'everyPage'|'lastPage'|'never';
+    tableWidth?: 'auto' | 'wrap' | number;
+    showHeader?: 'everyPage' | 'firstPage' | 'never';
+    showFooter?: 'everyPage' | 'lastPage' | 'never';
     tableLineWidth?: number;
     tableLineColor?: Color;
     allSectionHooks?: boolean;
     tableId?: any;
 
-    theme?: 'striped'|'plain'|'grid'|'css';
+    theme?: 'striped' | 'plain' | 'grid' | 'css';
     styles?: Styles;
     headerStyles?: Styles;
     bodyStyles?: Styles;
     footerStyles?: Styles;
     alternateRowStyles?: Styles;
     columnStyles?: Styles; // Prefer using the parseCell hook instead of this
-    
+
     createdCell?: () => {};
     drawCell?: () => {};
     didDrawCell?: () => {};
@@ -60,25 +60,25 @@ export interface UserOptions {
 }
 
 export function parseSettings(table: Table, allOptions) {
-    
+
 }
 
-type Color = [number, number, number]|number|'transparent'|false;
-type MarginPadding = number|{top?: number, right?: number, bottom?: number, left?: number}
+type Color = [number, number, number] | number | 'transparent' | false;
+type MarginPadding = number | { top?: number, right?: number, bottom?: number, left?: number }
 
 interface Styles {
-    font?: 'helvetica'|'times'|'courier',
-    fontStyle?: 'normal'|'bold'|'italic'|'bolditalic',
-    overflow?: 'linebreak'|'ellipsize'|'visible'|'hidden',
+    font?: 'helvetica' | 'times' | 'courier',
+    fontStyle?: 'normal' | 'bold' | 'italic' | 'bolditalic',
+    overflow?: 'linebreak' | 'ellipsize' | 'visible' | 'hidden',
     fillColor?: Color,
     textColor?: Color,
-    halign?: 'left'|'center'|'right',
-    valign?: 'top'|'middle'|'bottom',
+    halign?: 'left' | 'center' | 'right',
+    valign?: 'top' | 'middle' | 'bottom',
     fontSize?: number,
     cellPadding?: number,
     lineColor?: Color,
     lineWidth?: number,
-    cellWidth?: 'auto'|'wrap'|number,
+    cellWidth?: 'auto' | 'wrap' | number,
     minCellHeight?: number
 }
 
@@ -88,20 +88,20 @@ interface CellDefinition {
     styles?: Styles,
 }
 
-type CellType = null|string|number|boolean|CellDefinition
-type MultipleRowType = CellType[][]|{string: CellType}[]
-type SingleRowType = CellType[]|{string: CellType}
+type CellType = null | string | number | boolean | CellDefinition
+type MultipleRowType = CellType[][] | { string: CellType }[]
+type SingleRowType = CellType[] | { string: CellType }
 
 export interface BaseConfig {
     // Properties
-    theme?: 'auto'|'striped'|'grid'|'plain', // default: striped
-    startY?: false|number,
+    theme?: 'auto' | 'striped' | 'grid' | 'plain', // default: striped
+    startY?: false | number,
     margin?: MarginPadding,
     avoidTableSplit?: boolean,
     avoidRowSplit?: boolean,
-    tableWidth?: 'auto'|'wrap'|number,
-    showHeader?: 'everyPage'|'firstPage'|'never',
-    showFooter?: 'everyPage'|'lastPage'|'never',
+    tableWidth?: 'auto' | 'wrap' | number,
+    showHeader?: 'everyPage' | 'firstPage' | 'never',
+    showFooter?: 'everyPage' | 'lastPage' | 'never',
     tableLineWidth?: number,
     tableLineColor?: Color,
     allSectionHooks?: boolean; // default: false
@@ -114,7 +114,7 @@ export interface BaseConfig {
     footStyles?: Styles,
     alternateRowStyles?: Styles,
     columnStyles?: Styles,
-    
+
     // Hooks
     didParseCell?: (data: CellHookData) => void;
     willDrawCell?: (data: CellHookData) => void;
@@ -123,25 +123,25 @@ export interface BaseConfig {
 }
 
 export interface ContentConfig extends BaseConfig {
-    head?: SingleRowType|MultipleRowType
-    foot?: SingleRowType|MultipleRowType
+    head?: SingleRowType | MultipleRowType
+    foot?: SingleRowType | MultipleRowType
     body: MultipleRowType
 }
 
 export interface HTMLConfig extends BaseConfig {
-    html: string|HTMLElement;
+    html: string | HTMLElement;
 }
 
 export function defaultConfig() {
     return {
         // Html content
         html: null, // HTML table element or a CSS selector pointing towards
-        
+
         // Custom content
         head: null,
         body: null,
         foot: null,
-        
+
         // Properties
         includeHiddenHTML: false,
         startY: false, // false indicates the margin top value
@@ -164,12 +164,16 @@ export function defaultConfig() {
         footStyles: {},
         alternateRowStyles: {},
         columnStyles: {},
-        
+
         // Hooks
-        didParseCell: function(data) {},
-        willDrawCell: function(data) {},
-        didDrawCell: function(data) {},
-        didDrawPage: function(data) {},
+        didParseCell: function(data) {
+        },
+        willDrawCell: function(data) {
+        },
+        didDrawCell: function(data) {
+        },
+        didDrawPage: function(data) {
+        },
         allSectionHooks: false, // Set to true if you want the cell hooks to be called for cells in the header and footer
     }
 }

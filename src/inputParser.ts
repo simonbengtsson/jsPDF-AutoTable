@@ -15,7 +15,7 @@ export function parseInput(args) {
     let documentOptions = getDocumentOptions();
     let allOptions = [globalOptions, documentOptions, tableOptions];
     validateInput(allOptions);
-    
+
     let table = new Table();
     state().table = table;
     table.id = tableOptions.tableId;
@@ -42,7 +42,7 @@ export function parseInput(args) {
             }
         }
     }
-    
+
     table.settings = assign({}, defaultConfig(), ...allOptions);
     table.settings.margin = marginOrPadding(table.settings.margin, defaultConfig().margin);
 
@@ -70,7 +70,7 @@ export function parseInput(args) {
     } else {
         table.width = state().pageWidth() - table.margin('left') - table.margin('right');
     }
-    
+
     return table;
 }
 
@@ -101,9 +101,9 @@ function parseUserArguments(args) {
 
 function parseContent(table) {
     let settings = table.settings;
-    
+
     table.columns = getTableColumns(settings);
-    
+
     for (let sectionName of ['head', 'body', 'foot']) {
         let rowSpansLeftForColumn = {};
         let mergedSpansForColumn = {};
@@ -134,7 +134,7 @@ function parseContent(table) {
                     } else {
                         columnSpansLeft--;
                         colSpansAdded++;
-                    }   
+                    }
                 } else {
                     rowSpansLeftForColumn[column.dataKey].left--;
                     columnSpansLeft = rowSpansLeftForColumn[column.dataKey].times;
@@ -146,7 +146,7 @@ function parseContent(table) {
     table.allRows().forEach(row => {
         for (let column of table.columns) {
             let cell = row.cells[column.dataKey];
-            
+
             // Kind of make sense to not consider width of cells with colspan columns
             // Consider this in a future release however
             if (cell && cell.colSpan === 1) {

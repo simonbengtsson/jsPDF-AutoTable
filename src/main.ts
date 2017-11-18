@@ -11,20 +11,20 @@ const jsPDF = require('jspdf');
 
 jsPDF.API.autoTable = function() {
     setupState(this);
-    
+
     // 1. Parse and unify user input
     let table = parseInput(arguments);
-    
+
     // 2. Calculate preliminary table, column, row and cell dimensions
     calculateWidths(table);
-    
+
     // 3. Output table to pdf
     drawTable(table);
-    
+
     table.finalY = table.cursor.y;
     this.previousAutoTable = table;
     this.autoTable.previous = table; // Deprecated
-    
+
     applyUserStyles();
     resetState();
     return this;
@@ -49,15 +49,15 @@ jsPDF.API.autoTable.previous = false;
 /**
  * @Deprecated. Use html option instead
  */
-jsPDF.API.autoTableHtmlToJson = function (tableElem, includeHiddenElements) {
+jsPDF.API.autoTableHtmlToJson = function(tableElem, includeHiddenElements) {
     console.error("Use of deprecated function: autoTableHtmlToJson. Use html option instead.");
     includeHiddenElements = includeHiddenElements || false;
-    
+
     if (!tableElem || !(tableElem instanceof HTMLTableElement)) {
         console.error("A HTMLTableElement has to be sent to autoTableHtmlToJson");
         return null;
     }
-    
+
     let columns = {}, rows = [];
 
     let header = tableElem.rows[0];
@@ -83,14 +83,16 @@ jsPDF.API.autoTableHtmlToJson = function (tableElem, includeHiddenElements) {
         }
     }
 
-    let values = Object.keys(columns).map(function(key) { return columns[key] });
+    let values = Object.keys(columns).map(function(key) {
+        return columns[key]
+    });
     return {columns: values, rows: rows, data: rows};
 };
 
 /**
  * @deprecated
  */
-jsPDF.API.autoTableEndPosY = function () {
+jsPDF.API.autoTableEndPosY = function() {
     console.error("Use of deprecated function: autoTableEndPosY. Use doc.previousAutoTable.finalY instead.");
     let prev = this.previousAutoTable;
     if (prev.cursor && typeof prev.cursor.y === 'number') {
@@ -103,7 +105,7 @@ jsPDF.API.autoTableEndPosY = function () {
 /**
  * @deprecated
  */
-jsPDF.API.autoTableAddPageContent = function (hook) {
+jsPDF.API.autoTableAddPageContent = function(hook) {
     console.error("Use of deprecated function: autoTableAddPageContent. Use jsPDF.autoTableSetDefaults({addPageContent: function() {}}) instead.");
     if (!jsPDF.API.autoTable.globalDefaults) {
         jsPDF.API.autoTable.globalDefaults = {};

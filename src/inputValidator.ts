@@ -38,7 +38,7 @@ export default function(allOptions) {
             }
         }
 
-        [['padding', 'cellPadding'], ['lineHeight', 'rowHeight'], 'fontSize', 'overflow'].forEach(function (o) {
+        [['padding', 'cellPadding'], ['lineHeight', 'rowHeight'], 'fontSize', 'overflow'].forEach(function(o) {
             let deprecatedOption = typeof o === 'string' ? o : o[0];
             let style = typeof o === 'string' ? o : o[1];
             if (typeof settings[deprecatedOption] !== 'undefined') {
@@ -48,7 +48,7 @@ export default function(allOptions) {
                 console.error("Use of deprecated option: " + deprecatedOption + ", use the style " + style + " instead.");
             }
         });
-        
+
         for (let styleProp of ['styles', 'bodyStyles', 'headStyles', 'footStyles']) {
             checkStyles(settings[styleProp] || {});
         }

@@ -5,10 +5,11 @@ import {addPage} from "./painter";
 import {getStringWidth, marginOrPadding, styles} from "./common";
 
 declare function require(path: string): any;
+
 var assign = require('object-assign');
 
-type HookHandler = (data: HookData) => void|boolean;
-type CellHookHandler = (data: CellHookData) => void|boolean;
+type HookHandler = (data: HookData) => void | boolean;
+type CellHookHandler = (data: CellHookData) => void | boolean;
 
 class CellHooks {
     willParseCell: CellHookHandler[] = [];
@@ -18,20 +19,20 @@ class CellHooks {
     didDrawPage: HookHandler[] = [];
 }
 
-type Color = [number, number, number]|number|'transparent'|false;
-type MarginPadding = number|[number, number]|[number, number, number, number]
+type Color = [number, number, number] | number | 'transparent' | false;
+type MarginPadding = number | [number, number] | [number, number, number, number]
 
 interface Properties {
-    theme: 'auto'|'striped'|'grid'|'plain', // default: striped
+    theme: 'auto' | 'striped' | 'grid' | 'plain', // default: striped
     includeHiddenHTML: boolean,
     useCss: boolean,
-    startY: false|number,
+    startY: false | number,
     margin: MarginPadding,
     avoidTableSplit: boolean,
     avoidRowSplit: boolean,
-    tableWidth: 'auto'|'wrap'|number,
-    showHeader: 'everyPage'|'firstPage'|'never',
-    showFooter: 'everyPage'|'lastPage'|'never',
+    tableWidth: 'auto' | 'wrap' | number,
+    showHeader: 'everyPage' | 'firstPage' | 'never',
+    showFooter: 'everyPage' | 'lastPage' | 'never',
     tableLineWidth: number,
     tableLineColor: Color,
     allSectionHooks: boolean;
@@ -40,17 +41,17 @@ interface Properties {
 
 export class Table {
     id?: any;
-    cursor: {x: number, y: number};
+    cursor: { x: number, y: number };
     doc: any;
     userStyles: {};
     settings: any;
-    
+
     columns: Column[] = [];
-    
+
     head: Row[] = [];
     body: Row[] = [];
     foot: Row[] = [];
-    
+
     height = 0;
     width = 0;
     preferredWidth = 0;
@@ -58,7 +59,7 @@ export class Table {
     minWidth = 0;
     headHeight = 0;
     footHeight = 0;
-    
+
     pageCount = 1;
     pageStartX: number;
     pageStartY: number;
@@ -72,9 +73,9 @@ export class Table {
         alternateRowStyles: {},
         columnStyles: {},
     };
-    
+
     cellHooks: CellHooks = new CellHooks();
-    
+
     allRows() {
         return this.head.concat(this.body).concat(this.foot);
     }
@@ -87,33 +88,33 @@ export class Table {
         }
         return true;
     }
-    
+
     callEndPageHooks() {
         for (let handler of this.cellHooks.didDrawPage) {
             handler(new HookData());
         }
     }
-    
+
     margin(side) {
         return marginOrPadding(this.settings.margin, defaultConfig().margin)[side];
     }
 }
 
 export class Row {
-    raw: HTMLTableRowElement|any;
+    raw: HTMLTableRowElement | any;
     index: number;
     cells = {};
-    section: 'head'|'body'|'foot';
-    
+    section: 'head' | 'body' | 'foot';
+
     height = 0;
     maxCellLineCount = 1;
     maxCellHeight = 0;
     x: number;
     y: number;
-    
+
     pageCount = 1;
     spansMultiplePages = false;
-    
+
     constructor(raw, index, section) {
         this.raw = raw;
         this.index = index;
@@ -122,11 +123,11 @@ export class Row {
 }
 
 export class Cell {
-    raw: HTMLTableCellElement|any;
+    raw: HTMLTableCellElement | any;
     styles: any;
     text: string[];
-    section: 'head'|'body'|'foot';
-    
+    section: 'head' | 'body' | 'foot';
+
     contentWidth = 0;
     wrappedWidth = 0;
     minWidth = 0;
@@ -135,17 +136,17 @@ export class Cell {
     width = 0;
     x: number;
     y: number;
-    
+
     colSpan: number;
     rowSpan: number;
-    
+
     constructor(raw, themeStyles, section) {
         this.raw = raw;
         this.rowSpan = raw && raw.rowSpan || 1;
         this.colSpan = raw && raw.colSpan || 1;
         this.styles = assign(themeStyles, raw && raw.styles || {});
         this.section = section;
-        
+
         let text = '';
         let content = raw && typeof raw.content !== 'undefined' ? raw.content : raw;
         content = content != undefined && content.dataKey != undefined ? content.title : content;
@@ -155,7 +156,7 @@ export class Cell {
             // Stringify 0 and false, but not undefined or null
             text = content != undefined ? '' + content : '';
         }
-        
+
         let splitRegex = /\r\n|\r|\n/g;
         this.text = text.split(splitRegex);
 
@@ -171,7 +172,7 @@ export class Cell {
             this.wrappedWidth = this.contentWidth;
         }
     }
-    
+
     padding(name) {
         let padding = marginOrPadding(this.styles.cellPadding, styles([]).cellPadding);
         if (name === 'vertical') {
@@ -186,13 +187,13 @@ export class Cell {
 
 export class Column {
     raw: any;
-    dataKey: string|number;
-    
+    dataKey: string | number;
+
     preferredWidth = 0;
     minWidth = 0;
     wrappedWidth = 0;
     width = 0;
-    
+
     constructor(dataKey) {
         this.dataKey = dataKey;
     }

@@ -7,7 +7,7 @@ export class HookData {
     pageCount: number;
     settings: {};
     doc: any;
-    cursor: {x: number, y: number};
+    cursor: { x: number, y: number };
     addPage: () => void;
 
     constructor() {
@@ -25,7 +25,7 @@ export class CellHookData extends HookData {
     cell: Cell;
     row: Row;
     column: Column;
-    section: 'head'|'body'|'foot';
+    section: 'head' | 'body' | 'foot';
 
     constructor(cell: Cell, row: Row, column: Column) {
         super();

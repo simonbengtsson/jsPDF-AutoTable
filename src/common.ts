@@ -15,7 +15,7 @@ export function getStringWidth(text, styles) {
     });
     let precision = 10000 * state().scaleFactor();
     maxWidth = Math.floor(maxWidth * precision) / precision;
-    return maxWidth * fontSize; 
+    return maxWidth * fontSize;
 }
 
 /**
@@ -25,7 +25,7 @@ export function ellipsize(text, width, styles, ellipsizeStr = '...') {
 
     if (Array.isArray(text)) {
         let value = [];
-        text.forEach(function (str, i) {
+        text.forEach(function(str, i) {
             value[i] = ellipsize(str, width, styles, ellipsizeStr);
         });
         return value;
@@ -52,7 +52,7 @@ export function addTableBorder() {
     applyStyles(styles);
     let fs = getFillStyle(styles);
     if (fs) {
-        state().doc.rect(table.pageStartX, table.pageStartY, table.width, table.cursor.y - table.pageStartY, fs); 
+        state().doc.rect(table.pageStartX, table.pageStartY, table.width, table.cursor.y - table.pageStartY, fs);
     }
 }
 
@@ -85,7 +85,7 @@ export function applyStyles(styles) {
         font: doc.setFont,
         fontSize: doc.setFontSize
     };
-    Object.keys(styleModifiers).forEach(function (name) {
+    Object.keys(styleModifiers).forEach(function(name) {
         let style = styles[name];
         let modifier = styleModifiers[name];
         if (typeof style !== 'undefined') {

@@ -22,15 +22,26 @@ export function getDocumentOptions() {
 class TableState {
     table: Table;
     doc;
-    
+
     constructor(doc) {
-       this.doc = doc;
+        this.doc = doc;
     }
-    
-    pageHeight() { return this.doc.internal.pageSize.height; };
-    pageWidth() { return this.doc.internal.pageSize.width; };
-    pageSize() { return this.doc.internal.pageSize };
-    scaleFactor() { return this.doc.internal.scaleFactor };
+
+    pageHeight() {
+        return this.doc.internal.pageSize.height;
+    };
+
+    pageWidth() {
+        return this.doc.internal.pageSize.width;
+    };
+
+    pageSize() {
+        return this.doc.internal.pageSize
+    };
+
+    scaleFactor() {
+        return this.doc.internal.scaleFactor
+    };
 }
 
 export function setupState(doc) {
