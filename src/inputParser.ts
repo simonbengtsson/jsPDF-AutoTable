@@ -75,28 +75,19 @@ export function parseInput(args) {
 }
 
 function parseUserArguments(args) {
-    // Initialization on format doc.autoTable(100, options) where 100 is startY 
-    if (args.length === 2 && typeof args[0] === 'number') {
-        let opts = args[1];
-        opts.startY = args[0];
-        return opts;
-    }
-
     if (args.length === 1) {
         // Normal initialization on format doc.autoTable(options)
         return args[0];
     }
 
     // Deprecated initialization on format doc.autoTable(columns, body, [options])
-    if (args.length > 1 && args[0] && args[1]) {
+    else {
         //throw 'TODO Fix deprecated initialization';
         let opts = args[2] || {};
         opts.columns = args[0];
         opts.body = args[1];
         return opts;
     }
-
-    throw 'Unsupported autoTable parameters'
 }
 
 function parseContent(table) {
