@@ -7,23 +7,9 @@
  | ´examples.html´ or go to http://simonbengtsson.github.io/jsPDF-AutoTable.
  |
  | To make it possible to view each example in examples.html some extra code
- | are added to the examples below. For example they return their jspdf
- | doc instance and gets generated data from the library faker.js. However you
- | can of course use this plugin how you wish and the simplest first example
- | below would look like this without any extras:
- |
- | var columns = ["ID", "Name", "Age", "City"];
- |
- | var data = [
- |     [1, "Jonathan", 25, "Gothenburg"],
- |     [2, "Simon", 23, "Gothenburg"],
- |     [3, "Hanna", 21, "Stockholm"]
- | ];
- |
- | var doc = new jsPDF();
- | doc.autoTable(columns, data);
- | doc.save("table.pdf");
- |
+ | is added to the examples below. For example they return their jspdf
+ | doc instance and gets generated data from the library faker.js. See simple.html
+ | for a minimal example.
  */
 
 var faker = window.faker;
@@ -70,33 +56,34 @@ examples.minimal = function () {
 // Long data - shows how the overflow features looks and can be used
 examples.long = function () {
     var doc = new jsPDF('l');
-    doc.text("Overflow 'ellipsize'", 14, 15);
+    
     let head = headRows();
     head[0]['text'] = 'Text';
     let body = bodyRows(4);
     body.forEach(function(row) {row['text'] = faker.lorem.sentence(20)});
+    
+    doc.text("Overflow 'linebreak' (default)", 14, 15);
     doc.autoTable(20, {
         head: head,
         body: body,
-        styles: {overflow: 'ellipsize', cellWidth: 'wrap'},
+        bodyStyles: {valign: 'top'},
+        styles: {cellWidth: 'wrap'},
         columnStyles: {text: {cellWidth: 'auto'}}
     });
     doc.text("Overflow 'hidden'", 14, doc.previousAutoTable.finalY + 10);
     doc.autoTable({
-        startY: doc.autoTable.previous.finalY + 15,
+        startY: doc.previousAutoTable.finalY + 15,
         head: head,
         body: body,
         styles: {overflow: 'hidden', cellWidth: 'wrap'},
         columnStyles: {text: {cellWidth: 'auto'}}
     });
-
-    doc.text("Overflow 'linebreak' (default)", 14, doc.previousAutoTable.finalY  + 10);
+    doc.text("Overflow 'ellipsize'", 14, doc.previousAutoTable.finalY  + 10);
     doc.autoTable({
-        startY: doc.autoTable.previous.finalY + 15,
+        startY: doc.previousAutoTable.finalY + 15,
         head: head,
         body: body,
-        bodyStyles: {valign: 'top'},
-        styles: {overflow: 'linebreak', cellWidth: 'wrap'},
+        styles: {overflow: 'ellipsize', cellWidth: 'wrap'},
         columnStyles: {text: {cellWidth: 'auto'}}
     });
 
@@ -283,7 +270,7 @@ examples.spans = function() {
     
     doc.autoTable({
         startY: 60,
-        head: head, 
+        head: head,
         body: body,
         theme: 'grid'
     });
@@ -312,8 +299,10 @@ examples.themes = function () {
 examples.custom = function () {
     var doc = new jsPDF();
     doc.autoTable({
-        head: headRows(), body: bodyRows(),
-        tableLineColor: [52, 73, 94],
+        head: headRows(), 
+        body: bodyRows(),
+        foot: headRows(),
+        tableLineColor: [189, 195, 199],
         tableLineWidth: 0.75,
         styles: {
             font: 'courier',
@@ -324,6 +313,10 @@ examples.custom = function () {
             fillColor: [241, 196, 15],
             fontSize: 15
         },
+        footStyles: {
+            fillColor: [241, 196, 15],
+            fontSize: 15
+        },
         bodyStyles: {
             fillColor: [52, 73, 94],
             textColor: 240
@@ -331,19 +324,21 @@ examples.custom = function () {
         alternateRowStyles: {
             fillColor: [74, 96, 117]
         },
-        allSectionHooks: true,
         // Note that the "email" key below is the same as the column's dataKey used for 
         // the head and body rows. If your data is entered in array form instead you have to 
         // use the integer index instead i.e. `columnStyles: {5: {fillColor: [41, 128, 185], ...}}`
         columnStyles: {
             email: {
                 fontStyle: 'bold'
+            },
+            id: {
+                halign  : 'right'
             }
         },
+        allSectionHooks: true,
         // Use for customizing texts or styles of specific cells after they have been formatted by this plugin. 
         // This hook is called just before the column width and other features are computed.
         didParseCell: function(data) {
-            // You can add jspdf-autotable styles to cells in the cell parsing hook
             if (data.row.index === 5) {
                 data.cell.styles.fillColor = [40, 170, 100];
             }
@@ -351,23 +346,26 @@ examples.custom = function () {
         // Use for changing styles with jspdf functions or customize the positioning of cells or cell text
         // just before they are drawn to the page.
         willDrawCell: function(data) {
-            if (data.row.section === 'head' && data.column.dataKey === "city") {
-                doc.addImage(base64Img, 'JPEG', data.cell.x + data.cell.wrappedWidth, 10, 5, 5);
+            if (data.row.section === 'body' && data.column.dataKey === "expenses") {
+                if (data.cell.raw > 700) {
+                    doc.setTextColor(231, 76, 60);
+                    doc.setFontStyle('bold');
+                }
             }
         },
         // Use for adding content to the cells after they are drawn. This could be images or links.
         // You can also use this to draw other custom jspdf content to cells with doc.text or doc.rect 
         // for example.
         didDrawCell: function(data) {
-            if (data.row.section === 'body' && data.row.index === 2 && data.column.dataKey === 'expenses') {
-                //data.addPage();
+            if (data.row.section === 'head' && data.column.dataKey === "city") {
+                doc.addImage(base64Img, 'JPEG', data.cell.x + data.cell.wrappedWidth, data.cell.y + 2, 5, 5);
             }
             // You can use the native jspdf styling functions in the willDrawCell hook
             if (data.column.dataKey === "expenses" && data.cell.raw > 500) {
                 doc.setFillColor(190, 60, 40);
             }
         },
-        // Use this to add content to each page that has the autoTable on it. This includes page headers,
+        // Use this to add content to each page that has the autoTable on it. This can be page headers,
         // page footers and page numbers for example.
         didDrawPage: function(data) {
 

@@ -8,91 +8,60 @@ Check out the [demo](https://simonbengtsson.github.io/jsPDF-AutoTable/) or [exam
 
 ![sample javascript table pdf](samples.png)
 
-### Install
-Download and include [jspdf.min.js](https://raw.githubusercontent.com/MrRio/jsPDF/master/dist/jspdf.min.js) and [jspdf.plugin.autotable.js](https://raw.githubusercontent.com/simonbengtsson/jsPDF-AutoTable/master/dist/jspdf.plugin.autotable.min.js).
+### Installation
+Get the library by doing one of those things:
+- `npm install jspdf jspdf-autotable`
+- Download jspdf and jspdf-autotable from github
+- Use a CDN, for example: [https://unpkg.com/jspdf-autotable](https://unpkg.com/jspdf-autotable)
+
+Note! Do not use the bower or meteor's Atmospherejs packages of the library. Those are unsupported and outdated.
+
+### Usage example
 
 ```html
+<table id="table"><!-- ... --></table>
+
 <script src="jspdf.min.js"></script>
 <script src="jspdf.plugin.autotable.min.js"></script>
-```
 
-You can also get the plugin with a package manager:
-- `bower install jspdf-autotable`
-- `npm install jspdf-autotable` (only client side usage)
-
-Or CDN:
-```html
-<script src="https://unpkg.com/jspdf-autotable"></script>
-<script src="https://unpkg.com/jspdf"></script>
-```
-
-Note! If you are using meteor, use the npm release. Do not use the `jspdf:autotable` package on atmosphere (outdated and not supported).
-
-### Usage
-
-```javascript
-var columns = ["ID", "Name", "Country"];
-var rows = [
-    [1, "Shaw", "Tanzania", ...],
-    [2, "Nelson", "Kazakhstan", ...],
-    [3, "Garcia", "Madagascar", ...],
-    ...
-];
-
-var doc = new jsPDF();
-doc.autoTable(columns, rows);
-doc.save('table.pdf');
-```
-
-You can also use it with webpack, requirejs and other module bundlers ([examples](examples)).
-
-### Usage with options
-
-```javascript
-var columns = [
-    {title: "ID", dataKey: "id"},
-    {title: "Name", dataKey: "name"}, 
-    {title: "Country", dataKey: "country"}, 
-    ...
-];
-var rows = [
-    {"id": 1, "name": "Shaw", "country": "Tanzania", ...},
-    {"id": 2, "name": "Nelson", "country": "Kazakhstan", ...},
-    {"id": 3, "name": "Garcia", "country": "Madagascar", ...},
-    ...
-];
-
-var doc = new jsPDF('p', 'pt');
-doc.autoTable(columns, rows, {
-    styles: {fillColor: [100, 255, 255]},
-    columnStyles: {
-    	id: {fillColor: 255}
-    },
-    margin: {top: 60},
-    addPageContent: function(data) {
-    	doc.text("Header", 40, 30);
-    }
-});
-doc.save('table.pdf');
+<script>
+    var doc = new jsPDF();
+    // You can use html:
+    doc.autoTable({html: '#table'});
+    
+    // Or javascript:
+    doc.autoTable({
+        head: [['Name', 'Email', 'Country']]
+        body: [
+            ['David', 'david@example.com', 'Sweden'],
+            ['Castille', 'castille@example.com', 'Norway'],
+            // ...
+        ]
+    })
+    
+    doc.save('table.pdf');
+</script>
 ```
 
 Checkout more examples in [examples.js](examples) which is also the source code for the [demo](https://simonbengtsson.github.io/jsPDF-AutoTable/) documents. 
 
 ### Options
-Below is a list of all options supported in the plugin. All of them are used in the [examples](examples) so be sure to check them out if in doubt.
+Below is a list of all options supported in the plugin. All of them are used in the [examples](examples).
 
-```javascript
-{    
-    // Content
-    head: null,
-    body: null,
-    foot: null,
-    html: null,
-    includeHiddenHTML: false,
-    useCss: false,
-    
-    // Styling
-    theme: 'auto', // 'striped', 'grid' or 'plain'
+#### Content options
+- `html: string|HTMLTableElement` An html table element or a css selector (for example "#table") pointing to one.
+- `includeHiddenHTML: boolean = false`
+- `head: Cell[][]` For example [['ID', 'Name', 'Country']] [See more](htttp)
+- `body: Cell[][]` For example [['1', 'Simon', 'Sweden'], ['2', 'Karl', 'Norway']] [See more](htttp)
+- `foot: Cell[][]` For example [['ID', 'Name', 'Country']] [See more](htttp)
+
+#### Styling
+
+- `theme: 'striped'|'grid'|'plain'|'css'`
+- `styles: ''`
+
+```js
+{
     styles: {},
     headStyles: {},
     bodyStyles: {},
@@ -111,17 +80,8 @@ Below is a list of all options supported in the plugin. All of them are used in 
     tableLineWidth: 0,
     tableLineColor: 200, // number, array (see color section below)
     tableId: null,
-    eventHandler: null, // function handling events
 };
 ```
-
-### Content
-    head: null,
-    body: null,
-    foot: null,
-    html: null,
-    includeHiddenHTML: false,
-    useCss: false,
 
 ### Styles
 Styles work similar to css and can be overridden by more specific styles. The overriding order is as follows: Default styles <- theme styles <- `styles` <- `headStyles`, `bodyStyles` and `footStyles` <- `alternateRowStyles` <- `columnStyles`.
@@ -149,7 +109,7 @@ Styles for specific cells can also be applied using either the `eventHandler` (s
 Colors can be specified as a number (255 for white and 0 for black) or an array [red, green, blue] e.g. [255, 0, 0] for red.
 
 ### Properties
-- `startY` Indicates where the table should start to be drawn on the first page (overriding the margin top value). It can be used for example to draw content before the table. Many examples use this option, but the above use case is presented in the `With content` example. This option can also be specified as a the first argument for autoTable: `doc.autoTable(40, {head: ..., body: ...})`.
+- `startY` Indicates where the table should start to be drawn on the first page (overriding the margin top value). It can be used for example to draw content before the table. Many examples use this option, but the above use case is presented in the `With content` example. This option can also be specified as a the first argument for autoTable: `doc.autoTable(40, {html: '#table'})`.
 - `margin` Similar to margin in css it sets how much spacing it should be around the table on each page. The startY option can be used if the margin top value should be different on the first page. The margin option accepts both a number, an array [top, right, bottom, left] and an object {top: 40, right: 40, bottom: 40, left: 40}. If you want to use the default value and only change one side you can specify it like this: {top: 60}.
 - `avoidTableSplit` This option defines the behavior of the table when it will span more than one page. If set to 'true' it will start on a new page if not enough room exists to fit the entire table on the current page.
 - `avoidRowSplit` This option defines the behavior of a row when it will span more than one page (using the linebreak overflow method). If set to 'true' it will start on a new page if not enough room exists to fit the entire row on the current page.
@@ -161,36 +121,10 @@ Colors can be specified as a number (255 for white and 0 for black) or an array 
 - `tableId` Table id that can be set to differntiate between tables in the default option functions. Not used by the plugin itself.
 - `eventHandler` Function that handles events. See event handling section.
 
-### Event handling
-You can customize the content and styling of the table by setting an `eventHandler` and modify the different properties of the event object.
+### Hooks
+You can customize the content and styling of the table by using the hooks.
 
-
-- `pageCount` - The number of pages the table currently spans
-- `settings` - The user options merged with the default options
-- `table` - Information about the table such as the rows, columns and dimensions
-- `doc` - The current jspdf instance
-- `cursor` - 
-
-Event objects have the following definition:
-```javascript
-{
-    type: string; // The event types are listed below
-    pageCount: number; // The number of pages the table currently spans
-    settings: {}; // User options merged with default options
-    doc: any; // The jspdf instance
-    cursor: {x: number, y: number}; // The position at which the next table cell will be drawn. This can be assigned new values to create advanced tables.
-    addPage: () => void; // A function that can be called to split the table at a current row. Use with the addingRow and addedRow events.
-
-    // Depending on the type of event the following content properties might also be set.
-    table?: Table;
-    cell?: Cell;
-    row?: Row;
-    column?: Column;
-    section?: 'head'|'body'|'foot';
-}
-```
-
-See the custom styles example for further information.
+See the custom styles example for usage of the hooks.
 
 - `parsingCell` and `parsingRow` - Fired before any calculation has taken place. Can be used to change content for specific cells or rows.
 - `addingCell` and `addingRow` - Fired before a cell or row is added on page. Can be used to specify custom styles.
@@ -214,13 +148,13 @@ If you want to know something about the last table that was drawn you can use `d
 ### Contributions
 Contributions are always welcome, especially on open issues. If you have something major you want to add or change, please post an issue about it first to discuss it further. The workflow for contributing would be something like this:
 
+- Start watcher with `npm start`
 - Make code changes
-- Start watcher with `npm start` (will build files on file changes)
-- Test that the examples works in `examples/index.html`
+- Make sure all examples works
 - Commit and submit pull request
 
-### Release workflow (write access to repo required)
+### Release workflow (write access required)
 - Test and commit code changes 
-- Run `npm version <semver|major|minor|patch> -m <optional-commit-message>`
-- Manually verify files and look over the examples
-- Deploy with `npm run deploy`
+- `npm version <semver|major|minor|patch>`
+- Verify examples
+- `npm run deploy`
