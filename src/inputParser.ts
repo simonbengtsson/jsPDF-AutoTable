@@ -60,8 +60,8 @@ export function parseInput(args) {
 
     parseContent(table);
 
-    table.minWidth = table.columns.reduce((total, col) => { return total + col.minWidth }, 0);
-    table.wrappedWidth = table.columns.reduce((total, col) => { return total + col.wrappedWidth }, 0);
+    table.minWidth = table.columns.reduce((total, col) => (total + col.minWidth), 0);
+    table.wrappedWidth = table.columns.reduce((total, col) => (total + col.wrappedWidth), 0);
 
     if (typeof table.settings.tableWidth === 'number') {
         table.width = table.settings.tableWidth;
@@ -105,40 +105,60 @@ function parseContent(table) {
     table.columns = getTableColumns(settings);
     
     for (let sectionName of ['head', 'body', 'foot']) {
-        let rowSpansLeft = 0;
+        let rowSpansLeftForColumn = {};
+        let mergedSpansForColumn = {};
         settings[sectionName].forEach((rawRow, rowIndex) => {
             let row = new Row(rawRow, rowIndex, sectionName);
-            
+            table[sectionName].push(row);
+
+            let colSpansAdded = 0;
             let columnSpansLeft = 0;
             for (let column of table.columns) {
-                if (rowSpansLeft === 0) {
+                if (rowSpansLeftForColumn[column.dataKey] == null || rowSpansLeftForColumn[column.dataKey].left === 0) {
                     if (columnSpansLeft === 0) {
+                        let rawCell;
+                        if (Array.isArray(rawRow)) {
+                            rawCell = rawRow[column.dataKey - colSpansAdded];
+                        } else {
+                            rawCell = rawRow[column.dataKey];
+                        }
+
                         let styles = cellStyles(sectionName, column.dataKey, rowIndex);
-                        let rawCell = rawRow[column.dataKey];
                         let cell = new Cell(rawCell, styles, sectionName);
                         row.cells[column.dataKey] = cell;
 
                         table.callCellHooks(table.cellHooks.didParseCell, cell, row, column);
-                        
-                        columnSpansLeft = cell.colSpan - 1;
-                        rowSpansLeft = cell.rowSpan - 1;
 
-                        if (cell.wrappedWidth > column.wrappedWidth) {
-                            column.wrappedWidth = cell.wrappedWidth;
-                        }
-                        if (cell.minWidth > column.minWidth) {
-                            column.minWidth = cell.minWidth;
-                        }
+                        columnSpansLeft = cell.colSpan - 1;
+                        rowSpansLeftForColumn[column.dataKey] = {left: cell.rowSpan - 1, times: columnSpansLeft};
                     } else {
                         columnSpansLeft--;
-                    }
+                        colSpansAdded++;
+                    }   
                 } else {
-                    rowSpansLeft--;
+                    rowSpansLeftForColumn[column.dataKey].left--;
+                    columnSpansLeft = rowSpansLeftForColumn[column.dataKey].times;
                 }
             }
-            table[sectionName].push(row)
         });
     }
+
+    table.allRows().forEach(row => {
+        for (let column of table.columns) {
+            let cell = row.cells[column.dataKey];
+            
+            // Kind of make sense to not consider width of cells with colspan columns
+            // Consider this in a future release however
+            if (cell && cell.colSpan === 1) {
+                if (cell.wrappedWidth > column.wrappedWidth) {
+                    column.wrappedWidth = cell.wrappedWidth;
+                }
+                if (cell.minWidth > column.minWidth) {
+                    column.minWidth = cell.minWidth;
+                }
+            }
+        }
+    });
 }
 
 function getTableColumns(settings) {
@@ -148,7 +168,7 @@ function getTableColumns(settings) {
     } else {
         let merged = assign({}, settings.head[0] || {}, settings.body[0] || {}, settings.foot[0] || {});
         dataKeys = Object.keys(merged);
-    }   
+    }
     return dataKeys.map(key => new Column(key));
 }
 
