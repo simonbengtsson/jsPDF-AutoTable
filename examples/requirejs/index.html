@@ -23,30 +23,36 @@
         }
     });
     
-    // Experiment with multiple dependencies (some issues with this in old versions of jspdf)
+    // There currently is an issue with jspdf and requirejs (jspdf version <=1.3.5, 2017-11-18)
+    // A workaround is to use a patched jspdf version found here: https://github.com/MrRio/jsPDF/pull/989
+    // Below is an example highlighting the issue.
     
     /*
     require.config({paths: {
         'd3': '../libs/d3',
-        'jspdf': '../libs/jspdf.debug',
+        'jspdf': 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.3.5/jspdf.min',
         'jspdf-autotable': '../libs/jspdf.plugin.autotable',
         'moment': '../libs/moment',
         'jquery': '../libs/jquery'
     }});
 
-    require(['d3', 'jspdf', 'jspdf-autotable', 'moment', 'jquery', 'main'], function(d3, jsPDF, bbb, moment, jquery, main) {
+    require(['d3', 'jspdf', 'jspdf-autotable', 'moment', 'jquery', 'main'], function(d3, jsPDF, at, moment, jquery, main) {
+        console.log("D3: " + Object.keys(d3 || {}).geoTransverseMercator);
         console.log(arguments);
         console.log(jquery('title').text());
         console.log(moment().format("MMM Do YY"));
 
         var svg = d3.select("#circle");
-        var circle = svg.append("circle").attr("cx", 30).attr("cy", 30).attr("r", 20);
+        svg.append("circle").attr("cx", 30).attr("cy", 30).attr("r", 20);
 
         document.getElementById("generate").onclick = function() {
             main.generatePdf();
         }
     });
     */
+</script>
+
+<script>
     
 </script>
 </body>
