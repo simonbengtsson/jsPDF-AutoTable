@@ -26,6 +26,12 @@ export function printFullRow(row, drawRowHooks, drawCellHooks) {
                 let remainingPageSpace = pageHeight - table.cursor.y - table.margin('bottom');
                 let remainingLineCount = Math.floor((remainingPageSpace - vPadding) / fontHeight);
 
+                // Splice with negative values results in unexpected results, therefore eliminate
+                // scenarios where less than one line is remaining, but are shown
+                if (remainingLineCount < 0) {
+                    remainingLineCount = 0;
+                }
+
                 if (Array.isArray(cell.text) && cell.text.length > remainingLineCount) {
                     let remainingLines = cell.text.splice(remainingLineCount, cell.text.length);
                     remainingTexts[col.dataKey] = remainingLines;
