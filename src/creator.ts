@@ -96,7 +96,8 @@ export function createModels(inputHeaders, inputData) {
         table.columns.push(col);
 
         let cell = new Cell(rawColumn);
-        cell.styles = Config.styles([theme.table, theme.header, table.styles.styles, table.styles.headerStyles]);
+        let headerStyles = table.styles.headerStyles[dataKey] || {};
+        cell.styles = Config.styles([theme.table, theme.header, table.styles.styles, table.styles.headerStyles,headerStyles]);
 
         if (cell.raw instanceof HTMLElement) {
             cell.text = (cell.raw.innerText || '').trim();
