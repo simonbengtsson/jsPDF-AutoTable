@@ -5,7 +5,7 @@ import {getStringWidth, ellipsize} from './common';
  * Calculate the column widths
  */
 export function calculateWidths(doc, pageWidth) {
-    
+
     let table = Config.tableInstance();
 
     // Column and table content width
@@ -56,13 +56,14 @@ export function calculateWidths(doc, pageWidth) {
 
             Config.applyStyles(cell.styles);
             let textSpace = col.width - cell.padding('horizontal');
+            let k = Config.scaleFactor();
             if (cell.styles.overflow === 'linebreak') {
                 // Add one pt to textSpace to fix rounding error
                 try {
-                    cell.text = doc.splitTextToSize(cell.text, textSpace + 1, {fontSize: cell.styles.fontSize});
+                    cell.text = doc.splitTextToSize(cell.text, textSpace + 1 / k, {fontSize: cell.styles.fontSize});
                 } catch(e) {
                     if (e instanceof TypeError && Array.isArray(cell.text)) {
-                        cell.text = doc.splitTextToSize(cell.text.join(' '), textSpace + 1, {fontSize: cell.styles.fontSize});
+                        cell.text = doc.splitTextToSize(cell.text.join(' '), textSpace + 1 / k, {fontSize: cell.styles.fontSize});
                     } else {
                         throw e;
                     }
@@ -79,7 +80,6 @@ export function calculateWidths(doc, pageWidth) {
                 console.error("Unrecognized overflow type: " + cell.styles.overflow);
             }
 
-            let k = Config.scaleFactor();
             let lineCount = Array.isArray(cell.text) ? cell.text.length : 1;
             let fontHeight = cell.styles.fontSize / k * FONT_ROW_RATIO;
             cell.contentHeight = lineCount * fontHeight + cell.padding('vertical');
@@ -88,7 +88,7 @@ export function calculateWidths(doc, pageWidth) {
                 row.maxLineCount = lineCount;
             }
         });
-        
+
         table.height += row.height;
     });
 }
