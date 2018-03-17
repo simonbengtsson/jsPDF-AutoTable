@@ -135,7 +135,7 @@ export interface HTMLConfig extends BaseConfig {
 export function defaultConfig() {
     return {
         // Html content
-        html: null, // HTML table element or a CSS selector pointing towards
+        html: null, // HTML table element or a CSS selector pointing towards one
 
         // Custom content
         head: null,
@@ -144,7 +144,7 @@ export function defaultConfig() {
 
         // Properties
         includeHiddenHTML: false,
-        startY: false, // false indicates the margin top value
+        startY: null, // Defaults to margin top value if not set
         margin: 40 / state().scaleFactor(),
         avoidTableSplit: false,
         avoidRowSplit: false,
@@ -166,12 +166,15 @@ export function defaultConfig() {
         columnStyles: {},
 
         // Hooks
+        // Use to change the content of the cell before width calculations etc are performed
         didParseCell: function(data) {
         },
         willDrawCell: function(data) {
         },
+        // Use to draw additional content such as images in table cells
         didDrawCell: function(data) {
         },
+        // Use to draw additional content to each page such as headers and footers
         didDrawPage: function(data) {
         },
         allSectionHooks: false, // Set to true if you want the cell hooks to be called for cells in the header and footer

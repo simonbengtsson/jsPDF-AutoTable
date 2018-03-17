@@ -26,7 +26,7 @@ interface Properties {
     theme: 'auto' | 'striped' | 'grid' | 'plain', // default: striped
     includeHiddenHTML: boolean,
     useCss: boolean,
-    startY: false | number,
+    startY: null|number,
     margin: MarginPadding,
     avoidTableSplit: boolean,
     avoidRowSplit: boolean,

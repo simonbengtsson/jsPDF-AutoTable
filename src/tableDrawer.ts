@@ -7,14 +7,14 @@ export function drawTable(table: Table) {
     let settings = table.settings;
     table.cursor = {
         x: table.margin('left'),
-        y: settings.startY === false ? table.margin('top') : settings.startY
+        y: settings.startY == null ? table.margin('top') : settings.startY
     };
 
     let minTableBottomPos = settings.startY + table.margin('bottom') + table.headHeight + table.footHeight;
     if (settings.avoidTableSplit) {
         minTableBottomPos += table.height;
     }
-    if (settings.startY !== false && minTableBottomPos > state().pageHeight()) {
+    if (settings.startY != null && minTableBottomPos > state().pageHeight()) {
         nextPage(state().doc);
         table.cursor.y = table.margin('top');
     }
@@ -86,6 +86,7 @@ function printFullRow(row: Row) {
             }
 
             // Reset row height since text are now removed
+            console.log('max', maxCellHeight);
             row.height = maxCellHeight;
             row.maxCellHeight = maxRowSpanCellHeight;
         }
@@ -105,6 +106,7 @@ function printFullRow(row: Row) {
 
         addPage();
         row.pageCount++;
+        console.log('rem', remainingRowHeight);
         row.height = remainingRowHeight;
         printFullRow(row);
     }
@@ -166,7 +168,7 @@ function printRow(row) {
 
         table.cursor.x += column.width;
     }
-
+    
     table.cursor.y += row.height;
 }
 

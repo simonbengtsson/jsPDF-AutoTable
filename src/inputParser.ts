@@ -2,7 +2,7 @@ import {Row, Cell, Column, Table} from './models';
 import {getTheme, defaultConfig, defaultStyles} from './config';
 import {parseHtml} from "./htmlParser";
 import {assign} from './polyfills';
-import {getStringWidth, ellipsize, applyUserStyles, marginOrPadding, styles} from './common';
+import {marginOrPadding} from './common';
 import state, {getGlobalOptions, getDocumentOptions} from './state';
 import validateInput from './inputValidator';
 
@@ -49,6 +49,14 @@ export function parseInput(args) {
     if (table.settings.theme === 'auto') {
         table.settings.theme = table.settings.useCss ? 'plain' : 'striped';
     }
+    
+    if (table.settings.startY === false) {
+        delete table.settings.startY;
+    }
+    
+    if (table.settings.startY == null && state().doc.previousAutoTable) {
+        table.settings.startY = state().doc.previousAutoTable.finalY + 20 / state().scaleFactor()
+    }
 
     let htmlContent: any = {};
     if (table.settings.html) {
@@ -70,7 +78,7 @@ export function parseInput(args) {
     } else {
         table.width = state().pageWidth() - table.margin('left') - table.margin('right');
     }
-
+    
     return table;
 }
 

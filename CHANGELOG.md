@@ -32,6 +32,7 @@ data.row.raw[i].textContent → data.row.raw[i].content.textContent
 - Added `showFooter` option (similar to showHeader)
 - Added `footerStyles` option (similar to headerStyles)
 - Added `rowPageBreak` option
+- Added automatic startY when multiple tables are used
 - Hooks?
 
 Deprecations:

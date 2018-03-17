@@ -1,25 +1,24 @@
+<a href='https://ko-fi.com/A535IR4' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://az743702.vo.msecnd.net/cdn/kofi4.png?v=f' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a> 
 # AutoTable - Table plugin for jsPDF
 
-[![Join the chat at https://gitter.im/simonbengtsson/jsPDF-AutoTable](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/simonbengtsson/jsPDF-AutoTable?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+**Generate PDF tables with Javascript**
 
-**Generate PDF tables with javascript**
-
-Check out the [demo](https://simonbengtsson.github.io/jsPDF-AutoTable/) or [examples](https://github.com/simonbengtsson/jsPDF-AutoTable/tree/master/examples).
+This jsPDF plugin aims at making it easy to generate pdf tables either from HTML or directly from Javascript. Check out the [demo](https://simonbengtsson.github.io/jsPDF-AutoTable/) or [examples](https://github.com/simonbengtsson/jsPDF-AutoTable/tree/master/examples).
 
 ![sample javascript table pdf](samples.png)
 
 ### Installation
-Get the library by doing one of those things:
+Get the library by doing one of these things:
 - `npm install jspdf jspdf-autotable`
-- Download jspdf and jspdf-autotable from github
-- Use a CDN, for example: [https://unpkg.com/jspdf-autotable](https://unpkg.com/jspdf-autotable)
+- Download [jspdf](https://raw.githubusercontent.com/MrRio/jsPDF/master/dist/jspdf.min.js) and [jspdf-autotable](https://raw.githubusercontent.com/simonbengtsson/jsPDF-AutoTable/master/dist/jspdf.plugin.autotable.js) from github
+- Use a CDN, for example: [https://unpkg.com/jspdf](https://unpkg.com/jspdf) and [https://unpkg.com/jspdf-autotable](https://unpkg.com/jspdf-autotable)
 
 Note! Do not use the bower or meteor's Atmospherejs packages of the library. Those are unsupported and outdated.
 
 ### Usage example
 
 ```html
-<table id="table"><!-- ... --></table>
+<table id="my-table"><!-- ... --></table>
 
 <script src="jspdf.min.js"></script>
 <script src="jspdf.plugin.autotable.min.js"></script>
@@ -27,7 +26,7 @@ Note! Do not use the bower or meteor's Atmospherejs packages of the library. Tho
 <script>
     var doc = new jsPDF();
     // You can use html:
-    doc.autoTable({html: '#table'});
+    doc.autoTable({html: '#my-table'});
     
     // Or javascript:
     doc.autoTable({
@@ -37,10 +36,22 @@ Note! Do not use the bower or meteor's Atmospherejs packages of the library. Tho
             ['Castille', 'castille@example.com', 'Norway'],
             // ...
         ]
-    })
+    });
     
     doc.save('table.pdf');
 </script>
+```
+
+Or if using javascript modules and es6:
+
+```js
+import jsPDF from 'jspdf';
+doc.autoTable({html: '#my-table'});
+import 'jspdf-autotable';
+
+const doc = new jsPDF();
+doc.autoTable({html: '#my-table'});
+doc.save('table.pdf');
 ```
 
 Checkout more examples in [examples.js](examples) which is also the source code for the [demo](https://simonbengtsson.github.io/jsPDF-AutoTable/) documents. 
@@ -49,60 +60,61 @@ Checkout more examples in [examples.js](examples) which is also the source code 
 Below is a list of all options supported in the plugin. All of them are used in the [examples](examples).
 
 #### Content options
-- `html: string|HTMLTableElement` An html table element or a css selector (for example "#table") pointing to one.
-- `includeHiddenHTML: boolean = false`
+Either the body or html option is required and cannot be used at the same time.
+
 - `head: Cell[][]` For example [['ID', 'Name', 'Country']] [See more](htttp)
 - `body: Cell[][]` For example [['1', 'Simon', 'Sweden'], ['2', 'Karl', 'Norway']] [See more](htttp)
 - `foot: Cell[][]` For example [['ID', 'Name', 'Country']] [See more](htttp)
+- `html: string|HTMLTableElement` An html table element or a css selector (for example "#table").
+- `includeHiddenHTML: boolean = false`
 
 #### Styling
 
-- `theme: 'striped'|'grid'|'plain'|'css'`
-- `styles: ''`
+- `theme: 'striped'|'grid'|'plain'|'css' = 'striped'` 
+- `styles: StyleDefinition`
+- `headStyles: StyleDefinition`
+- `bodyStyles: StyleDefinition`
+- `footStyles: StyleDefinition`
+- `alternateRowStyles: StyleDefinition`
+- `columnStyles: StyleDefinition`
 
-```js
-{
-    styles: {},
-    headStyles: {},
-    bodyStyles: {},
-    footStyles: {},
-    alternateRowStyles: {},
-    columnStyles: {},
+### Others
+- `startY: number = null`
+- `margin: Margin = 40`
+- `avoidTableSplit: boolean = false`
+- `avoidRowSplit: boolean = false`
+- `tableWidth: 'auto'|'wrap'|number = 'auto'`
+- `showHead: 'everyPage'|'lastPage'|'never' = 'everyPage''`
+- `showFoot: 'everyPage'|'lastPage'|'never' = 'everyPage''`
+- `tableLineWidth: number = 0`
+- `tableLineColor: Color = 200`
 
-    // Properties
-    startY: false, // false or number (false indicates the margin top value)
-    margin: 40, // a number, array or object
-    avoidTableSplit: false,
-    avoidRowSplit: false,
-    tableWidth: 'auto', // 'auto'|'wrap'|number
-    showHeader: 'everyPage', // 'everyPage', 'firstPage', 'never',
-    showFooter: 'everyPage', // 'everyPage', 'lastPage', 'never',
-    tableLineWidth: 0,
-    tableLineColor: 200, // number, array (see color section below)
-    tableId: null,
-};
-```
+### StyleDefinition
+Styles work similar to css and can be overridden by more specific styles. The overriding order is as follows: 
+1. Theme styles
+2. `styles`
+3. `headStyles`, `bodyStyles` and `footStyles`
+4. `alternateRowStyles`
+5. `columnStyles`
 
-### Styles
-Styles work similar to css and can be overridden by more specific styles. The overriding order is as follows: Default styles <- theme styles <- `styles` <- `headStyles`, `bodyStyles` and `footStyles` <- `alternateRowStyles` <- `columnStyles`.
+## Reference
 
-```javascript
-{
-    font: "helvetica", // helvetica, times, courier
-    fontStyle: 'normal', // normal, bold, italic, bolditalic
-    overflow: 'linebreak', // linebreak, ellipsize, visible or hidden
-    fillColor: false, // Either false for transparent, rbg array e.g. [255, 255, 255] or gray level e.g 200
-    textColor: 20,
-    halign: 'left', // left, center, right
-    valign: 'top', // top, middle, bottom
-    fontSize: 10,
-    cellPadding: 5 / state().scaleFactor, // number or {top,left,right,left,vertical,horizontal}
-    lineColor: 200, // cell line/border color
-    lineWidth: 0 / state().scaleFactor, // cell line/border width
-    cellWidth: 'auto', // 'auto'|'wrap'|number
-    minCellHeight: 0
-}
-```
+StyleDefinition:
+- `font: 'helvetica'|'times'|'courier' = 'helvetica'`
+- `fontStyle: 'normal'|'bold'|'italic'|'bolditalic' = 'normal'`
+- `overflow: 'linebreak'|'ellipsize'|'visible'|'hidden' = 'normal'`
+- `fillColor: Color? = null`
+- `textColor: Color? = 20`
+- `cellWidth: 'auto'|'wrap'|number = 'auto'`
+- `minCellHeight: number = 0`
+- `halign: 'left'|'center'|'right' = 'left'`
+- `valign: 'top'|'middle'|'bottom' = 'top'`
+- `fontSize: number = 10`
+- `cellPadding: Padding = 10`
+- `lineColor: Color = 10`
+- `lineWidth: number = 0` // If 0, no border is drawn
+
+Color: Either false for transparent, rbg array e.g. [255, 255, 255] or gray level e.g 200
 
 Styles for specific cells can also be applied using either the `eventHandler` (see `Custom style` example) or the `styles` property on the cell definition object (see content section above).
 
@@ -133,9 +145,11 @@ See the custom styles example for usage of the hooks.
 
 *OBS!* Only the `drawCell` event can be used with the native style jspdf style changes such as `doc.setLineWidth`. If you use the other hooks for changing styles, they will be overridden.
 
-### Helper functions
-- `doc.autoTableSetDefaults({ ... })`. Use for setting default options for all tables on the specific document. Settings and styles will be overridden in the following order `global` < `document` < `table`. Hooks will be added and not overridden.
-- `jsPDF.autoTableSetDefaults({ ... })` Use for setting global defaults which will be applied for all document and tabels.
+### API
+- `doc.autoTable({ /* ... */ })` Main 
+- `doc.autoTable({ /* ... */ })`
+- `doc.autoTableSetDefaults({ /* ... */ })` Use for setting default options for all tables on the specific document. Settings and styles will be overridden in the following order `global` < `document` < `table`. Hooks will be added and not overridden.
+- `jsPDF.autoTableSetDefaults({ /* ... */ })` Use for setting global defaults which will be applied for all document and tabels.
 
 If you want to know something about the last table that was drawn you can use `doc.previousAutoTable`. It has a `doc.previousAutoTable.finalY` property among other things that has the value of the last printed y coordinate on a page. This can be used to draw text, multiple tables or other content after a table.
 

@@ -117,7 +117,8 @@ export function marginOrPadding(value, defaultValue: number): any {
         if (value['vertical']) {
             value['top'] = value['vertical'];
             value['bottom'] = value['vertical'];
-        } else if (value['horizontal']) {
+        }
+        if (value['horizontal']) {
             value['right'] = value['horizontal'];
             value['left'] = value['horizontal'];
         }

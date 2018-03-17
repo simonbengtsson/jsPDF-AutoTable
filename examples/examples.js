@@ -19,25 +19,27 @@ var examples = {};
 // Basic - shows what a default table looks like
 examples.basic = function () {
     var doc = new jsPDF();
+    
+    // From HTML
+    doc.autoTable({html: '.table'});
+    
+    // From Javascript array
+    let finalY = doc.previousAutoTable.finalY;
+    doc.text("From javascript arrays", 14, finalY + 15);
     doc.autoTable({
+        startY: finalY + 20,
         head: headRows(),
         body: bodyRows(),
     });
-    return doc;
-};
 
-// From html - shows how pdf tables can be be drawn from html tables
-examples.html = function () {
-    var doc = new jsPDF();
-    doc.text("From HTML", 14, 16);
-    doc.autoTable({html: '.table', startY: 20});
-    var finalY = doc.previousAutoTable.finalY;
+    finalY = doc.previousAutoTable.finalY;
     doc.text("From HTML with CSS", 14, finalY + 15);
     doc.autoTable({
         startY: finalY + 20,
-        html: '.table', 
+        html: '.table',
         useCss: true,
     });
+    
     return doc;
 };
 
