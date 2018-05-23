@@ -12,7 +12,7 @@ import {createModels, validateInput} from './creator';
  *
  * @param {Object[]|String[]} headers Either as an array of objects or array of strings
  * @param {Object[][]|String[][]} data Either as an array of objects or array of strings
- * @param {Object} [userOptions={}] Options that will override the default ones
+ * @param {Object} [tableOptions={}] Options that will override the default ones
  */
 jsPDF.API.autoTable = function (headers, data, tableOptions = {}) {
     this.autoTableState = this.autoTableState || {};
