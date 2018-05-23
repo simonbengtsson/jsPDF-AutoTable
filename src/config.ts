@@ -98,7 +98,7 @@ export interface BaseConfig {
     startY?: false | number,
     margin?: MarginPadding,
     avoidTableSplit?: boolean,
-    avoidRowSplit?: boolean,
+    rowPageBreak: 'auto'|'avoid',
     tableWidth?: 'auto' | 'wrap' | number,
     showHeader?: 'everyPage' | 'firstPage' | 'never',
     showFooter?: 'everyPage' | 'lastPage' | 'never',
@@ -147,7 +147,7 @@ export function defaultConfig() {
         startY: null, // Defaults to margin top value if not set
         margin: 40 / state().scaleFactor(),
         avoidTableSplit: false,
-        avoidRowSplit: false,
+        rowPageBreak: 'auto',
         tableWidth: 'auto', // 'auto'|'wrap'|number
         showHeader: 'everyPage', // 'everyPage', 'firstPage', 'never',
         showFooter: 'everyPage', // 'everyPage', 'lastPage', 'never',

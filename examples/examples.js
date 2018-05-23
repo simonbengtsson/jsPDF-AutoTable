@@ -23,13 +23,22 @@ examples.basic = function () {
     // From HTML
     doc.autoTable({html: '.table'});
     
-    // From Javascript array
+    // From Javascript
     let finalY = doc.previousAutoTable.finalY;
     doc.text("From javascript arrays", 14, finalY + 15);
     doc.autoTable({
         startY: finalY + 20,
-        head: headRows(),
-        body: bodyRows(),
+        head: [
+            ['ID', 'Name', 'Email', 'Country', 'IP-address'],
+        ],
+        body: [
+            ['1', 'Donna', 'dmoore0@furl.net', 'China', '211.56.242.221'],
+            ['2', 'Janice', 'jhenry1@theatlantic.com', 'Ukraine', '38.36.7.199'],
+            ['3', 'Ruth', 'rwells2@constantcontact.com', 'Trinidad and Tobago', '19.162.133.184'],
+            ['4', 'Jason', 'jray3@psu.edu', 'Brazil', '10.68.11.42'],
+            ['5', 'Jane', 'jstephens4@go.com', 'United States', '47.32.129.71'],
+            ['6', 'Adam', 'anichols5@com.com', 'Canada', '18.186.38.37']
+        ],
     });
 
     finalY = doc.previousAutoTable.finalY;
@@ -47,8 +56,7 @@ examples.basic = function () {
 examples.minimal = function () {
     var doc = new jsPDF();
     doc.autoTable({
-        head: headRows(),
-        body: bodyRows(),
+        html: '.table',
         tableWidth: 'wrap',
         styles: {cellPadding: 0.5, fontSize: 8}
     });
@@ -62,20 +70,9 @@ examples.long = function () {
     let head = headRows();
     head[0]['text'] = 'Text';
     let body = bodyRows(4);
-    body.forEach(function(row) {row['text'] = faker.lorem.sentence(20)});
+    body.forEach(function(row) {row['text'] = faker.lorem.sentence(150)});
     
-    doc.text("Overflow 'linebreak' (default)", 14, 15);
     doc.autoTable({
-        startY: 20,
-        head: head,
-        body: body,
-        bodyStyles: {valign: 'top'},
-        styles: {cellWidth: 'wrap'},
-        columnStyles: {text: {cellWidth: 'auto'}}
-    });
-    doc.text("Overflow 'hidden'", 14, doc.previousAutoTable.finalY + 10);
-    doc.autoTable({
-        startY: doc.previousAutoTable.finalY + 15,
         head: head,
         body: body,
         styles: {overflow: 'hidden', cellWidth: 'wrap'},
@@ -83,10 +80,18 @@ examples.long = function () {
     });
     doc.text("Overflow 'ellipsize'", 14, doc.previousAutoTable.finalY  + 10);
     doc.autoTable({
-        startY: doc.previousAutoTable.finalY + 15,
         head: head,
         body: body,
+        startY: doc.previousAutoTable.finalY + 50,
         styles: {overflow: 'ellipsize', cellWidth: 'wrap'},
+        columnStyles: {text: {cellWidth: 'auto'}},
+    });
+
+    doc.autoTable({
+        head: head,
+        body: body,
+        bodyStyles: {valign: 'top'},
+        styles: {cellWidth: 'wrap', rowPageBreak: 'auto'},
         columnStyles: {text: {cellWidth: 'auto'}}
     });
 

@@ -2,12 +2,14 @@
 - Refactor to didParseCell, willDrawCell, didDrawCell, didDrawPage
 - Fix column.raw as in v2.3.2
 - avoidPageSplit -> pageBreak: 'auto'|'avoid'|'always'
-- avoidRowSplit -> rowPageBreak: 'auto'|'avoid'|'always'
 - Refactor out inputParser
 - Add columns option
+- Use header on each page as default (?)
+- Fix rowPageBreak 'auto'
+- Only print head if first row of body fits on page
 
-# 3.1
-- Investigate default to startY to margin.bottom of previous table
+### 3.1
+None for now
 
 Deprecation warnings for:
 cell.raw.className → cell.raw.content.className
@@ -15,7 +17,7 @@ data.row.raw[i].className → data.row.raw[i].content.className
 data.row.raw[i].textContent → data.row.raw[i].content.textContent
 
 ### Content arguments
-- There is simply no argument. Everybody seem to be using fromHTML option and head,body,foot is no new concept to learn. It might be some tradeofs in for more experienced users and in terms of logic. But serisouly is worth it anyhow. Plus, can always add a columns feild which would be same as v2
+- There is simply no argument. Everybody seem to be using fromHTML option and head,body,foot is no new concept to learn. It might be some tradeoffs in for more experienced users and in terms of logic. But serisouly is worth it anyhow. Plus, can always add a columns feild which would be same as v2
 
 # Changelog
 

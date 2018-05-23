@@ -29,7 +29,7 @@ interface Properties {
     startY: null|number,
     margin: MarginPadding,
     avoidTableSplit: boolean,
-    avoidRowSplit: boolean,
+    rowPageBreak: 'auto'|'avoid',
     tableWidth: 'auto' | 'wrap' | number,
     showHeader: 'everyPage' | 'firstPage' | 'never',
     showFooter: 'everyPage' | 'lastPage' | 'never',

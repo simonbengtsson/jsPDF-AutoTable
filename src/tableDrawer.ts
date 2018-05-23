@@ -46,14 +46,12 @@ function printFullRow(row: Row) {
     let table = state().table;
 
     if (!canFitOnPage(row.maxCellHeight)) {
-        let maxTableHeight = state().doc.internal.pageSize.height - table.margin('top') - table.margin('bottom');
-        if (row.maxCellLineCount <= 1 || (table.settings.avoidRowSplit && row.maxCellHeight < maxTableHeight)) {
+        if (/*row.maxCellLineCount <= 1 ||*/ (table.settings.rowPageBreak === 'avoid' && rowFitsOnPage(row))) {
             addPage();
         } else {
             // Modify the row to fit the current page and calculate text and height of partial row
             row.spansMultiplePages = true;
 
-            let pageHeight = state().doc.internal.pageSize.height;
             let maxCellHeight = 0;
             let maxRowSpanCellHeight = 0;
 
@@ -66,6 +64,7 @@ function printFullRow(row: Row) {
 
                 let fontHeight = cell.styles.fontSize / state().scaleFactor() * FONT_ROW_RATIO;
                 let vPadding = cell.padding('vertical');
+                let pageHeight = state().pageHeight();
                 let remainingPageSpace = pageHeight - table.cursor.y - table.margin('bottom');
                 let remainingLineCount = Math.floor((remainingPageSpace - vPadding) / fontHeight);
 
@@ -86,9 +85,10 @@ function printFullRow(row: Row) {
             }
 
             // Reset row height since text are now removed
-            console.log('max', maxCellHeight);
             row.height = maxCellHeight;
             row.maxCellHeight = maxRowSpanCellHeight;
+            
+            console.log('HEIGHT', row.height)
         }
     }
 
@@ -110,6 +110,13 @@ function printFullRow(row: Row) {
         row.height = remainingRowHeight;
         printFullRow(row);
     }
+}
+
+function rowFitsOnPage(row) {
+    let table = state().table;
+    let pageHeight = state().pageHeight();
+    let maxTableHeight = pageHeight - table.margin('top') - table.margin('bottom');
+    return row.maxCellHeight < maxTableHeight
 }
 
 function printRow(row) {
