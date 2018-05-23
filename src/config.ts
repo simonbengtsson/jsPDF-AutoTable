@@ -87,7 +87,15 @@ function defaultStyles() {
 export class Config {
     
     static pageSize() {
-        return table.doc.internal.pageSize;
+        let pageSize = table.doc.internal.pageSize;
+        // JSPDF 1.4 uses get functions instead of properties on pageSize
+        if (pageSize.width == null) {
+            pageSize = {
+                width: pageSize.getWidth(),
+                height: pageSize.getHeight()
+            }
+        }
+        return pageSize;
     }
     
     static applyUserStyles() {

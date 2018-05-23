@@ -7,10 +7,10 @@
     "example": "examples"
   },
   "peerDependencies": {
-    "jspdf": "1.3.x"
+    "jspdf": "1.4.x"
   },
   "devDependencies": {
-    "jspdf": "1.3.x",
+    "jspdf": "1.4.x",
     "mocha": "5.2.0",
     "mock-browser": "0.92.14",
     "object-assign": "4.1.1",
