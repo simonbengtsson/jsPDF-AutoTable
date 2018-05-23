@@ -1,11 +1,11 @@
 /*!
- * jsPDF AutoTable plugin v2.3.2
+ * jsPDF AutoTable plugin v2.3.3
  * Copyright (c) 2014 Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable 
  * 
  * Licensed under the MIT License.
  * http://opensource.org/licenses/mit-license
  * 
- * */if (typeof window === 'object') window.jspdfAutoTableVersion = '2.3.2';/*
+ * * /if (typeof window === 'object') window.jspdfAutoTableVersion = '2.3.3';/*
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
@@ -16,7 +16,7 @@
 		var a = typeof exports === 'object' ? factory(require("jspdf")) : factory(root["jsPDF"]);
 		for(var i in a) (typeof exports === 'object' ? exports : root)[i] = a[i];
 	}
-})(this, function(__WEBPACK_EXTERNAL_MODULE_19__) {
+})(window, function(__WEBPACK_EXTERNAL_MODULE__34__) {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -25,9 +25,9 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	function __webpack_require__(moduleId) {
 /******/
 /******/ 		// Check if module is in cache
-/******/ 		if(installedModules[moduleId])
+/******/ 		if(installedModules[moduleId]) {
 /******/ 			return installedModules[moduleId].exports;
-/******/
+/******/ 		}
 /******/ 		// Create a new module (and put it into the cache)
 /******/ 		var module = installedModules[moduleId] = {
 /******/ 			i: moduleId,
@@ -52,9 +52,6 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// expose the module cache
 /******/ 	__webpack_require__.c = installedModules;
 /******/
-/******/ 	// identity function for calling harmony imports with the correct context
-/******/ 	__webpack_require__.i = function(value) { return value; };
-/******/
 /******/ 	// define getter function for harmony exports
 /******/ 	__webpack_require__.d = function(exports, name, getter) {
 /******/ 		if(!__webpack_require__.o(exports, name)) {
@@ -64,6 +61,11 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 				get: getter
 /******/ 			});
 /******/ 		}
+/******/ 	};
+/******/
+/******/ 	// define __esModule on exports
+/******/ 	__webpack_require__.r = function(exports) {
+/******/ 		Object.defineProperty(exports, '__esModule', { value: true });
 /******/ 	};
 /******/
 /******/ 	// getDefaultExport function for compatibility with non-harmony modules
@@ -80,6 +82,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/
 /******/ 	// __webpack_public_path__
 /******/ 	__webpack_require__.p = "";
+/******/
 /******/
 /******/ 	// Load entry module and return exports
 /******/ 	return __webpack_require__(__webpack_require__.s = 35);
@@ -98,7 +101,7 @@ exports.__esModule = true;
 exports.FONT_ROW_RATIO = 1.15;
 var models_1 = __webpack_require__(16);
 var table = null;
-var assign = __webpack_require__(13);
+var assign = __webpack_require__(15);
 var entries = __webpack_require__(33);
 /**
  * Styles for the themes (overriding the default styles)
@@ -170,11 +173,19 @@ function defaultStyles() {
         columnWidth: 'auto'
     };
 }
-var Config = (function () {
+var Config = /** @class */ (function () {
     function Config() {
     }
     Config.pageSize = function () {
-        return table.doc.internal.pageSize;
+        var pageSize = table.doc.internal.pageSize;
+        // JSPDF 1.4 uses get functions instead of properties on pageSize
+        if (pageSize.width == null) {
+            pageSize = {
+                width: pageSize.getWidth(),
+                height: pageSize.getHeight()
+            };
+        }
+        return pageSize;
     };
     Config.applyUserStyles = function () {
         Config.applyStyles(table.userStyles);
@@ -414,7 +425,7 @@ exports.nextPage = nextPage;
 /* 2 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var implementation = __webpack_require__(27);
+var implementation = __webpack_require__(23);
 
 module.exports = Function.prototype.bind || implementation;
 
@@ -494,6 +505,11 @@ function printFullRow(row, drawRowHooks, drawCellHooks) {
                 var vPadding = cell.padding('vertical');
                 var remainingPageSpace = pageHeight - table.cursor.y - table.margin('bottom');
                 var remainingLineCount = Math.floor((remainingPageSpace - vPadding) / fontHeight);
+                // Splice with negative values results in unexpected results, therefore eliminate
+                // scenarios where less than one line is remaining, but are shown
+                if (remainingLineCount < 0) {
+                    remainingLineCount = 0;
+                }
                 if (Array.isArray(cell.text) && cell.text.length > remainingLineCount) {
                     var remainingLines = cell.text.splice(remainingLineCount, cell.text.length);
                     remainingTexts[col.dataKey] = remainingLines;
@@ -603,8 +619,116 @@ function canFitOnPage(rowHeight) {
 "use strict";
 
 
-var keys = __webpack_require__(31);
-var foreach = __webpack_require__(26);
+var implementation = __webpack_require__(13);
+
+module.exports = function getPolyfill() {
+	return typeof Object.entries === 'function' ? Object.entries : implementation;
+};
+
+
+/***/ }),
+/* 6 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var bind = __webpack_require__(2);
+
+module.exports = bind.call(Function.call, Object.prototype.hasOwnProperty);
+
+
+/***/ }),
+/* 7 */
+/***/ (function(module, exports) {
+
+module.exports = function isPrimitive(value) {
+	return value === null || (typeof value !== 'function' && typeof value !== 'object');
+};
+
+
+/***/ }),
+/* 8 */
+/***/ (function(module, exports) {
+
+module.exports = function mod(number, modulo) {
+	var remain = number % modulo;
+	return Math.floor(remain >= 0 ? remain : remain + modulo);
+};
+
+
+/***/ }),
+/* 9 */
+/***/ (function(module, exports) {
+
+module.exports = function sign(number) {
+	return number >= 0 ? 1 : -1;
+};
+
+
+/***/ }),
+/* 10 */
+/***/ (function(module, exports) {
+
+var has = Object.prototype.hasOwnProperty;
+module.exports = Object.assign || function assign(target, source) {
+	for (var key in source) {
+		if (has.call(source, key)) {
+			target[key] = source[key];
+		}
+	}
+	return target;
+};
+
+
+/***/ }),
+/* 11 */
+/***/ (function(module, exports) {
+
+var $isNaN = Number.isNaN || function (a) { return a !== a; };
+
+module.exports = Number.isFinite || function (x) { return typeof x === 'number' && !$isNaN(x) && x !== Infinity && x !== -Infinity; };
+
+
+/***/ }),
+/* 12 */
+/***/ (function(module, exports) {
+
+module.exports = Number.isNaN || function isNaN(a) {
+	return a !== a;
+};
+
+
+/***/ }),
+/* 13 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var ES = __webpack_require__(29);
+var has = __webpack_require__(6);
+var bind = __webpack_require__(2);
+var isEnumerable = bind.call(Function.call, Object.prototype.propertyIsEnumerable);
+
+module.exports = function entries(O) {
+	var obj = ES.RequireObjectCoercible(O);
+	var entrys = [];
+	for (var key in obj) {
+		if (has(obj, key) && isEnumerable(obj, key)) {
+			entrys.push([key, obj[key]]);
+		}
+	}
+	return entrys;
+};
+
+
+/***/ }),
+/* 14 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var keys = __webpack_require__(32);
+var foreach = __webpack_require__(30);
 var hasSymbols = typeof Symbol === 'function' && typeof Symbol() === 'symbol';
 
 var toStr = Object.prototype.toString;
@@ -660,77 +784,7 @@ module.exports = defineProperties;
 
 
 /***/ }),
-/* 6 */
-/***/ (function(module, exports) {
-
-var has = Object.prototype.hasOwnProperty;
-module.exports = Object.assign || function assign(target, source) {
-	for (var key in source) {
-		if (has.call(source, key)) {
-			target[key] = source[key];
-		}
-	}
-	return target;
-};
-
-
-/***/ }),
-/* 7 */
-/***/ (function(module, exports) {
-
-var $isNaN = Number.isNaN || function (a) { return a !== a; };
-
-module.exports = Number.isFinite || function (x) { return typeof x === 'number' && !$isNaN(x) && x !== Infinity && x !== -Infinity; };
-
-
-/***/ }),
-/* 8 */
-/***/ (function(module, exports) {
-
-module.exports = Number.isNaN || function isNaN(a) {
-	return a !== a;
-};
-
-
-/***/ }),
-/* 9 */
-/***/ (function(module, exports) {
-
-module.exports = function mod(number, modulo) {
-	var remain = number % modulo;
-	return Math.floor(remain >= 0 ? remain : remain + modulo);
-};
-
-
-/***/ }),
-/* 10 */
-/***/ (function(module, exports) {
-
-module.exports = function sign(number) {
-	return number >= 0 ? 1 : -1;
-};
-
-
-/***/ }),
-/* 11 */
-/***/ (function(module, exports) {
-
-module.exports = function isPrimitive(value) {
-	return value === null || (typeof value !== 'function' && typeof value !== 'object');
-};
-
-
-/***/ }),
-/* 12 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var bind = __webpack_require__(2);
-
-module.exports = bind.call(Function.call, Object.prototype.hasOwnProperty);
-
-
-/***/ }),
-/* 13 */
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -827,44 +881,6 @@ module.exports = shouldUseNative() ? Object.assign : function (target, source) {
 
 
 /***/ }),
-/* 14 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var ES = __webpack_require__(22);
-var has = __webpack_require__(12);
-var bind = __webpack_require__(2);
-var isEnumerable = bind.call(Function.call, Object.prototype.propertyIsEnumerable);
-
-module.exports = function entries(O) {
-	var obj = ES.RequireObjectCoercible(O);
-	var entrys = [];
-	for (var key in obj) {
-		if (has(obj, key) && isEnumerable(obj, key)) {
-			entrys.push([key, obj[key]]);
-		}
-	}
-	return entrys;
-};
-
-
-/***/ }),
-/* 15 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var implementation = __webpack_require__(14);
-
-module.exports = function getPolyfill() {
-	return typeof Object.entries === 'function' ? Object.entries : implementation;
-};
-
-
-/***/ }),
 /* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -873,7 +889,7 @@ module.exports = function getPolyfill() {
 exports.__esModule = true;
 var config_1 = __webpack_require__(0);
 exports.table = {};
-var Table = (function () {
+var Table = /** @class */ (function () {
     function Table(doc) {
         this.height = 0;
         this.width = 0;
@@ -912,7 +928,7 @@ var Table = (function () {
     return Table;
 }());
 exports.Table = Table;
-var Row = (function () {
+var Row = /** @class */ (function () {
     function Row(raw, index) {
         this.cells = {};
         this.spansMultiplePages = false;
@@ -926,7 +942,7 @@ var Row = (function () {
     return Row;
 }());
 exports.Row = Row;
-var Cell = (function () {
+var Cell = /** @class */ (function () {
     function Cell(raw) {
         this.styles = {};
         this.text = '';
@@ -953,7 +969,7 @@ var Cell = (function () {
     return Cell;
 }());
 exports.Cell = Cell;
-var Column = (function () {
+var Column = /** @class */ (function () {
     function Column(dataKey, index) {
         this.options = {};
         this.contentWidth = 0;
@@ -976,136 +992,9 @@ exports.Column = Column;
 "use strict";
 
 exports.__esModule = true;
-var config_1 = __webpack_require__(0);
-var common_1 = __webpack_require__(1);
-/**
- * Calculate the column widths
- */
-function calculateWidths(doc, pageWidth) {
-    var table = config_1.Config.tableInstance();
-    // Column and table content width
-    var fixedWidth = 0;
-    var autoWidth = 0;
-    var dynamicColumns = [];
-    table.columns.forEach(function (column) {
-        column.contentWidth = 0;
-        table.rows.concat(table.headerRow).forEach(function (row) {
-            var cell = row.cells[column.dataKey];
-            cell.contentWidth = cell.padding('horizontal') + common_1.getStringWidth(cell.text, cell.styles);
-            if (cell.contentWidth > column.contentWidth) {
-                column.contentWidth = cell.contentWidth;
-            }
-        });
-        table.contentWidth += column.contentWidth;
-        if (typeof column.widthStyle === 'number') {
-            column.preferredWidth = column.widthStyle;
-            fixedWidth += column.preferredWidth;
-            column.width = column.preferredWidth;
-        }
-        else if (column.widthStyle === 'wrap') {
-            column.preferredWidth = column.contentWidth;
-            fixedWidth += column.preferredWidth;
-            column.width = column.preferredWidth;
-        }
-        else {
-            column.preferredWidth = column.contentWidth;
-            autoWidth += column.contentWidth;
-            dynamicColumns.push(column);
-        }
-        table.preferredWidth += column.preferredWidth;
-    });
-    if (typeof table.settings.tableWidth === 'number') {
-        table.width = table.settings.tableWidth;
-    }
-    else if (table.settings.tableWidth === 'wrap') {
-        table.width = table.preferredWidth;
-    }
-    else {
-        table.width = pageWidth - table.margin('left') - table.margin('right');
-    }
-    distributeWidth(dynamicColumns, fixedWidth, autoWidth, 0);
-    // Row height, table height and text overflow
-    var all = table.rows.concat(table.headerRow);
-    all.forEach(function (row) {
-        table.columns.forEach(function (col) {
-            var cell = row.cells[col.dataKey];
-            config_1.Config.applyStyles(cell.styles);
-            var textSpace = col.width - cell.padding('horizontal');
-            if (cell.styles.overflow === 'linebreak') {
-                // Add one pt to textSpace to fix rounding error
-                try {
-                    cell.text = doc.splitTextToSize(cell.text, textSpace + 1, { fontSize: cell.styles.fontSize });
-                }
-                catch (e) {
-                    if (e instanceof TypeError && Array.isArray(cell.text)) {
-                        cell.text = doc.splitTextToSize(cell.text.join(' '), textSpace + 1, { fontSize: cell.styles.fontSize });
-                    }
-                    else {
-                        throw e;
-                    }
-                }
-            }
-            else if (cell.styles.overflow === 'ellipsize') {
-                cell.text = common_1.ellipsize(cell.text, textSpace, cell.styles);
-            }
-            else if (cell.styles.overflow === 'visible') {
-                // Do nothing
-            }
-            else if (cell.styles.overflow === 'hidden') {
-                cell.text = common_1.ellipsize(cell.text, textSpace, cell.styles, '');
-            }
-            else if (typeof cell.styles.overflow === 'function') {
-                cell.text = cell.styles.overflow(cell.text, textSpace);
-            }
-            else {
-                console.error("Unrecognized overflow type: " + cell.styles.overflow);
-            }
-            var k = config_1.Config.scaleFactor();
-            var lineCount = Array.isArray(cell.text) ? cell.text.length : 1;
-            var fontHeight = cell.styles.fontSize / k * config_1.FONT_ROW_RATIO;
-            cell.contentHeight = lineCount * fontHeight + cell.padding('vertical');
-            if (cell.contentHeight > row.height) {
-                row.height = cell.contentHeight;
-                row.maxLineCount = lineCount;
-            }
-        });
-        table.height += row.height;
-    });
-}
-exports.calculateWidths = calculateWidths;
-function distributeWidth(dynamicColumns, staticWidth, dynamicColumnsContentWidth, fairWidth) {
-    var table = config_1.Config.tableInstance();
-    var extraWidth = table.width - staticWidth - dynamicColumnsContentWidth;
-    for (var i = 0; i < dynamicColumns.length; i++) {
-        var col = dynamicColumns[i];
-        var ratio = col.contentWidth / dynamicColumnsContentWidth;
-        // A column turned out to be none dynamic, start over recursively
-        var isNoneDynamic = col.contentWidth + extraWidth * ratio < fairWidth;
-        if (extraWidth < 0 && isNoneDynamic) {
-            dynamicColumns.splice(i, 1);
-            dynamicColumnsContentWidth -= col.contentWidth;
-            col.width = fairWidth;
-            staticWidth += col.width;
-            distributeWidth(dynamicColumns, staticWidth, dynamicColumnsContentWidth, fairWidth);
-            break;
-        }
-        else {
-            col.width = col.contentWidth + extraWidth * ratio;
-        }
-    }
-}
-
-
-/***/ }),
-/* 18 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-exports.__esModule = true;
 var models_1 = __webpack_require__(16);
 var config_1 = __webpack_require__(0);
-var assign = __webpack_require__(13);
+var assign = __webpack_require__(15);
 function validateInput(headers, data, allOptions) {
     if (!headers || typeof headers !== 'object') {
         console.error("The headers should be an object or array, is: " + typeof headers);
@@ -1245,10 +1134,152 @@ exports.createModels = createModels;
 
 
 /***/ }),
-/* 19 */
-/***/ (function(module, exports) {
+/* 18 */
+/***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __WEBPACK_EXTERNAL_MODULE_19__;
+"use strict";
+
+exports.__esModule = true;
+var config_1 = __webpack_require__(0);
+var common_1 = __webpack_require__(1);
+/**
+ * Calculate the column widths
+ */
+function calculateWidths(doc, pageWidth) {
+    var table = config_1.Config.tableInstance();
+    // Column and table content width
+    var fixedWidth = 0;
+    var autoWidth = 0;
+    var dynamicColumns = [];
+    table.columns.forEach(function (column) {
+        column.contentWidth = 0;
+        table.rows.concat(table.headerRow).forEach(function (row) {
+            var cell = row.cells[column.dataKey];
+            cell.contentWidth = cell.padding('horizontal') + common_1.getStringWidth(cell.text, cell.styles);
+            if (cell.contentWidth > column.contentWidth) {
+                column.contentWidth = cell.contentWidth;
+            }
+        });
+        table.contentWidth += column.contentWidth;
+        if (typeof column.widthStyle === 'number') {
+            column.preferredWidth = column.widthStyle;
+            fixedWidth += column.preferredWidth;
+            column.width = column.preferredWidth;
+        }
+        else if (column.widthStyle === 'wrap') {
+            column.preferredWidth = column.contentWidth;
+            fixedWidth += column.preferredWidth;
+            column.width = column.preferredWidth;
+        }
+        else {
+            column.preferredWidth = column.contentWidth;
+            autoWidth += column.contentWidth;
+            dynamicColumns.push(column);
+        }
+        table.preferredWidth += column.preferredWidth;
+    });
+    if (typeof table.settings.tableWidth === 'number') {
+        table.width = table.settings.tableWidth;
+    }
+    else if (table.settings.tableWidth === 'wrap') {
+        table.width = table.preferredWidth;
+    }
+    else {
+        table.width = pageWidth - table.margin('left') - table.margin('right');
+    }
+    distributeWidth(dynamicColumns, fixedWidth, autoWidth, 0);
+    // Row height, table height and text overflow
+    var all = table.rows.concat(table.headerRow);
+    all.forEach(function (row) {
+        table.columns.forEach(function (col) {
+            var cell = row.cells[col.dataKey];
+            config_1.Config.applyStyles(cell.styles);
+            var textSpace = col.width - cell.padding('horizontal');
+            var k = config_1.Config.scaleFactor();
+            if (cell.styles.overflow === 'linebreak') {
+                // Add one pt to textSpace to fix rounding error
+                try {
+                    cell.text = doc.splitTextToSize(cell.text, textSpace + 1 / k, { fontSize: cell.styles.fontSize });
+                }
+                catch (e) {
+                    if (e instanceof TypeError && Array.isArray(cell.text)) {
+                        cell.text = doc.splitTextToSize(cell.text.join(' '), textSpace + 1 / k, { fontSize: cell.styles.fontSize });
+                    }
+                    else {
+                        throw e;
+                    }
+                }
+            }
+            else if (cell.styles.overflow === 'ellipsize') {
+                cell.text = common_1.ellipsize(cell.text, textSpace, cell.styles);
+            }
+            else if (cell.styles.overflow === 'visible') {
+                // Do nothing
+            }
+            else if (cell.styles.overflow === 'hidden') {
+                cell.text = common_1.ellipsize(cell.text, textSpace, cell.styles, '');
+            }
+            else if (typeof cell.styles.overflow === 'function') {
+                cell.text = cell.styles.overflow(cell.text, textSpace);
+            }
+            else {
+                console.error("Unrecognized overflow type: " + cell.styles.overflow);
+            }
+            var lineCount = Array.isArray(cell.text) ? cell.text.length : 1;
+            var fontHeight = cell.styles.fontSize / k * config_1.FONT_ROW_RATIO;
+            cell.contentHeight = lineCount * fontHeight + cell.padding('vertical');
+            if (cell.contentHeight > row.height) {
+                row.height = cell.contentHeight;
+                row.maxLineCount = lineCount;
+            }
+        });
+        table.height += row.height;
+    });
+}
+exports.calculateWidths = calculateWidths;
+function distributeWidth(dynamicColumns, staticWidth, dynamicColumnsContentWidth, fairWidth) {
+    var table = config_1.Config.tableInstance();
+    var extraWidth = table.width - staticWidth - dynamicColumnsContentWidth;
+    for (var i = 0; i < dynamicColumns.length; i++) {
+        var col = dynamicColumns[i];
+        var ratio = col.contentWidth / dynamicColumnsContentWidth;
+        // A column turned out to be none dynamic, start over recursively
+        var isNoneDynamic = col.contentWidth + extraWidth * ratio < fairWidth;
+        if (extraWidth < 0 && isNoneDynamic) {
+            dynamicColumns.splice(i, 1);
+            dynamicColumnsContentWidth -= col.contentWidth;
+            col.width = fairWidth;
+            staticWidth += col.width;
+            distributeWidth(dynamicColumns, staticWidth, dynamicColumnsContentWidth, fairWidth);
+            break;
+        }
+        else {
+            col.width = col.contentWidth + extraWidth * ratio;
+        }
+    }
+}
+
+
+/***/ }),
+/* 19 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var getPolyfill = __webpack_require__(5);
+var define = __webpack_require__(14);
+
+module.exports = function shimEntries() {
+	var polyfill = getPolyfill();
+	define(Object, { entries: polyfill }, {
+		entries: function testEntries() {
+			return Object.entries !== polyfill;
+		}
+	});
+	return polyfill;
+};
+
 
 /***/ }),
 /* 20 */
@@ -1257,14 +1288,104 @@ module.exports = __WEBPACK_EXTERNAL_MODULE_19__;
 "use strict";
 
 
-var $isNaN = __webpack_require__(8);
-var $isFinite = __webpack_require__(7);
+var has = __webpack_require__(6);
+var regexExec = RegExp.prototype.exec;
+var gOPD = Object.getOwnPropertyDescriptor;
 
-var sign = __webpack_require__(10);
-var mod = __webpack_require__(9);
+var tryRegexExecCall = function tryRegexExec(value) {
+	try {
+		var lastIndex = value.lastIndex;
+		value.lastIndex = 0;
+
+		regexExec.call(value);
+		return true;
+	} catch (e) {
+		return false;
+	} finally {
+		value.lastIndex = lastIndex;
+	}
+};
+var toStr = Object.prototype.toString;
+var regexClass = '[object RegExp]';
+var hasToStringTag = typeof Symbol === 'function' && typeof Symbol.toStringTag === 'symbol';
+
+module.exports = function isRegex(value) {
+	if (!value || typeof value !== 'object') {
+		return false;
+	}
+	if (!hasToStringTag) {
+		return toStr.call(value) === regexClass;
+	}
+
+	var descriptor = gOPD(value, 'lastIndex');
+	var hasLastIndexDataProperty = descriptor && has(descriptor, 'value');
+	if (!hasLastIndexDataProperty) {
+		return false;
+	}
+
+	return tryRegexExecCall(value);
+};
+
+
+/***/ }),
+/* 21 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var toStr = Object.prototype.toString;
+
+var isPrimitive = __webpack_require__(7);
+
+var isCallable = __webpack_require__(3);
+
+// https://es5.github.io/#x8.12
+var ES5internalSlots = {
+	'[[DefaultValue]]': function (O, hint) {
+		var actualHint = hint || (toStr.call(O) === '[object Date]' ? String : Number);
+
+		if (actualHint === String || actualHint === Number) {
+			var methods = actualHint === String ? ['toString', 'valueOf'] : ['valueOf', 'toString'];
+			var value, i;
+			for (i = 0; i < methods.length; ++i) {
+				if (isCallable(O[methods[i]])) {
+					value = O[methods[i]]();
+					if (isPrimitive(value)) {
+						return value;
+					}
+				}
+			}
+			throw new TypeError('No default value');
+		}
+		throw new TypeError('invalid [[DefaultValue]] hint supplied');
+	}
+};
+
+// https://es5.github.io/#x9
+module.exports = function ToPrimitive(input, PreferredType) {
+	if (isPrimitive(input)) {
+		return input;
+	}
+	return ES5internalSlots['[[DefaultValue]]'](input, PreferredType);
+};
+
+
+/***/ }),
+/* 22 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var $isNaN = __webpack_require__(12);
+var $isFinite = __webpack_require__(11);
+
+var sign = __webpack_require__(9);
+var mod = __webpack_require__(8);
 
 var IsCallable = __webpack_require__(3);
-var toPrimitive = __webpack_require__(24);
+var toPrimitive = __webpack_require__(21);
 
 // https://es5.github.io/#x9
 var ES5 = {
@@ -1344,7 +1465,212 @@ module.exports = ES5;
 
 
 /***/ }),
-/* 21 */
+/* 23 */
+/***/ (function(module, exports) {
+
+var ERROR_MESSAGE = 'Function.prototype.bind called on incompatible ';
+var slice = Array.prototype.slice;
+var toStr = Object.prototype.toString;
+var funcType = '[object Function]';
+
+module.exports = function bind(that) {
+    var target = this;
+    if (typeof target !== 'function' || toStr.call(target) !== funcType) {
+        throw new TypeError(ERROR_MESSAGE + target);
+    }
+    var args = slice.call(arguments, 1);
+
+    var bound;
+    var binder = function () {
+        if (this instanceof bound) {
+            var result = target.apply(
+                this,
+                args.concat(slice.call(arguments))
+            );
+            if (Object(result) === result) {
+                return result;
+            }
+            return this;
+        } else {
+            return target.apply(
+                that,
+                args.concat(slice.call(arguments))
+            );
+        }
+    };
+
+    var boundLength = Math.max(0, target.length - args.length);
+    var boundArgs = [];
+    for (var i = 0; i < boundLength; i++) {
+        boundArgs.push('$' + i);
+    }
+
+    bound = Function('binder', 'return function (' + boundArgs.join(',') + '){ return binder.apply(this,arguments); }')(binder);
+
+    if (target.prototype) {
+        var Empty = function Empty() {};
+        Empty.prototype = target.prototype;
+        bound.prototype = new Empty();
+        Empty.prototype = null;
+    }
+
+    return bound;
+};
+
+
+/***/ }),
+/* 24 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var toStr = Object.prototype.toString;
+var hasSymbols = typeof Symbol === 'function' && typeof Symbol() === 'symbol';
+
+if (hasSymbols) {
+	var symToStr = Symbol.prototype.toString;
+	var symStringRegex = /^Symbol\(.*\)$/;
+	var isSymbolObject = function isSymbolObject(value) {
+		if (typeof value.valueOf() !== 'symbol') { return false; }
+		return symStringRegex.test(symToStr.call(value));
+	};
+	module.exports = function isSymbol(value) {
+		if (typeof value === 'symbol') { return true; }
+		if (toStr.call(value) !== '[object Symbol]') { return false; }
+		try {
+			return isSymbolObject(value);
+		} catch (e) {
+			return false;
+		}
+	};
+} else {
+	module.exports = function isSymbol(value) {
+		// this environment does not support Symbols.
+		return false;
+	};
+}
+
+
+/***/ }),
+/* 25 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var getDay = Date.prototype.getDay;
+var tryDateObject = function tryDateObject(value) {
+	try {
+		getDay.call(value);
+		return true;
+	} catch (e) {
+		return false;
+	}
+};
+
+var toStr = Object.prototype.toString;
+var dateClass = '[object Date]';
+var hasToStringTag = typeof Symbol === 'function' && typeof Symbol.toStringTag === 'symbol';
+
+module.exports = function isDateObject(value) {
+	if (typeof value !== 'object' || value === null) { return false; }
+	return hasToStringTag ? tryDateObject(value) : toStr.call(value) === dateClass;
+};
+
+
+/***/ }),
+/* 26 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var hasSymbols = typeof Symbol === 'function' && typeof Symbol.iterator === 'symbol';
+
+var isPrimitive = __webpack_require__(7);
+var isCallable = __webpack_require__(3);
+var isDate = __webpack_require__(25);
+var isSymbol = __webpack_require__(24);
+
+var ordinaryToPrimitive = function OrdinaryToPrimitive(O, hint) {
+	if (typeof O === 'undefined' || O === null) {
+		throw new TypeError('Cannot call method on ' + O);
+	}
+	if (typeof hint !== 'string' || (hint !== 'number' && hint !== 'string')) {
+		throw new TypeError('hint must be "string" or "number"');
+	}
+	var methodNames = hint === 'string' ? ['toString', 'valueOf'] : ['valueOf', 'toString'];
+	var method, result, i;
+	for (i = 0; i < methodNames.length; ++i) {
+		method = O[methodNames[i]];
+		if (isCallable(method)) {
+			result = method.call(O);
+			if (isPrimitive(result)) {
+				return result;
+			}
+		}
+	}
+	throw new TypeError('No default value');
+};
+
+var GetMethod = function GetMethod(O, P) {
+	var func = O[P];
+	if (func !== null && typeof func !== 'undefined') {
+		if (!isCallable(func)) {
+			throw new TypeError(func + ' returned for property ' + P + ' of object ' + O + ' is not a function');
+		}
+		return func;
+	}
+};
+
+// http://www.ecma-international.org/ecma-262/6.0/#sec-toprimitive
+module.exports = function ToPrimitive(input, PreferredType) {
+	if (isPrimitive(input)) {
+		return input;
+	}
+	var hint = 'default';
+	if (arguments.length > 1) {
+		if (PreferredType === String) {
+			hint = 'string';
+		} else if (PreferredType === Number) {
+			hint = 'number';
+		}
+	}
+
+	var exoticToPrim;
+	if (hasSymbols) {
+		if (Symbol.toPrimitive) {
+			exoticToPrim = GetMethod(input, Symbol.toPrimitive);
+		} else if (isSymbol(input)) {
+			exoticToPrim = Symbol.prototype.valueOf;
+		}
+	}
+	if (typeof exoticToPrim !== 'undefined') {
+		var result = exoticToPrim.call(input, hint);
+		if (isPrimitive(result)) {
+			return result;
+		}
+		throw new TypeError('unable to convert exotic object to primitive');
+	}
+	if (hint === 'default' && (isDate(input) || isSymbol(input))) {
+		hint = 'string';
+	}
+	return ordinaryToPrimitive(input, hint === 'default' ? 'number' : hint);
+};
+
+
+/***/ }),
+/* 27 */
+/***/ (function(module, exports) {
+
+module.exports = function isPrimitive(value) {
+	return value === null || (typeof value !== 'function' && typeof value !== 'object');
+};
+
+
+/***/ }),
+/* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1354,15 +1680,15 @@ var toStr = Object.prototype.toString;
 var hasSymbols = typeof Symbol === 'function' && typeof Symbol.iterator === 'symbol';
 var symbolToStr = hasSymbols ? Symbol.prototype.toString : toStr;
 
-var $isNaN = __webpack_require__(8);
-var $isFinite = __webpack_require__(7);
+var $isNaN = __webpack_require__(12);
+var $isFinite = __webpack_require__(11);
 var MAX_SAFE_INTEGER = Number.MAX_SAFE_INTEGER || Math.pow(2, 53) - 1;
 
-var assign = __webpack_require__(6);
-var sign = __webpack_require__(10);
-var mod = __webpack_require__(9);
-var isPrimitive = __webpack_require__(23);
-var toPrimitive = __webpack_require__(25);
+var assign = __webpack_require__(10);
+var sign = __webpack_require__(9);
+var mod = __webpack_require__(8);
+var isPrimitive = __webpack_require__(27);
+var toPrimitive = __webpack_require__(26);
 var parseInteger = parseInt;
 var bind = __webpack_require__(2);
 var strSlice = bind.call(Function.call, String.prototype.slice);
@@ -1387,9 +1713,9 @@ var trim = function (value) {
 	return replace(value, trimRegex, '');
 };
 
-var ES5 = __webpack_require__(20);
+var ES5 = __webpack_require__(22);
 
-var hasRegExpMatcher = __webpack_require__(29);
+var hasRegExpMatcher = __webpack_require__(20);
 
 // https://people.mozilla.org/~jorendorff/es6-draft.html#sec-abstract-operations
 var ES6 = assign(assign({}, ES5), {
@@ -1683,14 +2009,14 @@ module.exports = ES6;
 
 
 /***/ }),
-/* 22 */
+/* 29 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var ES6 = __webpack_require__(21);
-var assign = __webpack_require__(6);
+var ES6 = __webpack_require__(28);
+var assign = __webpack_require__(10);
 
 var ES7 = assign(ES6, {
 	// https://github.com/tc39/ecma262/pull/60
@@ -1706,141 +2032,7 @@ module.exports = ES7;
 
 
 /***/ }),
-/* 23 */
-/***/ (function(module, exports) {
-
-module.exports = function isPrimitive(value) {
-	return value === null || (typeof value !== 'function' && typeof value !== 'object');
-};
-
-
-/***/ }),
-/* 24 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var toStr = Object.prototype.toString;
-
-var isPrimitive = __webpack_require__(11);
-
-var isCallable = __webpack_require__(3);
-
-// https://es5.github.io/#x8.12
-var ES5internalSlots = {
-	'[[DefaultValue]]': function (O, hint) {
-		var actualHint = hint || (toStr.call(O) === '[object Date]' ? String : Number);
-
-		if (actualHint === String || actualHint === Number) {
-			var methods = actualHint === String ? ['toString', 'valueOf'] : ['valueOf', 'toString'];
-			var value, i;
-			for (i = 0; i < methods.length; ++i) {
-				if (isCallable(O[methods[i]])) {
-					value = O[methods[i]]();
-					if (isPrimitive(value)) {
-						return value;
-					}
-				}
-			}
-			throw new TypeError('No default value');
-		}
-		throw new TypeError('invalid [[DefaultValue]] hint supplied');
-	}
-};
-
-// https://es5.github.io/#x9
-module.exports = function ToPrimitive(input, PreferredType) {
-	if (isPrimitive(input)) {
-		return input;
-	}
-	return ES5internalSlots['[[DefaultValue]]'](input, PreferredType);
-};
-
-
-/***/ }),
-/* 25 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var hasSymbols = typeof Symbol === 'function' && typeof Symbol.iterator === 'symbol';
-
-var isPrimitive = __webpack_require__(11);
-var isCallable = __webpack_require__(3);
-var isDate = __webpack_require__(28);
-var isSymbol = __webpack_require__(30);
-
-var ordinaryToPrimitive = function OrdinaryToPrimitive(O, hint) {
-	if (typeof O === 'undefined' || O === null) {
-		throw new TypeError('Cannot call method on ' + O);
-	}
-	if (typeof hint !== 'string' || (hint !== 'number' && hint !== 'string')) {
-		throw new TypeError('hint must be "string" or "number"');
-	}
-	var methodNames = hint === 'string' ? ['toString', 'valueOf'] : ['valueOf', 'toString'];
-	var method, result, i;
-	for (i = 0; i < methodNames.length; ++i) {
-		method = O[methodNames[i]];
-		if (isCallable(method)) {
-			result = method.call(O);
-			if (isPrimitive(result)) {
-				return result;
-			}
-		}
-	}
-	throw new TypeError('No default value');
-};
-
-var GetMethod = function GetMethod(O, P) {
-	var func = O[P];
-	if (func !== null && typeof func !== 'undefined') {
-		if (!isCallable(func)) {
-			throw new TypeError(func + ' returned for property ' + P + ' of object ' + O + ' is not a function');
-		}
-		return func;
-	}
-};
-
-// http://www.ecma-international.org/ecma-262/6.0/#sec-toprimitive
-module.exports = function ToPrimitive(input, PreferredType) {
-	if (isPrimitive(input)) {
-		return input;
-	}
-	var hint = 'default';
-	if (arguments.length > 1) {
-		if (PreferredType === String) {
-			hint = 'string';
-		} else if (PreferredType === Number) {
-			hint = 'number';
-		}
-	}
-
-	var exoticToPrim;
-	if (hasSymbols) {
-		if (Symbol.toPrimitive) {
-			exoticToPrim = GetMethod(input, Symbol.toPrimitive);
-		} else if (isSymbol(input)) {
-			exoticToPrim = Symbol.prototype.valueOf;
-		}
-	}
-	if (typeof exoticToPrim !== 'undefined') {
-		var result = exoticToPrim.call(input, hint);
-		if (isPrimitive(result)) {
-			return result;
-		}
-		throw new TypeError('unable to convert exotic object to primitive');
-	}
-	if (hint === 'default' && (isDate(input) || isSymbol(input))) {
-		hint = 'string';
-	}
-	return ordinaryToPrimitive(input, hint === 'default' ? 'number' : hint);
-};
-
-
-/***/ }),
-/* 26 */
+/* 30 */
 /***/ (function(module, exports) {
 
 
@@ -1868,168 +2060,31 @@ module.exports = function forEach (obj, fn, ctx) {
 
 
 /***/ }),
-/* 27 */
-/***/ (function(module, exports) {
-
-var ERROR_MESSAGE = 'Function.prototype.bind called on incompatible ';
-var slice = Array.prototype.slice;
-var toStr = Object.prototype.toString;
-var funcType = '[object Function]';
-
-module.exports = function bind(that) {
-    var target = this;
-    if (typeof target !== 'function' || toStr.call(target) !== funcType) {
-        throw new TypeError(ERROR_MESSAGE + target);
-    }
-    var args = slice.call(arguments, 1);
-
-    var bound;
-    var binder = function () {
-        if (this instanceof bound) {
-            var result = target.apply(
-                this,
-                args.concat(slice.call(arguments))
-            );
-            if (Object(result) === result) {
-                return result;
-            }
-            return this;
-        } else {
-            return target.apply(
-                that,
-                args.concat(slice.call(arguments))
-            );
-        }
-    };
-
-    var boundLength = Math.max(0, target.length - args.length);
-    var boundArgs = [];
-    for (var i = 0; i < boundLength; i++) {
-        boundArgs.push('$' + i);
-    }
-
-    bound = Function('binder', 'return function (' + boundArgs.join(',') + '){ return binder.apply(this,arguments); }')(binder);
-
-    if (target.prototype) {
-        var Empty = function Empty() {};
-        Empty.prototype = target.prototype;
-        bound.prototype = new Empty();
-        Empty.prototype = null;
-    }
-
-    return bound;
-};
-
-
-/***/ }),
-/* 28 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var getDay = Date.prototype.getDay;
-var tryDateObject = function tryDateObject(value) {
-	try {
-		getDay.call(value);
-		return true;
-	} catch (e) {
-		return false;
-	}
-};
-
-var toStr = Object.prototype.toString;
-var dateClass = '[object Date]';
-var hasToStringTag = typeof Symbol === 'function' && typeof Symbol.toStringTag === 'symbol';
-
-module.exports = function isDateObject(value) {
-	if (typeof value !== 'object' || value === null) { return false; }
-	return hasToStringTag ? tryDateObject(value) : toStr.call(value) === dateClass;
-};
-
-
-/***/ }),
-/* 29 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var has = __webpack_require__(12);
-var regexExec = RegExp.prototype.exec;
-var gOPD = Object.getOwnPropertyDescriptor;
-
-var tryRegexExecCall = function tryRegexExec(value) {
-	try {
-		var lastIndex = value.lastIndex;
-		value.lastIndex = 0;
-
-		regexExec.call(value);
-		return true;
-	} catch (e) {
-		return false;
-	} finally {
-		value.lastIndex = lastIndex;
-	}
-};
-var toStr = Object.prototype.toString;
-var regexClass = '[object RegExp]';
-var hasToStringTag = typeof Symbol === 'function' && typeof Symbol.toStringTag === 'symbol';
-
-module.exports = function isRegex(value) {
-	if (!value || typeof value !== 'object') {
-		return false;
-	}
-	if (!hasToStringTag) {
-		return toStr.call(value) === regexClass;
-	}
-
-	var descriptor = gOPD(value, 'lastIndex');
-	var hasLastIndexDataProperty = descriptor && has(descriptor, 'value');
-	if (!hasLastIndexDataProperty) {
-		return false;
-	}
-
-	return tryRegexExecCall(value);
-};
-
-
-/***/ }),
-/* 30 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var toStr = Object.prototype.toString;
-var hasSymbols = typeof Symbol === 'function' && typeof Symbol() === 'symbol';
-
-if (hasSymbols) {
-	var symToStr = Symbol.prototype.toString;
-	var symStringRegex = /^Symbol\(.*\)$/;
-	var isSymbolObject = function isSymbolObject(value) {
-		if (typeof value.valueOf() !== 'symbol') { return false; }
-		return symStringRegex.test(symToStr.call(value));
-	};
-	module.exports = function isSymbol(value) {
-		if (typeof value === 'symbol') { return true; }
-		if (toStr.call(value) !== '[object Symbol]') { return false; }
-		try {
-			return isSymbolObject(value);
-		} catch (e) {
-			return false;
-		}
-	};
-} else {
-	module.exports = function isSymbol(value) {
-		// this environment does not support Symbols.
-		return false;
-	};
-}
-
-
-/***/ }),
 /* 31 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var toStr = Object.prototype.toString;
+
+module.exports = function isArguments(value) {
+	var str = toStr.call(value);
+	var isArgs = str === '[object Arguments]';
+	if (!isArgs) {
+		isArgs = str !== '[object Array]' &&
+			value !== null &&
+			typeof value === 'object' &&
+			typeof value.length === 'number' &&
+			value.length >= 0 &&
+			toStr.call(value.callee) === '[object Function]';
+	}
+	return isArgs;
+};
+
+
+/***/ }),
+/* 32 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2039,7 +2094,7 @@ if (hasSymbols) {
 var has = Object.prototype.hasOwnProperty;
 var toStr = Object.prototype.toString;
 var slice = Array.prototype.slice;
-var isArgs = __webpack_require__(32);
+var isArgs = __webpack_require__(31);
 var isEnumerable = Object.prototype.propertyIsEnumerable;
 var hasDontEnumBug = !isEnumerable.call({ toString: null }, 'toString');
 var hasProtoEnumBug = isEnumerable.call(function () {}, 'prototype');
@@ -2176,41 +2231,17 @@ module.exports = keysShim;
 
 
 /***/ }),
-/* 32 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var toStr = Object.prototype.toString;
-
-module.exports = function isArguments(value) {
-	var str = toStr.call(value);
-	var isArgs = str === '[object Arguments]';
-	if (!isArgs) {
-		isArgs = str !== '[object Array]' &&
-			value !== null &&
-			typeof value === 'object' &&
-			typeof value.length === 'number' &&
-			value.length >= 0 &&
-			toStr.call(value.callee) === '[object Function]';
-	}
-	return isArgs;
-};
-
-
-/***/ }),
 /* 33 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var define = __webpack_require__(5);
+var define = __webpack_require__(14);
 
-var implementation = __webpack_require__(14);
-var getPolyfill = __webpack_require__(15);
-var shim = __webpack_require__(34);
+var implementation = __webpack_require__(13);
+var getPolyfill = __webpack_require__(5);
+var shim = __webpack_require__(19);
 
 var polyfill = getPolyfill();
 
@@ -2225,24 +2256,9 @@ module.exports = polyfill;
 
 /***/ }),
 /* 34 */
-/***/ (function(module, exports, __webpack_require__) {
+/***/ (function(module, exports) {
 
-"use strict";
-
-
-var getPolyfill = __webpack_require__(15);
-var define = __webpack_require__(5);
-
-module.exports = function shimEntries() {
-	var polyfill = getPolyfill();
-	define(Object, { entries: polyfill }, {
-		entries: function testEntries() {
-			return Object.entries !== polyfill;
-		}
-	});
-	return polyfill;
-};
-
+module.exports = __WEBPACK_EXTERNAL_MODULE__34__;
 
 /***/ }),
 /* 35 */
@@ -2251,18 +2267,18 @@ module.exports = function shimEntries() {
 "use strict";
 
 exports.__esModule = true;
-var jsPDF = __webpack_require__(19);
+var jsPDF = __webpack_require__(34);
 var config_1 = __webpack_require__(0);
 var common_1 = __webpack_require__(1);
 var painter_1 = __webpack_require__(4);
-var calculator_1 = __webpack_require__(17);
-var creator_1 = __webpack_require__(18);
+var calculator_1 = __webpack_require__(18);
+var creator_1 = __webpack_require__(17);
 /**
  * Create a table from a set of rows and columns.
  *
  * @param {Object[]|String[]} headers Either as an array of objects or array of strings
  * @param {Object[][]|String[][]} data Either as an array of objects or array of strings
- * @param {Object} [userOptions={}] Options that will override the default ones
+ * @param {Object} [tableOptions={}] Options that will override the default ones
  */
 jsPDF.API.autoTable = function (headers, data, tableOptions) {
     if (tableOptions === void 0) { tableOptions = {}; }
