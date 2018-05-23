@@ -1,10 +1,11 @@
-var webpack = require("webpack");
-var fs = require("fs");
-var path = require('path');
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+const webpack = require("webpack");
+const fs = require("fs");
+const path = require('path');
 
-var newVersion = require('./package.json').version;
-var readme = "" + fs.readFileSync('./README.md');
-var newVersionStr = "cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/" + newVersion + "/jspdf.plugin.autotable.js";
+const newVersion = require('./package.json').version;
+const newVersionStr = "cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/" + newVersion + "/jspdf.plugin.autotable.js";
+let readme = "" + fs.readFileSync('./README.md');
 readme = readme.replace(/cdnjs\.cloudflare\.com\/ajax\/libs\/jspdf-autotable\/.*\/jspdf\.plugin\.autotable\.js/, newVersionStr);
 fs.writeFileSync('./README.md', readme);
 
@@ -22,8 +23,10 @@ module.exports = {
         libraryTarget: "umd",
     },
     module: {
-        loaders: [
-            { test: /\.ts$/, loader: "ts-loader" }
+        rules: [
+            { test: /\.ts$/, use: [{
+                loader: 'ts-loader'
+            }] }
         ]
     },
     externals: {
@@ -45,19 +48,21 @@ module.exports = {
             }
         }
     },
-    plugins: [
-        new webpack.BannerPlugin(""
-            + "jsPDF AutoTable plugin v" + newVersion + "\n"
-            + "Copyright (c) 2014 Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable \n"
-            + "\n"
-            + "Licensed under the MIT License.\n"
-            + "http://opensource.org/licenses/mit-license\n"
-            + "\n"
-            + "*/if (typeof window === 'object') window.jspdfAutoTableVersion = '" + newVersion + "';/*"
-            + ""),
-        new webpack.optimize.UglifyJsPlugin({
-            include: /\.min\.js$/,
-            minimize: true
-        })
-    ]
+    plugins: [new webpack.BannerPlugin(""
+        + "jsPDF AutoTable plugin v" + newVersion + "\n"
+        + "Copyright (c) 2014 Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable \n"
+        + "\n"
+        + "Licensed under the MIT License.\n"
+        + "http://opensource.org/licenses/mit-license\n"
+        + "\n"
+        + "*/if (typeof window === 'object') window.jspdfAutoTableVersion = '" + newVersion + "';/*"
+        + "")],
+
+    optimization: {
+        minimize: true,
+
+        minimizer: [new UglifyJsPlugin({
+            include: /\.min\.js$/
+        })]
+    }
 };
