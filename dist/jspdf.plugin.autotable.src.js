@@ -1,11 +1,11 @@
 /*!
- * jsPDF AutoTable plugin v2.3.3
+ * jsPDF AutoTable plugin v2.3.4
  * Copyright (c) 2014 Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable 
  * 
  * Licensed under the MIT License.
  * http://opensource.org/licenses/mit-license
  * 
- * * /if (typeof window === 'object') window.jspdfAutoTableVersion = '2.3.3';/*
+ * * /if (typeof window === 'object') window.jspdfAutoTableVersion = '2.3.4';/*
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
@@ -16,7 +16,7 @@
 		var a = typeof exports === 'object' ? factory(require("jspdf")) : factory(root["jsPDF"]);
 		for(var i in a) (typeof exports === 'object' ? exports : root)[i] = a[i];
 	}
-})(window, function(__WEBPACK_EXTERNAL_MODULE__34__) {
+})(window, function(__WEBPACK_EXTERNAL_MODULE__35__) {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -85,7 +85,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 35);
+/******/ 	return __webpack_require__(__webpack_require__.s = 36);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -102,7 +102,7 @@ exports.FONT_ROW_RATIO = 1.15;
 var models_1 = __webpack_require__(16);
 var table = null;
 var assign = __webpack_require__(15);
-var entries = __webpack_require__(33);
+var entries = __webpack_require__(34);
 /**
  * Styles for the themes (overriding the default styles)
  */
@@ -309,11 +309,20 @@ exports.Config = Config;
 /* 1 */
 /***/ (function(module, exports, __webpack_require__) {
 
+var bind = __webpack_require__(4);
+
+module.exports = bind.call(Function.call, Object.prototype.hasOwnProperty);
+
+
+/***/ }),
+/* 2 */
+/***/ (function(module, exports, __webpack_require__) {
+
 "use strict";
 
 exports.__esModule = true;
 var config_1 = __webpack_require__(0);
-var painter_1 = __webpack_require__(4);
+var painter_1 = __webpack_require__(5);
 function getStringWidth(text, styles) {
     var k = config_1.Config.scaleFactor();
     var fontSize = styles.fontSize / k;
@@ -422,15 +431,6 @@ exports.nextPage = nextPage;
 
 
 /***/ }),
-/* 2 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var implementation = __webpack_require__(23);
-
-module.exports = Function.prototype.bind || implementation;
-
-
-/***/ }),
 /* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -482,9 +482,21 @@ module.exports = function isCallable(value) {
 
 "use strict";
 
+
+var implementation = __webpack_require__(27);
+
+module.exports = Function.prototype.bind || implementation;
+
+
+/***/ }),
+/* 5 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
 exports.__esModule = true;
 var config_1 = __webpack_require__(0);
-var common_1 = __webpack_require__(1);
+var common_1 = __webpack_require__(2);
 function printFullRow(row, drawRowHooks, drawCellHooks) {
     var remainingRowHeight = 0;
     var remainingTexts = {};
@@ -496,7 +508,7 @@ function printFullRow(row, drawRowHooks, drawCellHooks) {
         else {
             // Modify the row to fit the current page and calculate text and height of partial row
             row.spansMultiplePages = true;
-            var pageHeight = table.doc.internal.pageSize.height;
+            var pageHeight = config_1.Config.pageSize().height;
             var maxCellHeight = 0;
             for (var j = 0; j < table.columns.length; j++) {
                 var col = table.columns[j];
@@ -613,7 +625,7 @@ function canFitOnPage(rowHeight) {
 
 
 /***/ }),
-/* 5 */
+/* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -627,25 +639,7 @@ module.exports = function getPolyfill() {
 
 
 /***/ }),
-/* 6 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var bind = __webpack_require__(2);
-
-module.exports = bind.call(Function.call, Object.prototype.hasOwnProperty);
-
-
-/***/ }),
 /* 7 */
-/***/ (function(module, exports) {
-
-module.exports = function isPrimitive(value) {
-	return value === null || (typeof value !== 'function' && typeof value !== 'object');
-};
-
-
-/***/ }),
-/* 8 */
 /***/ (function(module, exports) {
 
 module.exports = function mod(number, modulo) {
@@ -655,7 +649,7 @@ module.exports = function mod(number, modulo) {
 
 
 /***/ }),
-/* 9 */
+/* 8 */
 /***/ (function(module, exports) {
 
 module.exports = function sign(number) {
@@ -664,11 +658,14 @@ module.exports = function sign(number) {
 
 
 /***/ }),
-/* 10 */
+/* 9 */
 /***/ (function(module, exports) {
 
 var has = Object.prototype.hasOwnProperty;
-module.exports = Object.assign || function assign(target, source) {
+module.exports = function assign(target, source) {
+	if (Object.assign) {
+		return Object.assign(target, source);
+	}
 	for (var key in source) {
 		if (has.call(source, key)) {
 			target[key] = source[key];
@@ -679,7 +676,7 @@ module.exports = Object.assign || function assign(target, source) {
 
 
 /***/ }),
-/* 11 */
+/* 10 */
 /***/ (function(module, exports) {
 
 var $isNaN = Number.isNaN || function (a) { return a !== a; };
@@ -688,11 +685,20 @@ module.exports = Number.isFinite || function (x) { return typeof x === 'number' 
 
 
 /***/ }),
-/* 12 */
+/* 11 */
 /***/ (function(module, exports) {
 
 module.exports = Number.isNaN || function isNaN(a) {
 	return a !== a;
+};
+
+
+/***/ }),
+/* 12 */
+/***/ (function(module, exports) {
+
+module.exports = function isPrimitive(value) {
+	return value === null || (typeof value !== 'function' && typeof value !== 'object');
 };
 
 
@@ -703,9 +709,9 @@ module.exports = Number.isNaN || function isNaN(a) {
 "use strict";
 
 
-var ES = __webpack_require__(29);
-var has = __webpack_require__(6);
-var bind = __webpack_require__(2);
+var ES = __webpack_require__(30);
+var has = __webpack_require__(1);
+var bind = __webpack_require__(4);
 var isEnumerable = bind.call(Function.call, Object.prototype.propertyIsEnumerable);
 
 module.exports = function entries(O) {
@@ -727,8 +733,8 @@ module.exports = function entries(O) {
 "use strict";
 
 
-var keys = __webpack_require__(32);
-var foreach = __webpack_require__(30);
+var keys = __webpack_require__(33);
+var foreach = __webpack_require__(31);
 var hasSymbols = typeof Symbol === 'function' && typeof Symbol() === 'symbol';
 
 var toStr = Object.prototype.toString;
@@ -1141,7 +1147,7 @@ exports.createModels = createModels;
 
 exports.__esModule = true;
 var config_1 = __webpack_require__(0);
-var common_1 = __webpack_require__(1);
+var common_1 = __webpack_require__(2);
 /**
  * Calculate the column widths
  */
@@ -1267,7 +1273,7 @@ function distributeWidth(dynamicColumns, staticWidth, dynamicColumnsContentWidth
 "use strict";
 
 
-var getPolyfill = __webpack_require__(5);
+var getPolyfill = __webpack_require__(6);
 var define = __webpack_require__(14);
 
 module.exports = function shimEntries() {
@@ -1288,7 +1294,7 @@ module.exports = function shimEntries() {
 "use strict";
 
 
-var has = __webpack_require__(6);
+var has = __webpack_require__(1);
 var regexExec = RegExp.prototype.exec;
 var gOPD = Object.getOwnPropertyDescriptor;
 
@@ -1336,7 +1342,7 @@ module.exports = function isRegex(value) {
 
 var toStr = Object.prototype.toString;
 
-var isPrimitive = __webpack_require__(7);
+var isPrimitive = __webpack_require__(12);
 
 var isCallable = __webpack_require__(3);
 
@@ -1378,21 +1384,23 @@ module.exports = function ToPrimitive(input, PreferredType) {
 "use strict";
 
 
-var $isNaN = __webpack_require__(12);
-var $isFinite = __webpack_require__(11);
+var $isNaN = __webpack_require__(11);
+var $isFinite = __webpack_require__(10);
 
-var sign = __webpack_require__(9);
-var mod = __webpack_require__(8);
+var sign = __webpack_require__(8);
+var mod = __webpack_require__(7);
 
 var IsCallable = __webpack_require__(3);
 var toPrimitive = __webpack_require__(21);
+
+var has = __webpack_require__(1);
 
 // https://es5.github.io/#x9
 var ES5 = {
 	ToPrimitive: toPrimitive,
 
 	ToBoolean: function ToBoolean(value) {
-		return Boolean(value);
+		return !!value;
 	},
 	ToNumber: function ToNumber(value) {
 		return Number(value);
@@ -1458,6 +1466,154 @@ var ES5 = {
 		if (typeof x === 'string') {
 			return 'String';
 		}
+	},
+
+	// http://ecma-international.org/ecma-262/6.0/#sec-property-descriptor-specification-type
+	IsPropertyDescriptor: function IsPropertyDescriptor(Desc) {
+		if (this.Type(Desc) !== 'Object') {
+			return false;
+		}
+		var allowed = {
+			'[[Configurable]]': true,
+			'[[Enumerable]]': true,
+			'[[Get]]': true,
+			'[[Set]]': true,
+			'[[Value]]': true,
+			'[[Writable]]': true
+		};
+		// jscs:disable
+		for (var key in Desc) { // eslint-disable-line
+			if (has(Desc, key) && !allowed[key]) {
+				return false;
+			}
+		}
+		// jscs:enable
+		var isData = has(Desc, '[[Value]]');
+		var IsAccessor = has(Desc, '[[Get]]') || has(Desc, '[[Set]]');
+		if (isData && IsAccessor) {
+			throw new TypeError('Property Descriptors may not be both accessor and data descriptors');
+		}
+		return true;
+	},
+
+	// http://ecma-international.org/ecma-262/5.1/#sec-8.10.1
+	IsAccessorDescriptor: function IsAccessorDescriptor(Desc) {
+		if (typeof Desc === 'undefined') {
+			return false;
+		}
+
+		if (!this.IsPropertyDescriptor(Desc)) {
+			throw new TypeError('Desc must be a Property Descriptor');
+		}
+
+		if (!has(Desc, '[[Get]]') && !has(Desc, '[[Set]]')) {
+			return false;
+		}
+
+		return true;
+	},
+
+	// http://ecma-international.org/ecma-262/5.1/#sec-8.10.2
+	IsDataDescriptor: function IsDataDescriptor(Desc) {
+		if (typeof Desc === 'undefined') {
+			return false;
+		}
+
+		if (!this.IsPropertyDescriptor(Desc)) {
+			throw new TypeError('Desc must be a Property Descriptor');
+		}
+
+		if (!has(Desc, '[[Value]]') && !has(Desc, '[[Writable]]')) {
+			return false;
+		}
+
+		return true;
+	},
+
+	// http://ecma-international.org/ecma-262/5.1/#sec-8.10.3
+	IsGenericDescriptor: function IsGenericDescriptor(Desc) {
+		if (typeof Desc === 'undefined') {
+			return false;
+		}
+
+		if (!this.IsPropertyDescriptor(Desc)) {
+			throw new TypeError('Desc must be a Property Descriptor');
+		}
+
+		if (!this.IsAccessorDescriptor(Desc) && !this.IsDataDescriptor(Desc)) {
+			return true;
+		}
+
+		return false;
+	},
+
+	// http://ecma-international.org/ecma-262/5.1/#sec-8.10.4
+	FromPropertyDescriptor: function FromPropertyDescriptor(Desc) {
+		if (typeof Desc === 'undefined') {
+			return Desc;
+		}
+
+		if (!this.IsPropertyDescriptor(Desc)) {
+			throw new TypeError('Desc must be a Property Descriptor');
+		}
+
+		if (this.IsDataDescriptor(Desc)) {
+			return {
+				value: Desc['[[Value]]'],
+				writable: !!Desc['[[Writable]]'],
+				enumerable: !!Desc['[[Enumerable]]'],
+				configurable: !!Desc['[[Configurable]]']
+			};
+		} else if (this.IsAccessorDescriptor(Desc)) {
+			return {
+				get: Desc['[[Get]]'],
+				set: Desc['[[Set]]'],
+				enumerable: !!Desc['[[Enumerable]]'],
+				configurable: !!Desc['[[Configurable]]']
+			};
+		} else {
+			throw new TypeError('FromPropertyDescriptor must be called with a fully populated Property Descriptor');
+		}
+	},
+
+	// http://ecma-international.org/ecma-262/5.1/#sec-8.10.5
+	ToPropertyDescriptor: function ToPropertyDescriptor(Obj) {
+		if (this.Type(Obj) !== 'Object') {
+			throw new TypeError('ToPropertyDescriptor requires an object');
+		}
+
+		var desc = {};
+		if (has(Obj, 'enumerable')) {
+			desc['[[Enumerable]]'] = this.ToBoolean(Obj.enumerable);
+		}
+		if (has(Obj, 'configurable')) {
+			desc['[[Configurable]]'] = this.ToBoolean(Obj.configurable);
+		}
+		if (has(Obj, 'value')) {
+			desc['[[Value]]'] = Obj.value;
+		}
+		if (has(Obj, 'writable')) {
+			desc['[[Writable]]'] = this.ToBoolean(Obj.writable);
+		}
+		if (has(Obj, 'get')) {
+			var getter = Obj.get;
+			if (typeof getter !== 'undefined' && !this.IsCallable(getter)) {
+				throw new TypeError('getter must be a function');
+			}
+			desc['[[Get]]'] = getter;
+		}
+		if (has(Obj, 'set')) {
+			var setter = Obj.set;
+			if (typeof setter !== 'undefined' && !this.IsCallable(setter)) {
+				throw new TypeError('setter must be a function');
+			}
+			desc['[[Set]]'] = setter;
+		}
+
+		if ((has(desc, '[[Get]]') || has(desc, '[[Set]]')) && (has(desc, '[[Value]]') || has(desc, '[[Writable]]'))) {
+			throw new TypeError('Invalid property descriptor. Cannot both specify accessors and a value or writable attribute');
+		}
+		return desc;
 	}
 };
 
@@ -1468,53 +1624,8 @@ module.exports = ES5;
 /* 23 */
 /***/ (function(module, exports) {
 
-var ERROR_MESSAGE = 'Function.prototype.bind called on incompatible ';
-var slice = Array.prototype.slice;
-var toStr = Object.prototype.toString;
-var funcType = '[object Function]';
-
-module.exports = function bind(that) {
-    var target = this;
-    if (typeof target !== 'function' || toStr.call(target) !== funcType) {
-        throw new TypeError(ERROR_MESSAGE + target);
-    }
-    var args = slice.call(arguments, 1);
-
-    var bound;
-    var binder = function () {
-        if (this instanceof bound) {
-            var result = target.apply(
-                this,
-                args.concat(slice.call(arguments))
-            );
-            if (Object(result) === result) {
-                return result;
-            }
-            return this;
-        } else {
-            return target.apply(
-                that,
-                args.concat(slice.call(arguments))
-            );
-        }
-    };
-
-    var boundLength = Math.max(0, target.length - args.length);
-    var boundArgs = [];
-    for (var i = 0; i < boundLength; i++) {
-        boundArgs.push('$' + i);
-    }
-
-    bound = Function('binder', 'return function (' + boundArgs.join(',') + '){ return binder.apply(this,arguments); }')(binder);
-
-    if (target.prototype) {
-        var Empty = function Empty() {};
-        Empty.prototype = target.prototype;
-        bound.prototype = new Empty();
-        Empty.prototype = null;
-    }
-
-    return bound;
+module.exports = function isPrimitive(value) {
+	return value === null || (typeof value !== 'function' && typeof value !== 'object');
 };
 
 
@@ -1588,7 +1699,7 @@ module.exports = function isDateObject(value) {
 
 var hasSymbols = typeof Symbol === 'function' && typeof Symbol.iterator === 'symbol';
 
-var isPrimitive = __webpack_require__(7);
+var isPrimitive = __webpack_require__(12);
 var isCallable = __webpack_require__(3);
 var isDate = __webpack_require__(25);
 var isSymbol = __webpack_require__(24);
@@ -1662,10 +1773,60 @@ module.exports = function ToPrimitive(input, PreferredType) {
 
 /***/ }),
 /* 27 */
-/***/ (function(module, exports) {
+/***/ (function(module, exports, __webpack_require__) {
 
-module.exports = function isPrimitive(value) {
-	return value === null || (typeof value !== 'function' && typeof value !== 'object');
+"use strict";
+
+
+/* eslint no-invalid-this: 1 */
+
+var ERROR_MESSAGE = 'Function.prototype.bind called on incompatible ';
+var slice = Array.prototype.slice;
+var toStr = Object.prototype.toString;
+var funcType = '[object Function]';
+
+module.exports = function bind(that) {
+    var target = this;
+    if (typeof target !== 'function' || toStr.call(target) !== funcType) {
+        throw new TypeError(ERROR_MESSAGE + target);
+    }
+    var args = slice.call(arguments, 1);
+
+    var bound;
+    var binder = function () {
+        if (this instanceof bound) {
+            var result = target.apply(
+                this,
+                args.concat(slice.call(arguments))
+            );
+            if (Object(result) === result) {
+                return result;
+            }
+            return this;
+        } else {
+            return target.apply(
+                that,
+                args.concat(slice.call(arguments))
+            );
+        }
+    };
+
+    var boundLength = Math.max(0, target.length - args.length);
+    var boundArgs = [];
+    for (var i = 0; i < boundLength; i++) {
+        boundArgs.push('$' + i);
+    }
+
+    bound = Function('binder', 'return function (' + boundArgs.join(',') + '){ return binder.apply(this,arguments); }')(binder);
+
+    if (target.prototype) {
+        var Empty = function Empty() {};
+        Empty.prototype = target.prototype;
+        bound.prototype = new Empty();
+        Empty.prototype = null;
+    }
+
+    return bound;
 };
 
 
@@ -1676,24 +1837,28 @@ module.exports = function isPrimitive(value) {
 "use strict";
 
 
+var has = __webpack_require__(1);
+var toPrimitive = __webpack_require__(26);
+
 var toStr = Object.prototype.toString;
 var hasSymbols = typeof Symbol === 'function' && typeof Symbol.iterator === 'symbol';
-var symbolToStr = hasSymbols ? Symbol.prototype.toString : toStr;
+var SymbolIterator = hasSymbols ? Symbol.iterator : null;
 
-var $isNaN = __webpack_require__(12);
-var $isFinite = __webpack_require__(11);
+var $isNaN = __webpack_require__(11);
+var $isFinite = __webpack_require__(10);
 var MAX_SAFE_INTEGER = Number.MAX_SAFE_INTEGER || Math.pow(2, 53) - 1;
 
-var assign = __webpack_require__(10);
-var sign = __webpack_require__(9);
-var mod = __webpack_require__(8);
-var isPrimitive = __webpack_require__(27);
-var toPrimitive = __webpack_require__(26);
+var assign = __webpack_require__(9);
+var sign = __webpack_require__(8);
+var mod = __webpack_require__(7);
+var isPrimitive = __webpack_require__(23);
 var parseInteger = parseInt;
-var bind = __webpack_require__(2);
+var bind = __webpack_require__(4);
+var arraySlice = bind.call(Function.call, Array.prototype.slice);
 var strSlice = bind.call(Function.call, String.prototype.slice);
 var isBinary = bind.call(Function.call, RegExp.prototype.test, /^0b[01]+$/i);
 var isOctal = bind.call(Function.call, RegExp.prototype.test, /^0o[0-7]+$/i);
+var regexExec = bind.call(Function.call, RegExp.prototype.exec);
 var nonWS = ['\u0085', '\u200b', '\ufffe'].join('');
 var nonWSregex = new RegExp('[' + nonWS + ']', 'g');
 var hasNonWS = bind.call(Function.call, RegExp.prototype.test, nonWSregex);
@@ -1737,7 +1902,7 @@ var ES6 = assign(assign({}, ES5), {
 
 	// http://www.ecma-international.org/ecma-262/6.0/#sec-tonumber
 	ToNumber: function ToNumber(argument) {
-		var value = isPrimitive(argument) ? argument : toPrimitive(argument, 'number');
+		var value = isPrimitive(argument) ? argument : toPrimitive(argument, Number);
 		if (typeof value === 'symbol') {
 			throw new TypeError('Cannot convert a Symbol value to a number');
 		}
@@ -1819,7 +1984,7 @@ var ES6 = assign(assign({}, ES5), {
 	// https://people.mozilla.org/~jorendorff/es6-draft.html#sec-topropertykey
 	ToPropertyKey: function ToPropertyKey(argument) {
 		var key = this.ToPrimitive(argument, String);
-		return typeof key === 'symbol' ? symbolToStr.call(key) : this.ToString(key);
+		return typeof key === 'symbol' ? key : this.ToString(key);
 	},
 
 	// https://people.mozilla.org/~jorendorff/es6-draft.html#sec-tolength
@@ -1942,7 +2107,7 @@ var ES6 = assign(assign({}, ES5), {
 
 		// 7.3.9.4
 		if (func == null) {
-			return undefined;
+			return void 0;
 		}
 
 		// 7.3.9.5
@@ -1992,7 +2157,7 @@ var ES6 = assign(assign({}, ES5), {
 		if (this.Type(C) !== 'Object') {
 			throw new TypeError('O.constructor is not an Object');
 		}
-		var S = hasSymbols && Symbol.species ? C[Symbol.species] : undefined;
+		var S = hasSymbols && Symbol.species ? C[Symbol.species] : void 0;
 		if (S == null) {
 			return defaultConstructor;
 		}
@@ -2000,6 +2165,325 @@ var ES6 = assign(assign({}, ES5), {
 			return S;
 		}
 		throw new TypeError('no constructor found');
+	},
+
+	// http://ecma-international.org/ecma-262/6.0/#sec-completepropertydescriptor
+	CompletePropertyDescriptor: function CompletePropertyDescriptor(Desc) {
+		if (!this.IsPropertyDescriptor(Desc)) {
+			throw new TypeError('Desc must be a Property Descriptor');
+		}
+
+		if (this.IsGenericDescriptor(Desc) || this.IsDataDescriptor(Desc)) {
+			if (!has(Desc, '[[Value]]')) {
+				Desc['[[Value]]'] = void 0;
+			}
+			if (!has(Desc, '[[Writable]]')) {
+				Desc['[[Writable]]'] = false;
+			}
+		} else {
+			if (!has(Desc, '[[Get]]')) {
+				Desc['[[Get]]'] = void 0;
+			}
+			if (!has(Desc, '[[Set]]')) {
+				Desc['[[Set]]'] = void 0;
+			}
+		}
+		if (!has(Desc, '[[Enumerable]]')) {
+			Desc['[[Enumerable]]'] = false;
+		}
+		if (!has(Desc, '[[Configurable]]')) {
+			Desc['[[Configurable]]'] = false;
+		}
+		return Desc;
+	},
+
+	// http://ecma-international.org/ecma-262/6.0/#sec-set-o-p-v-throw
+	Set: function Set(O, P, V, Throw) {
+		if (this.Type(O) !== 'Object') {
+			throw new TypeError('O must be an Object');
+		}
+		if (!this.IsPropertyKey(P)) {
+			throw new TypeError('P must be a Property Key');
+		}
+		if (this.Type(Throw) !== 'Boolean') {
+			throw new TypeError('Throw must be a Boolean');
+		}
+		if (Throw) {
+			O[P] = V;
+			return true;
+		} else {
+			try {
+				O[P] = V;
+			} catch (e) {
+				return false;
+			}
+		}
+	},
+
+	// http://ecma-international.org/ecma-262/6.0/#sec-hasownproperty
+	HasOwnProperty: function HasOwnProperty(O, P) {
+		if (this.Type(O) !== 'Object') {
+			throw new TypeError('O must be an Object');
+		}
+		if (!this.IsPropertyKey(P)) {
+			throw new TypeError('P must be a Property Key');
+		}
+		return has(O, P);
+	},
+
+	// http://ecma-international.org/ecma-262/6.0/#sec-hasproperty
+	HasProperty: function HasProperty(O, P) {
+		if (this.Type(O) !== 'Object') {
+			throw new TypeError('O must be an Object');
+		}
+		if (!this.IsPropertyKey(P)) {
+			throw new TypeError('P must be a Property Key');
+		}
+		return P in O;
+	},
+
+	// http://ecma-international.org/ecma-262/6.0/#sec-isconcatspreadable
+	IsConcatSpreadable: function IsConcatSpreadable(O) {
+		if (this.Type(O) !== 'Object') {
+			return false;
+		}
+		if (hasSymbols && typeof Symbol.isConcatSpreadable === 'symbol') {
+			var spreadable = this.Get(O, Symbol.isConcatSpreadable);
+			if (typeof spreadable !== 'undefined') {
+				return this.ToBoolean(spreadable);
+			}
+		}
+		return this.IsArray(O);
+	},
+
+	// http://ecma-international.org/ecma-262/6.0/#sec-invoke
+	Invoke: function Invoke(O, P) {
+		if (!this.IsPropertyKey(P)) {
+			throw new TypeError('P must be a Property Key');
+		}
+		var argumentsList = arraySlice(arguments, 2);
+		var func = this.GetV(O, P);
+		return this.Call(func, O, argumentsList);
+	},
+
+	// http://ecma-international.org/ecma-262/6.0/#sec-getiterator
+	GetIterator: function GetIterator(obj, method) {
+		if (!hasSymbols) {
+			throw new SyntaxError('ES.GetIterator depends on native iterator support.');
+		}
+
+		var actualMethod = method;
+		if (arguments.length < 2) {
+			actualMethod = this.GetMethod(obj, SymbolIterator);
+		}
+		var iterator = this.Call(actualMethod, obj);
+		if (this.Type(iterator) !== 'Object') {
+			throw new TypeError('iterator must return an object');
+		}
+
+		return iterator;
+	},
+
+	// http://ecma-international.org/ecma-262/6.0/#sec-iteratornext
+	IteratorNext: function IteratorNext(iterator, value) {
+		var result = this.Invoke(iterator, 'next', arguments.length < 2 ? [] : [value]);
+		if (this.Type(result) !== 'Object') {
+			throw new TypeError('iterator next must return an object');
+		}
+		return result;
+	},
+
+	// http://ecma-international.org/ecma-262/6.0/#sec-iteratorcomplete
+	IteratorComplete: function IteratorComplete(iterResult) {
+		if (this.Type(iterResult) !== 'Object') {
+			throw new TypeError('Assertion failed: Type(iterResult) is not Object');
+		}
+		return this.ToBoolean(this.Get(iterResult, 'done'));
+	},
+
+	// http://ecma-international.org/ecma-262/6.0/#sec-iteratorvalue
+	IteratorValue: function IteratorValue(iterResult) {
+		if (this.Type(iterResult) !== 'Object') {
+			throw new TypeError('Assertion failed: Type(iterResult) is not Object');
+		}
+		return this.Get(iterResult, 'value');
+	},
+
+	// http://ecma-international.org/ecma-262/6.0/#sec-iteratorstep
+	IteratorStep: function IteratorStep(iterator) {
+		var result = this.IteratorNext(iterator);
+		var done = this.IteratorComplete(result);
+		return done === true ? false : result;
+	},
+
+	// http://ecma-international.org/ecma-262/6.0/#sec-iteratorclose
+	IteratorClose: function IteratorClose(iterator, completion) {
+		if (this.Type(iterator) !== 'Object') {
+			throw new TypeError('Assertion failed: Type(iterator) is not Object');
+		}
+		if (!this.IsCallable(completion)) {
+			throw new TypeError('Assertion failed: completion is not a thunk for a Completion Record');
+		}
+		var completionThunk = completion;
+
+		var iteratorReturn = this.GetMethod(iterator, 'return');
+
+		if (typeof iteratorReturn === 'undefined') {
+			return completionThunk();
+		}
+
+		var completionRecord;
+		try {
+			var innerResult = this.Call(iteratorReturn, iterator, []);
+		} catch (e) {
+			// if we hit here, then "e" is the innerResult completion that needs re-throwing
+
+			// if the completion is of type "throw", this will throw.
+			completionRecord = completionThunk();
+			completionThunk = null; // ensure it's not called twice.
+
+			// if not, then return the innerResult completion
+			throw e;
+		}
+		completionRecord = completionThunk(); // if innerResult worked, then throw if the completion does
+		completionThunk = null; // ensure it's not called twice.
+
+		if (this.Type(innerResult) !== 'Object') {
+			throw new TypeError('iterator .return must return an object');
+		}
+
+		return completionRecord;
+	},
+
+	// http://ecma-international.org/ecma-262/6.0/#sec-createiterresultobject
+	CreateIterResultObject: function CreateIterResultObject(value, done) {
+		if (this.Type(done) !== 'Boolean') {
+			throw new TypeError('Assertion failed: Type(done) is not Boolean');
+		}
+		return {
+			value: value,
+			done: done
+		};
+	},
+
+	// http://ecma-international.org/ecma-262/6.0/#sec-regexpexec
+	RegExpExec: function RegExpExec(R, S) {
+		if (this.Type(R) !== 'Object') {
+			throw new TypeError('R must be an Object');
+		}
+		if (this.Type(S) !== 'String') {
+			throw new TypeError('S must be a String');
+		}
+		var exec = this.Get(R, 'exec');
+		if (this.IsCallable(exec)) {
+			var result = this.Call(exec, R, [S]);
+			if (result === null || this.Type(result) === 'Object') {
+				return result;
+			}
+			throw new TypeError('"exec" method must return `null` or an Object');
+		}
+		return regexExec(R, S);
+	},
+
+	// http://ecma-international.org/ecma-262/6.0/#sec-arrayspeciescreate
+	ArraySpeciesCreate: function ArraySpeciesCreate(originalArray, length) {
+		if (!this.IsInteger(length) || length < 0) {
+			throw new TypeError('Assertion failed: length must be an integer >= 0');
+		}
+		var len = length === 0 ? 0 : length;
+		var C;
+		var isArray = this.IsArray(originalArray);
+		if (isArray) {
+			C = this.Get(originalArray, 'constructor');
+			// TODO: figure out how to make a cross-realm normal Array, a same-realm Array
+			// if (this.IsConstructor(C)) {
+			// 	if C is another realm's Array, C = undefined
+			// 	Object.getPrototypeOf(Object.getPrototypeOf(Object.getPrototypeOf(Array))) === null ?
+			// }
+			if (this.Type(C) === 'Object' && hasSymbols && Symbol.species) {
+				C = this.Get(C, Symbol.species);
+				if (C === null) {
+					C = void 0;
+				}
+			}
+		}
+		if (typeof C === 'undefined') {
+			return Array(len);
+		}
+		if (!this.IsConstructor(C)) {
+			throw new TypeError('C must be a constructor');
+		}
+		return new C(len); // this.Construct(C, len);
+	},
+
+	CreateDataProperty: function CreateDataProperty(O, P, V) {
+		if (this.Type(O) !== 'Object') {
+			throw new TypeError('Assertion failed: Type(O) is not Object');
+		}
+		if (!this.IsPropertyKey(P)) {
+			throw new TypeError('Assertion failed: IsPropertyKey(P) is not true');
+		}
+		var oldDesc = Object.getOwnPropertyDescriptor(O, P);
+		var extensible = oldDesc || (typeof Object.isExtensible !== 'function' || Object.isExtensible(O));
+		var immutable = oldDesc && (!oldDesc.writable || !oldDesc.configurable);
+		if (immutable || !extensible) {
+			return false;
+		}
+		var newDesc = {
+			configurable: true,
+			enumerable: true,
+			value: V,
+			writable: true
+		};
+		Object.defineProperty(O, P, newDesc);
+		return true;
+	},
+
+	// http://ecma-international.org/ecma-262/6.0/#sec-createdatapropertyorthrow
+	CreateDataPropertyOrThrow: function CreateDataPropertyOrThrow(O, P, V) {
+		if (this.Type(O) !== 'Object') {
+			throw new TypeError('Assertion failed: Type(O) is not Object');
+		}
+		if (!this.IsPropertyKey(P)) {
+			throw new TypeError('Assertion failed: IsPropertyKey(P) is not true');
+		}
+		var success = this.CreateDataProperty(O, P, V);
+		if (!success) {
+			throw new TypeError('unable to create data property');
+		}
+		return success;
+	},
+
+	// http://ecma-international.org/ecma-262/6.0/#sec-advancestringindex
+	AdvanceStringIndex: function AdvanceStringIndex(S, index, unicode) {
+		if (this.Type(S) !== 'String') {
+			throw new TypeError('Assertion failed: Type(S) is not String');
+		}
+		if (!this.IsInteger(index)) {
+			throw new TypeError('Assertion failed: length must be an integer >= 0 and <= (2**53 - 1)');
+		}
+		if (index < 0 || index > MAX_SAFE_INTEGER) {
+			throw new RangeError('Assertion failed: length must be an integer >= 0 and <= (2**53 - 1)');
+		}
+		if (this.Type(unicode) !== 'Boolean') {
+			throw new TypeError('Assertion failed: Type(unicode) is not Boolean');
+		}
+		if (!unicode) {
+			return index + 1;
+		}
+		var length = S.length;
+		if ((index + 1) >= length) {
+			return index + 1;
+		}
+		var first = S.charCodeAt(index);
+		if (first < 0xD800 || first > 0xDBFF) {
+			return index + 1;
+		}
+		var second = S.charCodeAt(index + 1);
+		if (second < 0xDC00 || second > 0xDFFF) {
+			return index + 1;
+		}
+		return index + 2;
 	}
 });
 
@@ -2015,10 +2499,10 @@ module.exports = ES6;
 "use strict";
 
 
-var ES6 = __webpack_require__(28);
-var assign = __webpack_require__(10);
+var ES2015 = __webpack_require__(28);
+var assign = __webpack_require__(9);
 
-var ES7 = assign(ES6, {
+var ES2016 = assign(assign({}, ES2015), {
 	// https://github.com/tc39/ecma262/pull/60
 	SameValueNonNumber: function SameValueNonNumber(x, y) {
 		if (typeof x === 'number' || typeof x !== typeof y) {
@@ -2028,11 +2512,21 @@ var ES7 = assign(ES6, {
 	}
 });
 
-module.exports = ES7;
+module.exports = ES2016;
 
 
 /***/ }),
 /* 30 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+module.exports = __webpack_require__(29);
+
+
+/***/ }),
+/* 31 */
 /***/ (function(module, exports) {
 
 
@@ -2060,7 +2554,7 @@ module.exports = function forEach (obj, fn, ctx) {
 
 
 /***/ }),
-/* 31 */
+/* 32 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2084,7 +2578,7 @@ module.exports = function isArguments(value) {
 
 
 /***/ }),
-/* 32 */
+/* 33 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2094,7 +2588,7 @@ module.exports = function isArguments(value) {
 var has = Object.prototype.hasOwnProperty;
 var toStr = Object.prototype.toString;
 var slice = Array.prototype.slice;
-var isArgs = __webpack_require__(31);
+var isArgs = __webpack_require__(32);
 var isEnumerable = Object.prototype.propertyIsEnumerable;
 var hasDontEnumBug = !isEnumerable.call({ toString: null }, 'toString');
 var hasProtoEnumBug = isEnumerable.call(function () {}, 'prototype');
@@ -2231,7 +2725,7 @@ module.exports = keysShim;
 
 
 /***/ }),
-/* 33 */
+/* 34 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2240,7 +2734,7 @@ module.exports = keysShim;
 var define = __webpack_require__(14);
 
 var implementation = __webpack_require__(13);
-var getPolyfill = __webpack_require__(5);
+var getPolyfill = __webpack_require__(6);
 var shim = __webpack_require__(19);
 
 var polyfill = getPolyfill();
@@ -2255,22 +2749,22 @@ module.exports = polyfill;
 
 
 /***/ }),
-/* 34 */
+/* 35 */
 /***/ (function(module, exports) {
 
-module.exports = __WEBPACK_EXTERNAL_MODULE__34__;
+module.exports = __WEBPACK_EXTERNAL_MODULE__35__;
 
 /***/ }),
-/* 35 */
+/* 36 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 exports.__esModule = true;
-var jsPDF = __webpack_require__(34);
+var jsPDF = __webpack_require__(35);
 var config_1 = __webpack_require__(0);
-var common_1 = __webpack_require__(1);
-var painter_1 = __webpack_require__(4);
+var common_1 = __webpack_require__(2);
+var painter_1 = __webpack_require__(5);
 var calculator_1 = __webpack_require__(18);
 var creator_1 = __webpack_require__(17);
 /**
