@@ -92,7 +92,8 @@ examples.content = function () {
     doc.text('A story about a person', 14, 22);
     doc.setFontSize(11);
     doc.setTextColor(100);
-    var text = doc.splitTextToSize(shuffleSentence(faker.lorem.words(55)) + '.', doc.internal.pageSize.width - 35, {});
+    var pageWidth = doc.internal.pageSize.width || doc.internal.pageSize.getWidth();
+    var text = doc.splitTextToSize(shuffleSentence(faker.lorem.words(55)) + '.', pageWidth - 35, {});
     doc.text(text, 14, 30);
 
     var cols = getColumns();
@@ -171,7 +172,8 @@ examples['header-footer'] = function () {
             str = str + " of " + totalPagesExp;
         }
         doc.setFontSize(10);
-        doc.text(str, data.settings.margin.left, doc.internal.pageSize.height - 10);
+        var pageHeight = doc.internal.pageSize.height || doc.internal.pageSize.getHeight();
+        doc.text(str, data.settings.margin.left, pageHeight  - 10);
     };
     
     doc.autoTable(getColumns(), getData(40), {
@@ -273,7 +275,8 @@ examples.spans = function () {
 
             if (row.index % 5 === 0) {
                 var posY = row.y + row.height * 6 + data.settings.margin.bottom;
-                if (posY > doc.internal.pageSize.height) {
+                var pageHeight = doc.internal.pageSize.height || doc.internal.pageSize.getHeight();
+                if (posY > pageHeight) {
                     data.addPage();
                 }
             }
