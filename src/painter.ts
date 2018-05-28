@@ -14,7 +14,7 @@ export function printFullRow(row, drawRowHooks, drawCellHooks) {
             // Modify the row to fit the current page and calculate text and height of partial row
             row.spansMultiplePages = true;
 
-            let pageHeight = table.doc.internal.pageSize.height;
+            let pageHeight = Config.pageSize().height;
             let maxCellHeight = 0;
 
             for (let j = 0; j < table.columns.length; j++) {
