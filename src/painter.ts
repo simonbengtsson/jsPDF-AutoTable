@@ -8,7 +8,7 @@ export function printFullRow(row, drawRowHooks, drawCellHooks) {
     let table = Config.tableInstance();
 
     if (!canFitOnPage(row.height)) {
-        if (row.maxLineCount <= 1 || table.settings.pageBreak === 'never') {
+        if (row.maxLineCount <= 1 || table.settings.rowBreak === 'never') {
             addPage();
         } else {
             // Modify the row to fit the current page and calculate text and height of partial row
