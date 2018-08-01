@@ -23,8 +23,8 @@ module.exports = {
         libraryTarget: "umd",
     },
     module: {
-        loaders: [
-            { test: /\.ts$/, loader: "ts-loader" }
+        rules: [
+            { test: /\.ts$/, use: [{loader: 'ts-loader'}] }
         ]
     },
     externals: {
@@ -55,9 +55,14 @@ module.exports = {
             http://opensource.org/licenses/mit-license
             
             */if (typeof window === 'object') window.jspdfAutoTableVersion = '" + newVersion + "';/*"
-        `),
-        new UglifyJSPlugin({
-            include: /\.min\.js$/,
-        })
-    ]
+        `)
+    ],
+    optimization: {
+        minimize: true,
+        minimizer: [
+            new UglifyJSPlugin({
+                include: /\.min\.js$/,
+            })
+        ]
+    }
 };

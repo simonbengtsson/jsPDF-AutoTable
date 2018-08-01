@@ -10,19 +10,21 @@
     "jspdf": "1.4.1"
   },
   "devDependencies": {
+    "@webpack-cli/migrate": "^0.1.0",
     "jspdf": "1.4.1",
     "mocha": "5.2.0",
     "mock-browser": "0.92.14",
     "mock-require": "3.0.2",
     "object-assign": "4.1.1",
     "object.entries": "1.0.4",
-    "ts-loader": "3.1.1",
-    "ts-node": "3.3.0",
+    "ts-loader": "4.4.2",
+    "ts-node": "7.0.0",
     "typedoc": "0.11.1",
     "typescript": "3.0.1",
     "uglifyjs-webpack-plugin": "1.2.7",
-    "webpack": "3.8.1",
-    "webpack-dev-server": "2.9.3"
+    "webpack": "4.16.3",
+    "webpack-cli": "^3.1.0",
+    "webpack-dev-server": "3.1.5"
   },
   "scripts": {
     "start": "webpack-dev-server -d --open",
@@ -48,7 +50,5 @@
     "url": "https://github.com/simonbengtsson/jsPDF-AutoTable/issues"
   },
   "homepage": "https://simonbengtsson.github.io/jsPDF-AutoTable/",
-  "dependencies": {
-    "webpack-cli": "^3.1.0"
-  }
+  "dependencies": {}
 }
