@@ -1,3 +1,3 @@
-If you have a question of how to use this plugin, please post on StackOverflow with the tags jspdf and jspdf-autotable.
+Feature requests, bug reports etc are very welcome as issues. But questions are directed to StackOverflow with the tags `jspdf` and `jspdf-autotable`.
 
-If you have found a bug, try to describe it in a way that makes it possible to reproduce. Code is always helpful, and live code even more so. Here is a [codepen](http://codepen.io/someatoms/pen/EjwPEb) with `jspdf` and `jspdf-autotable` included that you can fork.
+If you are experiencing a bug, try to create a [mcve](https://stackoverflow.com/help/mcve) and include runnable code that is clearly showing your issue. You can use for example this [codepen template](http://codepen.io/someatoms/pen/EjwPEb) as a base with `jspdf` and `jspdf-autotable` already included. Try to make sure and show in your issue that the issue is actually related to this plugin and not your framework of choice, jspdf or your setup.
