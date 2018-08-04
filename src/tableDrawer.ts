@@ -11,10 +11,10 @@ export function drawTable(table: Table) {
     };
 
     let minTableBottomPos = settings.startY + table.margin('bottom') + table.headHeight + table.footHeight;
-    if (settings.avoidTableSplit) {
+    if (settings.pageBreak === 'avoid') {
         minTableBottomPos += table.height;
     }
-    if (settings.startY != null && minTableBottomPos > state().pageHeight()) {
+    if (settings.pageBreak === 'always' || settings.startY != null && settings.startY !== false && minTableBottomPos > state().pageHeight()) {
         nextPage(state().doc);
         table.cursor.y = table.margin('top');
     }

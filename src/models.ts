@@ -27,7 +27,7 @@ interface Properties {
     useCss: boolean,
     startY: null|number,
     margin: MarginPadding,
-    avoidTableSplit: boolean,
+    pageBreak: 'auto'|'avoid'|'always',
     rowPageBreak: 'auto'|'avoid',
     tableWidth: 'auto' | 'wrap' | number,
     showHeader: 'everyPage' | 'firstPage' | 'never',

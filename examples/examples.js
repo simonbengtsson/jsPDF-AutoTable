@@ -156,7 +156,7 @@ examples.multiple = function () {
             head: headRows(), 
             body: bodyRows(),
             startY: doc.autoTable.previous.finalY + 10,
-            avoidTableSplit: true,
+            pageBreak: 'avoid',
         });
     }
 

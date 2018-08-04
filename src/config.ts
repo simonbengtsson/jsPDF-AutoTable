@@ -35,7 +35,7 @@ export interface UserOptions {
 
     startY?: number;
     margin?: MarginPadding;
-    pageBreakTable?: boolean;
+    pageBreak?: boolean;
     pageBreakRow?: boolean;
     tableWidth?: 'auto' | 'wrap' | number;
     showHeader?: 'everyPage' | 'firstPage' | 'never';
@@ -94,10 +94,10 @@ type SingleRowType = CellType[] | { string: CellType }
 
 export interface BaseConfig {
     // Properties
-    theme?: 'auto' | 'striped' | 'grid' | 'plain', // default: striped
-    startY?: false | number,
+    theme?: 'striped' | 'grid' | 'plain',
+    startY?: number,
     margin?: MarginPadding,
-    avoidTableSplit?: boolean,
+    pageBreak?: 'auto'|'avoid'|'always',
     rowPageBreak: 'auto'|'avoid',
     tableWidth?: 'auto' | 'wrap' | number,
     showHeader?: 'everyPage' | 'firstPage' | 'never',
@@ -146,7 +146,7 @@ export function defaultConfig() {
         includeHiddenHTML: false,
         startY: null, // Defaults to margin top value if not set
         margin: 40 / state().scaleFactor(),
-        avoidTableSplit: false,
+        pageBreak: 'auto',
         rowPageBreak: 'auto',
         tableWidth: 'auto', // 'auto'|'wrap'|number
         showHeader: 'everyPage', // 'everyPage', 'firstPage', 'never',

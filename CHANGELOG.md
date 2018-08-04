@@ -1,6 +1,5 @@
 # BEFORE RELEASE
 - Fix column.raw as in v2.3.2
-- avoidPageSplit -> pageBreak: 'auto'|'avoid'|'always'
 - Refactor out inputParser
 - Add columns option
 - Use header on each page as default (?)
@@ -47,7 +46,6 @@ Deprecations:
 - The old initialization `doc.autoTable(columns, data, options)` is now deprecated. 
 - `doc.autoTableHtmlToJson()` in favour of html option
 - Old way of getting previous autoTable: `doc.autoTable.previous`
-- `pageBreak: always` Add new page manually before calling autoTable instead
 
 Migrating to version 3.0 should be rather painless as most changes are backwards compatible. The lib was pretty much rewritten however so open an issue if you encounter any problems.
 
