@@ -141,8 +141,6 @@ function parseContent(table) {
                     columnSpansLeft = rowSpansLeftForColumn[column.dataKey].times;
                 }
             }
-            
-            console.log(row.cells)
         });
     }
 
