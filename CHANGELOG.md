@@ -7,9 +7,16 @@
 - Use header on each page as default (?)
 - Fix rowPageBreak 'auto'
 - Only print head if first row of body fits on page
+- Last row (long example) not getting cut off correctly
+- Change default of showHeader to always (like pages, and v2)
+- In content example, bug with last row. Background over page number
+- addPage and auto startY not working (as seen in defaults example)
+- Spans example not working
 
 ### 3.1
-None for now
+- Additional and updates themes?
+- Easier to add image to cells
+- Update support for custom fonts (and utf-8)?
 
 Deprecation warnings for:
 cell.raw.className → cell.raw.content.className
