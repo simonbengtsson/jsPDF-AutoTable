@@ -52,6 +52,9 @@
 
 <script>
     function generate() {
+        var doc = new jsPDF();
+
+        // DATA EXAMPLE - Use this initiation when you hard code data or get dynamic data from an API
         var columns = ["ID", "Country", "Rank", "Capital"];
         var data = [
             [1, "Denmark", 7.526, "Copenhagen"],
@@ -60,10 +63,13 @@
             [4, "Norway", 7.498, "Oslo"],
             [5, "Finland", 7.413, "Helsinki"]
         ];
-
-        var doc = new jsPDF();
+        
+        // HTML EXAMPLE - Comment out the data example and use this when you want to get a pdf of an html table
+        //var element = document.getElementById('table');
+        //var res = doc.autoTableHtmlToJson(element);
+        //doc.autoTable(res.columns, res.data)
+        
         doc.autoTable(columns, data);
-        doc.output("dataurlnewwindow");
     }
 </script>
 </body>
