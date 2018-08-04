@@ -1,11 +1,13 @@
 /*!
- * jsPDF AutoTable plugin v2.3.0
- * Copyright (c) 2014 Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable 
  * 
- * Licensed under the MIT License.
- * http://opensource.org/licenses/mit-license
- * 
- * */if (typeof window === 'object') window.jspdfAutoTableVersion = '2.3.0';/*
+ *             jsPDF AutoTable plugin v3.0.0-alpha.2
+ *             
+ *             Copyright (c) 2014 Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable
+ *             Licensed under the MIT License.
+ *             http://opensource.org/licenses/mit-license
+ *             
+ *             * /if (typeof window === 'object') window.jspdfAutoTableVersion = '" + newVersion + "';/*"
+ *         
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
@@ -16,56 +18,73 @@
 		var a = typeof exports === 'object' ? factory(require("jspdf")) : factory(root["jsPDF"]);
 		for(var i in a) (typeof exports === 'object' ? exports : root)[i] = a[i];
 	}
-})(this, function(__WEBPACK_EXTERNAL_MODULE_18__) {
+})(window, function(__WEBPACK_EXTERNAL_MODULE__5__) {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
-
+/******/
 /******/ 	// The require function
 /******/ 	function __webpack_require__(moduleId) {
-
+/******/
 /******/ 		// Check if module is in cache
-/******/ 		if(installedModules[moduleId])
+/******/ 		if(installedModules[moduleId]) {
 /******/ 			return installedModules[moduleId].exports;
-
+/******/ 		}
 /******/ 		// Create a new module (and put it into the cache)
 /******/ 		var module = installedModules[moduleId] = {
 /******/ 			i: moduleId,
 /******/ 			l: false,
 /******/ 			exports: {}
 /******/ 		};
-
+/******/
 /******/ 		// Execute the module function
 /******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
-
+/******/
 /******/ 		// Flag the module as loaded
 /******/ 		module.l = true;
-
+/******/
 /******/ 		// Return the exports of the module
 /******/ 		return module.exports;
 /******/ 	}
-
-
+/******/
+/******/
 /******/ 	// expose the modules object (__webpack_modules__)
 /******/ 	__webpack_require__.m = modules;
-
+/******/
 /******/ 	// expose the module cache
 /******/ 	__webpack_require__.c = installedModules;
-
-/******/ 	// identity function for calling harmony imports with the correct context
-/******/ 	__webpack_require__.i = function(value) { return value; };
-
+/******/
 /******/ 	// define getter function for harmony exports
 /******/ 	__webpack_require__.d = function(exports, name, getter) {
 /******/ 		if(!__webpack_require__.o(exports, name)) {
-/******/ 			Object.defineProperty(exports, name, {
-/******/ 				configurable: false,
-/******/ 				enumerable: true,
-/******/ 				get: getter
-/******/ 			});
+/******/ 			Object.defineProperty(exports, name, { enumerable: true, get: getter });
 /******/ 		}
 /******/ 	};
-
+/******/
+/******/ 	// define __esModule on exports
+/******/ 	__webpack_require__.r = function(exports) {
+/******/ 		if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
+/******/ 			Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
+/******/ 		}
+/******/ 		Object.defineProperty(exports, '__esModule', { value: true });
+/******/ 	};
+/******/
+/******/ 	// create a fake namespace object
+/******/ 	// mode & 1: value is a module id, require it
+/******/ 	// mode & 2: merge all properties of value into the ns
+/******/ 	// mode & 4: return value when already ns object
+/******/ 	// mode & 8|1: behave like require
+/******/ 	__webpack_require__.t = function(value, mode) {
+/******/ 		if(mode & 1) value = __webpack_require__(value);
+/******/ 		if(mode & 8) return value;
+/******/ 		if((mode & 4) && typeof value === 'object' && value && value.__esModule) return value;
+/******/ 		var ns = Object.create(null);
+/******/ 		__webpack_require__.r(ns);
+/******/ 		Object.defineProperty(ns, 'default', { enumerable: true, value: value });
+/******/ 		if(mode & 2 && typeof value != 'string') for(var key in value) __webpack_require__.d(ns, key, function(key) { return value[key]; }.bind(null, key));
+/******/ 		return ns;
+/******/ 	};
+/******/
 /******/ 	// getDefaultExport function for compatibility with non-harmony modules
 /******/ 	__webpack_require__.n = function(module) {
 /******/ 		var getter = module && module.__esModule ?
@@ -74,246 +93,115 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 		__webpack_require__.d(getter, 'a', getter);
 /******/ 		return getter;
 /******/ 	};
-
+/******/
 /******/ 	// Object.prototype.hasOwnProperty.call
 /******/ 	__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
-
+/******/
 /******/ 	// __webpack_public_path__
 /******/ 	__webpack_require__.p = "";
-
+/******/
+/******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 35);
+/******/ 	return __webpack_require__(__webpack_require__.s = 6);
 /******/ })
 /************************************************************************/
 /******/ ([
 /* 0 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
-/**
- * Ratio between font size and font height. The number comes from jspdf's source code
- */
-exports.FONT_ROW_RATIO = 1.15;
-var models_1 = __webpack_require__(15);
-var table = null;
-var assign = __webpack_require__(12);
-var entries = __webpack_require__(33);
-/**
- * Styles for the themes (overriding the default styles)
- */
-exports.getTheme = function (name) {
-    var themes = {
-        'striped': {
-            table: { fillColor: 255, textColor: 80, fontStyle: 'normal' },
-            header: { textColor: 255, fillColor: [41, 128, 185], fontStyle: 'bold' },
-            body: {},
-            alternateRow: { fillColor: 245 }
-        },
-        'grid': {
-            table: { fillColor: 255, textColor: 80, fontStyle: 'normal', lineWidth: 0.1 },
-            header: { textColor: 255, fillColor: [26, 188, 156], fontStyle: 'bold', lineWidth: 0 },
-            body: {},
-            alternateRow: {}
-        },
-        'plain': {
-            header: { fontStyle: 'bold' }
-        }
-    };
-    return themes[name];
-};
-function getDefaults() {
-    var scaleFactor = Config.scaleFactor();
-    return {
-        // Styling
-        theme: 'striped',
-        styles: {},
-        headerStyles: {},
-        bodyStyles: {},
-        alternateRowStyles: {},
-        columnStyles: {},
-        // Properties
-        startY: false,
-        margin: 40 / scaleFactor,
-        pageBreak: 'auto',
-        tableWidth: 'auto',
-        showHeader: 'everyPage',
-        tableLineWidth: 0,
-        tableLineColor: 200,
-        // Hooks
-        createdHeaderCell: function (cell, data) { },
-        createdCell: function (cell, data) { },
-        drawHeaderRow: function (row, data) { },
-        drawRow: function (row, data) { },
-        drawHeaderCell: function (cell, data) { },
-        drawCell: function (cell, data) { },
-        addPageContent: function (data) { }
-    };
+exports.__esModule = true;
+var defaultsDocument = null;
+var previousTableState;
+var tableState = null;
+exports.globalDefaults = {};
+exports.documentDefaults = {};
+function default_1() {
+    return tableState;
 }
-exports.getDefaults = getDefaults;
-// Base style for all themes
-function defaultStyles() {
-    var scaleFactor = Config.scaleFactor();
-    return {
-        font: "helvetica",
-        fontStyle: 'normal',
-        overflow: 'ellipsize',
-        fillColor: false,
-        textColor: 20,
-        halign: 'left',
-        valign: 'top',
-        fontSize: 10,
-        cellPadding: 5 / scaleFactor,
-        lineColor: 200,
-        lineWidth: 0 / scaleFactor,
-        columnWidth: 'auto'
-    };
+exports["default"] = default_1;
+function getGlobalOptions() {
+    return exports.globalDefaults;
 }
-var Config = (function () {
-    function Config() {
+exports.getGlobalOptions = getGlobalOptions;
+function getDocumentOptions() {
+    return exports.documentDefaults;
+}
+exports.getDocumentOptions = getDocumentOptions;
+var TableState = /** @class */ (function () {
+    function TableState(doc) {
+        this.doc = doc;
     }
-    Config.pageSize = function () {
-        return table.doc.internal.pageSize;
+    TableState.prototype.pageHeight = function () {
+        return this.doc.internal.pageSize.height;
     };
-    Config.applyUserStyles = function () {
-        Config.applyStyles(table.userStyles);
+    ;
+    TableState.prototype.pageWidth = function () {
+        return this.doc.internal.pageSize.width;
     };
-    Config.createTable = function (doc) {
-        table = new models_1.Table(doc);
-        return table;
+    ;
+    TableState.prototype.pageSize = function () {
+        return this.doc.internal.pageSize;
     };
-    Config.tableInstance = function () {
-        return table;
+    ;
+    TableState.prototype.scaleFactor = function () {
+        return this.doc.internal.scaleFactor;
     };
-    Config.scaleFactor = function () {
-        return table.doc.internal.scaleFactor;
+    ;
+    TableState.prototype.pageNumber = function () {
+        return this.doc.internal.getCurrentPageInfo().pageNumber;
     };
-    Config.hooksData = function (additionalData) {
-        if (additionalData === void 0) { additionalData = {}; }
-        return assign({
-            pageCount: table.pageCount,
-            settings: table.settings,
-            table: table,
-            doc: table.doc,
-            cursor: table.cursor
-        }, additionalData || {});
-    };
-    Config.initSettings = function (table, allOptions) {
-        var _loop_1 = function (styleProp) {
-            var styles = allOptions.map(function (opts) { return opts[styleProp] || {}; });
-            table.styles[styleProp] = assign.apply(void 0, [{}].concat(styles));
-        };
-        // Merge styles one level deeper
-        for (var _i = 0, _a = Object.keys(table.styles); _i < _a.length; _i++) {
-            var styleProp = _a[_i];
-            _loop_1(styleProp);
-        }
-        // Append event handlers instead of replacing them
-        for (var _b = 0, _c = entries(table.hooks); _b < _c.length; _b++) {
-            var _d = _c[_b], hookName = _d[0], list = _d[1];
-            for (var _e = 0, allOptions_1 = allOptions; _e < allOptions_1.length; _e++) {
-                var opts = allOptions_1[_e];
-                if (opts && opts[hookName]) {
-                    list.push(opts[hookName]);
-                }
-            }
-        }
-        // Merge all other options one level
-        table.settings = assign.apply(void 0, [getDefaults()].concat(allOptions));
-    };
-    // This is messy, only keep array and number format the next major version
-    Config.marginOrPadding = function (value, defaultValue) {
-        var newValue = {};
-        if (Array.isArray(value)) {
-            if (value.length >= 4) {
-                newValue = { 'top': value[0], 'right': value[1], 'bottom': value[2], 'left': value[3] };
-            }
-            else if (value.length === 3) {
-                newValue = { 'top': value[0], 'right': value[1], 'bottom': value[2], 'left': value[1] };
-            }
-            else if (value.length === 2) {
-                newValue = { 'top': value[0], 'right': value[1], 'bottom': value[0], 'left': value[1] };
-            }
-            else if (value.length === 1) {
-                value = value[0];
-            }
-            else {
-                value = defaultValue;
-            }
-        }
-        else if (typeof value === 'object') {
-            if (value['vertical']) {
-                value['top'] = value['vertical'];
-                value['bottom'] = value['vertical'];
-            }
-            else if (value['horizontal']) {
-                value['right'] = value['horizontal'];
-                value['left'] = value['horizontal'];
-            }
-            for (var _i = 0, _a = ['top', 'right', 'bottom', 'left']; _i < _a.length; _i++) {
-                var side = _a[_i];
-                newValue[side] = value[side] || value[side] === 0 ? value[side] : defaultValue;
-            }
-        }
-        if (typeof value === 'number') {
-            newValue = { 'top': value, 'right': value, 'bottom': value, 'left': value };
-        }
-        return newValue;
-    };
-    Config.styles = function (styles) {
-        styles = Array.isArray(styles) ? styles : [styles];
-        return assign.apply(void 0, [defaultStyles()].concat(styles));
-    };
-    Config.applyStyles = function (styles) {
-        var doc = table.doc;
-        var styleModifiers = {
-            fillColor: doc.setFillColor,
-            textColor: doc.setTextColor,
-            fontStyle: doc.setFontStyle,
-            lineColor: doc.setDrawColor,
-            lineWidth: doc.setLineWidth,
-            font: doc.setFont,
-            fontSize: doc.setFontSize
-        };
-        Object.keys(styleModifiers).forEach(function (name) {
-            var style = styles[name];
-            var modifier = styleModifiers[name];
-            if (typeof style !== 'undefined') {
-                if (Array.isArray(style)) {
-                    modifier.apply(this, style);
-                }
-                else {
-                    modifier(style);
-                }
-            }
-        });
-    };
-    return Config;
+    return TableState;
 }());
-exports.Config = Config;
+function setupState(doc) {
+    previousTableState = tableState;
+    tableState = new TableState(doc);
+    if (doc !== defaultsDocument) {
+        defaultsDocument = doc;
+        exports.documentDefaults = {};
+    }
+}
+exports.setupState = setupState;
+function resetState() {
+    tableState = previousTableState;
+}
+exports.resetState = resetState;
+function setDefaults(defaults, doc) {
+    if (doc === void 0) { doc = null; }
+    if (doc) {
+        exports.documentDefaults = defaults || {};
+        defaultsDocument = doc;
+    }
+    else {
+        exports.globalDefaults = defaults || {};
+    }
+}
+exports.setDefaults = setDefaults;
 
 
-/***/ },
+/***/ }),
 /* 1 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
-var config_1 = __webpack_require__(0);
-var painter_1 = __webpack_require__(4);
+exports.__esModule = true;
+var config_1 = __webpack_require__(2);
+var state_1 = __webpack_require__(0);
+var polyfills_1 = __webpack_require__(3);
 function getStringWidth(text, styles) {
-    var k = config_1.Config.scaleFactor();
-    var fontSize = styles.fontSize / k;
-    config_1.Config.applyStyles(styles);
+    var fontSize = styles.fontSize / state_1["default"]().scaleFactor();
+    applyStyles(styles);
     text = Array.isArray(text) ? text : [text];
     var maxWidth = 0;
     text.forEach(function (line) {
-        var width = config_1.Config.tableInstance().doc.getStringUnitWidth(line);
+        var width = state_1["default"]().doc.getStringUnitWidth(line);
         if (width > maxWidth) {
             maxWidth = width;
         }
     });
-    var precision = 10000 * k;
+    var precision = 10000 * state_1["default"]().scaleFactor();
     maxWidth = Math.floor(maxWidth * precision) / precision;
     return maxWidth * fontSize;
 }
@@ -330,7 +218,7 @@ function ellipsize(text, width, styles, ellipsizeStr) {
         });
         return value_1;
     }
-    var precision = 10000 * config_1.Config.scaleFactor();
+    var precision = 10000 * state_1["default"]().scaleFactor();
     width = Math.ceil(width * precision) / precision;
     if (width >= getStringWidth(text, styles)) {
         return text;
@@ -345,41 +233,15 @@ function ellipsize(text, width, styles, ellipsizeStr) {
 }
 exports.ellipsize = ellipsize;
 function addTableBorder() {
-    var table = config_1.Config.tableInstance();
+    var table = state_1["default"]().table;
     var styles = { lineWidth: table.settings.tableLineWidth, lineColor: table.settings.tableLineColor };
-    config_1.Config.applyStyles(styles);
+    applyStyles(styles);
     var fs = getFillStyle(styles);
     if (fs) {
-        table.doc.rect(table.pageStartX, table.pageStartY, table.width, table.cursor.y - table.pageStartY, fs);
+        state_1["default"]().doc.rect(table.pageStartX, table.pageStartY, table.width, table.cursor.y - table.pageStartY, fs);
     }
 }
 exports.addTableBorder = addTableBorder;
-function addPage() {
-    var table = config_1.Config.tableInstance();
-    table.finalY = table.cursor.y;
-    // Add user content just before adding new page ensure it will 
-    // be drawn above other things on the page
-    addContentHooks();
-    addTableBorder();
-    table.doc.addPage();
-    table.pageCount++;
-    table.cursor = { x: table.margin('left'), y: table.margin('top') };
-    table.pageStartX = table.cursor.x;
-    table.pageStartY = table.cursor.y;
-    if (table.settings.showHeader === true || table.settings.showHeader === 'everyPage') {
-        painter_1.printRow(table.headerRow, table.hooks.drawHeaderRow, table.hooks.drawHeaderCell);
-    }
-}
-exports.addPage = addPage;
-function addContentHooks() {
-    for (var _i = 0, _a = config_1.Config.tableInstance().hooks.addPageContent; _i < _a.length; _i++) {
-        var hook = _a[_i];
-        config_1.Config.applyUserStyles();
-        hook(config_1.Config.hooksData());
-    }
-    config_1.Config.applyUserStyles();
-}
-exports.addContentHooks = addContentHooks;
 function getFillStyle(styles) {
     var drawLine = styles.lineWidth > 0;
     var drawBackground = styles.fillColor || styles.fillColor === 0;
@@ -397,94 +259,297 @@ function getFillStyle(styles) {
     }
 }
 exports.getFillStyle = getFillStyle;
+function applyUserStyles() {
+    applyStyles(state_1["default"]().table.userStyles);
+}
+exports.applyUserStyles = applyUserStyles;
+function applyStyles(styles) {
+    var doc = state_1["default"]().doc;
+    var styleModifiers = {
+        fillColor: doc.setFillColor,
+        textColor: doc.setTextColor,
+        fontStyle: doc.setFontStyle,
+        lineColor: doc.setDrawColor,
+        lineWidth: doc.setLineWidth,
+        font: doc.setFont,
+        fontSize: doc.setFontSize
+    };
+    Object.keys(styleModifiers).forEach(function (name) {
+        var style = styles[name];
+        var modifier = styleModifiers[name];
+        if (typeof style !== 'undefined') {
+            if (Array.isArray(style)) {
+                modifier.apply(this, style);
+            }
+            else {
+                modifier(style);
+            }
+        }
+    });
+}
+exports.applyStyles = applyStyles;
+// This is messy, only keep array and number format the next major version
+function marginOrPadding(value, defaultValue) {
+    var newValue = {};
+    if (Array.isArray(value)) {
+        if (value.length >= 4) {
+            newValue = { 'top': value[0], 'right': value[1], 'bottom': value[2], 'left': value[3] };
+        }
+        else if (value.length === 3) {
+            newValue = { 'top': value[0], 'right': value[1], 'bottom': value[2], 'left': value[1] };
+        }
+        else if (value.length === 2) {
+            newValue = { 'top': value[0], 'right': value[1], 'bottom': value[0], 'left': value[1] };
+        }
+        else if (value.length === 1) {
+            value = value[0];
+        }
+        else {
+            value = defaultValue;
+        }
+    }
+    else if (typeof value === 'object') {
+        if (value['vertical']) {
+            value['top'] = value['vertical'];
+            value['bottom'] = value['vertical'];
+        }
+        if (value['horizontal']) {
+            value['right'] = value['horizontal'];
+            value['left'] = value['horizontal'];
+        }
+        for (var _i = 0, _a = ['top', 'right', 'bottom', 'left']; _i < _a.length; _i++) {
+            var side = _a[_i];
+            newValue[side] = (value[side] || value[side] === 0) ? value[side] : defaultValue;
+        }
+    }
+    if (typeof value === 'number') {
+        newValue = { 'top': value, 'right': value, 'bottom': value, 'left': value };
+    }
+    return newValue;
+}
+exports.marginOrPadding = marginOrPadding;
+function styles(styles) {
+    styles = Array.isArray(styles) ? styles : [styles];
+    return polyfills_1.assign.apply(void 0, [config_1.defaultStyles()].concat(styles));
+}
+exports.styles = styles;
 
 
-/***/ },
+/***/ }),
 /* 2 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
-var implementation = __webpack_require__(26);
+"use strict";
 
-module.exports = Function.prototype.bind || implementation;
+exports.__esModule = true;
+/**
+ * Ratio between font size and font height. The number comes from jspdf's source code
+ */
+exports.FONT_ROW_RATIO = 1.15;
+var state_1 = __webpack_require__(0);
+function parseSettings(table, allOptions) {
+}
+exports.parseSettings = parseSettings;
+function defaultConfig() {
+    return {
+        // Html content
+        html: null,
+        // Custom content
+        head: null,
+        body: null,
+        foot: null,
+        // Properties
+        includeHiddenHTML: false,
+        startY: null,
+        margin: 40 / state_1["default"]().scaleFactor(),
+        pageBreak: 'auto',
+        rowPageBreak: 'auto',
+        tableWidth: 'auto',
+        showHeader: 'everyPage',
+        showFooter: 'everyPage',
+        tableLineWidth: 0,
+        tableLineColor: 200,
+        tableId: null,
+        // Styling
+        theme: 'striped',
+        useCss: false,
+        styles: {},
+        headStyles: {},
+        bodyStyles: {},
+        footStyles: {},
+        alternateRowStyles: {},
+        columnStyles: {},
+        // Hooks
+        // Use to change the content of the cell before width calculations etc are performed
+        didParseCell: function (data) {
+        },
+        willDrawCell: function (data) {
+        },
+        // Use to draw additional content such as images in table cells
+        didDrawCell: function (data) {
+        },
+        // Use to draw additional content to each page such as headers and footers
+        didDrawPage: function (data) {
+        },
+        allSectionHooks: false
+    };
+}
+exports.defaultConfig = defaultConfig;
+// Base style for all themes
+function defaultStyles() {
+    return {
+        font: "helvetica",
+        fontStyle: 'normal',
+        overflow: 'linebreak',
+        fillColor: false,
+        textColor: 20,
+        halign: 'left',
+        valign: 'top',
+        fontSize: 10,
+        cellPadding: 5 / state_1["default"]().scaleFactor(),
+        lineColor: 200,
+        lineWidth: 0 / state_1["default"]().scaleFactor(),
+        cellWidth: 'auto',
+        minCellHeight: 0
+    };
+}
+exports.defaultStyles = defaultStyles;
+/**
+ * Styles for the themes (overriding the default styles)
+ */
+function getTheme(name) {
+    var themes = {
+        'striped': {
+            table: { fillColor: 255, textColor: 80, fontStyle: 'normal' },
+            head: { textColor: 255, fillColor: [41, 128, 185], fontStyle: 'bold' },
+            body: {},
+            foot: { textColor: 255, fillColor: [41, 128, 185], fontStyle: 'bold' },
+            alternateRow: { fillColor: 245 }
+        },
+        'grid': {
+            table: { fillColor: 255, textColor: 80, fontStyle: 'normal', lineWidth: 0.1 },
+            head: { textColor: 255, fillColor: [26, 188, 156], fontStyle: 'bold', lineWidth: 0 },
+            body: {},
+            foot: { textColor: 255, fillColor: [26, 188, 156], fontStyle: 'bold', lineWidth: 0 },
+            alternateRow: {}
+        },
+        'plain': {
+            head: { fontStyle: 'bold' },
+            foot: { fontStyle: 'bold' }
+        }
+    };
+    return themes[name];
+}
+exports.getTheme = getTheme;
 
 
-/***/ },
+/***/ }),
 /* 3 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
-
-var fnToStr = Function.prototype.toString;
-
-var constructorRegex = /^\s*class /;
-var isES6ClassFn = function isES6ClassFn(value) {
-	try {
-		var fnStr = fnToStr.call(value);
-		var singleStripped = fnStr.replace(/\/\/.*\n/g, '');
-		var multiStripped = singleStripped.replace(/\/\*[.\s\S]*\*\//g, '');
-		var spaceStripped = multiStripped.replace(/\n/mg, ' ').replace(/ {2}/g, ' ');
-		return constructorRegex.test(spaceStripped);
-	} catch (e) {
-		return false; // not a function
-	}
-};
-
-var tryFunctionObject = function tryFunctionObject(value) {
-	try {
-		if (isES6ClassFn(value)) { return false; }
-		fnToStr.call(value);
-		return true;
-	} catch (e) {
-		return false;
-	}
-};
-var toStr = Object.prototype.toString;
-var fnClass = '[object Function]';
-var genClass = '[object GeneratorFunction]';
-var hasToStringTag = typeof Symbol === 'function' && typeof Symbol.toStringTag === 'symbol';
-
-module.exports = function isCallable(value) {
-	if (!value) { return false; }
-	if (typeof value !== 'function' && typeof value !== 'object') { return false; }
-	if (hasToStringTag) { return tryFunctionObject(value); }
-	if (isES6ClassFn(value)) { return false; }
-	var strClass = toStr.call(value);
-	return strClass === fnClass || strClass === genClass;
-};
+/*
+ * Include common small polyfills instead of requiring the user to to do it
+ */
+exports.__esModule = true;
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/assign
+function assign(target) {
+    'use strict';
+    var varArgs = [];
+    for (var _i = 1; _i < arguments.length; _i++) {
+        varArgs[_i - 1] = arguments[_i];
+    }
+    if (target == null) { // TypeError if undefined or null
+        throw new TypeError('Cannot convert undefined or null to object');
+    }
+    var to = Object(target);
+    for (var index = 1; index < arguments.length; index++) {
+        var nextSource = arguments[index];
+        if (nextSource != null) { // Skip over if undefined or null
+            for (var nextKey in nextSource) {
+                // Avoid bugs when hasOwnProperty is shadowed
+                if (Object.prototype.hasOwnProperty.call(nextSource, nextKey)) {
+                    to[nextKey] = nextSource[nextKey];
+                }
+            }
+        }
+    }
+    return to;
+}
+exports.assign = assign;
 
 
-/***/ },
+/***/ }),
 /* 4 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
-var config_1 = __webpack_require__(0);
+exports.__esModule = true;
+var config_1 = __webpack_require__(2);
 var common_1 = __webpack_require__(1);
-function printFullRow(row, drawRowHooks, drawCellHooks) {
+var state_1 = __webpack_require__(0);
+function drawTable(table) {
+    var settings = table.settings;
+    table.cursor = {
+        x: table.margin('left'),
+        y: settings.startY == null ? table.margin('top') : settings.startY
+    };
+    var minTableBottomPos = settings.startY + table.margin('bottom') + table.headHeight + table.footHeight;
+    if (settings.pageBreak === 'avoid') {
+        minTableBottomPos += table.height;
+    }
+    if (settings.pageBreak === 'always' || settings.startY != null && settings.startY !== false && minTableBottomPos > state_1["default"]().pageHeight()) {
+        nextPage(state_1["default"]().doc);
+        table.cursor.y = table.margin('top');
+    }
+    table.pageStartX = table.cursor.x;
+    table.pageStartY = table.cursor.y;
+    table.startPageNumber = state_1["default"]().pageNumber();
+    common_1.applyUserStyles();
+    if (settings.showHeader === true || settings.showHeader === 'firstPage' || settings.showHeader === 'everyPage') {
+        table.head.forEach(function (row) { return printRow(row); });
+    }
+    common_1.applyUserStyles();
+    table.body.forEach(function (row) {
+        printFullRow(row);
+    });
+    common_1.applyUserStyles();
+    if (settings.showFooter === true || settings.showFooter === 'lastPage' || settings.showFooter === 'everyPage') {
+        table.foot.forEach(function (row) { return printRow(row); });
+    }
+    common_1.addTableBorder();
+    table.callEndPageHooks();
+}
+exports.drawTable = drawTable;
+function printFullRow(row) {
     var remainingRowHeight = 0;
     var remainingTexts = {};
-    var table = config_1.Config.tableInstance();
-    if (!canFitOnPage(row.height)) {
-        if (row.maxLineCount <= 1) {
-            common_1.addPage();
+    var table = state_1["default"]().table;
+    if (!canFitOnPage(row.maxCellHeight)) {
+        if ( /*row.maxCellLineCount <= 1 ||*/(table.settings.rowPageBreak === 'avoid' && rowFitsOnPage(row))) {
+            addPage();
         }
         else {
             // Modify the row to fit the current page and calculate text and height of partial row
             row.spansMultiplePages = true;
-            var pageHeight = table.doc.internal.pageSize.height;
             var maxCellHeight = 0;
+            var maxRowSpanCellHeight = 0;
             for (var j = 0; j < table.columns.length; j++) {
-                var col = table.columns[j];
-                var cell = row.cells[col.dataKey];
-                var fontHeight = cell.styles.fontSize / config_1.Config.scaleFactor() * config_1.FONT_ROW_RATIO;
+                var column = table.columns[j];
+                var cell = row.cells[column.dataKey];
+                if (!cell) {
+                    continue;
+                }
+                var fontHeight = cell.styles.fontSize / state_1["default"]().scaleFactor() * config_1.FONT_ROW_RATIO;
                 var vPadding = cell.padding('vertical');
+                var pageHeight = state_1["default"]().pageHeight();
                 var remainingPageSpace = pageHeight - table.cursor.y - table.margin('bottom');
                 var remainingLineCount = Math.floor((remainingPageSpace - vPadding) / fontHeight);
                 if (Array.isArray(cell.text) && cell.text.length > remainingLineCount) {
                     var remainingLines = cell.text.splice(remainingLineCount, cell.text.length);
-                    remainingTexts[col.dataKey] = remainingLines;
+                    remainingTexts[column.dataKey] = remainingLines;
                     var cellHeight = cell.text.length * fontHeight + vPadding;
                     if (cellHeight > maxCellHeight) {
                         maxCellHeight = cellHeight;
@@ -497,53 +562,59 @@ function printFullRow(row, drawRowHooks, drawCellHooks) {
             }
             // Reset row height since text are now removed
             row.height = maxCellHeight;
+            row.maxCellHeight = maxRowSpanCellHeight;
         }
     }
-    printRow(row, drawRowHooks, drawCellHooks);
+    printRow(row);
     // Parts of the row is now printed. Time for adding a new page, prune 
     // the text and start over
     if (Object.keys(remainingTexts).length > 0) {
         for (var j = 0; j < table.columns.length; j++) {
             var col = table.columns[j];
             var cell = row.cells[col.dataKey];
-            cell.text = remainingTexts[col.dataKey] || '';
+            if (cell) {
+                cell.text = remainingTexts[col.dataKey] || '';
+            }
         }
-        common_1.addPage();
+        addPage();
         row.pageCount++;
         row.height = remainingRowHeight;
-        printFullRow(row, drawRowHooks, drawCellHooks);
+        printFullRow(row);
     }
 }
-exports.printFullRow = printFullRow;
-function printRow(row, drawRowHooks, drawCellHooks) {
-    var table = config_1.Config.tableInstance();
-    row.y = table.cursor.y;
-    for (var _i = 0, drawRowHooks_1 = drawRowHooks; _i < drawRowHooks_1.length; _i++) {
-        var hook = drawRowHooks_1[_i];
-        if (hook(row, config_1.Config.hooksData({ row: row, addPage: common_1.addPage })) === false) {
-            return;
-        }
-    }
+function rowFitsOnPage(row) {
+    var table = state_1["default"]().table;
+    var pageHeight = state_1["default"]().pageHeight();
+    var maxTableHeight = pageHeight - table.margin('top') - table.margin('bottom');
+    return row.maxCellHeight < maxTableHeight;
+}
+function printRow(row) {
+    var table = state_1["default"]().table;
     table.cursor.x = table.margin('left');
-    for (var i = 0; i < table.columns.length; i++) {
-        var column = table.columns[i];
+    row.y = table.cursor.y;
+    row.x = table.cursor.x;
+    // For backwards compatibility reset those after addingRow event
+    table.cursor.x = table.margin('left');
+    row.y = table.cursor.y;
+    row.x = table.cursor.x;
+    for (var _i = 0, _a = table.columns; _i < _a.length; _i++) {
+        var column = _a[_i];
         var cell = row.cells[column.dataKey];
         if (!cell) {
+            table.cursor.x += column.width;
             continue;
         }
-        config_1.Config.applyStyles(cell.styles);
+        common_1.applyStyles(cell.styles);
         cell.x = table.cursor.x;
-        cell.y = table.cursor.y;
-        cell.height = row.height;
-        cell.width = column.width;
+        cell.y = row.y;
         if (cell.styles.valign === 'top') {
             cell.textPos.y = table.cursor.y + cell.padding('top');
         }
         else if (cell.styles.valign === 'bottom') {
-            cell.textPos.y = table.cursor.y + row.height - cell.padding('bottom');
+            cell.textPos.y = table.cursor.y + cell.height - cell.padding('bottom');
         }
         else {
-            cell.textPos.y = table.cursor.y + row.height / 2;
+            cell.textPos.y = table.cursor.y + cell.height / 2;
         }
         if (cell.styles.halign === 'right') {
             cell.textPos.x = cell.x + cell.width - cell.padding('right');
@@ -554,1688 +625,116 @@ function printRow(row, drawRowHooks, drawCellHooks) {
         else {
             cell.textPos.x = cell.x + cell.padding('left');
         }
-        var shouldDrawCell = true;
-        var data = config_1.Config.hooksData({ column: column, row: row, addPage: common_1.addPage });
-        for (var _a = 0, drawCellHooks_1 = drawCellHooks; _a < drawCellHooks_1.length; _a++) {
-            var hook = drawCellHooks_1[_a];
-            if (hook(cell, data) === false) {
-                shouldDrawCell = false;
-            }
+        if (table.callCellHooks(table.cellHooks.willDrawCell, cell, row, column) === false) {
+            table.cursor.x += column.width;
+            continue;
         }
-        if (shouldDrawCell) {
-            var fillStyle = common_1.getFillStyle(cell.styles);
-            if (fillStyle) {
-                table.doc.rect(cell.x, cell.y, cell.width, cell.height, fillStyle);
-            }
-            table.doc.autoTableText(cell.text, cell.textPos.x, cell.textPos.y, {
-                halign: cell.styles.halign,
-                valign: cell.styles.valign
-            });
+        var fillStyle = common_1.getFillStyle(cell.styles);
+        if (fillStyle) {
+            state_1["default"]().doc.rect(cell.x, table.cursor.y, cell.width, cell.height, fillStyle);
         }
-        table.cursor.x += cell.width;
+        state_1["default"]().doc.autoTableText(cell.text, cell.textPos.x, cell.textPos.y, {
+            halign: cell.styles.halign,
+            valign: cell.styles.valign
+        });
+        table.callCellHooks(table.cellHooks.didDrawCell, cell, row, column);
+        table.cursor.x += column.width;
     }
     table.cursor.y += row.height;
 }
-exports.printRow = printRow;
 function canFitOnPage(rowHeight) {
-    var table = config_1.Config.tableInstance();
-    var pos = rowHeight + table.cursor.y + table.margin('bottom');
-    return pos < config_1.Config.pageSize().height;
+    var table = state_1["default"]().table;
+    var bottomContentHeight = table.margin('bottom');
+    var showFooter = table.settings.showFooter;
+    if (showFooter === true || showFooter === 'everyPage' || showFooter === 'lastPage') {
+        bottomContentHeight += table.footHeight;
+    }
+    var pos = rowHeight + table.cursor.y + bottomContentHeight;
+    return pos < state_1["default"]().pageHeight();
 }
-
-
-/***/ },
-/* 5 */
-/***/ function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var keys = __webpack_require__(31);
-var foreach = __webpack_require__(25);
-var hasSymbols = typeof Symbol === 'function' && typeof Symbol() === 'symbol';
-
-var toStr = Object.prototype.toString;
-
-var isFunction = function (fn) {
-	return typeof fn === 'function' && toStr.call(fn) === '[object Function]';
-};
-
-var arePropertyDescriptorsSupported = function () {
-	var obj = {};
-	try {
-		Object.defineProperty(obj, 'x', { enumerable: false, value: obj });
-        /* eslint-disable no-unused-vars, no-restricted-syntax */
-        for (var _ in obj) { return false; }
-        /* eslint-enable no-unused-vars, no-restricted-syntax */
-		return obj.x === obj;
-	} catch (e) { /* this is IE 8. */
-		return false;
-	}
-};
-var supportsDescriptors = Object.defineProperty && arePropertyDescriptorsSupported();
-
-var defineProperty = function (object, name, value, predicate) {
-	if (name in object && (!isFunction(predicate) || !predicate())) {
-		return;
-	}
-	if (supportsDescriptors) {
-		Object.defineProperty(object, name, {
-			configurable: true,
-			enumerable: false,
-			value: value,
-			writable: true
-		});
-	} else {
-		object[name] = value;
-	}
-};
-
-var defineProperties = function (object, map) {
-	var predicates = arguments.length > 2 ? arguments[2] : {};
-	var props = keys(map);
-	if (hasSymbols) {
-		props = props.concat(Object.getOwnPropertySymbols(map));
-	}
-	foreach(props, function (name) {
-		defineProperty(object, name, map[name], predicates[name]);
-	});
-};
-
-defineProperties.supportsDescriptors = !!supportsDescriptors;
-
-module.exports = defineProperties;
-
-
-/***/ },
-/* 6 */
-/***/ function(module, exports) {
-
-var has = Object.prototype.hasOwnProperty;
-module.exports = Object.assign || function assign(target, source) {
-	for (var key in source) {
-		if (has.call(source, key)) {
-			target[key] = source[key];
-		}
-	}
-	return target;
-};
-
-
-/***/ },
-/* 7 */
-/***/ function(module, exports) {
-
-var $isNaN = Number.isNaN || function (a) { return a !== a; };
-
-module.exports = Number.isFinite || function (x) { return typeof x === 'number' && !$isNaN(x) && x !== Infinity && x !== -Infinity; };
-
-
-/***/ },
-/* 8 */
-/***/ function(module, exports) {
-
-module.exports = Number.isNaN || function isNaN(a) {
-	return a !== a;
-};
-
-
-/***/ },
-/* 9 */
-/***/ function(module, exports) {
-
-module.exports = function mod(number, modulo) {
-	var remain = number % modulo;
-	return Math.floor(remain >= 0 ? remain : remain + modulo);
-};
-
-
-/***/ },
-/* 10 */
-/***/ function(module, exports) {
-
-module.exports = function sign(number) {
-	return number >= 0 ? 1 : -1;
-};
-
-
-/***/ },
-/* 11 */
-/***/ function(module, exports) {
-
-module.exports = function isPrimitive(value) {
-	return value === null || (typeof value !== 'function' && typeof value !== 'object');
-};
-
-
-/***/ },
-/* 12 */
-/***/ function(module, exports, __webpack_require__) {
-
-"use strict";
-
-/* eslint-disable no-unused-vars */
-var hasOwnProperty = Object.prototype.hasOwnProperty;
-var propIsEnumerable = Object.prototype.propertyIsEnumerable;
-
-function toObject(val) {
-	if (val === null || val === undefined) {
-		throw new TypeError('Object.assign cannot be called with null or undefined');
-	}
-
-	return Object(val);
-}
-
-function shouldUseNative() {
-	try {
-		if (!Object.assign) {
-			return false;
-		}
-
-		// Detect buggy property enumeration order in older V8 versions.
-
-		// https://bugs.chromium.org/p/v8/issues/detail?id=4118
-		var test1 = new String('abc');  // eslint-disable-line
-		test1[5] = 'de';
-		if (Object.getOwnPropertyNames(test1)[0] === '5') {
-			return false;
-		}
-
-		// https://bugs.chromium.org/p/v8/issues/detail?id=3056
-		var test2 = {};
-		for (var i = 0; i < 10; i++) {
-			test2['_' + String.fromCharCode(i)] = i;
-		}
-		var order2 = Object.getOwnPropertyNames(test2).map(function (n) {
-			return test2[n];
-		});
-		if (order2.join('') !== '0123456789') {
-			return false;
-		}
-
-		// https://bugs.chromium.org/p/v8/issues/detail?id=3056
-		var test3 = {};
-		'abcdefghijklmnopqrst'.split('').forEach(function (letter) {
-			test3[letter] = letter;
-		});
-		if (Object.keys(Object.assign({}, test3)).join('') !==
-				'abcdefghijklmnopqrst') {
-			return false;
-		}
-
-		return true;
-	} catch (e) {
-		// We don't expect any of the above to throw, but better to be safe.
-		return false;
-	}
-}
-
-module.exports = shouldUseNative() ? Object.assign : function (target, source) {
-	var from;
-	var to = toObject(target);
-	var symbols;
-
-	for (var s = 1; s < arguments.length; s++) {
-		from = Object(arguments[s]);
-
-		for (var key in from) {
-			if (hasOwnProperty.call(from, key)) {
-				to[key] = from[key];
-			}
-		}
-
-		if (Object.getOwnPropertySymbols) {
-			symbols = Object.getOwnPropertySymbols(from);
-			for (var i = 0; i < symbols.length; i++) {
-				if (propIsEnumerable.call(from, symbols[i])) {
-					to[symbols[i]] = from[symbols[i]];
-				}
-			}
-		}
-	}
-
-	return to;
-};
-
-
-/***/ },
-/* 13 */
-/***/ function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var ES = __webpack_require__(21);
-var has = __webpack_require__(27);
-var bind = __webpack_require__(2);
-var isEnumerable = bind.call(Function.call, Object.prototype.propertyIsEnumerable);
-
-module.exports = function entries(O) {
-	var obj = ES.RequireObjectCoercible(O);
-	var entrys = [];
-	for (var key in obj) {
-		if (has(obj, key) && isEnumerable(obj, key)) {
-			entrys.push([key, obj[key]]);
-		}
-	}
-	return entrys;
-};
-
-
-/***/ },
-/* 14 */
-/***/ function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var implementation = __webpack_require__(13);
-
-module.exports = function getPolyfill() {
-	return typeof Object.entries === 'function' ? Object.entries : implementation;
-};
-
-
-/***/ },
-/* 15 */
-/***/ function(module, exports, __webpack_require__) {
-
-"use strict";
-
-var config_1 = __webpack_require__(0);
-exports.table = {};
-var Table = (function () {
-    function Table(doc) {
-        this.height = 0;
-        this.width = 0;
-        this.contentWidth = 0;
-        this.preferredWidth = 0;
-        this.rows = [];
-        this.columns = [];
-        this.headerRow = null;
-        this.pageCount = 1;
-        this.hooks = {
-            createdHeaderCell: [],
-            createdCell: [],
-            drawHeaderRow: [],
-            drawRow: [],
-            drawHeaderCell: [],
-            drawCell: [],
-            addPageContent: []
-        };
-        this.styles = {
-            styles: {},
-            headerStyles: {},
-            bodyStyles: {},
-            alternateRowStyles: {},
-            columnStyles: {}
-        };
-        this.doc = doc;
-        this.userStyles = {
-            textColor: 30,
-            fontSize: doc.internal.getFontSize(),
-            fontStyle: doc.internal.getFont().fontStyle
-        };
-    }
-    Table.prototype.margin = function (side) {
-        return config_1.Config.marginOrPadding(this.settings.margin, config_1.getDefaults().margin)[side];
-    };
-    return Table;
-}());
-exports.Table = Table;
-var Row = (function () {
-    function Row(raw, index) {
-        this.cells = {};
-        this.spansMultiplePages = false;
-        this.pageCount = 1;
-        this.height = 0;
-        this.y = 0;
-        this.maxLineCount = 1;
-        this.raw = raw;
-        this.index = index;
-    }
-    return Row;
-}());
-exports.Row = Row;
-var Cell = (function () {
-    function Cell(raw) {
-        this.styles = {};
-        this.text = '';
-        this.contentWidth = 0;
-        this.textPos = {};
-        this.height = 0;
-        this.width = 0;
-        this.x = 0;
-        this.y = 0;
-        this.raw = raw;
-    }
-    Cell.prototype.padding = function (name) {
-        var padding = config_1.Config.marginOrPadding(this.styles.cellPadding, config_1.Config.styles([]).cellPadding);
-        if (name === 'vertical') {
-            return padding.top + padding.bottom;
-        }
-        else if (name === 'horizontal') {
-            return padding.left + padding.right;
-        }
-        else {
-            return padding[name];
-        }
-    };
-    return Cell;
-}());
-exports.Cell = Cell;
-var Column = (function () {
-    function Column(dataKey, index) {
-        this.options = {};
-        this.contentWidth = 0;
-        this.preferredWidth = 0;
-        this.widthStyle = 'auto';
-        this.width = 0;
-        this.x = 0;
-        this.dataKey = dataKey;
-        this.index = index;
-    }
-    return Column;
-}());
-exports.Column = Column;
-
-
-/***/ },
-/* 16 */
-/***/ function(module, exports, __webpack_require__) {
-
-"use strict";
-
-var config_1 = __webpack_require__(0);
-var common_1 = __webpack_require__(1);
-/**
- * Calculate the column widths
- */
-function calculateWidths(doc, pageWidth) {
-    var table = config_1.Config.tableInstance();
-    // Column and table content width
-    var fixedWidth = 0;
-    var autoWidth = 0;
-    var dynamicColumns = [];
-    table.columns.forEach(function (column) {
-        column.contentWidth = 0;
-        table.rows.concat(table.headerRow).forEach(function (row) {
-            var cell = row.cells[column.dataKey];
-            cell.contentWidth = cell.padding('horizontal') + common_1.getStringWidth(cell.text, cell.styles);
-            if (cell.contentWidth > column.contentWidth) {
-                column.contentWidth = cell.contentWidth;
-            }
-        });
-        table.contentWidth += column.contentWidth;
-        if (typeof column.widthStyle === 'number') {
-            column.preferredWidth = column.widthStyle;
-            fixedWidth += column.preferredWidth;
-            column.width = column.preferredWidth;
-        }
-        else if (column.widthStyle === 'wrap') {
-            column.preferredWidth = column.contentWidth;
-            fixedWidth += column.preferredWidth;
-            column.width = column.preferredWidth;
-        }
-        else {
-            column.preferredWidth = column.contentWidth;
-            autoWidth += column.contentWidth;
-            dynamicColumns.push(column);
-        }
-        table.preferredWidth += column.preferredWidth;
-    });
-    if (typeof table.settings.tableWidth === 'number') {
-        table.width = table.settings.tableWidth;
-    }
-    else if (table.settings.tableWidth === 'wrap') {
-        table.width = table.preferredWidth;
-    }
-    else {
-        table.width = pageWidth - table.margin('left') - table.margin('right');
-    }
-    distributeWidth(dynamicColumns, fixedWidth, autoWidth, 0);
-    // Row height, table height and text overflow
-    var all = table.rows.concat(table.headerRow);
-    all.forEach(function (row) {
-        table.columns.forEach(function (col) {
-            var cell = row.cells[col.dataKey];
-            config_1.Config.applyStyles(cell.styles);
-            var textSpace = col.width - cell.padding('horizontal');
-            if (cell.styles.overflow === 'linebreak') {
-                // Add one pt to textSpace to fix rounding error
-                try {
-                    cell.text = doc.splitTextToSize(cell.text, textSpace + 1, { fontSize: cell.styles.fontSize });
-                }
-                catch (e) {
-                    if (e instanceof TypeError && Array.isArray(cell.text)) {
-                        cell.text = doc.splitTextToSize(cell.text.join(' '), textSpace + 1, { fontSize: cell.styles.fontSize });
-                    }
-                    else {
-                        throw e;
-                    }
-                }
-            }
-            else if (cell.styles.overflow === 'ellipsize') {
-                cell.text = common_1.ellipsize(cell.text, textSpace, cell.styles);
-            }
-            else if (cell.styles.overflow === 'visible') {
-            }
-            else if (cell.styles.overflow === 'hidden') {
-                cell.text = common_1.ellipsize(cell.text, textSpace, cell.styles, '');
-            }
-            else if (typeof cell.styles.overflow === 'function') {
-                cell.text = cell.styles.overflow(cell.text, textSpace);
-            }
-            else {
-                console.error("Unrecognized overflow type: " + cell.styles.overflow);
-            }
-            var k = config_1.Config.scaleFactor();
-            var lineCount = Array.isArray(cell.text) ? cell.text.length : 1;
-            var fontHeight = cell.styles.fontSize / k * config_1.FONT_ROW_RATIO;
-            cell.contentHeight = lineCount * fontHeight + cell.padding('vertical');
-            if (cell.contentHeight > row.height) {
-                row.height = cell.contentHeight;
-                row.maxLineCount = lineCount;
-            }
-        });
-        table.height += row.height;
-    });
-}
-exports.calculateWidths = calculateWidths;
-function distributeWidth(dynamicColumns, staticWidth, dynamicColumnsContentWidth, fairWidth) {
-    var table = config_1.Config.tableInstance();
-    var extraWidth = table.width - staticWidth - dynamicColumnsContentWidth;
-    for (var i = 0; i < dynamicColumns.length; i++) {
-        var col = dynamicColumns[i];
-        var ratio = col.contentWidth / dynamicColumnsContentWidth;
-        // A column turned out to be none dynamic, start over recursively
-        var isNoneDynamic = col.contentWidth + extraWidth * ratio < fairWidth;
-        if (extraWidth < 0 && isNoneDynamic) {
-            dynamicColumns.splice(i, 1);
-            dynamicColumnsContentWidth -= col.contentWidth;
-            col.width = fairWidth;
-            staticWidth += col.width;
-            distributeWidth(dynamicColumns, staticWidth, dynamicColumnsContentWidth, fairWidth);
-            break;
-        }
-        else {
-            col.width = col.contentWidth + extraWidth * ratio;
-        }
-    }
-}
-
-
-/***/ },
-/* 17 */
-/***/ function(module, exports, __webpack_require__) {
-
-"use strict";
-
-var models_1 = __webpack_require__(15);
-var config_1 = __webpack_require__(0);
-var assign = __webpack_require__(12);
-function validateInput(headers, data, allOptions) {
-    if (!headers || typeof headers !== 'object') {
-        console.error("The headers should be an object or array, is: " + typeof headers);
-    }
-    if (!data || typeof data !== 'object') {
-        console.error("The data should be an object or array, is: " + typeof data);
-    }
-    var _loop_1 = function (settings) {
-        if (settings && typeof settings !== 'object') {
-            console.error("The options parameter should be of type object, is: " + typeof settings);
-        }
-        if (typeof settings.extendWidth !== 'undefined') {
-            settings.tableWidth = settings.extendWidth ? 'auto' : 'wrap';
-            console.error("Use of deprecated option: extendWidth, use tableWidth instead.");
-        }
-        if (typeof settings.margins !== 'undefined') {
-            if (typeof settings.margin === 'undefined')
-                settings.margin = settings.margins;
-            console.error("Use of deprecated option: margins, use margin instead.");
-        }
-        if (typeof settings.afterPageContent !== 'undefined' || typeof settings.beforePageContent !== 'undefined' || typeof settings.afterPageAdd !== 'undefined') {
-            console.error("The afterPageContent, beforePageContent and afterPageAdd hooks are deprecated. Use addPageContent instead");
-            if (typeof settings.addPageContent === 'undefined') {
-                settings.addPageContent = function (data) {
-                    config_1.Config.applyUserStyles();
-                    if (settings.beforePageContent)
-                        settings.beforePageContent(data);
-                    config_1.Config.applyUserStyles();
-                    if (settings.afterPageContent)
-                        settings.afterPageContent(data);
-                    config_1.Config.applyUserStyles();
-                    if (settings.afterPageAdd && data.pageCount > 1) {
-                        data.afterPageAdd(data);
-                    }
-                    config_1.Config.applyUserStyles();
-                };
-            }
-        }
-        [['padding', 'cellPadding'], ['lineHeight', 'rowHeight'], 'fontSize', 'overflow'].forEach(function (o) {
-            var deprecatedOption = typeof o === 'string' ? o : o[0];
-            var style = typeof o === 'string' ? o : o[1];
-            if (typeof settings[deprecatedOption] !== 'undefined') {
-                if (typeof settings.styles[style] === 'undefined') {
-                    settings.styles[style] = settings[deprecatedOption];
-                }
-                console.error("Use of deprecated option: " + deprecatedOption + ", use the style " + style + " instead.");
-            }
-        });
-        for (var _i = 0, _a = ['styles', 'bodyStyles', 'headerStyles', 'columnStyles']; _i < _a.length; _i++) {
-            var styleProp = _a[_i];
-            if (settings[styleProp] && typeof settings[styleProp] !== 'object') {
-                console.error("The " + styleProp + " style should be of type object, is: " + typeof settings[styleProp]);
-            }
-            else if (settings[styleProp] && settings[styleProp].rowHeight) {
-                console.error("Use of deprecated style: rowHeight, use vertical cell padding instead");
-            }
-        }
-    };
-    for (var _i = 0, allOptions_1 = allOptions; _i < allOptions_1.length; _i++) {
-        var settings = allOptions_1[_i];
-        _loop_1(settings);
-    }
-}
-exports.validateInput = validateInput;
-/**
- * Create models from the user input
- *
- * @param inputHeaders
- * @param inputData
- */
-function createModels(inputHeaders, inputData) {
-    var splitRegex = /\r\n|\r|\n/g;
-    var table = config_1.Config.tableInstance();
-    var settings = table.settings;
-    var theme = config_1.getTheme(settings.theme);
-    // Header row and columns
-    var headerRow = new models_1.Row(inputHeaders, -1);
-    headerRow.index = -1;
-    // Columns and header row
-    inputHeaders.forEach(function (rawColumn, index) {
-        var dataKey = index;
-        if (typeof rawColumn.dataKey !== 'undefined') {
-            dataKey = rawColumn.dataKey;
-        }
-        else if (typeof rawColumn.key !== 'undefined') {
-            console.error("Deprecation warning: Use dataKey instead of key");
-            dataKey = rawColumn.key; // deprecated since 2.x
-        }
-        var col = new models_1.Column(dataKey, index);
-        col.widthStyle = config_1.Config.styles([theme.table, theme.header, table.styles.styles, table.styles.columnStyles[col.dataKey] || {}]).columnWidth;
-        table.columns.push(col);
-        var cell = new models_1.Cell(rawColumn);
-        cell.styles = config_1.Config.styles([theme.table, theme.header, table.styles.styles, table.styles.headerStyles]);
-        if (cell.raw instanceof HTMLElement) {
-            cell.text = (cell.raw.innerText || '').trim();
-        }
-        else {
-            var text = typeof cell.raw === 'object' ? cell.raw.title : cell.raw;
-            // Stringify 0 and false, but not undefined
-            cell.text = typeof cell.raw !== 'undefined' ? '' + text : '';
-        }
-        cell.text = cell.text.split(splitRegex);
-        headerRow.cells[dataKey] = cell;
-        for (var _i = 0, _a = table.hooks.createdHeaderCell; _i < _a.length; _i++) {
-            var hook = _a[_i];
-            hook(cell, { cell: cell, column: col, row: headerRow, settings: settings });
-        }
-    });
-    table.headerRow = headerRow;
-    // Rows och cells
-    inputData.forEach(function (rawRow, i) {
-        var row = new models_1.Row(rawRow, i);
-        var rowStyles = i % 2 === 0 ? assign({}, theme.alternateRow, table.styles.alternateRowStyles) : {};
-        table.columns.forEach(function (column) {
-            var cell = new models_1.Cell(rawRow[column.dataKey]);
-            var colStyles = table.styles.columnStyles[column.dataKey] || {};
-            cell.styles = config_1.Config.styles([theme.table, theme.body, table.styles.styles, table.styles.bodyStyles, rowStyles, colStyles]);
-            if (cell.raw && cell.raw instanceof HTMLElement) {
-                cell.text = (cell.raw.innerText || '').trim();
-            }
-            else {
-                // Stringify 0 and false, but not undefined
-                cell.text = typeof cell.raw !== 'undefined' ? '' + cell.raw : '';
-            }
-            cell.text = cell.text.split(splitRegex);
-            row.cells[column.dataKey] = cell;
-            for (var _i = 0, _a = table.hooks.createdCell; _i < _a.length; _i++) {
-                var hook = _a[_i];
-                hook(cell, config_1.Config.hooksData({ cell: cell, column: column, row: row }));
-            }
-        });
-        table.rows.push(row);
-    });
-}
-exports.createModels = createModels;
-
-
-/***/ },
-/* 18 */
-/***/ function(module, exports) {
-
-module.exports = __WEBPACK_EXTERNAL_MODULE_18__;
-
-/***/ },
-/* 19 */
-/***/ function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var $isNaN = __webpack_require__(8);
-var $isFinite = __webpack_require__(7);
-
-var sign = __webpack_require__(10);
-var mod = __webpack_require__(9);
-
-var IsCallable = __webpack_require__(3);
-var toPrimitive = __webpack_require__(23);
-
-// https://es5.github.io/#x9
-var ES5 = {
-	ToPrimitive: toPrimitive,
-
-	ToBoolean: function ToBoolean(value) {
-		return Boolean(value);
-	},
-	ToNumber: function ToNumber(value) {
-		return Number(value);
-	},
-	ToInteger: function ToInteger(value) {
-		var number = this.ToNumber(value);
-		if ($isNaN(number)) { return 0; }
-		if (number === 0 || !$isFinite(number)) { return number; }
-		return sign(number) * Math.floor(Math.abs(number));
-	},
-	ToInt32: function ToInt32(x) {
-		return this.ToNumber(x) >> 0;
-	},
-	ToUint32: function ToUint32(x) {
-		return this.ToNumber(x) >>> 0;
-	},
-	ToUint16: function ToUint16(value) {
-		var number = this.ToNumber(value);
-		if ($isNaN(number) || number === 0 || !$isFinite(number)) { return 0; }
-		var posInt = sign(number) * Math.floor(Math.abs(number));
-		return mod(posInt, 0x10000);
-	},
-	ToString: function ToString(value) {
-		return String(value);
-	},
-	ToObject: function ToObject(value) {
-		this.CheckObjectCoercible(value);
-		return Object(value);
-	},
-	CheckObjectCoercible: function CheckObjectCoercible(value, optMessage) {
-		/* jshint eqnull:true */
-		if (value == null) {
-			throw new TypeError(optMessage || 'Cannot call method on ' + value);
-		}
-		return value;
-	},
-	IsCallable: IsCallable,
-	SameValue: function SameValue(x, y) {
-		if (x === y) { // 0 === -0, but they are not identical.
-			if (x === 0) { return 1 / x === 1 / y; }
-			return true;
-		}
-		return $isNaN(x) && $isNaN(y);
-	},
-
-	// http://www.ecma-international.org/ecma-262/5.1/#sec-8
-	Type: function Type(x) {
-		if (x === null) {
-			return 'Null';
-		}
-		if (typeof x === 'undefined') {
-			return 'Undefined';
-		}
-		if (typeof x === 'function' || typeof x === 'object') {
-			return 'Object';
-		}
-		if (typeof x === 'number') {
-			return 'Number';
-		}
-		if (typeof x === 'boolean') {
-			return 'Boolean';
-		}
-		if (typeof x === 'string') {
-			return 'String';
-		}
-	}
-};
-
-module.exports = ES5;
-
-
-/***/ },
-/* 20 */
-/***/ function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var toStr = Object.prototype.toString;
-var hasSymbols = typeof Symbol === 'function' && typeof Symbol.iterator === 'symbol';
-var symbolToStr = hasSymbols ? Symbol.prototype.toString : toStr;
-
-var $isNaN = __webpack_require__(8);
-var $isFinite = __webpack_require__(7);
-var MAX_SAFE_INTEGER = Number.MAX_SAFE_INTEGER || Math.pow(2, 53) - 1;
-
-var assign = __webpack_require__(6);
-var sign = __webpack_require__(10);
-var mod = __webpack_require__(9);
-var isPrimitive = __webpack_require__(22);
-var toPrimitive = __webpack_require__(24);
-var parseInteger = parseInt;
-var bind = __webpack_require__(2);
-var strSlice = bind.call(Function.call, String.prototype.slice);
-var isBinary = bind.call(Function.call, RegExp.prototype.test, /^0b[01]+$/i);
-var isOctal = bind.call(Function.call, RegExp.prototype.test, /^0o[0-7]+$/i);
-var nonWS = ['\u0085', '\u200b', '\ufffe'].join('');
-var nonWSregex = new RegExp('[' + nonWS + ']', 'g');
-var hasNonWS = bind.call(Function.call, RegExp.prototype.test, nonWSregex);
-var invalidHexLiteral = /^[\-\+]0x[0-9a-f]+$/i;
-var isInvalidHexLiteral = bind.call(Function.call, RegExp.prototype.test, invalidHexLiteral);
-
-// whitespace from: http://es5.github.io/#x15.5.4.20
-// implementation from https://github.com/es-shims/es5-shim/blob/v3.4.0/es5-shim.js#L1304-L1324
-var ws = [
-	'\x09\x0A\x0B\x0C\x0D\x20\xA0\u1680\u180E\u2000\u2001\u2002\u2003',
-	'\u2004\u2005\u2006\u2007\u2008\u2009\u200A\u202F\u205F\u3000\u2028',
-	'\u2029\uFEFF'
-].join('');
-var trimRegex = new RegExp('(^[' + ws + ']+)|([' + ws + ']+$)', 'g');
-var replace = bind.call(Function.call, String.prototype.replace);
-var trim = function (value) {
-	return replace(value, trimRegex, '');
-};
-
-var ES5 = __webpack_require__(19);
-
-var hasRegExpMatcher = __webpack_require__(29);
-
-// https://people.mozilla.org/~jorendorff/es6-draft.html#sec-abstract-operations
-var ES6 = assign(assign({}, ES5), {
-
-	// https://people.mozilla.org/~jorendorff/es6-draft.html#sec-call-f-v-args
-	Call: function Call(F, V) {
-		var args = arguments.length > 2 ? arguments[2] : [];
-		if (!this.IsCallable(F)) {
-			throw new TypeError(F + ' is not a function');
-		}
-		return F.apply(V, args);
-	},
-
-	// https://people.mozilla.org/~jorendorff/es6-draft.html#sec-toprimitive
-	ToPrimitive: toPrimitive,
-
-	// https://people.mozilla.org/~jorendorff/es6-draft.html#sec-toboolean
-	// ToBoolean: ES5.ToBoolean,
-
-	// http://www.ecma-international.org/ecma-262/6.0/#sec-tonumber
-	ToNumber: function ToNumber(argument) {
-		var value = isPrimitive(argument) ? argument : toPrimitive(argument, 'number');
-		if (typeof value === 'symbol') {
-			throw new TypeError('Cannot convert a Symbol value to a number');
-		}
-		if (typeof value === 'string') {
-			if (isBinary(value)) {
-				return this.ToNumber(parseInteger(strSlice(value, 2), 2));
-			} else if (isOctal(value)) {
-				return this.ToNumber(parseInteger(strSlice(value, 2), 8));
-			} else if (hasNonWS(value) || isInvalidHexLiteral(value)) {
-				return NaN;
-			} else {
-				var trimmed = trim(value);
-				if (trimmed !== value) {
-					return this.ToNumber(trimmed);
-				}
-			}
-		}
-		return Number(value);
-	},
-
-	// https://people.mozilla.org/~jorendorff/es6-draft.html#sec-tointeger
-	// ToInteger: ES5.ToNumber,
-
-	// https://people.mozilla.org/~jorendorff/es6-draft.html#sec-toint32
-	// ToInt32: ES5.ToInt32,
-
-	// https://people.mozilla.org/~jorendorff/es6-draft.html#sec-touint32
-	// ToUint32: ES5.ToUint32,
-
-	// https://people.mozilla.org/~jorendorff/es6-draft.html#sec-toint16
-	ToInt16: function ToInt16(argument) {
-		var int16bit = this.ToUint16(argument);
-		return int16bit >= 0x8000 ? int16bit - 0x10000 : int16bit;
-	},
-
-	// https://people.mozilla.org/~jorendorff/es6-draft.html#sec-touint16
-	// ToUint16: ES5.ToUint16,
-
-	// https://people.mozilla.org/~jorendorff/es6-draft.html#sec-toint8
-	ToInt8: function ToInt8(argument) {
-		var int8bit = this.ToUint8(argument);
-		return int8bit >= 0x80 ? int8bit - 0x100 : int8bit;
-	},
-
-	// https://people.mozilla.org/~jorendorff/es6-draft.html#sec-touint8
-	ToUint8: function ToUint8(argument) {
-		var number = this.ToNumber(argument);
-		if ($isNaN(number) || number === 0 || !$isFinite(number)) { return 0; }
-		var posInt = sign(number) * Math.floor(Math.abs(number));
-		return mod(posInt, 0x100);
-	},
-
-	// https://people.mozilla.org/~jorendorff/es6-draft.html#sec-touint8clamp
-	ToUint8Clamp: function ToUint8Clamp(argument) {
-		var number = this.ToNumber(argument);
-		if ($isNaN(number) || number <= 0) { return 0; }
-		if (number >= 0xFF) { return 0xFF; }
-		var f = Math.floor(argument);
-		if (f + 0.5 < number) { return f + 1; }
-		if (number < f + 0.5) { return f; }
-		if (f % 2 !== 0) { return f + 1; }
-		return f;
-	},
-
-	// https://people.mozilla.org/~jorendorff/es6-draft.html#sec-tostring
-	ToString: function ToString(argument) {
-		if (typeof argument === 'symbol') {
-			throw new TypeError('Cannot convert a Symbol value to a string');
-		}
-		return String(argument);
-	},
-
-	// https://people.mozilla.org/~jorendorff/es6-draft.html#sec-toobject
-	ToObject: function ToObject(value) {
-		this.RequireObjectCoercible(value);
-		return Object(value);
-	},
-
-	// https://people.mozilla.org/~jorendorff/es6-draft.html#sec-topropertykey
-	ToPropertyKey: function ToPropertyKey(argument) {
-		var key = this.ToPrimitive(argument, String);
-		return typeof key === 'symbol' ? symbolToStr.call(key) : this.ToString(key);
-	},
-
-	// https://people.mozilla.org/~jorendorff/es6-draft.html#sec-tolength
-	ToLength: function ToLength(argument) {
-		var len = this.ToInteger(argument);
-		if (len <= 0) { return 0; } // includes converting -0 to +0
-		if (len > MAX_SAFE_INTEGER) { return MAX_SAFE_INTEGER; }
-		return len;
-	},
-
-	// http://www.ecma-international.org/ecma-262/6.0/#sec-canonicalnumericindexstring
-	CanonicalNumericIndexString: function CanonicalNumericIndexString(argument) {
-		if (toStr.call(argument) !== '[object String]') {
-			throw new TypeError('must be a string');
-		}
-		if (argument === '-0') { return -0; }
-		var n = this.ToNumber(argument);
-		if (this.SameValue(this.ToString(n), argument)) { return n; }
-		return void 0;
-	},
-
-	// https://people.mozilla.org/~jorendorff/es6-draft.html#sec-requireobjectcoercible
-	RequireObjectCoercible: ES5.CheckObjectCoercible,
-
-	// https://people.mozilla.org/~jorendorff/es6-draft.html#sec-isarray
-	IsArray: Array.isArray || function IsArray(argument) {
-		return toStr.call(argument) === '[object Array]';
-	},
-
-	// https://people.mozilla.org/~jorendorff/es6-draft.html#sec-iscallable
-	// IsCallable: ES5.IsCallable,
-
-	// https://people.mozilla.org/~jorendorff/es6-draft.html#sec-isconstructor
-	IsConstructor: function IsConstructor(argument) {
-		return typeof argument === 'function' && !!argument.prototype; // unfortunately there's no way to truly check this without try/catch `new argument`
-	},
-
-	// https://people.mozilla.org/~jorendorff/es6-draft.html#sec-isextensible-o
-	IsExtensible: function IsExtensible(obj) {
-		if (!Object.preventExtensions) { return true; }
-		if (isPrimitive(obj)) {
-			return false;
-		}
-		return Object.isExtensible(obj);
-	},
-
-	// https://people.mozilla.org/~jorendorff/es6-draft.html#sec-isinteger
-	IsInteger: function IsInteger(argument) {
-		if (typeof argument !== 'number' || $isNaN(argument) || !$isFinite(argument)) {
-			return false;
-		}
-		var abs = Math.abs(argument);
-		return Math.floor(abs) === abs;
-	},
-
-	// https://people.mozilla.org/~jorendorff/es6-draft.html#sec-ispropertykey
-	IsPropertyKey: function IsPropertyKey(argument) {
-		return typeof argument === 'string' || typeof argument === 'symbol';
-	},
-
-	// http://www.ecma-international.org/ecma-262/6.0/#sec-isregexp
-	IsRegExp: function IsRegExp(argument) {
-		if (!argument || typeof argument !== 'object') {
-			return false;
-		}
-		if (hasSymbols) {
-			var isRegExp = argument[Symbol.match];
-			if (typeof isRegExp !== 'undefined') {
-				return ES5.ToBoolean(isRegExp);
-			}
-		}
-		return hasRegExpMatcher(argument);
-	},
-
-	// https://people.mozilla.org/~jorendorff/es6-draft.html#sec-samevalue
-	// SameValue: ES5.SameValue,
-
-	// https://people.mozilla.org/~jorendorff/es6-draft.html#sec-samevaluezero
-	SameValueZero: function SameValueZero(x, y) {
-		return (x === y) || ($isNaN(x) && $isNaN(y));
-	},
-
-	Type: function Type(x) {
-		if (typeof x === 'symbol') {
-			return 'Symbol';
-		}
-		return ES5.Type(x);
-	},
-
-	// http://www.ecma-international.org/ecma-262/6.0/#sec-speciesconstructor
-	SpeciesConstructor: function SpeciesConstructor(O, defaultConstructor) {
-		if (this.Type(O) !== 'Object') {
-			throw new TypeError('Assertion failed: Type(O) is not Object');
-		}
-		var C = O.constructor;
-		if (typeof C === 'undefined') {
-			return defaultConstructor;
-		}
-		if (this.Type(C) !== 'Object') {
-			throw new TypeError('O.constructor is not an Object');
-		}
-		var S = hasSymbols && Symbol.species ? C[Symbol.species] : undefined;
-		if (S == null) {
-			return defaultConstructor;
-		}
-		if (this.IsConstructor(S)) {
-			return S;
-		}
-		throw new TypeError('no constructor found');
-	}
-});
-
-delete ES6.CheckObjectCoercible; // renamed in ES6 to RequireObjectCoercible
-
-module.exports = ES6;
-
-
-/***/ },
-/* 21 */
-/***/ function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var ES6 = __webpack_require__(20);
-var assign = __webpack_require__(6);
-
-var ES7 = assign(ES6, {
-	// https://github.com/tc39/ecma262/pull/60
-	SameValueNonNumber: function SameValueNonNumber(x, y) {
-		if (typeof x === 'number' || typeof x !== typeof y) {
-			throw new TypeError('SameValueNonNumber requires two non-number values of the same type.');
-		}
-		return this.SameValue(x, y);
-	}
-});
-
-module.exports = ES7;
-
-
-/***/ },
-/* 22 */
-/***/ function(module, exports) {
-
-module.exports = function isPrimitive(value) {
-	return value === null || (typeof value !== 'function' && typeof value !== 'object');
-};
-
-
-/***/ },
-/* 23 */
-/***/ function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var toStr = Object.prototype.toString;
-
-var isPrimitive = __webpack_require__(11);
-
-var isCallable = __webpack_require__(3);
-
-// https://es5.github.io/#x8.12
-var ES5internalSlots = {
-	'[[DefaultValue]]': function (O, hint) {
-		var actualHint = hint || (toStr.call(O) === '[object Date]' ? String : Number);
-
-		if (actualHint === String || actualHint === Number) {
-			var methods = actualHint === String ? ['toString', 'valueOf'] : ['valueOf', 'toString'];
-			var value, i;
-			for (i = 0; i < methods.length; ++i) {
-				if (isCallable(O[methods[i]])) {
-					value = O[methods[i]]();
-					if (isPrimitive(value)) {
-						return value;
-					}
-				}
-			}
-			throw new TypeError('No default value');
-		}
-		throw new TypeError('invalid [[DefaultValue]] hint supplied');
-	}
-};
-
-// https://es5.github.io/#x9
-module.exports = function ToPrimitive(input, PreferredType) {
-	if (isPrimitive(input)) {
-		return input;
-	}
-	return ES5internalSlots['[[DefaultValue]]'](input, PreferredType);
-};
-
-
-/***/ },
-/* 24 */
-/***/ function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var hasSymbols = typeof Symbol === 'function' && typeof Symbol.iterator === 'symbol';
-
-var isPrimitive = __webpack_require__(11);
-var isCallable = __webpack_require__(3);
-var isDate = __webpack_require__(28);
-var isSymbol = __webpack_require__(30);
-
-var ordinaryToPrimitive = function OrdinaryToPrimitive(O, hint) {
-	if (typeof O === 'undefined' || O === null) {
-		throw new TypeError('Cannot call method on ' + O);
-	}
-	if (typeof hint !== 'string' || (hint !== 'number' && hint !== 'string')) {
-		throw new TypeError('hint must be "string" or "number"');
-	}
-	var methodNames = hint === 'string' ? ['toString', 'valueOf'] : ['valueOf', 'toString'];
-	var method, result, i;
-	for (i = 0; i < methodNames.length; ++i) {
-		method = O[methodNames[i]];
-		if (isCallable(method)) {
-			result = method.call(O);
-			if (isPrimitive(result)) {
-				return result;
-			}
-		}
-	}
-	throw new TypeError('No default value');
-};
-
-var GetMethod = function GetMethod(O, P) {
-	var func = O[P];
-	if (func !== null && typeof func !== 'undefined') {
-		if (!isCallable(func)) {
-			throw new TypeError(func + ' returned for property ' + P + ' of object ' + O + ' is not a function');
-		}
-		return func;
-	}
-};
-
-// http://www.ecma-international.org/ecma-262/6.0/#sec-toprimitive
-module.exports = function ToPrimitive(input, PreferredType) {
-	if (isPrimitive(input)) {
-		return input;
-	}
-	var hint = 'default';
-	if (arguments.length > 1) {
-		if (PreferredType === String) {
-			hint = 'string';
-		} else if (PreferredType === Number) {
-			hint = 'number';
-		}
-	}
-
-	var exoticToPrim;
-	if (hasSymbols) {
-		if (Symbol.toPrimitive) {
-			exoticToPrim = GetMethod(input, Symbol.toPrimitive);
-		} else if (isSymbol(input)) {
-			exoticToPrim = Symbol.prototype.valueOf;
-		}
-	}
-	if (typeof exoticToPrim !== 'undefined') {
-		var result = exoticToPrim.call(input, hint);
-		if (isPrimitive(result)) {
-			return result;
-		}
-		throw new TypeError('unable to convert exotic object to primitive');
-	}
-	if (hint === 'default' && (isDate(input) || isSymbol(input))) {
-		hint = 'string';
-	}
-	return ordinaryToPrimitive(input, hint === 'default' ? 'number' : hint);
-};
-
-
-/***/ },
-/* 25 */
-/***/ function(module, exports) {
-
-
-var hasOwn = Object.prototype.hasOwnProperty;
-var toString = Object.prototype.toString;
-
-module.exports = function forEach (obj, fn, ctx) {
-    if (toString.call(fn) !== '[object Function]') {
-        throw new TypeError('iterator must be a function');
-    }
-    var l = obj.length;
-    if (l === +l) {
-        for (var i = 0; i < l; i++) {
-            fn.call(ctx, obj[i], i, obj);
-        }
-    } else {
-        for (var k in obj) {
-            if (hasOwn.call(obj, k)) {
-                fn.call(ctx, obj[k], k, obj);
-            }
-        }
-    }
-};
-
-
-
-/***/ },
-/* 26 */
-/***/ function(module, exports) {
-
-var ERROR_MESSAGE = 'Function.prototype.bind called on incompatible ';
-var slice = Array.prototype.slice;
-var toStr = Object.prototype.toString;
-var funcType = '[object Function]';
-
-module.exports = function bind(that) {
-    var target = this;
-    if (typeof target !== 'function' || toStr.call(target) !== funcType) {
-        throw new TypeError(ERROR_MESSAGE + target);
-    }
-    var args = slice.call(arguments, 1);
-
-    var bound;
-    var binder = function () {
-        if (this instanceof bound) {
-            var result = target.apply(
-                this,
-                args.concat(slice.call(arguments))
-            );
-            if (Object(result) === result) {
-                return result;
-            }
-            return this;
-        } else {
-            return target.apply(
-                that,
-                args.concat(slice.call(arguments))
-            );
-        }
-    };
-
-    var boundLength = Math.max(0, target.length - args.length);
-    var boundArgs = [];
-    for (var i = 0; i < boundLength; i++) {
-        boundArgs.push('$' + i);
-    }
-
-    bound = Function('binder', 'return function (' + boundArgs.join(',') + '){ return binder.apply(this,arguments); }')(binder);
-
-    if (target.prototype) {
-        var Empty = function Empty() {};
-        Empty.prototype = target.prototype;
-        bound.prototype = new Empty();
-        Empty.prototype = null;
-    }
-
-    return bound;
-};
-
-
-/***/ },
-/* 27 */
-/***/ function(module, exports, __webpack_require__) {
-
-var bind = __webpack_require__(2);
-
-module.exports = bind.call(Function.call, Object.prototype.hasOwnProperty);
-
-
-/***/ },
-/* 28 */
-/***/ function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var getDay = Date.prototype.getDay;
-var tryDateObject = function tryDateObject(value) {
-	try {
-		getDay.call(value);
-		return true;
-	} catch (e) {
-		return false;
-	}
-};
-
-var toStr = Object.prototype.toString;
-var dateClass = '[object Date]';
-var hasToStringTag = typeof Symbol === 'function' && typeof Symbol.toStringTag === 'symbol';
-
-module.exports = function isDateObject(value) {
-	if (typeof value !== 'object' || value === null) { return false; }
-	return hasToStringTag ? tryDateObject(value) : toStr.call(value) === dateClass;
-};
-
-
-/***/ },
-/* 29 */
-/***/ function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var regexExec = RegExp.prototype.exec;
-var tryRegexExec = function tryRegexExec(value) {
-	try {
-		regexExec.call(value);
-		return true;
-	} catch (e) {
-		return false;
-	}
-};
-var toStr = Object.prototype.toString;
-var regexClass = '[object RegExp]';
-var hasToStringTag = typeof Symbol === 'function' && typeof Symbol.toStringTag === 'symbol';
-
-module.exports = function isRegex(value) {
-	if (typeof value !== 'object') { return false; }
-	return hasToStringTag ? tryRegexExec(value) : toStr.call(value) === regexClass;
-};
-
-
-/***/ },
-/* 30 */
-/***/ function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var toStr = Object.prototype.toString;
-var hasSymbols = typeof Symbol === 'function' && typeof Symbol() === 'symbol';
-
-if (hasSymbols) {
-	var symToStr = Symbol.prototype.toString;
-	var symStringRegex = /^Symbol\(.*\)$/;
-	var isSymbolObject = function isSymbolObject(value) {
-		if (typeof value.valueOf() !== 'symbol') { return false; }
-		return symStringRegex.test(symToStr.call(value));
-	};
-	module.exports = function isSymbol(value) {
-		if (typeof value === 'symbol') { return true; }
-		if (toStr.call(value) !== '[object Symbol]') { return false; }
-		try {
-			return isSymbolObject(value);
-		} catch (e) {
-			return false;
-		}
-	};
-} else {
-	module.exports = function isSymbol(value) {
-		// this environment does not support Symbols.
-		return false;
-	};
-}
-
-
-/***/ },
-/* 31 */
-/***/ function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-// modified from https://github.com/es-shims/es5-shim
-var has = Object.prototype.hasOwnProperty;
-var toStr = Object.prototype.toString;
-var slice = Array.prototype.slice;
-var isArgs = __webpack_require__(32);
-var isEnumerable = Object.prototype.propertyIsEnumerable;
-var hasDontEnumBug = !isEnumerable.call({ toString: null }, 'toString');
-var hasProtoEnumBug = isEnumerable.call(function () {}, 'prototype');
-var dontEnums = [
-	'toString',
-	'toLocaleString',
-	'valueOf',
-	'hasOwnProperty',
-	'isPrototypeOf',
-	'propertyIsEnumerable',
-	'constructor'
-];
-var equalsConstructorPrototype = function (o) {
-	var ctor = o.constructor;
-	return ctor && ctor.prototype === o;
-};
-var excludedKeys = {
-	$console: true,
-	$external: true,
-	$frame: true,
-	$frameElement: true,
-	$frames: true,
-	$innerHeight: true,
-	$innerWidth: true,
-	$outerHeight: true,
-	$outerWidth: true,
-	$pageXOffset: true,
-	$pageYOffset: true,
-	$parent: true,
-	$scrollLeft: true,
-	$scrollTop: true,
-	$scrollX: true,
-	$scrollY: true,
-	$self: true,
-	$webkitIndexedDB: true,
-	$webkitStorageInfo: true,
-	$window: true
-};
-var hasAutomationEqualityBug = (function () {
-	/* global window */
-	if (typeof window === 'undefined') { return false; }
-	for (var k in window) {
-		try {
-			if (!excludedKeys['$' + k] && has.call(window, k) && window[k] !== null && typeof window[k] === 'object') {
-				try {
-					equalsConstructorPrototype(window[k]);
-				} catch (e) {
-					return true;
-				}
-			}
-		} catch (e) {
-			return true;
-		}
-	}
-	return false;
-}());
-var equalsConstructorPrototypeIfNotBuggy = function (o) {
-	/* global window */
-	if (typeof window === 'undefined' || !hasAutomationEqualityBug) {
-		return equalsConstructorPrototype(o);
-	}
-	try {
-		return equalsConstructorPrototype(o);
-	} catch (e) {
-		return false;
-	}
-};
-
-var keysShim = function keys(object) {
-	var isObject = object !== null && typeof object === 'object';
-	var isFunction = toStr.call(object) === '[object Function]';
-	var isArguments = isArgs(object);
-	var isString = isObject && toStr.call(object) === '[object String]';
-	var theKeys = [];
-
-	if (!isObject && !isFunction && !isArguments) {
-		throw new TypeError('Object.keys called on a non-object');
-	}
-
-	var skipProto = hasProtoEnumBug && isFunction;
-	if (isString && object.length > 0 && !has.call(object, 0)) {
-		for (var i = 0; i < object.length; ++i) {
-			theKeys.push(String(i));
-		}
-	}
-
-	if (isArguments && object.length > 0) {
-		for (var j = 0; j < object.length; ++j) {
-			theKeys.push(String(j));
-		}
-	} else {
-		for (var name in object) {
-			if (!(skipProto && name === 'prototype') && has.call(object, name)) {
-				theKeys.push(String(name));
-			}
-		}
-	}
-
-	if (hasDontEnumBug) {
-		var skipConstructor = equalsConstructorPrototypeIfNotBuggy(object);
-
-		for (var k = 0; k < dontEnums.length; ++k) {
-			if (!(skipConstructor && dontEnums[k] === 'constructor') && has.call(object, dontEnums[k])) {
-				theKeys.push(dontEnums[k]);
-			}
-		}
-	}
-	return theKeys;
-};
-
-keysShim.shim = function shimObjectKeys() {
-	if (Object.keys) {
-		var keysWorksWithArguments = (function () {
-			// Safari 5.0 bug
-			return (Object.keys(arguments) || '').length === 2;
-		}(1, 2));
-		if (!keysWorksWithArguments) {
-			var originalKeys = Object.keys;
-			Object.keys = function keys(object) {
-				if (isArgs(object)) {
-					return originalKeys(slice.call(object));
-				} else {
-					return originalKeys(object);
-				}
-			};
-		}
-	} else {
-		Object.keys = keysShim;
-	}
-	return Object.keys || keysShim;
-};
-
-module.exports = keysShim;
-
-
-/***/ },
-/* 32 */
-/***/ function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var toStr = Object.prototype.toString;
-
-module.exports = function isArguments(value) {
-	var str = toStr.call(value);
-	var isArgs = str === '[object Arguments]';
-	if (!isArgs) {
-		isArgs = str !== '[object Array]' &&
-			value !== null &&
-			typeof value === 'object' &&
-			typeof value.length === 'number' &&
-			value.length >= 0 &&
-			toStr.call(value.callee) === '[object Function]';
-	}
-	return isArgs;
-};
-
-
-/***/ },
-/* 33 */
-/***/ function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var define = __webpack_require__(5);
-
-var implementation = __webpack_require__(13);
-var getPolyfill = __webpack_require__(14);
-var shim = __webpack_require__(34);
-
-var polyfill = getPolyfill();
-
-define(polyfill, {
-	getPolyfill: getPolyfill,
-	implementation: implementation,
-	shim: shim
-});
-
-module.exports = polyfill;
-
-
-/***/ },
-/* 34 */
-/***/ function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var getPolyfill = __webpack_require__(14);
-var define = __webpack_require__(5);
-
-module.exports = function shimEntries() {
-	var polyfill = getPolyfill();
-	define(Object, { entries: polyfill }, {
-		entries: function testEntries() {
-			return Object.entries !== polyfill;
-		}
-	});
-	return polyfill;
-};
-
-
-/***/ },
-/* 35 */
-/***/ function(module, exports, __webpack_require__) {
-
-"use strict";
-
-var jsPDF = __webpack_require__(18);
-var config_1 = __webpack_require__(0);
-var common_1 = __webpack_require__(1);
-var painter_1 = __webpack_require__(4);
-var calculator_1 = __webpack_require__(16);
-var creator_1 = __webpack_require__(17);
-/**
- * Create a table from a set of rows and columns.
- *
- * @param {Object[]|String[]} headers Either as an array of objects or array of strings
- * @param {Object[][]|String[][]} data Either as an array of objects or array of strings
- * @param {Object} [userOptions={}] Options that will override the default ones
- */
-jsPDF.API.autoTable = function (headers, data, tableOptions) {
-    if (tableOptions === void 0) { tableOptions = {}; }
-    this.autoTableState = this.autoTableState || {};
-    jsPDF.autoTableState = jsPDF.autoTableState || {};
-    var allOptions = [jsPDF.autoTableState.defaults || {}, this.autoTableState.defaults || {}, tableOptions || {}];
-    creator_1.validateInput(headers, data, allOptions);
-    var table = config_1.Config.createTable(this);
-    config_1.Config.initSettings(table, allOptions);
-    var settings = table.settings;
-    // Create the table model with its columns, rows and cells
-    creator_1.createModels(headers, data);
-    settings.margin = config_1.Config.marginOrPadding(settings.margin, config_1.getDefaults().margin);
-    calculator_1.calculateWidths(this, config_1.Config.pageSize().width);
-    table.cursor = {
-        x: table.margin('left'),
-        y: settings.startY === false ? table.margin('top') : settings.startY
-    };
-    var minTableBottomPos = settings.startY + table.margin('bottom') + table.headerRow.height;
-    if (settings.pageBreak === 'avoid') {
-        minTableBottomPos += table.height;
-    }
-    var pageHeight = config_1.Config.pageSize().height;
-    if ((settings.pageBreak === 'always' && settings.startY !== false) ||
-        (settings.startY !== false && minTableBottomPos > pageHeight)) {
-        table.doc.addPage();
-        table.cursor.y = table.margin('top');
-    }
-    table.pageStartX = table.cursor.x;
-    table.pageStartY = table.cursor.y;
-    config_1.Config.applyUserStyles();
-    if (settings.showHeader === true || settings.showHeader === 'firstPage' || settings.showHeader === 'everyPage') {
-        painter_1.printRow(table.headerRow, table.hooks.drawHeaderRow, table.hooks.drawHeaderCell);
-    }
-    config_1.Config.applyUserStyles();
-    table.rows.forEach(function (row) {
-        painter_1.printFullRow(row, table.hooks.drawRow, table.hooks.drawCell);
-    });
-    common_1.addTableBorder();
-    // Don't call global and document addPageContent more than once for each page
-    var pageNumber = this.internal.getCurrentPageInfo().pageNumber;
-    if (this.autoTableState.addPageHookPages && this.autoTableState.addPageHookPages[pageNumber]) {
-        if (typeof tableOptions['addPageContent'] === 'function') {
-            tableOptions['addPageContent'](config_1.Config.hooksData());
-        }
-    }
-    else {
-        if (!this.autoTableState.addPageHookPages)
-            this.autoTableState.addPageHookPages = {};
-        this.autoTableState.addPageHookPages[pageNumber] = true;
-        common_1.addContentHooks();
+function addPage() {
+    var table = state_1["default"]().table;
+    common_1.applyUserStyles();
+    if (table.settings.showFooter === true || table.settings.showFooter === 'everyPage') {
+        table.foot.forEach(function (row) { return printRow(row); });
     }
     table.finalY = table.cursor.y;
-    this.autoTable.previous = table;
-    config_1.Config.applyUserStyles();
+    // Add user content just before adding new page ensure it will 
+    // be drawn above other things on the page
+    table.callEndPageHooks();
+    common_1.addTableBorder();
+    nextPage(state_1["default"]().doc);
+    table.pageCount++;
+    table.cursor = { x: table.margin('left'), y: table.margin('top') };
+    table.pageStartX = table.cursor.x;
+    table.pageStartY = table.cursor.y;
+    if (table.settings.showHeader === true || table.settings.showHeader === 'everyPage') {
+        table.head.forEach(function (row) { return printRow(row); });
+    }
+}
+exports.addPage = addPage;
+function nextPage(doc) {
+    var current = doc.internal.getCurrentPageInfo().pageNumber;
+    doc.setPage(current + 1);
+    var newCurrent = doc.internal.getCurrentPageInfo().pageNumber;
+    if (newCurrent === current) {
+        doc.addPage();
+    }
+}
+
+
+/***/ }),
+/* 5 */
+/***/ (function(module, exports) {
+
+module.exports = __WEBPACK_EXTERNAL_MODULE__5__;
+
+/***/ }),
+/* 6 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+exports.__esModule = true;
+var tableDrawer_1 = __webpack_require__(4);
+var widthCalculator_1 = __webpack_require__(7);
+var inputParser_1 = __webpack_require__(8);
+var state_1 = __webpack_require__(0);
+__webpack_require__(15);
+var common_1 = __webpack_require__(1);
+var jsPDF = __webpack_require__(5);
+jsPDF.API.autoTable = function () {
+    state_1.setupState(this);
+    // 1. Parse and unify user input
+    var table = inputParser_1.parseInput(arguments);
+    // 2. Calculate preliminary table, column, row and cell dimensions
+    widthCalculator_1.calculateWidths(table);
+    // 3. Output table to pdf
+    tableDrawer_1.drawTable(table);
+    table.finalY = table.cursor.y;
+    this.previousAutoTable = table;
+    this.autoTable.previous = table; // Deprecated
+    common_1.applyUserStyles();
+    state_1.resetState();
     return this;
 };
-// Enables doc.autoTable.previous.finalY || 40;
-jsPDF.API.autoTable.previous = false;
+// Assign false to enable `doc.previousAutoTable.finalY || 40` sugar;
+jsPDF.API.previousAutoTable = false;
 jsPDF.API.autoTableSetDefaults = function (defaults) {
-    if (!this.autoTableState)
-        this.autoTableState = {};
-    if (defaults && typeof defaults === 'object') {
-        this.autoTableState.defaults = defaults;
-    }
-    else {
-        delete this.autoTableState.defaults;
-    }
+    state_1.setDefaults(defaults, this);
     return this;
 };
-jsPDF.autoTableSetDefaults = function (defaults) {
-    if (!jsPDF.autoTableState)
-        jsPDF.autoTableState = {};
-    if (defaults && typeof defaults === 'object') {
-        this.autoTableState.defaults = defaults;
-    }
-    else {
-        delete this.autoTableState.defaults;
-    }
-    jsPDF.autoTableState.defaults = defaults;
+jsPDF.autoTableSetDefaults = function (defaults, doc) {
+    state_1.setDefaults(defaults, doc);
+    return this;
 };
+// @deprecated
+jsPDF.API.autoTable.previous = false;
 /**
- * Parses an html table
- *
- * @param tableElem Html table element
- * @param includeHiddenElements If to include hidden rows and columns (defaults to false)
- * @returns Object Object with two properties, columns and rows
+ * @Deprecated. Use html option instead
  */
 jsPDF.API.autoTableHtmlToJson = function (tableElem, includeHiddenElements) {
+    console.error("Use of deprecated function: autoTableHtmlToJson. Use html option instead.");
     includeHiddenElements = includeHiddenElements || false;
     if (!tableElem || !(tableElem instanceof HTMLTableElement)) {
         console.error("A HTMLTableElement has to be sent to autoTableHtmlToJson");
@@ -2265,16 +764,979 @@ jsPDF.API.autoTableHtmlToJson = function (tableElem, includeHiddenElements) {
     for (var i = 1; i < tableElem.rows.length; i++) {
         _loop_1(i);
     }
-    var values = Object.keys(columns).map(function (key) { return columns[key]; });
+    var values = Object.keys(columns).map(function (key) {
+        return columns[key];
+    });
     return { columns: values, rows: rows, data: rows };
 };
+/**
+ * @deprecated
+ */
+jsPDF.API.autoTableEndPosY = function () {
+    console.error("Use of deprecated function: autoTableEndPosY. Use doc.previousAutoTable.finalY instead.");
+    var prev = this.previousAutoTable;
+    if (prev.cursor && typeof prev.cursor.y === 'number') {
+        return prev.cursor.y;
+    }
+    else {
+        return 0;
+    }
+};
+/**
+ * @deprecated
+ */
+jsPDF.API.autoTableAddPageContent = function (hook) {
+    console.error("Use of deprecated function: autoTableAddPageContent. Use jsPDF.autoTableSetDefaults({addPageContent: function() {}}) instead.");
+    if (!jsPDF.API.autoTable.globalDefaults) {
+        jsPDF.API.autoTable.globalDefaults = {};
+    }
+    jsPDF.API.autoTable.globalDefaults.addPageContent = hook;
+    return this;
+};
+/**
+ * @deprecated
+ */
+jsPDF.API.autoTableAddPage = function () {
+    console.error("Use of deprecated function: autoTableAddPage. Use event.addPage() in eventHandler instead.");
+    tableDrawer_1.addPage();
+    return this;
+};
+
+
+/***/ }),
+/* 7 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+exports.__esModule = true;
+var config_1 = __webpack_require__(2);
+var common_1 = __webpack_require__(1);
+var state_1 = __webpack_require__(0);
+/**
+ * Calculate the column widths
+ */
+function calculateWidths(table) {
+    // TODO Fix those cases
+    var columnMinWidth = 10 / state_1["default"]().scaleFactor();
+    if (columnMinWidth * table.columns.length > table.width) {
+        console.error('Columns could not fit on page');
+    }
+    else if (table.minWidth > table.width) {
+        console.error("Column widths to wide and can't fit page");
+    }
+    var copy = table.columns.slice(0);
+    var diffWidth = table.width - table.wrappedWidth;
+    distributeWidth(copy, diffWidth, table.wrappedWidth);
+    applyColSpans(table);
+    fitContent(table);
+    applyRowSpans(table);
+}
+exports.calculateWidths = calculateWidths;
+function applyRowSpans(table) {
+    var rowSpanCells = {};
+    var colRowSpansLeft = 1;
+    var all = table.allRows();
+    for (var rowIndex = 0; rowIndex < all.length; rowIndex++) {
+        var row = all[rowIndex];
+        for (var _i = 0, _a = table.columns; _i < _a.length; _i++) {
+            var column = _a[_i];
+            var data = rowSpanCells[column.dataKey];
+            if (colRowSpansLeft > 1) {
+                colRowSpansLeft--;
+                delete row.cells[column.dataKey];
+            }
+            else if (data) {
+                data.cell.height += row.height;
+                if (data.cell.height > row.maxCellHeight) {
+                    data.row.maxCellHeight = data.cell.height;
+                    data.row.maxCellLineCount = Array.isArray(data.cell.text) ? data.cell.text.length : 1;
+                }
+                colRowSpansLeft = data.cell.colSpan;
+                delete row.cells[column.dataKey];
+                data.left--;
+                if (data.left <= 1) {
+                    delete rowSpanCells[column.dataKey];
+                }
+            }
+            else {
+                var cell = row.cells[column.dataKey];
+                if (!cell) {
+                    continue;
+                }
+                cell.height = row.height;
+                if (cell.rowSpan > 1) {
+                    var remaining = all.length - rowIndex;
+                    var left = cell.rowSpan > remaining ? remaining : cell.rowSpan;
+                    rowSpanCells[column.dataKey] = { cell: cell, left: left, row: row };
+                }
+            }
+        }
+        if (row.section === 'head') {
+            table.headHeight += row.maxCellHeight;
+        }
+        if (row.section === 'foot') {
+            table.footHeight += row.maxCellHeight;
+        }
+        table.height += row.height;
+    }
+}
+function applyColSpans(table) {
+    var all = table.allRows();
+    for (var rowIndex = 0; rowIndex < all.length; rowIndex++) {
+        var row = all[rowIndex];
+        var colSpanCell = null;
+        var combinedColSpanWidth = 0;
+        var colSpansLeft = 0;
+        for (var columnIndex = 0; columnIndex < table.columns.length; columnIndex++) {
+            var column = table.columns[columnIndex];
+            var cell = null;
+            // Width and colspan
+            colSpansLeft -= 1;
+            if (colSpansLeft > 1 && table.columns[columnIndex + 1]) {
+                combinedColSpanWidth += column.width;
+                delete row.cells[column.dataKey];
+                continue;
+            }
+            else if (colSpanCell) {
+                cell = colSpanCell;
+                delete row.cells[column.dataKey];
+                colSpanCell = null;
+            }
+            else {
+                cell = row.cells[column.dataKey];
+                if (!cell)
+                    continue;
+                colSpansLeft = cell.colSpan;
+                combinedColSpanWidth = 0;
+                if (cell.colSpan > 1) {
+                    colSpanCell = cell;
+                    combinedColSpanWidth += column.width;
+                    continue;
+                }
+            }
+            cell.width = column.width + combinedColSpanWidth;
+        }
+    }
+}
+function fitContent(table) {
+    for (var _i = 0, _a = table.allRows(); _i < _a.length; _i++) {
+        var row = _a[_i];
+        for (var _b = 0, _c = table.columns; _b < _c.length; _b++) {
+            var column = _c[_b];
+            var cell = row.cells[column.dataKey];
+            if (!cell)
+                continue;
+            common_1.applyStyles(cell.styles);
+            var textSpace = cell.width - cell.padding('horizontal');
+            if (cell.styles.overflow === 'linebreak') {
+                cell.text = Array.isArray(cell.text) ? cell.text.join(' ') : cell.text;
+                // Add one pt to textSpace to fix rounding error
+                cell.text = state_1["default"]().doc.splitTextToSize(cell.text, textSpace + 1 / (state_1["default"]().scaleFactor() || 1), { fontSize: cell.styles.fontSize });
+            }
+            else if (cell.styles.overflow === 'ellipsize') {
+                cell.text = common_1.ellipsize(cell.text, textSpace, cell.styles);
+            }
+            else if (cell.styles.overflow === 'hidden') {
+                cell.text = common_1.ellipsize(cell.text, textSpace, cell.styles, '');
+            }
+            else if (typeof cell.styles.overflow === 'function') {
+                cell.text = cell.styles.overflow(cell.text, textSpace);
+            }
+            var lineCount = Array.isArray(cell.text) ? cell.text.length : 1;
+            lineCount = cell.rowSpan <= 1 ? lineCount : 1;
+            var fontHeight = cell.styles.fontSize / state_1["default"]().scaleFactor() * config_1.FONT_ROW_RATIO;
+            cell.contentHeight = lineCount * fontHeight + cell.padding('vertical');
+            if (cell.styles.minCellHeight > cell.contentHeight) {
+                cell.contentHeight = cell.styles.minCellHeight;
+            }
+            if (cell.contentHeight > row.height) {
+                row.height = cell.contentHeight;
+                row.maxCellHeight = cell.contentHeight;
+                row.maxCellLineCount = lineCount;
+            }
+        }
+    }
+}
+function distributeWidth(autoColumns, diffWidth, wrappedAutoColumnsWidth) {
+    for (var i = 0; i < autoColumns.length; i++) {
+        var column = autoColumns[i];
+        var ratio = column.wrappedWidth / wrappedAutoColumnsWidth;
+        var suggestedChange = diffWidth * ratio;
+        var suggestedWidth = column.wrappedWidth + suggestedChange;
+        if (suggestedWidth >= column.minWidth) {
+            column.width = suggestedWidth;
+        }
+        else {
+            // We can't reduce the width of this column. Mark as none auto column and start over
+            column.width = column.minWidth;
+            wrappedAutoColumnsWidth -= column.wrappedWidth;
+            autoColumns.splice(i, 1);
+            distributeWidth(autoColumns, diffWidth, wrappedAutoColumnsWidth);
+            break;
+        }
+    }
+}
+
+
+/***/ }),
+/* 8 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
+exports.__esModule = true;
+var models_1 = __webpack_require__(9);
+var config_1 = __webpack_require__(2);
+var htmlParser_1 = __webpack_require__(12);
+var polyfills_1 = __webpack_require__(3);
+var common_1 = __webpack_require__(1);
+var state_1 = __webpack_require__(0);
+var inputValidator_1 = __webpack_require__(14);
+/**
+ * Create models from the user input
+ */
+function parseInput(args) {
+    var tableOptions = parseUserArguments(args);
+    var globalOptions = state_1.getGlobalOptions();
+    var documentOptions = state_1.getDocumentOptions();
+    var allOptions = [globalOptions, documentOptions, tableOptions];
+    inputValidator_1["default"](allOptions);
+    var table = new models_1.Table();
+    state_1["default"]().table = table;
+    table.id = tableOptions.tableId;
+    // Move to state?
+    table.userStyles = {
+        textColor: 0,
+        fontSize: state_1["default"]().doc.internal.getFontSize(),
+        fontStyle: state_1["default"]().doc.internal.getFont().fontStyle,
+        font: state_1["default"]().doc.internal.getFont().fontName
+    };
+    var _loop_1 = function (styleProp) {
+        var styles = allOptions.map(function (opts) { return (opts[styleProp] || {}); });
+        table.styles[styleProp] = polyfills_1.assign.apply(void 0, [{}].concat(styles));
+    };
+    // Merge styles one level deeper
+    for (var _i = 0, _a = Object.keys(table.styles); _i < _a.length; _i++) {
+        var styleProp = _a[_i];
+        _loop_1(styleProp);
+    }
+    // Append hooks
+    for (var _b = 0, allOptions_1 = allOptions; _b < allOptions_1.length; _b++) {
+        var opts = allOptions_1[_b];
+        for (var _c = 0, _d = Object.keys(table.cellHooks); _c < _d.length; _c++) {
+            var hookName = _d[_c];
+            if (opts && typeof opts[hookName] === 'function') {
+                table.cellHooks[hookName].push(opts[hookName]);
+                delete opts[hookName];
+            }
+        }
+    }
+    table.settings = polyfills_1.assign.apply(void 0, [{}, config_1.defaultConfig()].concat(allOptions));
+    table.settings.margin = common_1.marginOrPadding(table.settings.margin, config_1.defaultConfig().margin);
+    if (table.settings.theme === 'auto') {
+        table.settings.theme = table.settings.useCss ? 'plain' : 'striped';
+    }
+    if (table.settings.startY === false) {
+        delete table.settings.startY;
+    }
+    var previous = state_1["default"]().doc.previousAutoTable;
+    var isSamePageAsPrevious = previous && previous.startPageNumber + previous.pageCount - 1 === state_1["default"]().pageNumber();
+    if (table.settings.startY == null && isSamePageAsPrevious) {
+        table.settings.startY = previous.finalY + 20 / state_1["default"]().scaleFactor();
+    }
+    var htmlContent = {};
+    if (table.settings.html) {
+        htmlContent = htmlParser_1.parseHtml(table.settings.html, table.settings.includeHiddenHTML, table.settings.useCss) || {};
+    }
+    table.settings.head = htmlContent.head || table.settings.head || [];
+    table.settings.body = htmlContent.body || table.settings.body || [];
+    table.settings.foot = htmlContent.foot || table.settings.foot || [];
+    parseContent(table);
+    table.minWidth = table.columns.reduce(function (total, col) { return (total + col.minWidth); }, 0);
+    table.wrappedWidth = table.columns.reduce(function (total, col) { return (total + col.wrappedWidth); }, 0);
+    if (typeof table.settings.tableWidth === 'number') {
+        table.width = table.settings.tableWidth;
+    }
+    else if (table.settings.tableWidth === 'wrap') {
+        table.width = table.wrappedWidth;
+    }
+    else {
+        table.width = state_1["default"]().pageWidth() - table.margin('left') - table.margin('right');
+    }
+    return table;
+}
+exports.parseInput = parseInput;
+function parseUserArguments(args) {
+    // Normal initialization on format doc.autoTable(options)
+    if (args.length === 1) {
+        return args[0];
+    }
+    // Deprecated initialization on format doc.autoTable(columns, body, [options])
+    else {
+        // TODO Fix deprecated initialization
+        var opts = args[2] || {};
+        opts.columns = args[0];
+        opts.body = args[1];
+        return opts;
+    }
+}
+function parseContent(table) {
+    var settings = table.settings;
+    table.columns = getTableColumns(settings);
+    var _loop_2 = function (sectionName) {
+        var rowSpansLeftForColumn = {};
+        settings[sectionName].forEach(function (rawRow, rowIndex) {
+            var row = new models_1.Row(rawRow, rowIndex, sectionName);
+            table[sectionName].push(row);
+            var colSpansAdded = 0;
+            var columnSpansLeft = 0;
+            for (var _i = 0, _a = table.columns; _i < _a.length; _i++) {
+                var column = _a[_i];
+                if (rowSpansLeftForColumn[column.dataKey] == null || rowSpansLeftForColumn[column.dataKey].left === 0) {
+                    if (columnSpansLeft === 0) {
+                        var rawCell = void 0;
+                        if (Array.isArray(rawRow)) {
+                            rawCell = rawRow[column.dataKey - colSpansAdded];
+                        }
+                        else {
+                            rawCell = rawRow[column.dataKey];
+                        }
+                        var styles = cellStyles(sectionName, column.dataKey, rowIndex);
+                        var cell = new models_1.Cell(rawCell, styles, sectionName);
+                        row.cells[column.dataKey] = cell;
+                        table.callCellHooks(table.cellHooks.didParseCell, cell, row, column);
+                        columnSpansLeft = cell.colSpan - 1;
+                        rowSpansLeftForColumn[column.dataKey] = { left: cell.rowSpan - 1, times: columnSpansLeft };
+                    }
+                    else {
+                        columnSpansLeft--;
+                        colSpansAdded++;
+                    }
+                }
+                else {
+                    rowSpansLeftForColumn[column.dataKey].left--;
+                    columnSpansLeft = rowSpansLeftForColumn[column.dataKey].times;
+                }
+            }
+        });
+    };
+    for (var _i = 0, _a = ['head', 'body', 'foot']; _i < _a.length; _i++) {
+        var sectionName = _a[_i];
+        _loop_2(sectionName);
+    }
+    table.allRows().forEach(function (row) {
+        for (var _i = 0, _a = table.columns; _i < _a.length; _i++) {
+            var column = _a[_i];
+            var cell = row.cells[column.dataKey];
+            // Kind of make sense to not consider width of cells with colspan columns
+            // Consider this in a future release however
+            if (cell && cell.colSpan === 1) {
+                if (cell.wrappedWidth > column.wrappedWidth) {
+                    column.wrappedWidth = cell.wrappedWidth;
+                }
+                if (cell.minWidth > column.minWidth) {
+                    column.minWidth = cell.minWidth;
+                }
+            }
+        }
+    });
+}
+function getTableColumns(settings) {
+    if (settings.columns) {
+        return settings.columns.map(function (input, index) {
+            var key = input.dataKey || input.key || index;
+            var raw = input != null ? input : index;
+            return new models_1.Column(key, raw);
+        });
+    }
+    else {
+        var merged = __assign({}, settings.head[0], settings.body[0], settings.foot[0]);
+        var dataKeys = Object.keys(merged);
+        return dataKeys.map(function (key) { return new models_1.Column(key, key); });
+    }
+}
+function cellStyles(sectionName, dataKey, rowIndex) {
+    var table = state_1["default"]().table;
+    var theme = config_1.getTheme(table.settings.theme);
+    var otherStyles = [theme.table, theme[sectionName], table.styles.styles, table.styles[sectionName + "Styles"]];
+    var colStyles = sectionName === 'body' ? table.styles.columnStyles[dataKey] || {} : {};
+    var rowStyles = sectionName === 'body' && rowIndex % 2 === 0 ? polyfills_1.assign({}, theme.alternateRow, table.styles.alternateRowStyles) : {};
+    return polyfills_1.assign.apply(void 0, [config_1.defaultStyles()].concat(otherStyles.concat([rowStyles, colStyles])));
+}
+
+
+/***/ }),
+/* 9 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+exports.__esModule = true;
+var config_1 = __webpack_require__(2);
+var state_1 = __webpack_require__(0);
+var HookData_1 = __webpack_require__(10);
+var common_1 = __webpack_require__(1);
+var assign = __webpack_require__(11);
+var CellHooks = /** @class */ (function () {
+    function CellHooks() {
+        this.willParseCell = [];
+        this.didParseCell = [];
+        this.willDrawCell = [];
+        this.didDrawCell = [];
+        this.didDrawPage = [];
+    }
+    return CellHooks;
+}());
+var Table = /** @class */ (function () {
+    function Table() {
+        this.columns = [];
+        this.head = [];
+        this.body = [];
+        this.foot = [];
+        this.height = 0;
+        this.width = 0;
+        this.preferredWidth = 0;
+        this.wrappedWidth = 0;
+        this.minWidth = 0;
+        this.headHeight = 0;
+        this.footHeight = 0;
+        this.startPageNumber = 1;
+        this.pageCount = 1;
+        this.styles = {
+            styles: {},
+            headStyles: {},
+            bodyStyles: {},
+            footStyles: {},
+            alternateRowStyles: {},
+            columnStyles: {}
+        };
+        this.cellHooks = new CellHooks();
+    }
+    Table.prototype.allRows = function () {
+        return this.head.concat(this.body).concat(this.foot);
+    };
+    Table.prototype.callCellHooks = function (handlers, cell, row, column) {
+        for (var _i = 0, handlers_1 = handlers; _i < handlers_1.length; _i++) {
+            var handler = handlers_1[_i];
+            if (handler(new HookData_1.CellHookData(cell, row, column)) === false) {
+                return false;
+            }
+        }
+        return true;
+    };
+    Table.prototype.callEndPageHooks = function () {
+        common_1.applyUserStyles();
+        for (var _i = 0, _a = this.cellHooks.didDrawPage; _i < _a.length; _i++) {
+            var handler = _a[_i];
+            handler(new HookData_1.HookData());
+        }
+    };
+    Table.prototype.margin = function (side) {
+        return common_1.marginOrPadding(this.settings.margin, config_1.defaultConfig().margin)[side];
+    };
+    return Table;
+}());
+exports.Table = Table;
+var Row = /** @class */ (function () {
+    function Row(raw, index, section) {
+        this.cells = {};
+        this.height = 0;
+        this.maxCellLineCount = 1;
+        this.maxCellHeight = 0;
+        this.pageCount = 1;
+        this.spansMultiplePages = false;
+        this.raw = raw;
+        this.index = index;
+        this.section = section;
+    }
+    return Row;
+}());
+exports.Row = Row;
+var Cell = /** @class */ (function () {
+    function Cell(raw, themeStyles, section) {
+        this.contentWidth = 0;
+        this.wrappedWidth = 0;
+        this.minWidth = 0;
+        this.textPos = {};
+        this.height = 0;
+        this.width = 0;
+        this.raw = raw;
+        this.rowSpan = raw && raw.rowSpan || 1;
+        this.colSpan = raw && raw.colSpan || 1;
+        this.styles = assign(themeStyles, raw && raw.styles || {});
+        this.section = section;
+        var text = '';
+        var content = raw && typeof raw.content !== 'undefined' ? raw.content : raw;
+        content = content != undefined && content.dataKey != undefined ? content.title : content;
+        if (content && typeof window === 'object' && window.HTMLElement && content instanceof window.HTMLElement) {
+            text = (content.innerText || '').trim();
+        }
+        else {
+            // Stringify 0 and false, but not undefined or null
+            text = content != undefined ? '' + content : '';
+        }
+        var splitRegex = /\r\n|\r|\n/g;
+        this.text = text.split(splitRegex);
+        this.contentWidth = this.padding('horizontal') + common_1.getStringWidth(this.text, this.styles);
+        if (typeof this.styles.cellWidth === 'number') {
+            this.minWidth = this.styles.cellWidth;
+            this.wrappedWidth = this.styles.cellWidth;
+        }
+        else if (this.styles.cellWidth === 'wrap') {
+            this.minWidth = this.contentWidth;
+            this.wrappedWidth = this.contentWidth;
+        }
+        else { // auto
+            this.minWidth = 10 / state_1["default"]().scaleFactor();
+            this.wrappedWidth = this.contentWidth;
+        }
+    }
+    Cell.prototype.padding = function (name) {
+        var padding = common_1.marginOrPadding(this.styles.cellPadding, common_1.styles([]).cellPadding);
+        if (name === 'vertical') {
+            return padding.top + padding.bottom;
+        }
+        else if (name === 'horizontal') {
+            return padding.left + padding.right;
+        }
+        else {
+            return padding[name];
+        }
+    };
+    return Cell;
+}());
+exports.Cell = Cell;
+var Column = /** @class */ (function () {
+    function Column(dataKey, raw) {
+        this.preferredWidth = 0;
+        this.minWidth = 0;
+        this.wrappedWidth = 0;
+        this.width = 0;
+        this.dataKey = dataKey;
+        this.raw = raw;
+    }
+    return Column;
+}());
+exports.Column = Column;
+
+
+/***/ }),
+/* 10 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+exports.__esModule = true;
+var tableDrawer_1 = __webpack_require__(4);
+var state_1 = __webpack_require__(0);
+var HookData = /** @class */ (function () {
+    function HookData() {
+        var table = state_1["default"]().table;
+        this.table = table;
+        this.pageCount = table.pageCount;
+        this.settings = table.settings;
+        this.cursor = table.cursor;
+        this.doc = state_1["default"]().doc;
+        this.addPage = tableDrawer_1.addPage;
+    }
+    return HookData;
+}());
+exports.HookData = HookData;
+var CellHookData = /** @class */ (function (_super) {
+    __extends(CellHookData, _super);
+    function CellHookData(cell, row, column) {
+        var _this = _super.call(this) || this;
+        _this.cell = cell;
+        _this.row = row;
+        _this.column = column;
+        _this.section = row.section;
+        return _this;
+    }
+    return CellHookData;
+}(HookData));
+exports.CellHookData = CellHookData;
+
+
+/***/ }),
+/* 11 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/*
+object-assign
+(c) Sindre Sorhus
+@license MIT
+*/
+
+
+/* eslint-disable no-unused-vars */
+var getOwnPropertySymbols = Object.getOwnPropertySymbols;
+var hasOwnProperty = Object.prototype.hasOwnProperty;
+var propIsEnumerable = Object.prototype.propertyIsEnumerable;
+
+function toObject(val) {
+	if (val === null || val === undefined) {
+		throw new TypeError('Object.assign cannot be called with null or undefined');
+	}
+
+	return Object(val);
+}
+
+function shouldUseNative() {
+	try {
+		if (!Object.assign) {
+			return false;
+		}
+
+		// Detect buggy property enumeration order in older V8 versions.
+
+		// https://bugs.chromium.org/p/v8/issues/detail?id=4118
+		var test1 = new String('abc');  // eslint-disable-line no-new-wrappers
+		test1[5] = 'de';
+		if (Object.getOwnPropertyNames(test1)[0] === '5') {
+			return false;
+		}
+
+		// https://bugs.chromium.org/p/v8/issues/detail?id=3056
+		var test2 = {};
+		for (var i = 0; i < 10; i++) {
+			test2['_' + String.fromCharCode(i)] = i;
+		}
+		var order2 = Object.getOwnPropertyNames(test2).map(function (n) {
+			return test2[n];
+		});
+		if (order2.join('') !== '0123456789') {
+			return false;
+		}
+
+		// https://bugs.chromium.org/p/v8/issues/detail?id=3056
+		var test3 = {};
+		'abcdefghijklmnopqrst'.split('').forEach(function (letter) {
+			test3[letter] = letter;
+		});
+		if (Object.keys(Object.assign({}, test3)).join('') !==
+				'abcdefghijklmnopqrst') {
+			return false;
+		}
+
+		return true;
+	} catch (err) {
+		// We don't expect any of the above to throw, but better to be safe.
+		return false;
+	}
+}
+
+module.exports = shouldUseNative() ? Object.assign : function (target, source) {
+	var from;
+	var to = toObject(target);
+	var symbols;
+
+	for (var s = 1; s < arguments.length; s++) {
+		from = Object(arguments[s]);
+
+		for (var key in from) {
+			if (hasOwnProperty.call(from, key)) {
+				to[key] = from[key];
+			}
+		}
+
+		if (getOwnPropertySymbols) {
+			symbols = getOwnPropertySymbols(from);
+			for (var i = 0; i < symbols.length; i++) {
+				if (propIsEnumerable.call(from, symbols[i])) {
+					to[symbols[i]] = from[symbols[i]];
+				}
+			}
+		}
+	}
+
+	return to;
+};
+
+
+/***/ }),
+/* 12 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+exports.__esModule = true;
+var cssParser_1 = __webpack_require__(13);
+var state_1 = __webpack_require__(0);
+var polyfills_1 = __webpack_require__(3);
+function parseHtml(input, includeHiddenHtml, useCss) {
+    if (includeHiddenHtml === void 0) { includeHiddenHtml = false; }
+    if (useCss === void 0) { useCss = false; }
+    var tableElement;
+    if (typeof input === 'string') {
+        tableElement = window.document.querySelector(input);
+    }
+    else {
+        tableElement = input;
+    }
+    if (!tableElement) {
+        console.error("Html table could not be found with input: ", input);
+        return;
+    }
+    var head = parseTableSection(window, tableElement.tHead, includeHiddenHtml, useCss);
+    var body = [];
+    for (var i = 0; i < tableElement.tBodies.length; i++) {
+        body = body.concat(parseTableSection(window, tableElement.tBodies[i], includeHiddenHtml, useCss));
+    }
+    var foot = parseTableSection(window, tableElement.tFoot, includeHiddenHtml, useCss);
+    return { head: head, body: body, foot: foot };
+}
+exports.parseHtml = parseHtml;
+function parseTableSection(window, sectionElement, includeHidden, useCss) {
+    var results = [];
+    if (!sectionElement) {
+        return results;
+    }
+    for (var i = 0; i < sectionElement.rows.length; i++) {
+        var row = sectionElement.rows[i];
+        var resultRow = [];
+        var rowStyles = useCss ? cssParser_1.parseCss(row, state_1["default"]().scaleFactor(), ['cellPadding', 'lineWidth', 'lineColor']) : {};
+        for (var i_1 = 0; i_1 < row.cells.length; i_1++) {
+            var cell = row.cells[i_1];
+            var style = window.getComputedStyle(cell);
+            if (includeHidden || style.display !== 'none') {
+                var cellStyles = useCss ? cssParser_1.parseCss(cell, state_1["default"]().scaleFactor()) : {};
+                resultRow.push({
+                    rowSpan: cell.rowSpan,
+                    colSpan: cell.colSpan,
+                    styles: useCss ? polyfills_1.assign(rowStyles, cellStyles) : null,
+                    content: cell
+                });
+            }
+        }
+        if (resultRow.length > 0 && (includeHidden || rowStyles.display !== 'none')) {
+            results.push(resultRow);
+        }
+    }
+    return results;
+}
+
+
+/***/ }),
+/* 13 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+exports.__esModule = true;
+// Limitations
+// - No support for border spacing
+// - No support for transparency
+var common_1 = __webpack_require__(1);
+function parseCss(element, scaleFactor, ignored) {
+    if (ignored === void 0) { ignored = []; }
+    var result = {};
+    var style = window.getComputedStyle(element);
+    function assign(name, value, accepted) {
+        if (accepted === void 0) { accepted = []; }
+        if ((accepted.length === 0 || accepted.indexOf(value) !== -1) && ignored.indexOf(name) === -1) {
+            if (value === 0 || value) {
+                result[name] = value;
+            }
+        }
+    }
+    var pxScaleFactor = 96 / 72;
+    assign('fillColor', parseColor(element, 'backgroundColor') || 255);
+    assign('lineColor', parseColor(element, 'borderColor'));
+    assign('fontStyle', parseFontStyle(style));
+    assign('textColor', parseColor(element, 'color'));
+    assign('halign', style.textAlign, ['left', 'right', 'center']);
+    assign('valign', style.verticalAlign, ['middle', 'bottom', 'top']);
+    assign('fontSize', parseInt(style.fontSize || '') / pxScaleFactor);
+    assign('cellPadding', parsePadding(style.padding, style.fontSize, style.lineHeight, scaleFactor));
+    assign('lineWidth', parseInt(style.borderWidth || '') / pxScaleFactor / scaleFactor);
+    assign('font', (style.fontFamily || '').toLowerCase());
+    return result;
+}
+exports.parseCss = parseCss;
+function parseFontStyle(style) {
+    var res = '';
+    if (style.fontWeight === 'bold' || style.fontWeight === 'bolder' || parseInt(style.fontWeight) >= 700) {
+        res += 'bold';
+    }
+    if (style.fontStyle === 'italic' || style.fontStyle === 'oblique') {
+        res += 'italic';
+    }
+    return res;
+}
+function parseColor(element, colorProp) {
+    var cssColor = realColor(element, colorProp);
+    if (!cssColor)
+        return null;
+    var rgba = cssColor.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d*\.?\d*))?\)$/);
+    if (!rgba || !Array.isArray(rgba)) {
+        return null;
+    }
+    var color = [parseInt(rgba[1]), parseInt(rgba[2]), parseInt(rgba[3])];
+    var alpha = parseInt(rgba[4]);
+    if (alpha === 0 || isNaN(color[0]) || isNaN(color[1]) || isNaN(color[2])) {
+        return null;
+    }
+    return color;
+}
+function realColor(elem, colorProp) {
+    if (!elem)
+        return null;
+    var bg = window.getComputedStyle(elem)[colorProp];
+    if (bg === 'rgba(0, 0, 0, 0)' || bg === 'transparent' || bg === 'initial' || bg === 'inherit') {
+        return realColor(elem.parentElement, colorProp);
+    }
+    else {
+        return bg;
+    }
+}
+function parsePadding(val, fontSize, lineHeight, scaleFactor) {
+    if (!val)
+        return null;
+    var pxScaleFactor = (96 / (72 / scaleFactor));
+    var linePadding = (parseInt(lineHeight) - parseInt(fontSize)) / scaleFactor / 2;
+    var padding = val.split(' ').map(function (n) {
+        return parseInt(n) / pxScaleFactor;
+    });
+    padding = common_1.marginOrPadding(padding, 0);
+    if (linePadding > padding.top) {
+        padding.top = linePadding;
+    }
+    if (linePadding > padding.bottom) {
+        padding.bottom = linePadding;
+    }
+    return padding;
+}
+
+
+/***/ }),
+/* 14 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+exports.__esModule = true;
+var common_1 = __webpack_require__(1);
+function default_1(allOptions) {
+    var _loop_1 = function (settings) {
+        if (settings && typeof settings !== 'object') {
+            console.error("The options parameter should be of type object, is: " + typeof settings);
+        }
+        if (typeof settings.extendWidth !== 'undefined') {
+            settings.tableWidth = settings.extendWidth ? 'auto' : 'wrap';
+            console.error("Use of deprecated option: extendWidth, use tableWidth instead.");
+        }
+        if (typeof settings.margins !== 'undefined') {
+            if (typeof settings.margin === 'undefined')
+                settings.margin = settings.margins;
+            console.error("Use of deprecated option: margins, use margin instead.");
+        }
+        if (typeof settings.afterPageContent !== 'undefined' || typeof settings.beforePageContent !== 'undefined' || typeof settings.afterPageAdd !== 'undefined') {
+            console.error("The afterPageContent, beforePageContent and afterPageAdd hooks are deprecated. Use addPageContent instead");
+            if (typeof settings.addPageContent === 'undefined') {
+                settings.addPageContent = function (data) {
+                    common_1.applyUserStyles();
+                    if (settings.beforePageContent)
+                        settings.beforePageContent(data);
+                    common_1.applyUserStyles();
+                    if (settings.afterPageContent)
+                        settings.afterPageContent(data);
+                    common_1.applyUserStyles();
+                    if (settings.afterPageAdd && data.pageCount > 1) {
+                        data.afterPageAdd(data);
+                    }
+                    common_1.applyUserStyles();
+                };
+            }
+        }
+        var oldHooks = ["createdHeaderCell", "drawHeaderRow", "drawRow", "drawHeaderCell"];
+        for (var _i = 0, oldHooks_1 = oldHooks; _i < oldHooks_1.length; _i++) {
+            var hookName = oldHooks_1[_i];
+            if (settings[hookName]) {
+                console.error("The hook \"" + hookName + "\" has been removed/renamed in version 3.0 of jspdf-autotable. Make sure you update your project according to the migration guide.");
+            }
+        }
+        [['padding', 'cellPadding'], ['lineHeight', 'rowHeight'], 'fontSize', 'overflow'].forEach(function (o) {
+            var deprecatedOption = typeof o === 'string' ? o : o[0];
+            var style = typeof o === 'string' ? o : o[1];
+            if (typeof settings[deprecatedOption] !== 'undefined') {
+                if (typeof settings.styles[style] === 'undefined') {
+                    settings.styles[style] = settings[deprecatedOption];
+                }
+                console.error("Use of deprecated option: " + deprecatedOption + ", use the style " + style + " instead.");
+            }
+        });
+        for (var _a = 0, _b = ['styles', 'bodyStyles', 'headStyles', 'footStyles']; _a < _b.length; _a++) {
+            var styleProp = _b[_a];
+            checkStyles(settings[styleProp] || {});
+        }
+        var columnStyles = settings['columnStyles'] || {};
+        for (var _c = 0, _d = Object.keys(columnStyles); _c < _d.length; _c++) {
+            var dataKey = _d[_c];
+            checkStyles(columnStyles[dataKey] || {});
+        }
+    };
+    for (var _i = 0, allOptions_1 = allOptions; _i < allOptions_1.length; _i++) {
+        var settings = allOptions_1[_i];
+        _loop_1(settings);
+    }
+}
+exports["default"] = default_1;
+function checkStyles(styles) {
+    if (styles.rowHeight) {
+        console.error("Use of deprecated style rowHeight. It is renamed to minCellHeight.");
+        if (!styles.minCellHeight) {
+            styles.minCellHeight = styles.rowHeight;
+        }
+    }
+    else if (styles.columnWidth) {
+        console.error("Use of deprecated style columnWidth. It is renamed to cellWidth.");
+        if (!styles.cellWidth) {
+            styles.cellWidth = styles.columnWidth;
+        }
+    }
+}
+
+
+/***/ }),
+/* 15 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var jsPDF = __webpack_require__(5);
 /**
  * Improved text function with halign and valign support
  * Inspiration from: http://stackoverflow.com/questions/28327510/align-text-right-using-jspdf/28433113#28433113
  */
 jsPDF.API.autoTableText = function (text, x, y, styles) {
+    styles = styles || {};
+    var FONT_ROW_RATIO = 1.15;
     if (typeof x !== 'number' || typeof y !== 'number') {
-        console.error('The x and y parameters are required. Missing for the text: ', text);
+        console.error('The x and y parameters are required. Missing for text: ', text);
     }
     var k = this.internal.scaleFactor;
     var fontSize = this.internal.getFontSize() / k;
@@ -2286,11 +1748,11 @@ jsPDF.API.autoTableText = function (text, x, y, styles) {
         lineCount = splitText.length || 1;
     }
     // Align the top
-    y += fontSize * (2 - config_1.FONT_ROW_RATIO);
+    y += fontSize * (2 - FONT_ROW_RATIO);
     if (styles.valign === 'middle')
-        y -= (lineCount / 2) * fontSize * config_1.FONT_ROW_RATIO;
+        y -= (lineCount / 2) * fontSize * FONT_ROW_RATIO;
     else if (styles.valign === 'bottom')
-        y -= lineCount * fontSize * config_1.FONT_ROW_RATIO;
+        y -= lineCount * fontSize * FONT_ROW_RATIO;
     if (styles.halign === 'center' || styles.halign === 'right') {
         var alignSize = fontSize;
         if (styles.halign === 'center')
@@ -2307,37 +1769,8 @@ jsPDF.API.autoTableText = function (text, x, y, styles) {
     this.text(text, x, y);
     return this;
 };
-/**
- * @deprecated Use doc.autoTable.previous.finalY instead
- */
-jsPDF.API.autoTableEndPosY = function () {
-    var prev = this.autoTable.previous;
-    if (prev.cursor && typeof prev.cursor.y === 'number') {
-        return prev.cursor.y;
-    }
-    else {
-        return 0;
-    }
-};
-/**
- * @deprecated Use jsPDF.autoTableSetDefaults({addPageContent: function() {}}) instead
- */
-jsPDF.API.autoTableAddPageContent = function (hook) {
-    if (!jsPDF.API.autoTable.globalDefaults) {
-        jsPDF.API.autoTable.globalDefaults = {};
-    }
-    jsPDF.API.autoTable.globalDefaults.addPageContent = hook;
-    return this;
-};
-/**
- * @deprecated Use data.addPage in hooks instead
- */
-jsPDF.API.autoTableAddPage = function () {
-    common_1.addPage();
-    return this;
-};
 
 
-/***/ }
+/***/ })
 /******/ ]);
 });
