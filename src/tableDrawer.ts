@@ -20,6 +20,8 @@ export function drawTable(table: Table) {
     }
     table.pageStartX = table.cursor.x;
     table.pageStartY = table.cursor.y;
+    
+    table.startPageNumber = state().pageNumber();
 
     applyUserStyles();
     if (settings.showHeader === true || settings.showHeader === 'firstPage' || settings.showHeader === 'everyPage') {

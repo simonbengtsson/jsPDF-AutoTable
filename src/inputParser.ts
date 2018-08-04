@@ -55,8 +55,10 @@ export function parseInput(args) {
         delete table.settings.startY;
     }
     
-    if (table.settings.startY == null && state().doc.previousAutoTable) {
-        table.settings.startY = state().doc.previousAutoTable.finalY + 20 / state().scaleFactor()
+    const previous = state().doc.previousAutoTable;
+    const isSamePageAsPrevious = previous && previous.startPageNumber + previous.pageCount - 1 === state().pageNumber();
+    if (table.settings.startY == null && isSamePageAsPrevious) {
+        table.settings.startY = previous.finalY + 20 / state().scaleFactor()
     }
 
     let htmlContent: any = {};

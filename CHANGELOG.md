@@ -1,14 +1,14 @@
 # BEFORE RELEASE
-- Only print head if first row of body fits on page
 - Last row (long example) not getting cut off correctly
-- In content example, bug with last row. Background over page number
-- addPage and auto startY not working (as seen in defaults example)
+- In header/footer example, bug with last row. Background over page number. Same as in long text?
 - Spans example not working
-- Consider columns option
+- Look over current content setting (head, body, foot) and consider if columns option is needed
 
 ### 3.1
+- Only print head if first row of body fits on page
 - Additional and updates themes?
 - Easier to add image to cells
+- Easier to add links to cells
 - Update support for custom fonts (and utf-8)?
 - Improved column width calculation (decrease wide columns more)
 

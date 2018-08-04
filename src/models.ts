@@ -59,6 +59,7 @@ export class Table {
     headHeight = 0;
     footHeight = 0;
 
+    startPageNumber = 1;
     pageCount = 1;
     pageStartX: number;
     pageStartY: number;
