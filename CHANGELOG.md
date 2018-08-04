@@ -5,12 +5,14 @@
 
 ### 3.1
 - Only print head if first row of body fits on page
-- Additional and updates themes?
-- Easier to add image to cells
-- Easier to add links to cells
+- Additional and updated themes?
+- Easier way to add image to cells
+- Easier way to add links to cells
 - Update support for custom fonts (and utf-8)?
 - Improved column width calculation (decrease wide columns more)
 - Support dividing wide tables horizontally on multiple pages
+- Rewritten docs and examples
+- Handle column widths less than 10 and larger than page width
 
 Deprecation warnings for:
 cell.raw.className → data.cell.raw.content.className

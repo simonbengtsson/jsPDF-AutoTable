@@ -8,7 +8,6 @@ let after = global.after;
 var assert = require('assert');
 let validateInput = require('../src/inputValidator');
 
-// TODO
 describe('input parser', function () {
     
     before(() => {

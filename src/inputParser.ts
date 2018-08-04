@@ -30,8 +30,8 @@ export function parseInput(args) {
 
     // Merge styles one level deeper
     for (let styleProp of Object.keys(table.styles)) {
-        let styles = allOptions.map(opts => (opts[styleProp] || {}));
-        table.styles[styleProp] = assign({}, ...styles);
+        let styles = allOptions.map(opts => opts[styleProp] || {});
+        table.styles[styleProp] = {...styles};
     }
 
     // Append hooks
@@ -89,11 +89,8 @@ function parseUserArguments(args) {
      // Normal initialization on format doc.autoTable(options)
     if (args.length === 1) {
         return args[0];
-    }
-
-    // Deprecated initialization on format doc.autoTable(columns, body, [options])
-    else {
-        // TODO Fix deprecated initialization
+    } else {
+        // Deprecated initialization on format doc.autoTable(columns, body, [options])
         let opts = args[2] || {};
         opts.columns = args[0];
         opts.body = args[1];

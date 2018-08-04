@@ -174,3 +174,7 @@ Contributions are always welcome, especially on open issues. If you have somethi
 - `npm version <semver|major|minor|patch>`
 - Verify examples
 - `npm run deploy`
+
+### Release prerelease
+- `npm version`
+- `git push && git push --tags && npm publish`
