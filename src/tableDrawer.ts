@@ -87,8 +87,6 @@ function printFullRow(row: Row) {
             // Reset row height since text are now removed
             row.height = maxCellHeight;
             row.maxCellHeight = maxRowSpanCellHeight;
-            
-            console.log('HEIGHT', row.height)
         }
     }
 
@@ -106,7 +104,6 @@ function printFullRow(row: Row) {
 
         addPage();
         row.pageCount++;
-        console.log('rem', remainingRowHeight);
         row.height = remainingRowHeight;
         printFullRow(row);
     }

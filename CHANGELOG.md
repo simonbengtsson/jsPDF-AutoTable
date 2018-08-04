@@ -1,23 +1,19 @@
 # BEFORE RELEASE
-- Fix column.raw as in v2.3.2
-- Refactor out inputParser
-- Add columns option
-- Use header on each page as default (?)
-- Fix rowPageBreak 'auto'
 - Only print head if first row of body fits on page
 - Last row (long example) not getting cut off correctly
-- Change default of showHeader to always (like pages, and v2)
 - In content example, bug with last row. Background over page number
 - addPage and auto startY not working (as seen in defaults example)
 - Spans example not working
+- Consider columns option
 
 ### 3.1
 - Additional and updates themes?
 - Easier to add image to cells
 - Update support for custom fonts (and utf-8)?
+- Improved column width calculation (decrease wide columns more)
 
 Deprecation warnings for:
-cell.raw.className → cell.raw.content.className
+cell.raw.className → data.cell.raw.content.className
 data.row.raw[i].className → data.row.raw[i].content.className
 data.row.raw[i].textContent → data.row.raw[i].content.textContent
 

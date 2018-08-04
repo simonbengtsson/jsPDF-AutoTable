@@ -70,26 +70,23 @@ examples.long = function () {
     let head = headRows();
     head[0]['text'] = 'Text';
     let body = bodyRows(4);
-    body.forEach(function(row) {row['text'] = faker.lorem.sentence(150)});
+    body.forEach(function(row) {row['text'] = faker.lorem.sentence(100)});
     
+    doc.text("Overflow 'ellipsize' with one column with long content", 14, 20);
     doc.autoTable({
         head: head,
         body: body,
-        styles: {overflow: 'hidden', cellWidth: 'wrap'},
+        startY: 25,
+        // Default for all columns
+        styles: {overflow: 'ellipsize', cellWidth: 'wrap'},
+        // Override the default above for the text column
         columnStyles: {text: {cellWidth: 'auto'}}
     });
-    doc.text("Overflow 'ellipsize'", 14, doc.previousAutoTable.finalY  + 10);
+    doc.text("Overflow 'linebreak' (default) with one column with long content", 14, doc.autoTable.previous.finalY + 10);
     doc.autoTable({
         head: head,
         body: body,
-        startY: doc.previousAutoTable.finalY + 50,
-        styles: {overflow: 'ellipsize', cellWidth: 'wrap'},
-        columnStyles: {text: {cellWidth: 'auto'}},
-    });
-
-    doc.autoTable({
-        head: head,
-        body: body,
+        startY: doc.previousAutoTable.finalY + 15,
         bodyStyles: {valign: 'top'},
         styles: {cellWidth: 'wrap', rowPageBreak: 'auto'},
         columnStyles: {text: {cellWidth: 'auto'}}
