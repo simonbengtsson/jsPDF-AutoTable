@@ -310,8 +310,9 @@ examples.custom = function () {
         head: headRows(), 
         body: bodyRows(),
         foot: headRows(),
-        tableLineColor: [189, 195, 199],
-        tableLineWidth: 0.75,
+        startY: 37,
+        tableLineColor: [231, 76, 60],
+        tableLineWidth: 1,
         styles: {
             font: 'courier',
             lineColor: [44, 62, 80],
@@ -350,12 +351,16 @@ examples.custom = function () {
             if (data.row.index === 5) {
                 data.cell.styles.fillColor = [40, 170, 100];
             }
+
+            if ((data.row.section === 'head' || data.row.section === 'foot') && data.column.dataKey === "expenses") {
+                data.cell.text = '' // Use an icon in didDrawCell instead
+            }
         },
         // Use for changing styles with jspdf functions or customize the positioning of cells or cell text
         // just before they are drawn to the page.
         willDrawCell: function(data) {
             if (data.row.section === 'body' && data.column.dataKey === "expenses") {
-                if (data.cell.raw > 700) {
+                if (data.cell.raw > 750) {
                     doc.setTextColor(231, 76, 60);
                     doc.setFontStyle('bold');
                 }
@@ -365,18 +370,17 @@ examples.custom = function () {
         // You can also use this to draw other custom jspdf content to cells with doc.text or doc.rect 
         // for example.
         didDrawCell: function(data) {
-            if (data.row.section === 'head' && data.column.dataKey === "city") {
-                doc.addImage(base64Img, 'JPEG', data.cell.x + data.cell.wrappedWidth, data.cell.y + 2, 5, 5);
-            }
-            // You can use the native jspdf styling functions in the willDrawCell hook
-            if (data.column.dataKey === "expenses" && data.cell.raw > 500) {
-                doc.setFillColor(190, 60, 40);
+            if ((data.row.section === 'head' || data.row.section === 'foot') && data.column.dataKey === "expenses" && coinBase64Img) {
+                doc.addImage(coinBase64Img, 'PNG', data.cell.x + 5, data.cell.y + 2, 5, 5);
             }
         },
         // Use this to add content to each page that has the autoTable on it. This can be page headers,
         // page footers and page numbers for example.
         didDrawPage: function(data) {
-
+            doc.setFontSize(18);
+            doc.text("Custom styling with hooks", data.settings.margin.left, 22);
+            doc.setFontSize(12);
+            doc.text("Conditional styling of cells, rows and columns, cell and table borders, custom font, image in cell", data.settings.margin.left, 30)
         },
     });
     return doc;

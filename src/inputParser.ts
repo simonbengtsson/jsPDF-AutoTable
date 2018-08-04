@@ -22,9 +22,10 @@ export function parseInput(args) {
 
     // Move to state?
     table.userStyles = {
-        textColor: 30, // Setting text color to dark gray as it can't be obtained from jsPDF
+        textColor: 0, // Setting text color to black as it can't be obtained from jsPDF
         fontSize: state().doc.internal.getFontSize(),
-        fontStyle: state().doc.internal.getFont().fontStyle
+        fontStyle: state().doc.internal.getFont().fontStyle,
+        font: state().doc.internal.getFont().fontName
     };
 
     // Merge styles one level deeper

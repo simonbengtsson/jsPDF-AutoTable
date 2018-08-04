@@ -232,9 +232,14 @@
         }
     }
 
-    let base64Img;
+    var base64Img;
     imgToBase64('document.jpg', function(base64) {
         base64Img = base64;
+        update();
+    });
+    var coinBase64Img;
+    imgToBase64('coin.png', function(base64) {
+        coinBase64Img = base64;
         update();
     });
 

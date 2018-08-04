@@ -1,8 +1,7 @@
 import {defaultConfig} from "./config";
 import state from './state';
 import {CellHookData, HookData} from "./HookData";
-import {addPage} from "./tableDrawer";
-import {getStringWidth, marginOrPadding, styles} from "./common";
+import {applyUserStyles, getStringWidth, marginOrPadding, styles} from "./common";
 
 declare function require(path: string): any;
 
@@ -90,6 +89,7 @@ export class Table {
     }
 
     callEndPageHooks() {
+        applyUserStyles();
         for (let handler of this.cellHooks.didDrawPage) {
             handler(new HookData());
         }
