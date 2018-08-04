@@ -138,12 +138,14 @@ You can customize the content and styling of the table by using the hooks.
 
 See the custom styles example for usage of the hooks.
 
-- `parsingCell` and `parsingRow` - Fired before any calculation has taken place. Can be used to change content for specific cells or rows.
-- `addingCell` and `addingRow` - Fired before a cell or row is added on page. Can be used to specify custom styles.
-- `addedCell` and `addedRow` - Fired after a cell or row has been added to the page. Can be used to draw content such as images or rectangles etc.
-- `addingPage` - Fired each time the plugin adds a new page. Can be used to for example add headers and footers.
+- `didParseCell` - Called when the plugin finished parsing cell content. Can be used to override content or styles for a specific cell.
+- `willDrawCell` - Called before a cell or row is drawn. Can be used to call native jspdf styling functions such as `doc.setTextColor` or change position of text etc before it is drawn.
+- `didDrawCell` - Called after a cell has been added to the page. Can be used to draw additional cell content such as images with `doc.addImage`, additional text with `doc.addText` or other jspdf shapes.
+- `didDrawPage` - Called after the plugin has finished drawing everything on a page. Can be used to add headers and footers with page numbers or any other content that you want on each page there is an autotable.
 
-*OBS!* Only the `drawCell` event can be used with the native style jspdf style changes such as `doc.setLineWidth`. If you use the other hooks for changing styles, they will be overridden.
+Note that the hooks will only be called for body cells by default. Turn on the `allSectionHooks` option if you want it to be called for head and foot cells as well.
+
+*OBS!* Only the `willDrawCell` hook can be used with native jspdf style changes such as `doc.setLineWidth`. Such styling changes will be overriden when used in any other hook.
 
 ### API
 - `doc.autoTable({ /* ... */ })` Main 
