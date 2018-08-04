@@ -162,14 +162,17 @@ function parseContent(table) {
 }
 
 function getTableColumns(settings) {
-    let dataKeys;
     if (settings.columns) {
-        dataKeys = settings.columns.map((input, index) => (input.dataKey || input.key || index));
+        return settings.columns.map((input, index) => {
+            const key = input.dataKey || input.key || index;
+            const raw = input != null ? input : index;
+            return new Column(key, raw);
+        });
     } else {
-        let merged = assign({}, settings.head[0] || {}, settings.body[0] || {}, settings.foot[0] || {});
-        dataKeys = Object.keys(merged);
+        let merged = {...settings.head[0], ...settings.body[0], ...settings.foot[0]};
+        let dataKeys = Object.keys(merged);
+        return dataKeys.map(key => new Column(key, key));
     }
-    return dataKeys.map(key => new Column(key));
 }
 
 function cellStyles(sectionName, dataKey, rowIndex) {

@@ -81,7 +81,7 @@ Either the body or html option is required and cannot be used at the same time.
 ### Others
 - `startY: number = null`
 - `margin: Margin = 40`
-- `avoidTableSplit: boolean = false`
+- `pageBreak: 'auto'|'avoid'|'always'`
 - `rowPageBreak: 'auto'|'avoid' = 'auto'`
 - `tableWidth: 'auto'|'wrap'|number = 'auto'`
 - `showHead: 'everyPage'|'lastPage'|'never' = 'everyPage''`

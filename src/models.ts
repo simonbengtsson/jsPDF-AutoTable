@@ -194,7 +194,8 @@ export class Column {
     wrappedWidth = 0;
     width = 0;
 
-    constructor(dataKey) {
+    constructor(dataKey, raw) {
         this.dataKey = dataKey;
+        this.raw = raw;
     }
 }
