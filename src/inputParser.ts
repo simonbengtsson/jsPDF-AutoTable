@@ -108,7 +108,6 @@ function parseContent(table) {
 
     for (let sectionName of ['head', 'body', 'foot']) {
         let rowSpansLeftForColumn = {};
-        let mergedSpansForColumn = {};
         settings[sectionName].forEach((rawRow, rowIndex) => {
             let row = new Row(rawRow, rowIndex, sectionName);
             table[sectionName].push(row);
@@ -142,6 +141,8 @@ function parseContent(table) {
                     columnSpansLeft = rowSpansLeftForColumn[column.dataKey].times;
                 }
             }
+            
+            console.log(row.cells)
         });
     }
 

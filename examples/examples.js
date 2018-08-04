@@ -271,7 +271,7 @@ examples.spans = function() {
         }
     }
     let head = headRows();
-    head.unshift({id: {content: 'People', colSpan: 5, styles: {halign: 'center', fillColor: [22, 160, 133]}}});
+    head[0]['id'] = {content: 'People', colSpan: 5, styles: {halign: 'center', fillColor: [22, 160, 133]}};
     
     doc.autoTable({
         startY: 60,
