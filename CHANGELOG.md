@@ -2,6 +2,7 @@
 - Last row (in long and header/footer example) not getting cut off correctly
 - Error with page break for rowspan rows (as seen in spans example)
 - Look over current content setting (head, body, foot) and consider if columns option is needed or if it can be postpond for 3.1
+- jsPDF 1.4 issues
 
 ### 3.1
 - Only print head if first row of body fits on page
