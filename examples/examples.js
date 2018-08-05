@@ -103,7 +103,11 @@ examples.content = function () {
     doc.text('With content', 14, 22);
     doc.setFontSize(11);
     doc.setTextColor(100);
-    var text = doc.splitTextToSize(faker.lorem.sentence(45), doc.internal.pageSize.width - 35, {});
+    
+    // jsPDF 1.4+ uses getWidth, <1.4 uses .width
+    var pageSize = doc.internal.pageSize;
+    var pageWidth = pageSize.width ? pageSize.width : pageSize.getWidth();
+    var text = doc.splitTextToSize(faker.lorem.sentence(45), pageWidth - 35, {});
     doc.text(text, 14, 30);
 
     doc.autoTable({
@@ -185,7 +189,11 @@ examples['header-footer'] = function () {
                 str = str + " of " + totalPagesExp;
             }
             doc.setFontSize(10);
-            doc.text(str, data.settings.margin.left, doc.internal.pageSize.height - 10);
+
+            // jsPDF 1.4+ uses getWidth, <1.4 uses .width
+            var pageSize = doc.internal.pageSize;
+            var pageHeight = pageSize.height ? pageSize.height : pageSize.getHeight();
+            doc.text(str, data.settings.margin.left, pageHeight - 10);
         },
         margin: {top: 30}
     });

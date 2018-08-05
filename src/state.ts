@@ -28,15 +28,25 @@ class TableState {
     }
 
     pageHeight() {
-        return this.doc.internal.pageSize.height;
+        return this.pageSize().height;
     };
 
     pageWidth() {
-        return this.doc.internal.pageSize.width;
+        return this.pageSize().width;
     };
 
     pageSize() {
-        return this.doc.internal.pageSize
+        let pageSize = this.doc.internal.pageSize;
+        
+        // JSPDF 1.4 uses get functions instead of properties on pageSize
+        if (pageSize.width == null) {
+            pageSize = {
+                width: pageSize.getWidth(),
+                height: pageSize.getHeight()
+            }
+        }
+        
+        return pageSize;
     };
 
     scaleFactor() {
