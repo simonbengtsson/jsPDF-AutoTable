@@ -31,9 +31,9 @@ export function parseInput(args) {
     // Merge styles one level deeper
     for (let styleProp of Object.keys(table.styles)) {
         let styles = allOptions.map(opts => opts[styleProp] || {});
-        table.styles[styleProp] = {...styles};
+        table.styles[styleProp] = assign({}, ...styles);
     }
-
+    
     // Append hooks
     for (let opts of allOptions) {
         for (let hookName of Object.keys(table.cellHooks)) {

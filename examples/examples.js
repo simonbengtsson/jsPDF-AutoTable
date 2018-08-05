@@ -366,7 +366,7 @@ examples.custom = function () {
         willDrawCell: function(data) {
             if (data.row.section === 'body' && data.column.dataKey === "expenses") {
                 if (data.cell.raw > 750) {
-                    doc.setTextColor(231, 76, 60);
+                    doc.setTextColor(231, 76, 60); // Red
                     doc.setFontStyle('bold');
                 }
             }
