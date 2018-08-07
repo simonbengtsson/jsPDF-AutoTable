@@ -177,5 +177,5 @@ Contributions are always welcome, especially on open issues. If you have somethi
 - `npm run deploy`
 
 ### Release prerelease
-- `npm version`
+- `npm version prerelease`
 - `git push && git push --tags && npm publish`
