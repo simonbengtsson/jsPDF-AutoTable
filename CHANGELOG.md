@@ -1,3 +1,11 @@
+# Known issus 3.0 alpha (to be fixed before release)
+- Issue with content example and rowPageBreak
+- Go over docs
+- Write migration from v2 guide
+- Finalize changelog
+- Test migration from v2
+- Test different jspdf versions
+
 ### 3.1
 - Only print head if first row of body fits on page
 - Additional and updated themes?
