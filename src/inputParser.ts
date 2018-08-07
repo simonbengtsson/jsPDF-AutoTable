@@ -168,7 +168,7 @@ function parseContent(table) {
             }
         });
     }
-
+    
     table.allRows().forEach(row => {
         for (let column of table.columns) {
             let cell = row.cells[column.dataKey];

@@ -48,7 +48,7 @@ function printFullRow(row: Row) {
     let table = state().table;
 
     if (!canFitOnPage(row.maxCellHeight)) {
-        if (/*row.maxCellLineCount <= 1 ||*/ (table.settings.rowPageBreak === 'avoid' && rowFitsOnPage(row))) {
+        if (row.maxCellLineCount <= 1 || (table.settings.rowPageBreak === 'avoid' && !rowHeightGreaterThanMaxTableHeight(row))) {
             addPage();
         } else {
             // Modify the row to fit the current page and calculate text and height of partial row
@@ -113,11 +113,11 @@ function printFullRow(row: Row) {
     }
 }
 
-function rowFitsOnPage(row) {
+function rowHeightGreaterThanMaxTableHeight(row) {
     let table = state().table;
     let pageHeight = state().pageHeight();
     let maxTableHeight = pageHeight - table.margin('top') - table.margin('bottom');
-    return row.maxCellHeight < maxTableHeight
+    return row.maxCellHeight > maxTableHeight
 }
 
 function printRow(row) {
