@@ -13,6 +13,7 @@
 - Support dividing wide tables horizontally on multiple pages
 - Rewritten docs and examples
 - Handle column widths less than 10 and larger than page width
+- More advanced column props (e.g. with support for footer and header groups?)
 
 Deprecation warnings for:
 cell.raw.className → data.cell.raw.content.className

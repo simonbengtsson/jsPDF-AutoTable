@@ -60,11 +60,12 @@ Checkout more examples in [examples.js](examples) which is also the source code 
 Below is a list of all options supported in the plugin. All of them are used in the [examples](examples).
 
 #### Content options
-Either the body or html option is required and cannot be used at the same time.
+Either the body or html option is required and cannot be used at the same time. If you want more control over the columns you can specify the columns property. It is not needed however and if not set the columns will be automatically computed based on the content of the head, body and foot.
 
-- `head: Cell[][]` For example [['ID', 'Name', 'Country']] [See more](htttp)
-- `body: Cell[][]` For example [['1', 'Simon', 'Sweden'], ['2', 'Karl', 'Norway']] [See more](htttp)
-- `foot: Cell[][]` For example [['ID', 'Name', 'Country']] [See more](htttp)
+- `head: Cell[][]` For example [['ID', 'Name', 'Country']]
+- `body: Cell[][]` For example [['1', 'Simon', 'Sweden'], ['2', 'Karl', 'Norway']]
+- `foot: Cell[][]` For example [['ID', 'Name', 'Country']]
+- `columns: Column[]` For example [{title: 'ID', dataKey: 'id'}, {header: 'Name', dataKey: 'name'}]
 - `html: string|HTMLTableElement` An html table element or a css selector (for example "#table").
 - `includeHiddenHTML: boolean = false`
 

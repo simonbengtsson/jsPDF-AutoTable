@@ -232,15 +232,13 @@
         }
     }
 
-    var base64Img;
+    var base64Img, coinBase64Img;
     imgToBase64('document.jpg', function(base64) {
         base64Img = base64;
-        update();
-    });
-    var coinBase64Img;
-    imgToBase64('coin.png', function(base64) {
-        coinBase64Img = base64;
-        update();
+        imgToBase64('coin.png', function(base64) {
+            coinBase64Img = base64;
+            update();
+        });
     });
 
     // You could either use a function similar to this or pre convert an image with for example http://dopiaza.org/tools/datauri
