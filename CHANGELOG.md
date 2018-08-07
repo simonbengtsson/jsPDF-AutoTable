@@ -1,7 +1,3 @@
-# Known issus 3.0 alpha (to be fixed before release)
-- Last row (in long and header/footer example) not getting cut off correctly
-- Error with page break for rowspan rows (as seen in spans example)
-
 ### 3.1
 - Only print head if first row of body fits on page
 - Additional and updated themes?
