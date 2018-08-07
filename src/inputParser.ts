@@ -92,8 +92,17 @@ function parseUserArguments(args) {
     } else {
         // Deprecated initialization on format doc.autoTable(columns, body, [options])
         let opts = args[2] || {};
-        opts.columns = args[0];
+        
         opts.body = args[1];
+        opts.columns = args[0];
+        
+        // Support v2 title prop in v3
+        opts.columns.forEach(col => {
+            if (col.header == null) {
+                col.header = col.title
+            }
+        });
+        
         return opts;
     }
 }
@@ -105,7 +114,26 @@ function parseContent(table) {
 
     for (let sectionName of ['head', 'body', 'foot']) {
         let rowSpansLeftForColumn = {};
-        settings[sectionName].forEach((rawRow, rowIndex) => {
+        let sectionRows = settings[sectionName];
+        if (sectionRows.length === 0 && settings.columns) {
+            let sectionRow = {};
+            table.columns
+                .forEach(col => {
+                    let columnData = col.raw;
+                    if (sectionName === 'head') {
+                        let val = typeof columnData === 'object' ? columnData.header : columnData;
+                        if (val) {
+                            sectionRow[col.dataKey] = val;
+                        }
+                    } else if (sectionName === 'foot' && columnData.footer) {
+                        sectionRow[col.dataKey] = columnData.footer
+                    }
+                });
+            if (Object.keys(sectionRow).length) {
+                sectionRows.push(sectionRow)
+            }
+        }
+        sectionRows.forEach((rawRow, rowIndex) => {
             let row = new Row(rawRow, rowIndex, sectionName);
             table[sectionName].push(row);
 

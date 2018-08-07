@@ -1,7 +1,6 @@
 # Known issus 3.0 alpha (to be fixed before release)
 - Last row (in long and header/footer example) not getting cut off correctly
 - Error with page break for rowspan rows (as seen in spans example)
-- Look over current content setting (head, body, foot) and consider if columns option is needed or if it can be postpond for 3.1
 
 ### 3.1
 - Only print head if first row of body fits on page
@@ -21,7 +20,7 @@ data.row.raw[i].className → data.row.raw[i].content.className
 data.row.raw[i].textContent → data.row.raw[i].content.textContent
 
 ### Content arguments
-- There is simply no argument. Everybody seem to be using fromHTML option and head,body,foot is no new concept to learn. It might be some tradeoffs in for more experienced users and in terms of logic. But serisouly is worth it anyhow. Plus, can always add a columns feild which would be same as v2
+- Most seem to be using html initiation and head,body,foot is no new concept to learn. It might be some trade-offs for more experienced users and in terms of logic. But a columns field can be used which would be same as v2
 
 # Changelog
 
