@@ -1,6 +1,6 @@
 /*!
  * 
- *             jsPDF AutoTable plugin v3.0.0-alpha.2
+ *             jsPDF AutoTable plugin v3.0.0-alpha.3
  *             
  *             Copyright (c) 2014 Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable
  *             Licensed under the MIT License.
@@ -134,15 +134,23 @@ var TableState = /** @class */ (function () {
         this.doc = doc;
     }
     TableState.prototype.pageHeight = function () {
-        return this.doc.internal.pageSize.height;
+        return this.pageSize().height;
     };
     ;
     TableState.prototype.pageWidth = function () {
-        return this.doc.internal.pageSize.width;
+        return this.pageSize().width;
     };
     ;
     TableState.prototype.pageSize = function () {
-        return this.doc.internal.pageSize;
+        var pageSize = this.doc.internal.pageSize;
+        // JSPDF 1.4 uses get functions instead of properties on pageSize
+        if (pageSize.width == null) {
+            pageSize = {
+                width: pageSize.getWidth(),
+                height: pageSize.getHeight()
+            };
+        }
+        return pageSize;
     };
     ;
     TableState.prototype.scaleFactor = function () {
@@ -528,7 +536,7 @@ function printFullRow(row) {
     var remainingTexts = {};
     var table = state_1["default"]().table;
     if (!canFitOnPage(row.maxCellHeight)) {
-        if ( /*row.maxCellLineCount <= 1 ||*/(table.settings.rowPageBreak === 'avoid' && rowFitsOnPage(row))) {
+        if (row.maxCellLineCount <= 1 || (table.settings.rowPageBreak === 'avoid' && !rowHeightGreaterThanMaxTableHeight(row))) {
             addPage();
         }
         else {
@@ -582,11 +590,11 @@ function printFullRow(row) {
         printFullRow(row);
     }
 }
-function rowFitsOnPage(row) {
+function rowHeightGreaterThanMaxTableHeight(row) {
     var table = state_1["default"]().table;
     var pageHeight = state_1["default"]().pageHeight();
     var maxTableHeight = pageHeight - table.margin('top') - table.margin('bottom');
-    return row.maxCellHeight < maxTableHeight;
+    return row.maxCellHeight > maxTableHeight;
 }
 function printRow(row) {
     var table = state_1["default"]().table;
@@ -1024,7 +1032,7 @@ function parseInput(args) {
         font: state_1["default"]().doc.internal.getFont().fontName
     };
     var _loop_1 = function (styleProp) {
-        var styles = allOptions.map(function (opts) { return (opts[styleProp] || {}); });
+        var styles = allOptions.map(function (opts) { return opts[styleProp] || {}; });
         table.styles[styleProp] = polyfills_1.assign.apply(void 0, [{}].concat(styles));
     };
     // Merge styles one level deeper
@@ -1083,12 +1091,17 @@ function parseUserArguments(args) {
     if (args.length === 1) {
         return args[0];
     }
-    // Deprecated initialization on format doc.autoTable(columns, body, [options])
     else {
-        // TODO Fix deprecated initialization
+        // Deprecated initialization on format doc.autoTable(columns, body, [options])
         var opts = args[2] || {};
-        opts.columns = args[0];
         opts.body = args[1];
+        opts.columns = args[0];
+        // Support v2 title prop in v3
+        opts.columns.forEach(function (col) {
+            if (col.header == null) {
+                col.header = col.title;
+            }
+        });
         return opts;
     }
 }
@@ -1097,7 +1110,27 @@ function parseContent(table) {
     table.columns = getTableColumns(settings);
     var _loop_2 = function (sectionName) {
         var rowSpansLeftForColumn = {};
-        settings[sectionName].forEach(function (rawRow, rowIndex) {
+        var sectionRows = settings[sectionName];
+        if (sectionRows.length === 0 && settings.columns) {
+            var sectionRow_1 = {};
+            table.columns
+                .forEach(function (col) {
+                var columnData = col.raw;
+                if (sectionName === 'head') {
+                    var val = typeof columnData === 'object' ? columnData.header : columnData;
+                    if (val) {
+                        sectionRow_1[col.dataKey] = val;
+                    }
+                }
+                else if (sectionName === 'foot' && columnData.footer) {
+                    sectionRow_1[col.dataKey] = columnData.footer;
+                }
+            });
+            if (Object.keys(sectionRow_1).length) {
+                sectionRows.push(sectionRow_1);
+            }
+        }
+        sectionRows.forEach(function (rawRow, rowIndex) {
             var row = new models_1.Row(rawRow, rowIndex, sectionName);
             table[sectionName].push(row);
             var colSpansAdded = 0;
