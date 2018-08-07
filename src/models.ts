@@ -118,6 +118,9 @@ export class Row {
 
     constructor(raw, index, section) {
         this.raw = raw;
+        if (raw._element) {
+            this.raw = raw._element
+        }
         this.index = index;
         this.section = section;
     }
@@ -142,7 +145,6 @@ export class Cell {
     rowSpan: number;
 
     constructor(raw, themeStyles, section) {
-        this.raw = raw;
         this.rowSpan = raw && raw.rowSpan || 1;
         this.colSpan = raw && raw.colSpan || 1;
         this.styles = assign(themeStyles, raw && raw.styles || {});
@@ -151,7 +153,9 @@ export class Cell {
         let text = '';
         let content = raw && typeof raw.content !== 'undefined' ? raw.content : raw;
         content = content != undefined && content.dataKey != undefined ? content.title : content;
-        if (content && typeof window === 'object' && (<any>window).HTMLElement && content instanceof (<any>window).HTMLElement) {
+        let fromHtml = typeof window === 'object' && (<any>window).HTMLElement && content instanceof (<any>window).HTMLElement;
+        this.raw = fromHtml ? content : raw;
+        if (content && fromHtml) {
             text = (content.innerText || '').trim();
         } else {
             // Stringify 0 and false, but not undefined or null
