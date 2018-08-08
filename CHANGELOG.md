@@ -4,6 +4,9 @@
 - Write migration from v2 guide
 - Test migration from v2
 - Test different jspdf versions
+- allSectionHooks always true? Opt-out instead of opt-in?
+- Maybe use function instead of previousAutoTable?
+- Maybe export API functions as well as adding them to jsPDF prototype
 
 ### 3.1
 - Only print head if first row of body fits on page
