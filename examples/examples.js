@@ -409,21 +409,24 @@ imgToBase64('document.jpg', function(base64) {
 });
 
 // You could either use a function similar to this or pre convert an image with for example http://dopiaza.org/tools/datauri
-// http://stackoverflow.com/questions/6150289/how-to-convert-image-into-base64-string-using-javascript
-function imgToBase64(url, callback) {
-    if (!window.FileReader) {
-        callback(null);
-        return;
-    }
-    var xhr = new XMLHttpRequest();
-    xhr.responseType = 'blob';
-    xhr.onload = function() {
-        var reader = new FileReader();
-        reader.onloadend = function() {
-            callback(reader.result.replace('text/xml', 'image/jpeg'));
-        };
-        reader.readAsDataURL(xhr.response);
+// https://stackoverflow.com/a/20285053/827047
+function imgToBase64(src, callback) {
+    var outputFormat = src.substr(-3) === 'png' ? 'image/png' : 'image/jpeg';
+    var img = new Image();
+    img.crossOrigin = 'Anonymous';
+    img.onload = function() {
+        var canvas = document.createElement('CANVAS');
+        var ctx = canvas.getContext('2d');
+        var dataURL;
+        canvas.height = this.naturalHeight;
+        canvas.width = this.naturalWidth;
+        ctx.drawImage(this, 0, 0);
+        dataURL = canvas.toDataURL(outputFormat);
+        callback(dataURL);
     };
-    xhr.open('GET', url);
-    xhr.send();
+    img.src = src;
+    if (img.complete || img.complete === undefined) {
+        img.src = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==";
+        img.src = src;
+    }
 }
