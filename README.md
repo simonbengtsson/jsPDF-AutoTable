@@ -214,4 +214,4 @@ Contributions are always welcome, especially on open issues. If you have somethi
 
 ### Release prerelease
 - `npm version prerelease`
-- `git push && git push --tags && npm publish`
+- `git push && git push --tags && npm publish --tag alpha`
