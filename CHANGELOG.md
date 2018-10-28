@@ -3,7 +3,6 @@
 - Write migration from v2 guide
 - Test migration from v2
 - Test different jspdf versions
-- Maybe use function instead of previousAutoTable?
 - Maybe export API functions as well as adding them to jsPDF prototype
 - Go over popular stack overflow and codepens
 
@@ -39,7 +38,7 @@ Migrating to version 3.0 should be rather painless as most changes are backwards
 - Added `rowPageBreak` option
 - Added automatic startY when multiple tables are used
 - Changed initialization to `doc.autoTable({head: ..., body: ...})`
-- Changed getting previous autoTable to `doc.previousAutoTable`
+- Changed getting last autoTable instance from `doc.autoTable.previous` to `doc.lastAutoTable`
 - Changed default overflow method to linebreak (previously it was ellipsize)
 - Changed `rowHeight` style to `cellHeight`
 - Changed `columnWidth` style to `cellWidth`

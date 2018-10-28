@@ -23,6 +23,7 @@ jsPDF.API.autoTable = function() {
 
     table.finalY = table.cursor.y;
     this.previousAutoTable = table;
+    this.lastAutoTable = table;
     this.autoTable.previous = table; // Deprecated
 
     applyUserStyles();
@@ -30,9 +31,10 @@ jsPDF.API.autoTable = function() {
     return this;
 };
 
-// Assign false to enable `doc.previousAutoTable.finalY || 40` sugar;
-jsPDF.API.previousAutoTable = false;
-jsPDF.API.autoTable.previous = false; // @deprecated
+// Assign false to enable `doc.lastAutoTable.finalY || 40` sugar;
+jsPDF.API.lastAutoTable = false;
+jsPDF.API.previousAutoTable = false; // deprecated in v3
+jsPDF.API.autoTable.previous = false; // deprecated in v3
 
 jsPDF.API.autoTableSetDefaults = function(defaults) {
     setDefaults(defaults, this);
