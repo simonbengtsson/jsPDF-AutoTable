@@ -36,8 +36,7 @@ export default function(allOptions) {
             }
         }
 
-        console.log(settings)
-        ;[['showFoot', 'showFooter'], ['showHead', 'showHeader'], ['didDrawPage', 'addPageContent']].forEach(([current, deprecated]) => {
+        [['showFoot', 'showFooter'], ['showHead', 'showHeader'], ['didDrawPage', 'addPageContent'], ['headStyles', 'headerStyles']].forEach(([current, deprecated]) => {
             if (settings[deprecated] && !settings[current]) {
                 console.error(`Use of deprecated option ${deprecated}. Use ${current} instead`);
                 settings[current] = settings[deprecated];

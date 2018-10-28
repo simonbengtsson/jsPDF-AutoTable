@@ -4,6 +4,7 @@
 - Test different jspdf versions
 - Go over popular stack overflow and codepens
 - Proofread docs and config
+- Consider pageCount with no getter
 
 ### 3.1
 - Export API functions as well as adding them to jsPDF prototype
