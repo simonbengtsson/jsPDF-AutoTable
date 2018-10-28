@@ -34,7 +34,6 @@ interface Properties {
     showFooter: 'everyPage' | 'lastPage' | 'never',
     tableLineWidth: number,
     tableLineColor: Color,
-    allSectionHooks: boolean;
     tableId: any,
 }
 

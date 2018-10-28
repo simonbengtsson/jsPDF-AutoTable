@@ -42,7 +42,6 @@ export interface UserOptions {
     showFooter?: 'everyPage' | 'lastPage' | 'never';
     tableLineWidth?: number;
     tableLineColor?: Color;
-    allSectionHooks?: boolean;
     tableId?: any;
 
     theme?: 'striped' | 'plain' | 'grid' | 'css';
@@ -104,7 +103,6 @@ export interface BaseConfig {
     showFooter?: 'everyPage' | 'lastPage' | 'never',
     tableLineWidth?: number,
     tableLineColor?: Color,
-    allSectionHooks?: boolean; // default: false
     tableId?: any,
 
     // Styles
@@ -177,7 +175,6 @@ export function defaultConfig() {
         // Use to draw additional content to each page such as headers and footers
         didDrawPage: function(data) {
         },
-        allSectionHooks: false, // Set to true if you want the cell hooks to be called for cells in the header and footer
     }
 }
 

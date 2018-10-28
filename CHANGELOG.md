@@ -1,9 +1,8 @@
-# Known issus 3.0 alpha (to be fixed before release)
+# Known issues 3.0 alpha (to be fixed before release)
 - Go over docs
 - Write migration from v2 guide
 - Test migration from v2
 - Test different jspdf versions
-- allSectionHooks always true? Opt-out instead of opt-in?
 - Maybe use function instead of previousAutoTable?
 - Maybe export API functions as well as adding them to jsPDF prototype
 - Go over popular stack overflow and codepens
