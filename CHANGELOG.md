@@ -1,5 +1,5 @@
 # Known issues 3.0 alpha (to be fixed before release)
-- Go over docs
+- Go over docs and config
 - Write migration from v2 guide
 - Test migration from v2
 - Test different jspdf versions

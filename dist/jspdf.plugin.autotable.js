@@ -516,7 +516,7 @@ function drawTable(table) {
     table.pageStartY = table.cursor.y;
     table.startPageNumber = state_1["default"]().pageNumber();
     common_1.applyUserStyles();
-    if (settings.showHeader === true || settings.showHeader === 'firstPage' || settings.showHeader === 'everyPage') {
+    if (settings.showHead === true || settings.showHead === 'firstPage' || settings.showHead === 'everyPage') {
         table.head.forEach(function (row) { return printRow(row); });
     }
     common_1.applyUserStyles();
@@ -676,7 +676,7 @@ function addPage() {
     table.cursor = { x: table.margin('left'), y: table.margin('top') };
     table.pageStartX = table.cursor.x;
     table.pageStartY = table.cursor.y;
-    if (table.settings.showHeader === true || table.settings.showHeader === 'everyPage') {
+    if (table.settings.showHead === true || table.settings.showHead === 'everyPage') {
         table.head.forEach(function (row) { return printRow(row); });
     }
 }

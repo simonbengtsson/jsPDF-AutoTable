@@ -38,8 +38,8 @@ export interface UserOptions {
     pageBreak?: boolean;
     pageBreakRow?: boolean;
     tableWidth?: 'auto' | 'wrap' | number;
-    showHeader?: 'everyPage' | 'firstPage' | 'never';
-    showFooter?: 'everyPage' | 'lastPage' | 'never';
+    showHead?: 'everyPage' | 'firstPage' | 'never';
+    showFoot?: 'everyPage' | 'lastPage' | 'never';
     tableLineWidth?: number;
     tableLineColor?: Color;
     tableId?: any;
@@ -99,8 +99,8 @@ export interface BaseConfig {
     pageBreak?: 'auto'|'avoid'|'always',
     rowPageBreak: 'auto'|'avoid',
     tableWidth?: 'auto' | 'wrap' | number,
-    showHeader?: 'everyPage' | 'firstPage' | 'never',
-    showFooter?: 'everyPage' | 'lastPage' | 'never',
+    showHead?: 'everyPage' | 'firstPage' | 'never',
+    showFoot?: 'everyPage' | 'lastPage' | 'never',
     tableLineWidth?: number,
     tableLineColor?: Color,
     tableId?: any,
@@ -147,8 +147,8 @@ export function defaultConfig() {
         pageBreak: 'auto',
         rowPageBreak: 'auto',
         tableWidth: 'auto', // 'auto'|'wrap'|number
-        showHeader: 'everyPage', // 'everyPage', 'firstPage', 'never',
-        showFooter: 'everyPage', // 'everyPage', 'lastPage', 'never',
+        showHead: 'everyPage', // 'everyPage', 'firstPage', 'never',
+        showFoot: 'everyPage', // 'everyPage', 'lastPage', 'never',
         tableLineWidth: 0,
         tableLineColor: 200,
         tableId: null,

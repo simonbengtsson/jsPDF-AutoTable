@@ -38,6 +38,13 @@ export default function(allOptions) {
             }
         }
 
+        [['showFoot', 'showFooter'], ['showHead', 'showHeader']].forEach(([current, deprecated]) => {
+            if (settings[deprecated] && !settings[current]) {
+                console.error(`Use of deprecated option ${deprecated}. Use ${current} instead`);
+                settings[current] = settings[deprecated];
+            }
+        });
+
         [['padding', 'cellPadding'], ['lineHeight', 'rowHeight'], 'fontSize', 'overflow'].forEach(function(o) {
             let deprecatedOption = typeof o === 'string' ? o : o[0];
             let style = typeof o === 'string' ? o : o[1];
