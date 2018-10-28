@@ -1,9 +1,10 @@
 # Known issues 3.0 alpha (to be fixed before release)
-- Test different jspdf versions
 - Go over popular stack overflow and codepens
 - Proofread docs and config
 - Consider pageCount with no getter
 - Document cell definition (colspan, rowspan, styles)
+- Try old browsers
+- Check file size of dist
 
 ### 3.1
 - Export API functions as well as adding them to jsPDF prototype
@@ -54,3 +55,4 @@ All other changes should be backwards compatible, but it's a rewrite of the plug
 - Deprecated `autoTableHtmlToJson()` in favour of new html option
 - Deprecated old way of getting previous autoTable instance `doc.autoTable.previous`
 - BREAKING: Old hooks with new ones (See above)
+- BREAKING: No longer supports 0.9.x of jsPDF

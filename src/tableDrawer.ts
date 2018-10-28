@@ -217,9 +217,9 @@ export function addPage() {
 }
 
 function nextPage(doc) {
-    let current = doc.internal.getCurrentPageInfo().pageNumber;
+    let current = state().pageNumber();
     doc.setPage(current + 1);
-    let newCurrent = doc.internal.getCurrentPageInfo().pageNumber;
+    let newCurrent = state().pageNumber();
 
     if (newCurrent === current) {
         doc.addPage();

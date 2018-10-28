@@ -131,7 +131,7 @@ examples.multiple = function () {
 
     doc.autoTable({startY: 30, head: headRows(), body: bodyRows(25)});
     
-    let pageNumber = doc.internal.getCurrentPageInfo().pageNumber;
+    let pageNumber = doc.internal.getNumberOfPages();
 
     doc.autoTable({
         head: headRows(), body: bodyRows(15),
@@ -183,7 +183,7 @@ examples['header-footer'] = function () {
             doc.text("Report", data.settings.margin.left + 15, 22);
 
             // Footer
-            var str = "Page " + doc.internal.getNumberOfPages();
+            var str = "Page " + doc.internal.getNumberOfPages()
             // Total page number plugin only available in jspdf v1.0+
             if (typeof doc.putTotalPages === 'function') {
                 str = str + " of " + totalPagesExp;
