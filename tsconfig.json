@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
-    "strictNullChecks": false
+    "strictNullChecks": false,
+    "target": "ES5"
   },
   "include": [
     "src/**/*"

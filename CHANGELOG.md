@@ -1,9 +1,8 @@
 # Known issues 3.0 alpha (to be fixed before release)
 - Go over popular stack overflow and codepens
 - Proofread docs and config
-- Consider pageCount with no getter
 - Document cell definition (colspan, rowspan, styles)
-- Try old browsers
+- Test IE9
 - Check file size of dist
 
 ### 3.1
@@ -56,3 +55,4 @@ All other changes should be backwards compatible, but it's a rewrite of the plug
 - Deprecated old way of getting previous autoTable instance `doc.autoTable.previous`
 - BREAKING: Old hooks with new ones (See above)
 - BREAKING: No longer supports 0.9.x of jsPDF
+- BREAKING: Now targets ES5 (no longer supports <=IE8)

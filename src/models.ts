@@ -64,7 +64,6 @@ export class Table {
     pageStartY: number;
     finalY: number;
 
-    // @ts-ignore
     get pageCount() {
         return this.pageNumber;
     }
@@ -120,7 +119,6 @@ export class Row {
     pageNumber = 1;
     spansMultiplePages = false;
 
-    // @ts-ignore
     get pageCount() {
         return this.pageNumber;
     }

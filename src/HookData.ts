@@ -8,7 +8,6 @@ export class HookData {
     doc: any;
     cursor: { x: number, y: number };
 
-    // @ts-ignore
     get pageCount() {
         return this.pageNumber;
     }
