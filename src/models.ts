@@ -112,7 +112,7 @@ export class Row {
     x: number;
     y: number;
 
-    pageCount = 1;
+    pageNumber = 1;
     spansMultiplePages = false;
 
     constructor(raw, index, section) {
