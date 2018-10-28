@@ -14,7 +14,7 @@ export default function(allOptions) {
             console.error("Use of deprecated option: margins, use margin instead.");
         }
         if (!settings.didDrawPage && (settings.afterPageContent || settings.beforePageContent || settings.afterPageAdd)) {
-            console.error("The afterPageContent, beforePageContent and afterPageAdd hooks are deprecated. Use addPageContent instead");
+            console.error("The afterPageContent, beforePageContent and afterPageAdd hooks are deprecated. Use didDrawPage instead");
             settings.didDrawPage = function(data) {
                 applyUserStyles();
                 if (settings.beforePageContent) settings.beforePageContent(data);

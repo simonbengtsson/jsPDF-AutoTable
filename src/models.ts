@@ -64,6 +64,11 @@ export class Table {
     pageStartY: number;
     finalY: number;
 
+    // @ts-ignore
+    get pageCount() {
+        return this.pageNumber;
+    }
+
     styles = {
         styles: {},
         headStyles: {},
@@ -114,6 +119,11 @@ export class Row {
 
     pageNumber = 1;
     spansMultiplePages = false;
+
+    // @ts-ignore
+    get pageCount() {
+        return this.pageNumber;
+    }
 
     constructor(raw, index, section) {
         this.raw = raw;
