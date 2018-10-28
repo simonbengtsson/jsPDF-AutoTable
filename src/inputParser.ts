@@ -63,7 +63,7 @@ export function parseInput(args) {
 
     let htmlContent: any = {};
     if (table.settings.html) {
-        htmlContent = parseHtml(table.settings.html, table.settings.includeHiddenHTML, table.settings.useCss) || {};
+        htmlContent = parseHtml(table.settings.html, table.settings.includeHiddenHtml, table.settings.useCss) || {};
     }
     table.settings.head = htmlContent.head || table.settings.head || [];
     table.settings.body = htmlContent.body || table.settings.body || [];

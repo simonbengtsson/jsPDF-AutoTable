@@ -19,7 +19,7 @@ export interface UserOptions {
     data?: any[][];
 
     html?: HTMLTableElement | string;
-    includeHiddenHTML?: boolean;
+    includeHiddenHtml?: boolean;
     useCSS?: boolean;
 
     headerRows?: number;

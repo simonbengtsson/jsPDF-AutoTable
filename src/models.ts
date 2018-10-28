@@ -23,7 +23,7 @@ type MarginPadding = number | [number, number] | [number, number, number, number
 
 interface Properties {
     theme: 'auto' | 'striped' | 'grid' | 'plain', // default: striped
-    includeHiddenHTML: boolean,
+    includeHiddenHtml: boolean,
     useCss: boolean,
     startY: null|number,
     margin: MarginPadding,

@@ -15,7 +15,7 @@ export function defaultConfig() {
         foot: null,
 
         // Properties
-        includeHiddenHTML: false,
+        includeHiddenHtml: false,
         startY: null, // Defaults to margin top value if not set
         margin: 40 / state().scaleFactor(),
         pageBreak: 'auto',

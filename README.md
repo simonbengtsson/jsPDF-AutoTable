@@ -13,8 +13,6 @@ Get the library by doing one of these things:
 - Download [jspdf](https://raw.githubusercontent.com/MrRio/jsPDF/master/dist/jspdf.min.js) and [jspdf-autotable](https://raw.githubusercontent.com/simonbengtsson/jsPDF-AutoTable/master/dist/jspdf.plugin.autotable.js) from github
 - Use a CDN, for example: [https://unpkg.com/jspdf](https://unpkg.com/jspdf) and [https://unpkg.com/jspdf-autotable](https://unpkg.com/jspdf-autotable)
 
-Note! Do not use the bower or meteor's Atmospherejs packages of the library. Those are unsupported and outdated.
-
 ### Usage example
 
 ```html
@@ -60,13 +58,13 @@ Checkout more examples in [examples.js](examples) which is also the source code 
 - `doc.autoTableSetDefaults({ /* ... */ })` Use for setting default options for all tables in the specific document. Settings and styles will be overridden in the following order `global` < `document` < `table`. Hooks will be added and not overridden.
 - `jsPDF.autoTableSetDefaults({ /* ... */ })` Use for setting global defaults which will be applied for all document and tabels.
 
-If you want to know something about the last table that was drawn you can use `doc.previousAutoTable`. It has a `doc.previousAutoTable.finalY` property among other things that has the value of the last printed y coordinate on a page. This can be used to draw text, multiple tables or other content after a table.
+If you want to know something about the last table that was drawn you can use `doc.lastAutoTable`. It has a `doc.lastAutoTable.finalY` property among other things that has the value of the last printed y coordinate on a page. This can be used to draw text, multiple tables or other content after a table.
 
 ### Options
 Below is a list of all options supported in the plugin. All of them are used in the [examples](examples).
 
 ##### Content options
-Either the body or html option is required and cannot be used at the same time. If you want more control over the columns you can specify the columns property. It is not needed however and if not set the columns will be automatically computed based on the content of the head, body and foot.
+The only thing required is either the html or body option. If you want more control over the columns you can specify the columns property. It is not needed however and if not set the columns will be automatically computed based on the content of the head, body and foot.
 
 - `html: string|HTMLTableElement` An html table element or a css selector (for example "#table").
 - `head: Cell[][]` For example [['ID', 'Name', 'Country']]
