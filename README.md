@@ -64,58 +64,26 @@ If you want to know something about the last table that was drawn you can use `d
 Below is a list of all options supported in the plugin. All of them are used in the [examples](examples).
 
 ##### Content options
-The only thing required is either the html or body option. If you want more control over the columns you can specify the columns property. It is not needed however and if not set the columns will be automatically computed based on the content of the head, body and foot.
+The only thing required is either the html or body option. If you want more control over the columns you can specify the columns property. It is not needed however and if not set the columns will be automatically computed based on the content of the html content or head, body and foot.
 
-- `html: string|HTMLTableElement` An html table element or a css selector (for example "#table").
+- `html: string|HTMLTableElement` A css selector on an html table element (for example "#table").
 - `head: Cell[][]` For example [['ID', 'Name', 'Country']]
 - `body: Cell[][]` For example [['1', 'Simon', 'Sweden'], ['2', 'Karl', 'Norway']]
 - `foot: Cell[][]` For example [['ID', 'Name', 'Country']]
-- `columns: Column[]` For example [{header: 'ID', dataKey: 'id'}, {header: 'Name', dataKey: 'name'}]
-- `includeHiddenHTML: boolean = false` If hidden html with `display: none` should be included or not
+- `columns: Column[]` For example [{header: 'ID', dataKey: 'id'}, {header: 'Name', dataKey: 'name'}]. Only use this option if you want more control over the columns. If not specified the columns will be automatically generated based on the content in html or head/body/foot
+- `includeHiddenHtml: boolean = false` If hidden html with `display: none` should be included or not when the content comes from an html table
 
 ##### Styling options
 
-- `theme: 'striped'|'grid'|'plain'|'css' = 'striped'` 
+- `theme: 'striped'|'grid'|'plain'|'css' = 'striped'`
 - `styles: StyleDefinition`
 - `headStyles: StyleDefinition`
 - `bodyStyles: StyleDefinition`
 - `footStyles: StyleDefinition`
 - `alternateRowStyles: StyleDefinition`
-- `columnStyles: {&columnDataKey: StyleDefinition}`
+- `columnStyles: {&columnDataKey: StyleDefinition}` Note that the columnDataKey is normally the index of the column, but could also be the `dataKey` of a column if content initialized with the columns property
 
-##### Other options
-
-- `startY: number = null` Where the table should start to be printed (kind of like margin top first page)
-- `margin: Margin = 40`
-- `pageBreak: 'auto'|'avoid'|'always'`
-- `rowPageBreak: 'auto'|'avoid' = 'auto'`
-- `tableWidth: 'auto'|'wrap'|number = 'auto'`
-- `showHead: 'everyPage'|'lastPage'|'never' = 'everyPage''`
-- `showFoot: 'everyPage'|'lastPage'|'never' = 'everyPage''`
-- `tableLineWidth: number = 0`
-- `tableLineColor: Color = 200` The table line/border color
-
-#### Hooks
-You can customize the content and styling of the table by using the hooks. See the custom styles example for usage of the hooks.
-
-Note that the hooks will only be called for body cells by default. Turn on the `allSectionHooks` option if you want it to be called for head and foot cells as well.
-
-- `didParseCell` - Called when the plugin finished parsing cell content. Can be used to override content or styles for a specific cell.
-- `willDrawCell` - Called before a cell or row is drawn. Can be used to call native jspdf styling functions such as `doc.setTextColor` or change position of text etc before it is drawn.
-- `didDrawCell` - Called after a cell has been added to the page. Can be used to draw additional cell content such as images with `doc.addImage`, additional text with `doc.addText` or other jspdf shapes.
-- `didDrawPage` - Called after the plugin has finished drawing everything on a page. Can be used to add headers and footers with page numbers or any other content that you want on each page there is an autotable.
-
-### StyleDefinition
-Styles work similar to css and can be overridden by more specific styles. The overriding order is as follows: 
-1. Theme styles
-2. `styles`
-3. `headStyles`, `bodyStyles` and `footStyles`
-4. `alternateRowStyles`
-5. `columnStyles`
-
-## Reference
-
-StyleDefinition:
+`StyleDefinition`:
 - `font: 'helvetica'|'times'|'courier' = 'helvetica'`
 - `fontStyle: 'normal'|'bold'|'italic'|'bolditalic' = 'normal'`
 - `overflow: 'linebreak'|'ellipsize'|'visible'|'hidden' = 'normal'`
@@ -130,11 +98,69 @@ StyleDefinition:
 - `lineColor: Color = 10`
 - `lineWidth: number = 0` // If 0, no border is drawn
 
-Color: Either false for transparent, rbg array e.g. [255, 255, 255] or gray level e.g 200
+`Color`:
+Either false for transparent, rbg array e.g. [255, 0, 0] or gray level e.g 200
 
-Styles for specific cells can also be applied using either the `eventHandler` (see `Custom style` example) or the `styles` property on the cell definition object (see content section above).
+`Margin` and `Padding`:
+Either a number or object `{top: number, right: number, bottom: number, left: number}`
 
-Colors can be specified as a number (255 for white and 0 for black) or an array [red, green, blue] e.g. [255, 0, 0] for red.
+Styles work similar to css and can be overridden by more specific styles. The overriding order is as follows: 
+1. Theme styles
+2. `styles`
+3. `headStyles`, `bodyStyles` and `footStyles`
+4. `alternateRowStyles`
+5. `columnStyles`
+
+Styles for specific cells can also be applied using either the hooks (see hooks section above) or the `styles` property on the cell definition object (see content section above).
+
+##### Other options
+
+- `startY: number = null` Where the table should start to be printed (basically a margin top value only for the first page)
+- `margin: Margin = 40`
+- `pageBreak: 'auto'|'avoid'|'always'`
+- `rowPageBreak: 'auto'|'avoid' = 'auto'`
+- `tableWidth: 'auto'|'wrap'|number = 'auto'`
+- `showHead: 'everyPage'|'firstPage'|'never' = 'everyPage''`
+- `showFoot: 'everyPage'|'lastPage'|'never' = 'everyPage''`
+- `tableLineWidth: number = 0`
+- `tableLineColor: Color = 200` The table line/border color
+
+#### Hooks
+You can customize the content and styling of the table by using the hooks. See the custom styles example for usage of the hooks.
+
+- `didParseCell: (HookData) => {}` - Called when the plugin finished parsing cell content. Can be used to override content or styles for a specific cell.
+- `willDrawCell: (HookData) => {}` - Called before a cell or row is drawn. Can be used to call native jspdf styling functions such as `doc.setTextColor` or change position of text etc before it is drawn.
+- `didDrawCell: (HookData) => {}` - Called after a cell has been added to the page. Can be used to draw additional cell content such as images with `doc.addImage`, additional text with `doc.addText` or other jspdf shapes.
+- `didDrawPage: (HookData) => {}` - Called after the plugin has finished drawing everything on a page. Can be used to add headers and footers with page numbers or any other content that you want on each page there is an autotable.
+
+All hooks functions get passed an HookData object with information about the state of the table and cell. For example the position on the page, which page it is on etc.
+
+`HookData`:
+- `table: Table`
+- `pageNumber: number` The page number specific to this table
+- `settings: object` Parsed user supplied options 
+- `doc` The jsPDF document instance of this table
+- `cursor: { x: number, y: number }` To draw each table this plugin keeps a cursor state where the next cell/row should be drawn. You can assign new values to this cursor to dynamically change how the cells and rows are drawn.
+
+For cell hooks these properties are also passed:
+- `cell: Cell`
+- `row: Row`
+- `column: Column`
+- `section: 'head'|'body'|'foot'`
+
+To see what is included in the `Table`, `Row`, `Column` and `Cell` types, either log them to the console or take a look at `src/models.ts`
+
+Example usage (will draw am image in each cell in the first column):
+
+```js
+doc.autoTable({
+   didDrawCell: data => {
+      if (data.section === 'body' && data.column.index === 0) {
+         doc.addImage(base64Img, 'JPEG', data.cell.x + 2, data.cell.y + 2, 10, 10);
+      }
+   }
+})
+```
 
 ### Contributions
 Contributions are always welcome, especially on open issues. If you have something major you want to add or change, please post an issue about it first to discuss it further. The workflow for contributing would be something like this:

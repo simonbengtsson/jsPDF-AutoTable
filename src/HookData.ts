@@ -1,4 +1,3 @@
-import {addPage} from "./tableDrawer";
 import state from './state';
 import {Table, Cell, Row, Column} from "./models";
 
@@ -8,7 +7,6 @@ export class HookData {
     settings: {};
     doc: any;
     cursor: { x: number, y: number };
-    addPage: () => void;
 
     constructor() {
         let table = state().table;
@@ -17,7 +15,6 @@ export class HookData {
         this.settings = table.settings;
         this.cursor = table.cursor;
         this.doc = state().doc;
-        this.addPage = addPage;
     }
 }
 

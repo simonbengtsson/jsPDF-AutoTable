@@ -192,14 +192,16 @@ export class Cell {
 export class Column {
     raw: any;
     dataKey: string | number;
+    index: number;
 
     preferredWidth = 0;
     minWidth = 0;
     wrappedWidth = 0;
     width = 0;
 
-    constructor(dataKey, raw) {
+    constructor(dataKey, raw, index) {
         this.dataKey = dataKey;
         this.raw = raw;
+        this.index = index;
     }
 }

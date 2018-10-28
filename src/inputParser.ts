@@ -192,12 +192,12 @@ function getTableColumns(settings) {
         return settings.columns.map((input, index) => {
             const key = input.dataKey || input.key || index;
             const raw = input != null ? input : index;
-            return new Column(key, raw);
+            return new Column(key, raw, index);
         });
     } else {
         let merged = {...settings.head[0], ...settings.body[0], ...settings.foot[0]};
         let dataKeys = Object.keys(merged);
-        return dataKeys.map(key => new Column(key, key));
+        return dataKeys.map(key => new Column(key, key, key));
     }
 }
 
