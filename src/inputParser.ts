@@ -20,12 +20,13 @@ export function parseInput(args) {
     state().table = table;
     table.id = tableOptions.tableId;
 
-    // Move to state?
+    let doc = state().doc;
     table.userStyles = {
-        textColor: 0, // Setting text color to black as it can't be obtained from jsPDF
-        fontSize: state().doc.internal.getFontSize(),
-        fontStyle: state().doc.internal.getFont().fontStyle,
-        font: state().doc.internal.getFont().fontName
+        // Setting to black for versions of jspdf without getTextColor
+        textColor: doc.getTextColor ? doc.getTextColor() : 0,
+        fontSize: doc.internal.getFontSize(),
+        fontStyle: doc.internal.getFont().fontStyle,
+        font: doc.internal.getFont().fontName
     };
 
     // Merge styles one level deeper
