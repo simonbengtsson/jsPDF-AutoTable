@@ -3,7 +3,7 @@ import {Table, Cell, Row, Column} from "./models";
 
 export class HookData {
     table: Table;
-    pageCount: number;
+    pageNumber: number;
     settings: {};
     doc: any;
     cursor: { x: number, y: number };
@@ -11,7 +11,7 @@ export class HookData {
     constructor() {
         let table = state().table;
         this.table = table;
-        this.pageCount = table.pageCount;
+        this.pageNumber = table.pageNumber;
         this.settings = table.settings;
         this.cursor = table.cursor;
         this.doc = state().doc;

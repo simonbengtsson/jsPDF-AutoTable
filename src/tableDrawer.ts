@@ -107,7 +107,7 @@ function printFullRow(row: Row) {
         }
 
         addPage();
-        row.pageCount++;
+        row.pageNumber++;
         row.height = remainingRowHeight;
         printFullRow(row);
     }
@@ -207,7 +207,7 @@ export function addPage() {
     table.callEndPageHooks();
     addTableBorder();
     nextPage(state().doc);
-    table.pageCount++;
+    table.pageNumber++;
     table.cursor = {x: table.margin('left'), y: table.margin('top')};
     table.pageStartX = table.cursor.x;
     table.pageStartY = table.cursor.y;

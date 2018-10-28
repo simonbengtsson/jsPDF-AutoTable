@@ -59,7 +59,7 @@ export class Table {
     footHeight = 0;
 
     startPageNumber = 1;
-    pageCount = 1;
+    pageNumber = 1;
     pageStartX: number;
     pageStartY: number;
     finalY: number;

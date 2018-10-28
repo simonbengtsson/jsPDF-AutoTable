@@ -56,7 +56,7 @@ export function parseInput(args) {
     }
     
     const previous = state().doc.previousAutoTable;
-    const isSamePageAsPrevious = previous && previous.startPageNumber + previous.pageCount - 1 === state().pageNumber();
+    const isSamePageAsPrevious = previous && previous.startPageNumber + previous.pageNumber - 1 === state().pageNumber();
     if (table.settings.startY == null && isSamePageAsPrevious) {
         table.settings.startY = previous.finalY + 20 / state().scaleFactor()
     }

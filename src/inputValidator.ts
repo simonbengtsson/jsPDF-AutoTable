@@ -13,21 +13,19 @@ export default function(allOptions) {
             if (typeof settings.margin === 'undefined') settings.margin = settings.margins;
             console.error("Use of deprecated option: margins, use margin instead.");
         }
-        if (typeof settings.afterPageContent !== 'undefined' || typeof settings.beforePageContent !== 'undefined' || typeof settings.afterPageAdd !== 'undefined') {
+        if (!settings.didDrawPage && (settings.afterPageContent || settings.beforePageContent || settings.afterPageAdd)) {
             console.error("The afterPageContent, beforePageContent and afterPageAdd hooks are deprecated. Use addPageContent instead");
-            if (typeof settings.addPageContent === 'undefined') {
-                settings.addPageContent = function(data) {
-                    applyUserStyles();
-                    if (settings.beforePageContent) settings.beforePageContent(data);
-                    applyUserStyles();
-                    if (settings.afterPageContent) settings.afterPageContent(data);
-                    applyUserStyles();
+            settings.didDrawPage = function(data) {
+                applyUserStyles();
+                if (settings.beforePageContent) settings.beforePageContent(data);
+                applyUserStyles();
+                if (settings.afterPageContent) settings.afterPageContent(data);
+                applyUserStyles();
 
-                    if (settings.afterPageAdd && data.pageCount > 1) {
-                        data.afterPageAdd(data);
-                    }
-                    applyUserStyles();
+                if (settings.afterPageAdd && data.pageNumber > 1) {
+                    data.afterPageAdd(data);
                 }
+                applyUserStyles();
             }
         }
 
@@ -38,7 +36,8 @@ export default function(allOptions) {
             }
         }
 
-        [['showFoot', 'showFooter'], ['showHead', 'showHeader']].forEach(([current, deprecated]) => {
+        console.log(settings)
+        ;[['showFoot', 'showFooter'], ['showHead', 'showHeader'], ['didDrawPage', 'addPageContent']].forEach(([current, deprecated]) => {
             if (settings[deprecated] && !settings[current]) {
                 console.error(`Use of deprecated option ${deprecated}. Use ${current} instead`);
                 settings[current] = settings[deprecated];
