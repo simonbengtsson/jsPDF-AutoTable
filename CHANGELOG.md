@@ -3,10 +3,11 @@
 - Write migration from v2 guide
 - Test migration from v2
 - Test different jspdf versions
-- Maybe export API functions as well as adding them to jsPDF prototype
 - Go over popular stack overflow and codepens
 
 ### 3.1
+- Export API functions as well as adding them to jsPDF prototype
+- Look into if tree shaking is possible
 - Only print head if first row of body fits on page
 - Additional and updated themes?
 - Easier way to add image to cells
