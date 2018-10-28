@@ -60,7 +60,7 @@ export function defaultStyles() {
         overflow: 'linebreak', // linebreak, ellipsize, visible or hidden
         fillColor: false, // Either false for transparent, rbg array e.g. [255, 255, 255] or gray level e.g 200
         textColor: 20,
-        halign: 'left', // left, center, right
+        halign: 'left', // left, center, right, justify
         valign: 'top', // top, middle, bottom
         fontSize: 10,
         cellPadding: 5 / state().scaleFactor(), // number or {top,left,right,left,vertical,horizontal}

@@ -20,7 +20,7 @@ export function parseCss(element, scaleFactor, ignored: string[] = []) {
     assign('lineColor', parseColor(element, 'borderColor'));
     assign('fontStyle', parseFontStyle(style));
     assign('textColor', parseColor(element, 'color'));
-    assign('halign', style.textAlign, ['left', 'right', 'center']);
+    assign('halign', style.textAlign, ['left', 'right', 'center', 'justify']);
     assign('valign', style.verticalAlign, ['middle', 'bottom', 'top']);
     assign('fontSize', parseInt(style.fontSize || '') / pxScaleFactor);
     assign('cellPadding', parsePadding(style.padding, style.fontSize, style.lineHeight, scaleFactor));

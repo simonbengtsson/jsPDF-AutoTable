@@ -19,7 +19,6 @@ jsPDF.API.autoTableText = function(text, x, y, styles) {
     let lineCount = 1;
     if (styles.valign === 'middle' || styles.valign === 'bottom' || styles.halign === 'center' || styles.halign === 'right') {
         splitText = typeof text === 'string' ? text.split(splitRegex) : text;
-
         lineCount = splitText.length || 1;
     }
 
@@ -46,7 +45,12 @@ jsPDF.API.autoTableText = function(text, x, y, styles) {
         x -= this.getStringUnitWidth(text) * alignSize;
     }
 
-    this.text(text, x, y);
+    if (styles.halign === 'justify') {
+        this.text(text, x, y, {maxWidth: styles.maxWidth || 100, align: 'justify'});
+    } else {
+        this.text(text, x, y);
+    }
+
 
     return this;
 };

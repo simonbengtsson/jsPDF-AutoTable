@@ -59,7 +59,7 @@ interface Styles {
     overflow?: 'linebreak' | 'ellipsize' | 'visible' | 'hidden',
     fillColor?: Color,
     textColor?: Color,
-    halign?: 'left' | 'center' | 'right',
+    halign?: 'left'|'center'|'right'|'justify',
     valign?: 'top' | 'middle' | 'bottom',
     fontSize?: number,
     cellPadding?: number,
