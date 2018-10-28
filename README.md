@@ -67,23 +67,37 @@ Below is a list of all options supported in the plugin. All of them are used in 
 The only thing required is either the html or body option. If you want more control over the columns you can specify the columns property. It is not needed however and if not set the columns will be automatically computed based on the content of the html content or head, body and foot.
 
 - `html: string|HTMLTableElement` A css selector on an html table element (for example "#table").
-- `head: Cell[][]` For example [['ID', 'Name', 'Country']]
-- `body: Cell[][]` For example [['1', 'Simon', 'Sweden'], ['2', 'Karl', 'Norway']]
-- `foot: Cell[][]` For example [['ID', 'Name', 'Country']]
-- `columns: Column[]` For example [{header: 'ID', dataKey: 'id'}, {header: 'Name', dataKey: 'name'}]. Only use this option if you want more control over the columns. If not specified the columns will be automatically generated based on the content in html or head/body/foot
+- `head: CellDef[][]` For example [['ID', 'Name', 'Country']]
+- `body: CellDef[][]` For example [['1', 'Simon', 'Sweden'], ['2', 'Karl', 'Norway']]
+- `foot: CellDef[][]` For example [['ID', 'Name', 'Country']]
+- `columns: ColumnDef[]` For example [{header: 'ID', dataKey: 'id'}, {header: 'Name', dataKey: 'name'}]. Only use this option if you want more control over the columns. If not specified the columns will be automatically generated based on the content in html or head/body/foot
 - `includeHiddenHtml: boolean = false` If hidden html with `display: none` should be included or not when the content comes from an html table
+
+`CellDef: string|{rowSpan: number, colSpan: number, styles: StyleDef}`
+Note that cell styles can also be set dynamically with hooks.
+
+`ColumnDef: string|{header?: string, dataKey: string}`
+The header property is optional and the values of any content in `head` will be used if not set. Normally it's easier to use the html or head/body/foot style of initiating a table, but columns can be useful if your body content comes directly from an api or if you would like to specify a dataKey on each column to make it more readable to style specific columns in the hooks or columnStyles.
+
+Usage with colspan, rowspan and inline cell styles:
+
+```js
+doc.autoTable({
+    body: [[{content: 'Text', colSpan: 2, rowSpan: 2, styles: {halign: 'center'}}]]
+})
+```
 
 ##### Styling options
 
 - `theme: 'striped'|'grid'|'plain'|'css' = 'striped'`
-- `styles: StyleDefinition`
-- `headStyles: StyleDefinition`
-- `bodyStyles: StyleDefinition`
-- `footStyles: StyleDefinition`
-- `alternateRowStyles: StyleDefinition`
-- `columnStyles: {&columnDataKey: StyleDefinition}` Note that the columnDataKey is normally the index of the column, but could also be the `dataKey` of a column if content initialized with the columns property
+- `styles: StyleDef`
+- `headStyles: StyleDef`
+- `bodyStyles: StyleDef`
+- `footStyles: StyleDef`
+- `alternateRowStyles: StyleDef`
+- `columnStyles: {&columnDataKey: StyleDef}` Note that the columnDataKey is normally the index of the column, but could also be the `dataKey` of a column if content initialized with the columns property
 
-`StyleDefinition`:
+`StyleDef`:
 - `font: 'helvetica'|'times'|'courier' = 'helvetica'`
 - `fontStyle: 'normal'|'bold'|'italic'|'bolditalic' = 'normal'`
 - `overflow: 'linebreak'|'ellipsize'|'visible'|'hidden' = 'normal'`
@@ -101,7 +115,7 @@ The only thing required is either the html or body option. If you want more cont
 `Color`:
 Either false for transparent, rbg array e.g. [255, 0, 0] or gray level e.g 200
 
-`Margin` and `Padding`:
+`Padding`:
 Either a number or object `{top: number, right: number, bottom: number, left: number}`
 
 Styles work similar to css and can be overridden by more specific styles. The overriding order is as follows: 
@@ -113,17 +127,39 @@ Styles work similar to css and can be overridden by more specific styles. The ov
 
 Styles for specific cells can also be applied using either the hooks (see hooks section above) or the `styles` property on the cell definition object (see content section above).
 
+Example usage of column styles (note that the 0 in the columnStyles below should be dataKey if )
+
+```js
+// Example usage with columnStyles, 
+doc.autoTable({
+    styles: {fillColor: [255, 0, 0]},
+    columnStyles: {0: {halign: 'center', fillColor: [0, 255, 0]}}, // Cells in first column centered and green
+    margin: {top: 10},
+    body: [['Sweden', 'Japan', 'Canada'], ['Norway', 'China', 'USA'], ['Denmark', 'China', 'Mexico']]
+})
+
+// Example usage of columns property. Note that America will not be included even though it exist in the body since there is no column specified for it.
+doc.autoTable({
+    columnStyles: {europe: {halign: 'center'}}, // European countries centered
+    body: [{europe: 'Sweden', america: 'Canada', asia: 'China'}, {europe: 'Norway', america: 'Mexico', asia: 'Japan'}],
+    columns: [{header: 'Europe', dataKey: 'europe'}, {header: 'Asia', dataKey: 'asia'}]
+})
+```
+
 ##### Other options
 
 - `startY: number = null` Where the table should start to be printed (basically a margin top value only for the first page)
 - `margin: Margin = 40`
-- `pageBreak: 'auto'|'avoid'|'always'`
-- `rowPageBreak: 'auto'|'avoid' = 'auto'`
+- `pageBreak: 'auto'|'avoid'|'always'` If set to `avoid` the plugin will only split a table onto multiple pages if table height is larger than page height.
+- `rowPageBreak: 'auto'|'avoid' = 'auto'` If set to `avoid` the plugin will only split a row onto multiple pages if row height is larger than page height.
 - `tableWidth: 'auto'|'wrap'|number = 'auto'`
 - `showHead: 'everyPage'|'firstPage'|'never' = 'everyPage''`
 - `showFoot: 'everyPage'|'lastPage'|'never' = 'everyPage''`
 - `tableLineWidth: number = 0`
 - `tableLineColor: Color = 200` The table line/border color
+
+`Margin`:
+Either a number or object `{top: number, right: number, bottom: number, left: number}`
 
 #### Hooks
 You can customize the content and styling of the table by using the hooks. See the custom styles example for usage of the hooks.
@@ -150,12 +186,12 @@ For cell hooks these properties are also passed:
 
 To see what is included in the `Table`, `Row`, `Column` and `Cell` types, either log them to the console or take a look at `src/models.ts`
 
-Example usage (will draw am image in each cell in the first column):
-
 ```js
+// Example with an image drawn in each cell in the first column
 doc.autoTable({
    didDrawCell: data => {
       if (data.section === 'body' && data.column.index === 0) {
+         var base64Img = "data:image/jpeg;base64,iVBORw0KGgoAAAANS...";
          doc.addImage(base64Img, 'JPEG', data.cell.x + 2, data.cell.y + 2, 10, 10);
       }
    }

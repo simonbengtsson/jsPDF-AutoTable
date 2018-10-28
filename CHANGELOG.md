@@ -1,11 +1,10 @@
 # Known issues 3.0 alpha (to be fixed before release)
 - Go over popular stack overflow and codepens
 - Proofread docs and config
-- Document cell definition (colspan, rowspan, styles)
 - Test IE9
-- Check file size of dist
 
 ### 3.1
+- Column styles with the ColumnDef
 - Export API functions as well as adding them to jsPDF prototype
 - Look into if tree shaking is possible
 - Only print head if first row of body fits on page
