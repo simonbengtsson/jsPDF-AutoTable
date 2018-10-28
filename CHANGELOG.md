@@ -1,10 +1,9 @@
 # Known issues 3.0 alpha (to be fixed before release)
-- Write migration from v2 guide
-- Test migration from v2
 - Test different jspdf versions
 - Go over popular stack overflow and codepens
 - Proofread docs and config
 - Consider pageCount with no getter
+- Document cell definition (colspan, rowspan, styles)
 
 ### 3.1
 - Export API functions as well as adding them to jsPDF prototype
@@ -28,6 +27,12 @@
 
 Migrating to version 3.0 should be rather painless as most changes are backwards compatible. The lib was pretty much rewritten however so open an issue if you encounter any problems.
 
+BREAKING: The hooks API has been simplified. Note that colspans and rowspans now is supported so you can use that instead of the old drawCell hack.
+- Removed hooks: createdCell, createdHeaderCell, drawHeaderCell, drawCell, drawRow, drawHeaderRow and addPageContent
+- Added hooks: didParseCell, willDrawCell, didDrawCell and didDrawPage
+
+All other changes should be backwards compatible, but it's a rewrite of the plugin so file an issue if you encounter something that did not work as expected after upgrading.
+
 ### 3.0
 - Added native rowspan and colspan support
 - Added multiple header rows support
@@ -39,7 +44,7 @@ Migrating to version 3.0 should be rather painless as most changes are backwards
 - Added `footerStyles` option (similar to headerStyles)
 - Added `rowPageBreak` option
 - Added automatic startY when multiple tables are used
-- Changed initialization to `doc.autoTable({head: ..., body: ...})`
+- Changed initialization to `doc.autoTable({head: ..., body: ... foot: ..., columns: ...})`
 - Changed getting last autoTable instance from `doc.autoTable.previous` to `doc.lastAutoTable`
 - Changed default overflow method to linebreak (previously it was ellipsize)
 - Changed `rowHeight` style to `cellHeight`
@@ -48,3 +53,4 @@ Migrating to version 3.0 should be rather painless as most changes are backwards
 - Deprecated the old initialization `doc.autoTable(columns, data, options)`
 - Deprecated `autoTableHtmlToJson()` in favour of new html option
 - Deprecated old way of getting previous autoTable instance `doc.autoTable.previous`
+- BREAKING: Old hooks with new ones (See above)

@@ -8,6 +8,11 @@ export class HookData {
     doc: any;
     cursor: { x: number, y: number };
 
+    // @ts-ignore
+    get pageCount() {
+        return this.pageNumber;
+    }
+
     constructor() {
         let table = state().table;
         this.table = table;

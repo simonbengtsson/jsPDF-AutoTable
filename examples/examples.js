@@ -183,7 +183,7 @@ examples['header-footer'] = function () {
             doc.text("Report", data.settings.margin.left + 15, 22);
 
             // Footer
-            var str = "Page " + data.pageCount;
+            var str = "Page " + doc.internal.getNumberOfPages();
             // Total page number plugin only available in jspdf v1.0+
             if (typeof doc.putTotalPages === 'function') {
                 str = str + " of " + totalPagesExp;

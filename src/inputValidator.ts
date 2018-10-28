@@ -29,14 +29,13 @@ export default function(allOptions) {
             }
         }
 
-        let oldHooks = ["createdHeaderCell", "drawHeaderRow", "drawRow", "drawHeaderCell"];
-        for (let hookName of oldHooks) {
-            if (settings[hookName]) {
-                console.error(`The hook "${hookName}" has been removed/renamed in version 3.0 of jspdf-autotable. Make sure you update your project according to the migration guide.`);
+        ["createdHeaderCell", "drawHeaderRow", "drawRow", "drawHeaderCell"].forEach((name) => {
+            if (settings[name]) {
+                console.error(`The "${name}" hook has changed in version 3.0, check the changelog for how to migrate.`);
             }
-        }
+        });
 
-        [['showFoot', 'showFooter'], ['showHead', 'showHeader'], ['didDrawPage', 'addPageContent'], ['headStyles', 'headerStyles']].forEach(([current, deprecated]) => {
+        [['showFoot', 'showFooter'], ['showHead', 'showHeader'], ['didDrawPage', 'addPageContent'], ['createdCell', 'didParseCell'], ['headStyles', 'headerStyles']].forEach(([current, deprecated]) => {
             if (settings[deprecated] && !settings[current]) {
                 console.error(`Use of deprecated option ${deprecated}. Use ${current} instead`);
                 settings[current] = settings[deprecated];
