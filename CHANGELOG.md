@@ -1,9 +1,9 @@
 # Known issues 3.0 alpha (to be fixed before release)
-- Go over docs and config
 - Write migration from v2 guide
 - Test migration from v2
 - Test different jspdf versions
 - Go over popular stack overflow and codepens
+- Proofread docs and config
 
 ### 3.1
 - Export API functions as well as adding them to jsPDF prototype
