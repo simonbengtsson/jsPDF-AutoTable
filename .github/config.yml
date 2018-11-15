@@ -1,0 +1,12 @@
+# Configuration for request-info - https://github.com/behaviorbot/request-info
+
+requestInfoReplyComment: >
+  This issue does not seem to follow the issue template, please provide some more info about the issue.
+
+# *OPTIONAL* Label to be added to Issues and Pull Requests with insufficient information given
+requestInfoLabelToAdd: needs-more-info
+
+checkIssueTemplate: true
+
+requestInfoOn:
+  issue: true
