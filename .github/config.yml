@@ -3,8 +3,7 @@
 requestInfoReplyComment: >
   This issue does not seem to follow the issue template, please provide some more info about the issue.
 
-# *OPTIONAL* Label to be added to Issues and Pull Requests with insufficient information given
-requestInfoLabelToAdd: needs-more-info
+requestInfoLabelToAdd: needs information
 
 checkIssueTemplate: true
 
