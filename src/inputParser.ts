@@ -51,11 +51,11 @@ export function parseInput(args) {
     if (table.settings.theme === 'auto') {
         table.settings.theme = table.settings.useCss ? 'plain' : 'striped';
     }
-    
+
     if (table.settings.startY === false) {
         delete table.settings.startY;
     }
-    
+
     const previous = state().doc.previousAutoTable;
     const isSamePageAsPrevious = previous && previous.startPageNumber + previous.pageNumber - 1 === state().pageNumber();
     if (table.settings.startY == null && isSamePageAsPrevious) {
@@ -197,6 +197,7 @@ function getTableColumns(settings) {
         });
     } else {
         let merged = {...settings.head[0], ...settings.body[0], ...settings.foot[0]};
+        delete merged._element;
         let dataKeys = Object.keys(merged);
         return dataKeys.map(key => new Column(key, key, key));
     }
