@@ -1,6 +1,6 @@
 /*!
  * 
- *             jsPDF AutoTable plugin v3.0.0-alpha.4
+ *             jsPDF AutoTable plugin v3.0.0-alpha.5
  *             
  *             Copyright (c) 2014 Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable
  *             Licensed under the MIT License.
@@ -685,6 +685,11 @@ function printFullRow(row) {
                     }
                 }
             }
+            for (var j = 0; j < table.columns.length; j++) {
+                var column = table.columns[j];
+                var cell = row.cells[column.dataKey];
+                cell.height = maxCellHeight;
+            }
             // Reset row height since text are now removed
             row.height = maxCellHeight;
             row.maxCellHeight = maxRowSpanCellHeight;
@@ -697,6 +702,7 @@ function printFullRow(row) {
         for (var j = 0; j < table.columns.length; j++) {
             var col = table.columns[j];
             var cell = row.cells[col.dataKey];
+            cell.height = remainingRowHeight;
             if (cell) {
                 cell.text = remainingTexts[col.dataKey] || '';
             }
@@ -756,12 +762,12 @@ function printRow(row) {
         }
         var fillStyle = common_1.getFillStyle(cell.styles);
         if (fillStyle) {
-            // Use row height for now since cell.height is not updated on multi page rows
-            state_1.default().doc.rect(cell.x, table.cursor.y, cell.width, row.height, fillStyle);
+            state_1.default().doc.rect(cell.x, table.cursor.y, cell.width, cell.height, fillStyle);
         }
         state_1.default().doc.autoTableText(cell.text, cell.textPos.x, cell.textPos.y, {
             halign: cell.styles.halign,
-            valign: cell.styles.valign
+            valign: cell.styles.valign,
+            maxWidth: cell.width - cell.padding('left') - cell.padding('right')
         });
         table.callCellHooks(table.cellHooks.didDrawCell, cell, row, column);
         table.cursor.x += column.width;
@@ -975,7 +981,8 @@ function distributeWidth(autoColumns, diffWidth, wrappedAutoColumnsWidth) {
         }
         else {
             // We can't reduce the width of this column. Mark as none auto column and start over
-            column.width = column.minWidth;
+            // Add 1 to minWidth as linebreaks calc otherwise sometimes made two rows
+            column.width = column.minWidth + 1 / state_1.default().scaleFactor();
             wrappedAutoColumnsWidth -= column.wrappedWidth;
             autoColumns.splice(i, 1);
             distributeWidth(autoColumns, diffWidth, wrappedAutoColumnsWidth);
@@ -1022,12 +1029,13 @@ function parseInput(args) {
     var table = new models_1.Table();
     state_1.default().table = table;
     table.id = tableOptions.tableId;
-    // Move to state?
+    var doc = state_1.default().doc;
     table.userStyles = {
-        textColor: 0,
-        fontSize: state_1.default().doc.internal.getFontSize(),
-        fontStyle: state_1.default().doc.internal.getFont().fontStyle,
-        font: state_1.default().doc.internal.getFont().fontName
+        // Setting to black for versions of jspdf without getTextColor
+        textColor: doc.getTextColor ? doc.getTextColor() : 0,
+        fontSize: doc.internal.getFontSize(),
+        fontStyle: doc.internal.getFont().fontStyle,
+        font: doc.internal.getFont().fontName
     };
     var _loop_1 = function (styleProp) {
         var styles = allOptions.map(function (opts) { return opts[styleProp] || {}; });
@@ -1194,6 +1202,7 @@ function getTableColumns(settings) {
     }
     else {
         var merged = __assign({}, settings.head[0], settings.body[0], settings.foot[0]);
+        delete merged._element;
         var dataKeys = Object.keys(merged);
         return dataKeys.map(function (key) { return new models_1.Column(key, key, key); });
     }
@@ -1330,7 +1339,7 @@ var Cell = /** @class */ (function () {
         var fromHtml = typeof window === 'object' && window.HTMLElement && content instanceof window.HTMLElement;
         this.raw = fromHtml ? content : raw;
         if (content && fromHtml) {
-            text = (content.innerText || '').trim();
+            text = (content.innerText || '').replace(/\s+/g, ' ').trim();
         }
         else {
             // Stringify 0 and false, but not undefined or null
@@ -1394,7 +1403,7 @@ var __extends = (this && this.__extends) || (function () {
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -1626,7 +1635,7 @@ function parseCss(element, scaleFactor, ignored) {
     assign('lineColor', parseColor(element, 'borderColor'));
     assign('fontStyle', parseFontStyle(style));
     assign('textColor', parseColor(element, 'color'));
-    assign('halign', style.textAlign, ['left', 'right', 'center']);
+    assign('halign', style.textAlign, ['left', 'right', 'center', 'justify']);
     assign('valign', style.verticalAlign, ['middle', 'bottom', 'top']);
     assign('fontSize', parseInt(style.fontSize || '') / pxScaleFactor);
     assign('cellPadding', parsePadding(style.padding, style.fontSize, style.lineHeight, scaleFactor));
@@ -1733,9 +1742,9 @@ function default_1(allOptions) {
                 console.error("The \"" + name + "\" hook has changed in version 3.0, check the changelog for how to migrate.");
             }
         });
-        [['showFoot', 'showFooter'], ['showHead', 'showHeader'], ['didDrawPage', 'addPageContent'], ['createdCell', 'didParseCell'], ['headStyles', 'headerStyles']].forEach(function (_a) {
+        [['showFoot', 'showFooter'], ['showHead', 'showHeader'], ['didDrawPage', 'addPageContent'], ['didParseCell', 'createdCell'], ['headStyles', 'headerStyles']].forEach(function (_a) {
             var current = _a[0], deprecated = _a[1];
-            if (settings[deprecated] && !settings[current]) {
+            if (settings[deprecated]) {
                 console.error("Use of deprecated option " + deprecated + ". Use " + current + " instead");
                 settings[current] = settings[deprecated];
             }
@@ -1825,7 +1834,12 @@ jsPDF.API.autoTableText = function (text, x, y, styles) {
         }
         x -= this.getStringUnitWidth(text) * alignSize;
     }
-    this.text(text, x, y);
+    if (styles.halign === 'justify') {
+        this.text(text, x, y, { maxWidth: styles.maxWidth || 100, align: 'justify' });
+    }
+    else {
+        this.text(text, x, y);
+    }
     return this;
 };
 
