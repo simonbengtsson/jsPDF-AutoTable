@@ -86,6 +86,12 @@ function printFullRow(row: Row) {
                 }
             }
 
+            for (let j = 0; j < table.columns.length; j++) {
+                let column = table.columns[j];
+                let cell = row.cells[column.dataKey];
+                cell.height = maxCellHeight;
+            }
+
             // Reset row height since text are now removed
             row.height = maxCellHeight;
             row.maxCellHeight = maxRowSpanCellHeight;
