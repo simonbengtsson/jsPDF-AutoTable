@@ -165,8 +165,7 @@ function printRow(row) {
 
         let fillStyle = getFillStyle(cell.styles);
         if (fillStyle) {
-            // Use row height for now since cell.height is not updated on multi page rows
-            state().doc.rect(cell.x, table.cursor.y, cell.width, row.height, fillStyle);
+            state().doc.rect(cell.x, table.cursor.y, cell.width, cell.height, fillStyle);
         }
         state().doc.autoTableText(cell.text, cell.textPos.x, cell.textPos.y, {
             halign: cell.styles.halign,
