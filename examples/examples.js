@@ -114,7 +114,7 @@ examples.content = function () {
         head: headRows(),
         body: bodyRows(40),
         startY: 50, 
-        showHeader: 'firstPage'
+        showHead: 'firstPage'
     });
 
     doc.text(text, 14, doc.autoTable.previous.finalY + 10);
@@ -136,7 +136,7 @@ examples.multiple = function () {
     doc.autoTable({
         head: headRows(), body: bodyRows(15),
         startY: 240,
-        showHeader: 'firstPage',
+        showHead: 'firstPage',
         styles: {overflow: 'hidden'},
         margin: {right: 107}
     });
@@ -147,7 +147,7 @@ examples.multiple = function () {
         head: headRows(),
         body: bodyRows(15),
         startY: 240,
-        showHeader: 'firstPage',
+        showHead: 'firstPage',
         styles: {overflow: 'hidden'},
         margin: {left: 107}
     });
@@ -221,7 +221,7 @@ examples.defaults = function () {
     doc.autoTableSetDefaults({
         headStyles: {fillColor: [155, 89, 182]}, // Purple
         margin: {top: 25},
-        addPageContent: function(data) {
+        didDrawPage: function(data) {
             doc.setFontSize(20);
             doc.text('Default options', data.settings.margin.left, 20);
         }
@@ -251,7 +251,7 @@ examples.colstyles = function () {
     doc.autoTable({
         head: headRows(), 
         body: bodyRows(),
-        showHeader: false,
+        showHead: false,
         // Note that the "id" key below is the same as the column's dataKey used for 
         // the head and body rows. If your data is entered in array form instead you have to 
         // use the integer index instead i.e. `columnStyles: {5: {fillColor: [41, 128, 185], ...}}`
