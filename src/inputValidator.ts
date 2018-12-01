@@ -35,8 +35,8 @@ export default function(allOptions) {
             }
         });
 
-        [['showFoot', 'showFooter'], ['showHead', 'showHeader'], ['didDrawPage', 'addPageContent'], ['createdCell', 'didParseCell'], ['headStyles', 'headerStyles']].forEach(([current, deprecated]) => {
-            if (settings[deprecated] && !settings[current]) {
+        [['showFoot', 'showFooter'], ['showHead', 'showHeader'], ['didDrawPage', 'addPageContent'], ['didParseCell', 'createdCell'], ['headStyles', 'headerStyles']].forEach(([current, deprecated]) => {
+            if (settings[deprecated]) {
                 console.error(`Use of deprecated option ${deprecated}. Use ${current} instead`);
                 settings[current] = settings[deprecated];
             }
