@@ -107,6 +107,7 @@ function printFullRow(row: Row) {
         for (let j = 0; j < table.columns.length; j++) {
             let col = table.columns[j];
             let cell = row.cells[col.dataKey];
+            cell.height = remainingRowHeight;
             if (cell) {
                 cell.text = remainingTexts[col.dataKey] || '';
             }

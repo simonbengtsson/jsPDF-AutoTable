@@ -158,7 +158,8 @@ function distributeWidth(autoColumns, diffWidth, wrappedAutoColumnsWidth) {
             column.width = suggestedWidth;
         } else {
             // We can't reduce the width of this column. Mark as none auto column and start over
-            column.width = column.minWidth;
+            // Add 1 to minWidth as linebreaks calc otherwise sometimes made two rows
+            column.width = column.minWidth + 1 / state().scaleFactor();
             wrappedAutoColumnsWidth -= column.wrappedWidth;
             autoColumns.splice(i, 1);
             distributeWidth(autoColumns, diffWidth, wrappedAutoColumnsWidth);
