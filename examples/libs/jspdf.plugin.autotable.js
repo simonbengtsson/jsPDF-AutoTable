@@ -1,6 +1,6 @@
 /*!
  * 
- *             jsPDF AutoTable plugin v3.0.1
+ *             jsPDF AutoTable plugin v3.0.2
  *             
  *             Copyright (c) 2014 Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable
  *             Licensed under the MIT License.
@@ -1357,8 +1357,12 @@ var Cell = /** @class */ (function () {
             this.wrappedWidth = this.contentWidth;
         }
         else { // auto
-            this.minWidth = 10 / state_1.default().scaleFactor();
+            var defaultMinWidth = 10 / state_1.default().scaleFactor();
+            this.minWidth = this.styles.minCellWidth || defaultMinWidth;
             this.wrappedWidth = this.contentWidth;
+            if (this.minWidth > this.wrappedWidth) {
+                this.wrappedWidth = this.minWidth;
+            }
         }
     }
     Cell.prototype.padding = function (name) {
