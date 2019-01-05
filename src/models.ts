@@ -180,8 +180,12 @@ export class Cell {
             this.minWidth = this.contentWidth;
             this.wrappedWidth = this.contentWidth;
         } else { // auto
-            this.minWidth = 10 / state().scaleFactor();
+            const defaultMinWidth = 10 / state().scaleFactor();
+            this.minWidth = this.styles.minCellWidth || defaultMinWidth;
             this.wrappedWidth = this.contentWidth;
+            if (this.minWidth > this.wrappedWidth) {
+                this.wrappedWidth = this.minWidth
+            }
         }
     }
 
