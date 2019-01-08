@@ -28,7 +28,7 @@ Get the library by doing one of these things:
     
     // Or JavaScript:
     doc.autoTable({
-        head: [['Name', 'Email', 'Country']]
+        head: [['Name', 'Email', 'Country']],
         body: [
             ['David', 'david@example.com', 'Sweden'],
             ['Castille', 'castille@example.com', 'Norway'],
