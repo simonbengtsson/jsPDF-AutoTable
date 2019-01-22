@@ -1,6 +1,6 @@
 /*!
  * 
- *             jsPDF AutoTable plugin v3.0.3
+ *             jsPDF AutoTable plugin v3.0.4
  *             
  *             Copyright (c) 2014 Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable
  *             Licensed under the MIT License.
@@ -158,7 +158,7 @@ var TableState = /** @class */ (function () {
     };
     ;
     TableState.prototype.pageNumber = function () {
-        return this.doc.internal.getNumberOfPages();
+        return this.doc.internal.getCurrentPageInfo().pageNumber;
     };
     return TableState;
 }());
