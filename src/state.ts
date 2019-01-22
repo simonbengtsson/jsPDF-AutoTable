@@ -54,7 +54,7 @@ class TableState {
     };
     
     pageNumber() {
-        return this.doc.internal.getNumberOfPages()
+        return this.doc.internal.getCurrentPageInfo().pageNumber
     }
 }
 
