@@ -42,7 +42,7 @@ function parseTableSection(window, sectionElement, includeHidden, useCss) {
                 resultRow.push({
                     rowSpan: cell.rowSpan,
                     colSpan: cell.colSpan,
-                    styles: useCss ? assign(rowStyles, cellStyles) : null,
+                    styles: useCss ? cellStyles : null,
                     content: cell
                 });
             }
