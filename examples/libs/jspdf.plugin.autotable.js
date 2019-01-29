@@ -1,6 +1,6 @@
 /*!
  * 
- *             jsPDF AutoTable plugin v3.0.4
+ *             jsPDF AutoTable plugin v3.0.5
  *             
  *             Copyright (c) 2014 Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable
  *             Licensed under the MIT License.
@@ -1556,7 +1556,6 @@ module.exports = shouldUseNative() ? Object.assign : function (target, source) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var cssParser_1 = __webpack_require__(13);
 var state_1 = __webpack_require__(0);
-var polyfills_1 = __webpack_require__(3);
 function parseHtml(input, includeHiddenHtml, useCss) {
     if (includeHiddenHtml === void 0) { includeHiddenHtml = false; }
     if (useCss === void 0) { useCss = false; }
@@ -1597,7 +1596,7 @@ function parseTableSection(window, sectionElement, includeHidden, useCss) {
                 resultRow.push({
                     rowSpan: cell.rowSpan,
                     colSpan: cell.colSpan,
-                    styles: useCss ? polyfills_1.assign(rowStyles, cellStyles) : null,
+                    styles: useCss ? cellStyles : null,
                     content: cell
                 });
             }
