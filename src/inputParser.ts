@@ -135,6 +135,16 @@ function parseContent(table) {
             }
         }
         sectionRows.forEach((rawRow, rowIndex) => {
+            // For nested rows, we add the extra columns to the beginning of the raw row
+            // This allows for all columns to be nested properly and retains original functionality
+            if (rawRow.length !== table.columns.length) {
+                var missingColumnCount = table.columns.length - rawRow.length;
+                var nestedTablePlaceholderColumns = [];
+                for (var i = 0; i < missingColumnCount; i++) {
+                    nestedTablePlaceholderColumns.push(null);
+                }
+                rawRow = [...nestedTablePlaceholderColumns, ...rawRow];
+            }
             let row = new Row(rawRow, rowIndex, sectionName);
             table[sectionName].push(row);
 
