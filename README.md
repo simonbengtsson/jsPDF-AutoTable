@@ -208,10 +208,9 @@ Contributions are always welcome, especially on open issues. If you have somethi
 - Commit and submit pull request
 
 ### Release workflow (write access required)
-- Test and commit code changes 
 - `npm version <semver|major|minor|patch>`
-- Verify examples
 - `npm run deploy`
+- Verify release at https://simonbengtsson.github.io/jsPDF-AutoTable
 
 ### Release prerelease
 - `npm version prerelease`
