@@ -319,7 +319,6 @@ examples.custom = function () {
         tableLineColor: [231, 76, 60],
         tableLineWidth: 1,
         styles: {
-            font: 'courier',
             lineColor: [44, 62, 80],
             lineWidth: 1
         },
@@ -338,19 +337,24 @@ examples.custom = function () {
         alternateRowStyles: {
             fillColor: [74, 96, 117]
         },
-        // Note that the "email" key below is the same as the column's dataKey used for 
-        // the head and body rows. If your data is entered in array form instead you have to 
+        // Note that the "email" key below is the same as the column's dataKey used for
+        // the head and body rows. If your data is entered in array form instead you have to
         // use the integer index instead i.e. `columnStyles: {5: {fillColor: [41, 128, 185], ...}}`
         columnStyles: {
             email: {
                 fontStyle: 'bold'
+            },
+            city: {
+                // The font file mitubachi-normal.js is included on the page and was created from mitubachi.ttf
+                // with https://github.com/MrRio/jsPDF/tree/master/fontconverter/fontconveter.html
+                font: 'mitubachi',
             },
             id: {
                 halign  : 'right'
             }
         },
         allSectionHooks: true,
-        // Use for customizing texts or styles of specific cells after they have been formatted by this plugin. 
+        // Use for customizing texts or styles of specific cells after they have been formatted by this plugin.
         // This hook is called just before the column width and other features are computed.
         didParseCell: function(data) {
             if (data.row.index === 5) {
@@ -359,6 +363,10 @@ examples.custom = function () {
 
             if ((data.row.section === 'head' || data.row.section === 'foot') && data.column.dataKey === "expenses") {
                 data.cell.text = '' // Use an icon in didDrawCell instead
+            }
+
+            if (data.row.index === 0 && data.row.section === 'body' && data.column.dataKey === 'city') {
+                data.cell.text = 'とうきょう'
             }
         },
         // Use for changing styles with jspdf functions or customize the positioning of cells or cell text
@@ -372,7 +380,7 @@ examples.custom = function () {
             }
         },
         // Use for adding content to the cells after they are drawn. This could be images or links.
-        // You can also use this to draw other custom jspdf content to cells with doc.text or doc.rect 
+        // You can also use this to draw other custom jspdf content to cells with doc.text or doc.rect
         // for example.
         didDrawCell: function(data) {
             if ((data.row.section === 'head' || data.row.section === 'foot') && data.column.dataKey === "expenses" && coinBase64Img) {
