@@ -28,8 +28,8 @@ export function drawTable(table: Table) {
         table.head.forEach((row) => printRow(row))
     }
     applyUserStyles();
-    table.body.forEach(function(row) {
-        printFullRow(row);
+    table.body.forEach(function(row, index) {
+        printFullRow(row, index === table.body.length - 1);
     });
     applyUserStyles();
     if (settings.showFoot === true || settings.showFoot === 'lastPage' || settings.showFoot === 'everyPage') {
@@ -41,13 +41,13 @@ export function drawTable(table: Table) {
     table.callEndPageHooks();
 }
 
-function printFullRow(row: Row) {
+function printFullRow(row: Row, isLastRow) {
     let remainingRowHeight = 0;
     let remainingTexts = {};
 
     let table = state().table;
 
-    if (!canFitOnPage(row.maxCellHeight)) {
+    if (!canFitOnPage(row.maxCellHeight, isLastRow)) {
         if (row.maxCellLineCount <= 1 || (table.settings.rowPageBreak === 'avoid' && !rowHeightGreaterThanMaxTableHeight(row))) {
             addPage();
         } else {
@@ -116,7 +116,7 @@ function printFullRow(row: Row) {
         addPage();
         row.pageNumber++;
         row.height = remainingRowHeight;
-        printFullRow(row);
+        printFullRow(row, isLastRow);
     }
 }
 
@@ -188,11 +188,11 @@ function printRow(row) {
     table.cursor.y += row.height;
 }
 
-function canFitOnPage(rowHeight) {
+function canFitOnPage(rowHeight, isLastRow) {
     let table = state().table;
     let bottomContentHeight = table.margin('bottom');
     let showFoot = table.settings.showFoot;
-    if (showFoot === true || showFoot === 'everyPage' || showFoot === 'lastPage') {
+    if (showFoot === true || showFoot === 'everyPage' || (showFoot === 'lastPage' && isLastRow)) {
         bottomContentHeight += table.footHeight;
     }
     let pos = rowHeight + table.cursor.y + bottomContentHeight;
