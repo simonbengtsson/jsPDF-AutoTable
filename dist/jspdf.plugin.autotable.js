@@ -1,6 +1,6 @@
 /*!
  * 
- *             jsPDF AutoTable plugin v3.0.6
+ *             jsPDF AutoTable plugin v3.0.7
  *             
  *             Copyright (c) 2014 Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable
  *             Licensed under the MIT License.
@@ -637,8 +637,8 @@ function drawTable(table) {
         table.head.forEach(function (row) { return printRow(row); });
     }
     common_1.applyUserStyles();
-    table.body.forEach(function (row) {
-        printFullRow(row);
+    table.body.forEach(function (row, index) {
+        printFullRow(row, index === table.body.length - 1);
     });
     common_1.applyUserStyles();
     if (settings.showFoot === true || settings.showFoot === 'lastPage' || settings.showFoot === 'everyPage') {
@@ -648,11 +648,11 @@ function drawTable(table) {
     table.callEndPageHooks();
 }
 exports.drawTable = drawTable;
-function printFullRow(row) {
+function printFullRow(row, isLastRow) {
     var remainingRowHeight = 0;
     var remainingTexts = {};
     var table = state_1.default().table;
-    if (!canFitOnPage(row.maxCellHeight)) {
+    if (!canFitOnPage(row.maxCellHeight, isLastRow)) {
         if (row.maxCellLineCount <= 1 || (table.settings.rowPageBreak === 'avoid' && !rowHeightGreaterThanMaxTableHeight(row))) {
             addPage();
         }
@@ -710,7 +710,7 @@ function printFullRow(row) {
         addPage();
         row.pageNumber++;
         row.height = remainingRowHeight;
-        printFullRow(row);
+        printFullRow(row, isLastRow);
     }
 }
 function rowHeightGreaterThanMaxTableHeight(row) {
@@ -774,11 +774,11 @@ function printRow(row) {
     }
     table.cursor.y += row.height;
 }
-function canFitOnPage(rowHeight) {
+function canFitOnPage(rowHeight, isLastRow) {
     var table = state_1.default().table;
     var bottomContentHeight = table.margin('bottom');
     var showFoot = table.settings.showFoot;
-    if (showFoot === true || showFoot === 'everyPage' || showFoot === 'lastPage') {
+    if (showFoot === true || showFoot === 'everyPage' || (showFoot === 'lastPage' && isLastRow)) {
         bottomContentHeight += table.footHeight;
     }
     var pos = rowHeight + table.cursor.y + bottomContentHeight;
