@@ -1,6 +1,6 @@
 /*!
  * 
- *             jsPDF AutoTable plugin v3.0.5
+ *             jsPDF AutoTable plugin v3.0.6
  *             
  *             Copyright (c) 2014 Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable
  *             Licensed under the MIT License.
@@ -942,7 +942,6 @@ function fitContent(table) {
             common_1.applyStyles(cell.styles);
             var textSpace = cell.width - cell.padding('horizontal');
             if (cell.styles.overflow === 'linebreak') {
-                cell.text = Array.isArray(cell.text) ? cell.text.join(' ') : cell.text;
                 // Add one pt to textSpace to fix rounding error
                 cell.text = state_1.default().doc.splitTextToSize(cell.text, textSpace + 1 / (state_1.default().scaleFactor() || 1), { fontSize: cell.styles.fontSize });
             }
@@ -1339,7 +1338,7 @@ var Cell = /** @class */ (function () {
         var fromHtml = typeof window === 'object' && window.HTMLElement && content instanceof window.HTMLElement;
         this.raw = fromHtml ? content : raw;
         if (content && fromHtml) {
-            text = (content.innerText || '').replace(/\s+/g, ' ').trim();
+            text = (content.innerText || '').replace(/' '+/g, ' ').trim();
         }
         else {
             // Stringify 0 and false, but not undefined or null
@@ -1634,7 +1633,7 @@ function parseCss(element, scaleFactor, ignored) {
         }
     }
     var pxScaleFactor = 96 / 72;
-    assign('fillColor', parseColor(element, 'backgroundColor') || 255);
+    assign('fillColor', parseColor(element, 'backgroundColor'));
     assign('lineColor', parseColor(element, 'borderColor'));
     assign('fontStyle', parseFontStyle(style));
     assign('textColor', parseColor(element, 'color'));
