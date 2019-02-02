@@ -6,7 +6,9 @@ let before = global.before;
 let after = global.after;
 
 var assert = require('assert');
-let validateInput = require('../src/inputValidator');
+global.html2pdf = {}
+global.URL = {}
+let validateInput = require('../src/inputValidator').default;
 
 describe('input parser', function () {
     

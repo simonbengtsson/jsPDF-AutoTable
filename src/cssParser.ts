@@ -16,7 +16,7 @@ export function parseCss(element, scaleFactor, ignored: string[] = []) {
     }
 
     let pxScaleFactor = 96 / 72;
-    assign('fillColor', parseColor(element, 'backgroundColor') || 255);
+    assign('fillColor', parseColor(element, 'backgroundColor'));
     assign('lineColor', parseColor(element, 'borderColor'));
     assign('fontStyle', parseFontStyle(style));
     assign('textColor', parseColor(element, 'color'));

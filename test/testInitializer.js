@@ -50,7 +50,7 @@ describe('execution', function () {
         assert.equal(state.getDocumentOptions().margin, null);
     });
     
-    it.skip('concurrent tables', function() {
+    it('concurrent tables', function() {
         let doc = new jsPDF('p', 'pt');
         doc.autoTable({
             tableId: 'first',
@@ -75,51 +75,14 @@ describe('execution', function () {
         assert.equal(doc.previousAutoTable.margin('top'), 10);
     });
 
-    it('setting defaults', function() {
-        let doc = new jsPDF('p', 'pt');
-        
-        jsPDF.autoTableSetDefaults({margin: 15});
-        doc.autoTable({head: [], body: []});
-        assert.equal(doc.previousAutoTable.finalY, 15);
-        doc.autoTableSetDefaults({margin: 10});
-        doc.autoTable({head: [], body: []});
-        assert.equal(doc.previousAutoTable.finalY, 10);
-        
-        jsPDF.autoTableSetDefaults({margin: 20});
-        doc.autoTable({head: [], body: [], margin: 5});
-        assert.equal(doc.previousAutoTable.finalY, 5);
-        
-        jsPDF.autoTableSetDefaults(null);
-    });
-
-    it('previous autotable', function() {
-        let doc = new jsPDF('p', 'pt');
-        let defaultMargin = 40;
-
-        doc.autoTable([], []);
-        assert.equal(Math.floor(doc.previousAutoTable.finalY), defaultMargin);
-
-        doc.autoTable([], [[]]);
-        assert.equal(Math.floor(doc.previousAutoTable.finalY), defaultMargin);
-        
-        doc.autoTable({head: [[]], body: [[]], foot: [[]]});
-        //assert.equal(Math.floor(doc.previousAutoTable.finalY), defaultMargin);
-        doc.autoTable({head: [['head']], body: [['body']], foot: [['foot']]});
-        
-        let doc2 = new jsPDF('p', 'pt');
-        assert.strictEqual(doc2.previousAutoTable, false);
-        assert.strictEqual(doc2.previousAutoTable.finalY, undefined);
-        assert.strictEqual(doc2.previousAutoTable.undedinedprop, undefined);
-    });
-
-    it.skip('add page in hook', function() {
+    it('add page in hook', function() {
         let doc = new jsPDF();
         
         doc.autoTable({
-            head: [['test']],
+            head: [],
             body: [['test']],
             willDrawCell: function(data) {
-                data.addPage();
+                doc.addPage();
             }
         });
         
