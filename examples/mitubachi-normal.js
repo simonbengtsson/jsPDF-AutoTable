@@ -3,7 +3,6 @@ var font = "AAEAAAASAQAABAAgR1NVQlaTjWkAAq50AAAJoE9TLzJ7u4xRAAAByAAAAFZjbWFwM6/c
 var callAddFont = function () {
 this.addFileToVFS("mitubachi-normal.ttf", font);
 this.addFont("mitubachi-normal.ttf", "mitubachi", "normal");
-console.log('ADDED font')
 };
 jsPDFAPI.events.push(['addFonts', callAddFont])
  })(jsPDF.API);
