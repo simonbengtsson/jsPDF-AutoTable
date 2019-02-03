@@ -135,6 +135,7 @@ function parseContent(table) {
             }
         }
         sectionRows.forEach((rawRow, rowIndex) => {
+            let skippedRowForRowSpans = 0;
             let row = new Row(rawRow, rowIndex, sectionName);
             table[sectionName].push(row);
 
@@ -145,7 +146,7 @@ function parseContent(table) {
                     if (columnSpansLeft === 0) {
                         let rawCell;
                         if (Array.isArray(rawRow)) {
-                            rawCell = rawRow[column.dataKey - colSpansAdded];
+                            rawCell = rawRow[column.dataKey - colSpansAdded - skippedRowForRowSpans];
                         } else {
                             rawCell = rawRow[column.dataKey];
                         }
@@ -165,6 +166,7 @@ function parseContent(table) {
                 } else {
                     rowSpansLeftForColumn[column.dataKey].left--;
                     columnSpansLeft = rowSpansLeftForColumn[column.dataKey].times;
+                    skippedRowForRowSpans++;
                 }
             }
         });
