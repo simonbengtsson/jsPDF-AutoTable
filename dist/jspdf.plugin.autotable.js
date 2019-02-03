@@ -1,6 +1,6 @@
 /*!
  * 
- *             jsPDF AutoTable plugin v3.0.7
+ *             jsPDF AutoTable plugin v3.0.8
  *             
  *             Copyright (c) 2014 Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable
  *             Licensed under the MIT License.
@@ -660,7 +660,6 @@ function printFullRow(row, isLastRow) {
             // Modify the row to fit the current page and calculate text and height of partial row
             row.spansMultiplePages = true;
             var maxCellHeight = 0;
-            var maxRowSpanCellHeight = 0;
             for (var j = 0; j < table.columns.length; j++) {
                 var column = table.columns[j];
                 var cell = row.cells[column.dataKey];
@@ -690,19 +689,20 @@ function printFullRow(row, isLastRow) {
                 var cell = row.cells[column.dataKey];
                 cell.height = maxCellHeight;
             }
-            // Reset row height since text are now removed
-            row.height = maxCellHeight;
-            row.maxCellHeight = maxRowSpanCellHeight;
         }
     }
     printRow(row);
     // Parts of the row is now printed. Time for adding a new page, prune 
     // the text and start over
     if (Object.keys(remainingTexts).length > 0) {
+        var maxCellHeight = 0;
         for (var j = 0; j < table.columns.length; j++) {
             var col = table.columns[j];
             var cell = row.cells[col.dataKey];
             cell.height = remainingRowHeight;
+            if (cell.height > maxCellHeight) {
+                maxCellHeight = cell.height;
+            }
             if (cell) {
                 cell.text = remainingTexts[col.dataKey] || '';
             }
@@ -710,6 +710,7 @@ function printFullRow(row, isLastRow) {
         addPage();
         row.pageNumber++;
         row.height = remainingRowHeight;
+        row.maxCellHeight = maxCellHeight;
         printFullRow(row, isLastRow);
     }
 }
