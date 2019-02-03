@@ -47,14 +47,13 @@ function printFullRow(row: Row, isLastRow) {
 
     let table = state().table;
 
-    if (!canFitOnPage(row.maxCellHeight, isLastRow)) {
-        if (row.maxCellLineCount <= 1 || (table.settings.rowPageBreak === 'avoid' && !rowHeightGreaterThanMaxTableHeight(row))) {
+    let remainingPageSpace = getRemainingPageSpace(isLastRow);
+    if (remainingPageSpace < row.maxCellHeight) {
+        if (remainingPageSpace < getOneRowHeight(row) || (table.settings.rowPageBreak === 'avoid' && !rowHeightGreaterThanMaxTableHeight(row))) {
             addPage();
         } else {
             // Modify the row to fit the current page and calculate text and height of partial row
             row.spansMultiplePages = true;
-
-            let maxCellHeight = 0;
 
             for (let j = 0; j < table.columns.length; j++) {
                 let column = table.columns[j];
@@ -65,30 +64,18 @@ function printFullRow(row: Row, isLastRow) {
 
                 let fontHeight = cell.styles.fontSize / state().scaleFactor() * FONT_ROW_RATIO;
                 let vPadding = cell.padding('vertical');
-                let pageHeight = state().pageHeight();
-                let remainingPageSpace = pageHeight - table.cursor.y - table.margin('bottom');
                 let remainingLineCount = Math.floor((remainingPageSpace - vPadding) / fontHeight);
 
+                // Note that this will cut cells with specified custom min height at page break
                 if (Array.isArray(cell.text) && cell.text.length > remainingLineCount) {
-                    let remainingLines = cell.text.splice(remainingLineCount, cell.text.length);
-                    remainingTexts[column.dataKey] = remainingLines;
-
-                    let cellHeight = cell.text.length * fontHeight + vPadding;
-                    if (cellHeight > maxCellHeight) {
-                        maxCellHeight = cellHeight;
-                    }
-
-                    let rCellHeight = remainingLines.length * fontHeight + vPadding;
+                    remainingTexts[column.dataKey] = cell.text.splice(remainingLineCount, cell.text.length);
+                    let rCellHeight = cell.height - remainingPageSpace;
                     if (rCellHeight > remainingRowHeight) {
                         remainingRowHeight = rCellHeight;
                     }
                 }
-            }
 
-            for (let j = 0; j < table.columns.length; j++) {
-                let column = table.columns[j];
-                let cell = row.cells[column.dataKey];
-                cell.height = maxCellHeight;
+                cell.height = remainingPageSpace;
             }
         }
     }
@@ -118,6 +105,17 @@ function printFullRow(row: Row, isLastRow) {
         row.maxCellHeight = maxCellHeight;
         printFullRow(row, isLastRow);
     }
+}
+
+function getOneRowHeight(row) {
+    return state().table.columns.reduce((acc, column) => {
+        let cell = row.cells[column.dataKey];
+        if (!cell) return 0;
+        let fontHeight = cell.styles.fontSize / state().scaleFactor() * FONT_ROW_RATIO;
+        let vPadding = cell.padding('vertical');
+        let oneRowHeight = vPadding + fontHeight;
+        return oneRowHeight > acc ? oneRowHeight : acc
+    }, 0)
 }
 
 function rowHeightGreaterThanMaxTableHeight(row) {
@@ -188,15 +186,14 @@ function printRow(row) {
     table.cursor.y += row.height;
 }
 
-function canFitOnPage(rowHeight, isLastRow) {
+function getRemainingPageSpace(isLastRow) {
     let table = state().table;
     let bottomContentHeight = table.margin('bottom');
     let showFoot = table.settings.showFoot;
     if (showFoot === true || showFoot === 'everyPage' || (showFoot === 'lastPage' && isLastRow)) {
         bottomContentHeight += table.footHeight;
     }
-    let pos = rowHeight + table.cursor.y + bottomContentHeight;
-    return pos < state().pageHeight();
+    return state().pageHeight() - table.cursor.y - bottomContentHeight;
 }
 
 export function addPage() {
