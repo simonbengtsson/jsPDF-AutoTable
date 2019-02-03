@@ -1,6 +1,6 @@
 /*!
  * 
- *             jsPDF AutoTable plugin v3.0.8
+ *             jsPDF AutoTable plugin v3.0.9
  *             
  *             Copyright (c) 2014 Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable
  *             Licensed under the MIT License.
@@ -830,7 +830,7 @@ var state_1 = __webpack_require__(0);
  * Calculate the column widths
  */
 function calculateWidths(table) {
-    // TODO Fix those cases
+    // TODO Handle these cases
     var columnMinWidth = 10 / state_1.default().scaleFactor();
     if (columnMinWidth * table.columns.length > table.width) {
         console.error('Columns could not fit on page');
@@ -933,6 +933,7 @@ function applyColSpans(table) {
     }
 }
 function fitContent(table) {
+    var rowSpanHeight = { count: 0, height: 0 };
     for (var _i = 0, _a = table.allRows(); _i < _a.length; _i++) {
         var row = _a[_i];
         for (var _b = 0, _c = table.columns; _b < _c.length; _b++) {
@@ -956,18 +957,27 @@ function fitContent(table) {
                 cell.text = cell.styles.overflow(cell.text, textSpace);
             }
             var lineCount = Array.isArray(cell.text) ? cell.text.length : 1;
-            lineCount = cell.rowSpan <= 1 ? lineCount : 1;
             var fontHeight = cell.styles.fontSize / state_1.default().scaleFactor() * config_1.FONT_ROW_RATIO;
             cell.contentHeight = lineCount * fontHeight + cell.padding('vertical');
             if (cell.styles.minCellHeight > cell.contentHeight) {
                 cell.contentHeight = cell.styles.minCellHeight;
             }
-            if (cell.contentHeight > row.height) {
-                row.height = cell.contentHeight;
-                row.maxCellHeight = cell.contentHeight;
+            var realContentHeight = cell.contentHeight / cell.rowSpan;
+            if (cell.rowSpan > 1 && (rowSpanHeight.count * rowSpanHeight.height < realContentHeight * cell.rowSpan)) {
+                rowSpanHeight = { height: realContentHeight, count: cell.rowSpan };
+            }
+            else if (rowSpanHeight && rowSpanHeight.count > 0) {
+                if (rowSpanHeight.height > realContentHeight) {
+                    realContentHeight = rowSpanHeight.height;
+                }
+            }
+            if (realContentHeight > row.height) {
+                row.height = realContentHeight;
+                row.maxCellHeight = realContentHeight;
                 row.maxCellLineCount = lineCount;
             }
         }
+        rowSpanHeight.count--;
     }
 }
 function distributeWidth(autoColumns, diffWidth, wrappedAutoColumnsWidth) {
@@ -1137,6 +1147,7 @@ function parseContent(table) {
             }
         }
         sectionRows.forEach(function (rawRow, rowIndex) {
+            var skippedRowForRowSpans = 0;
             var row = new models_1.Row(rawRow, rowIndex, sectionName);
             table[sectionName].push(row);
             var colSpansAdded = 0;
@@ -1147,7 +1158,7 @@ function parseContent(table) {
                     if (columnSpansLeft === 0) {
                         var rawCell = void 0;
                         if (Array.isArray(rawRow)) {
-                            rawCell = rawRow[column.dataKey - colSpansAdded];
+                            rawCell = rawRow[column.dataKey - colSpansAdded - skippedRowForRowSpans];
                         }
                         else {
                             rawCell = rawRow[column.dataKey];
@@ -1167,6 +1178,7 @@ function parseContent(table) {
                 else {
                     rowSpansLeftForColumn[column.dataKey].left--;
                     columnSpansLeft = rowSpansLeftForColumn[column.dataKey].times;
+                    skippedRowForRowSpans++;
                 }
             }
         });
