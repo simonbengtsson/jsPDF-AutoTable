@@ -42,16 +42,12 @@ describe('input parser', function () {
         assert.equal(table.body[0].cells[0].text, 'body');
     });
 
-    it('rowspan input', function () {
-        
-    });
-
-    it('limited input', function () {
-        
-    });
-
-    it('parse arguments', function () {
-
+    it.only('rowspan input', function () {
+        let table = parseInput([{body: [[{content: 'test', rowSpan: 2}, 'one'], ['two']]}]);
+        assert.equal(table.body[0].cells[0].text, 'test');
+        assert.equal(table.body[1].cells[0], null);
+        assert.equal(table.body[0].cells[1].text, 'one');
+        assert.equal(table.body[1].cells[1].text, 'two');
     });
 
 });
