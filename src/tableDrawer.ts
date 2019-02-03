@@ -55,7 +55,6 @@ function printFullRow(row: Row, isLastRow) {
             row.spansMultiplePages = true;
 
             let maxCellHeight = 0;
-            let maxRowSpanCellHeight = 0;
 
             for (let j = 0; j < table.columns.length; j++) {
                 let column = table.columns[j];
@@ -91,10 +90,6 @@ function printFullRow(row: Row, isLastRow) {
                 let cell = row.cells[column.dataKey];
                 cell.height = maxCellHeight;
             }
-
-            // Reset row height since text are now removed
-            row.height = maxCellHeight;
-            row.maxCellHeight = maxRowSpanCellHeight;
         }
     }
 
@@ -104,10 +99,14 @@ function printFullRow(row: Row, isLastRow) {
     // the text and start over
 
     if (Object.keys(remainingTexts).length > 0) {
+        let maxCellHeight = 0;
         for (let j = 0; j < table.columns.length; j++) {
             let col = table.columns[j];
             let cell = row.cells[col.dataKey];
             cell.height = remainingRowHeight;
+            if (cell.height > maxCellHeight) {
+                maxCellHeight = cell.height
+            }
             if (cell) {
                 cell.text = remainingTexts[col.dataKey] || '';
             }
@@ -116,6 +115,7 @@ function printFullRow(row: Row, isLastRow) {
         addPage();
         row.pageNumber++;
         row.height = remainingRowHeight;
+        row.maxCellHeight = maxCellHeight;
         printFullRow(row, isLastRow);
     }
 }
