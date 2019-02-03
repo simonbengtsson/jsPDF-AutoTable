@@ -7,7 +7,7 @@ import state from "./state";
  * Calculate the column widths
  */
 export function calculateWidths(table: Table) {
-    // TODO Fix those cases
+    // TODO Handle these cases
     let columnMinWidth = 10 / state().scaleFactor();
     if (columnMinWidth * table.columns.length > table.width) {
         console.error('Columns could not fit on page');
@@ -111,6 +111,7 @@ function applyColSpans(table) {
 }
 
 function fitContent(table) {
+    let rowSpanHeight = {count: 0, height: 0};
     for (let row of table.allRows()) {
         for (let column of table.columns) {
             let cell = row.cells[column.dataKey];
@@ -130,7 +131,6 @@ function fitContent(table) {
             }
 
             let lineCount = Array.isArray(cell.text) ? cell.text.length : 1;
-            lineCount = cell.rowSpan <= 1 ? lineCount : 1;
             let fontHeight = cell.styles.fontSize / state().scaleFactor() * FONT_ROW_RATIO;
             cell.contentHeight = lineCount * fontHeight + cell.padding('vertical');
 
@@ -138,12 +138,21 @@ function fitContent(table) {
                 cell.contentHeight = cell.styles.minCellHeight;
             }
 
-            if (cell.contentHeight > row.height) {
-                row.height = cell.contentHeight;
-                row.maxCellHeight = cell.contentHeight;
+            let realContentHeight = cell.contentHeight / cell.rowSpan;
+            if (cell.rowSpan > 1 && (rowSpanHeight.count * rowSpanHeight.height < realContentHeight * cell.rowSpan)) {
+                rowSpanHeight = {height: realContentHeight, count: cell.rowSpan}
+            } else if (rowSpanHeight && rowSpanHeight.count > 0) {
+                if (rowSpanHeight.height > realContentHeight) {
+                    realContentHeight = rowSpanHeight.height
+                }
+            }
+            if (realContentHeight > row.height) {
+                row.height = realContentHeight;
+                row.maxCellHeight = realContentHeight;
                 row.maxCellLineCount = lineCount;
             }
         }
+        rowSpanHeight.count--;
     }
 }
 
