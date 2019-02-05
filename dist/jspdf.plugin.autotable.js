@@ -1,6 +1,6 @@
 /*!
  * 
- *             jsPDF AutoTable plugin v3.0.9
+ *             jsPDF AutoTable plugin v3.0.10
  *             
  *             Copyright (c) 2014 Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable
  *             Licensed under the MIT License.
@@ -652,14 +652,14 @@ function printFullRow(row, isLastRow) {
     var remainingRowHeight = 0;
     var remainingTexts = {};
     var table = state_1.default().table;
-    if (!canFitOnPage(row.maxCellHeight, isLastRow)) {
-        if (row.maxCellLineCount <= 1 || (table.settings.rowPageBreak === 'avoid' && !rowHeightGreaterThanMaxTableHeight(row))) {
+    var remainingPageSpace = getRemainingPageSpace(isLastRow);
+    if (remainingPageSpace < row.maxCellHeight) {
+        if (remainingPageSpace < getOneRowHeight(row) || (table.settings.rowPageBreak === 'avoid' && !rowHeightGreaterThanMaxTableHeight(row))) {
             addPage();
         }
         else {
             // Modify the row to fit the current page and calculate text and height of partial row
             row.spansMultiplePages = true;
-            var maxCellHeight = 0;
             for (var j = 0; j < table.columns.length; j++) {
                 var column = table.columns[j];
                 var cell = row.cells[column.dataKey];
@@ -668,26 +668,16 @@ function printFullRow(row, isLastRow) {
                 }
                 var fontHeight = cell.styles.fontSize / state_1.default().scaleFactor() * config_1.FONT_ROW_RATIO;
                 var vPadding = cell.padding('vertical');
-                var pageHeight = state_1.default().pageHeight();
-                var remainingPageSpace = pageHeight - table.cursor.y - table.margin('bottom');
                 var remainingLineCount = Math.floor((remainingPageSpace - vPadding) / fontHeight);
+                // Note that this will cut cells with specified custom min height at page break
                 if (Array.isArray(cell.text) && cell.text.length > remainingLineCount) {
-                    var remainingLines = cell.text.splice(remainingLineCount, cell.text.length);
-                    remainingTexts[column.dataKey] = remainingLines;
-                    var cellHeight = cell.text.length * fontHeight + vPadding;
-                    if (cellHeight > maxCellHeight) {
-                        maxCellHeight = cellHeight;
-                    }
-                    var rCellHeight = remainingLines.length * fontHeight + vPadding;
+                    remainingTexts[column.dataKey] = cell.text.splice(remainingLineCount, cell.text.length);
+                    var rCellHeight = cell.height - remainingPageSpace;
                     if (rCellHeight > remainingRowHeight) {
                         remainingRowHeight = rCellHeight;
                     }
                 }
-            }
-            for (var j = 0; j < table.columns.length; j++) {
-                var column = table.columns[j];
-                var cell = row.cells[column.dataKey];
-                cell.height = maxCellHeight;
+                cell.height = remainingPageSpace;
             }
         }
     }
@@ -699,6 +689,8 @@ function printFullRow(row, isLastRow) {
         for (var j = 0; j < table.columns.length; j++) {
             var col = table.columns[j];
             var cell = row.cells[col.dataKey];
+            if (!cell)
+                continue;
             cell.height = remainingRowHeight;
             if (cell.height > maxCellHeight) {
                 maxCellHeight = cell.height;
@@ -713,6 +705,17 @@ function printFullRow(row, isLastRow) {
         row.maxCellHeight = maxCellHeight;
         printFullRow(row, isLastRow);
     }
+}
+function getOneRowHeight(row) {
+    return state_1.default().table.columns.reduce(function (acc, column) {
+        var cell = row.cells[column.dataKey];
+        if (!cell)
+            return 0;
+        var fontHeight = cell.styles.fontSize / state_1.default().scaleFactor() * config_1.FONT_ROW_RATIO;
+        var vPadding = cell.padding('vertical');
+        var oneRowHeight = vPadding + fontHeight;
+        return oneRowHeight > acc ? oneRowHeight : acc;
+    }, 0);
 }
 function rowHeightGreaterThanMaxTableHeight(row) {
     var table = state_1.default().table;
@@ -775,15 +778,14 @@ function printRow(row) {
     }
     table.cursor.y += row.height;
 }
-function canFitOnPage(rowHeight, isLastRow) {
+function getRemainingPageSpace(isLastRow) {
     var table = state_1.default().table;
     var bottomContentHeight = table.margin('bottom');
     var showFoot = table.settings.showFoot;
     if (showFoot === true || showFoot === 'everyPage' || (showFoot === 'lastPage' && isLastRow)) {
         bottomContentHeight += table.footHeight;
     }
-    var pos = rowHeight + table.cursor.y + bottomContentHeight;
-    return pos < state_1.default().pageHeight();
+    return state_1.default().pageHeight() - table.cursor.y - bottomContentHeight;
 }
 function addPage() {
     var table = state_1.default().table;
