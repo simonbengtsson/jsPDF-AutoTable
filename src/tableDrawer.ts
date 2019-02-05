@@ -90,6 +90,8 @@ function printFullRow(row: Row, isLastRow) {
         for (let j = 0; j < table.columns.length; j++) {
             let col = table.columns[j];
             let cell = row.cells[col.dataKey];
+            if (!cell) continue;
+
             cell.height = remainingRowHeight;
             if (cell.height > maxCellHeight) {
                 maxCellHeight = cell.height
