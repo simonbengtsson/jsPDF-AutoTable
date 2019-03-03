@@ -58,7 +58,7 @@ module.exports = {
             */if (typeof window === 'object') window.jspdfAutoTableVersion = '" + newVersion + "';/*"
         `),
         new DtsBundleWebpack({
-            name: 'jspdf-autotable',
+            name: 'jspdf.plugin.autotable',
             main: 'dist/**/*.d.ts',
             removeSource: true,
             outputAsModuleFolder: true
