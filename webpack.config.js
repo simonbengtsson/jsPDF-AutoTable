@@ -2,6 +2,7 @@ var webpack = require("webpack");
 var fs = require("fs");
 var path = require('path');
 const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
+const DtsBundleWebpack = require('dts-bundle-webpack');
 
 var newVersion = require('./package.json').version;
 var readme = "" + fs.readFileSync('./README.md');
@@ -55,7 +56,13 @@ module.exports = {
             http://opensource.org/licenses/mit-license
             
             */if (typeof window === 'object') window.jspdfAutoTableVersion = '" + newVersion + "';/*"
-        `)
+        `),
+        new DtsBundleWebpack({
+            name: 'jspdf-autotable',
+            main: 'dist/**/*.d.ts',
+            removeSource: true,
+            outputAsModuleFolder: true
+        })
     ],
     optimization: {
         minimize: true,
