@@ -1,0 +1,17 @@
+{
+  "private": true,
+  "dependencies": {
+    "jspdf": "^1.5.3",
+    "jspdf-autotable": "github:pmstss/jsPDF-AutoTable#improvement/types-in-npm-package2"
+  },
+  "devDependencies": {
+    "@types/jspdf": "^1.2.2",
+    "@types/node": "^11.10.4",
+    "typescript": "^3.3.3333"
+  },
+  "scripts": {
+    "postinstall": "npm run build && npm run start",
+    "build": "tsc",
+    "start": "node ./dist/main.js"
+  }
+}
