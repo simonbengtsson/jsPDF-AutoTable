@@ -32,11 +32,9 @@
   "scripts": {
     "start": "webpack-dev-server -d --open",
     "build": "webpack --mode=production",
-    "copyLib": "cp ./node_modules/jspdf/dist/jspdf.debug.js ./examples/libs/jspdf.debug.js && cp ./dist/jspdf.plugin.autotable.js ./examples/libs/jspdf.plugin.autotable.js",
-    "version": "npm test && npm run build && npm run copyLib && git add -A dist && git add -A examples && git add README.md",
-    "hosted": "git push origin master:gh-pages -f",
-    "deploy": "git push && git push --tags && npm publish && npm run hosted",
-    "test": "mocha --require ts-node/register"
+    "test": "mocha --require ts-node/register",
+    "version": "npm test && npm run build && git add -A dist",
+    "deploy": "git push --follow-tags && npm publish && git push origin master:gh-pages -f"
   },
   "repository": {
     "type": "git",
@@ -52,6 +50,6 @@
   "bugs": {
     "url": "https://github.com/simonbengtsson/jsPDF-AutoTable/issues"
   },
-  "homepage": "https://simonbengtsson.github.io/jsPDF-AutoTable/",
+  "homepage": "https://simonbengtsson.github.io/jsPDF-AutoTable",
   "dependencies": {}
 }
