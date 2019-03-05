@@ -231,9 +231,9 @@
     }
 
     var base64Img, coinBase64Img;
-    imgToBase64('document.jpg', function(base64) {
+    imgToBase64('examples/document.jpg', function(base64) {
         base64Img = base64;
-        imgToBase64('coin.png', function(base64) {
+        imgToBase64('examples/coin.png', function(base64) {
             coinBase64Img = base64;
             update();
         });
