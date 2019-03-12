@@ -12,6 +12,7 @@
   },
   "devDependencies": {
     "@webpack-cli/migrate": "0.1.3",
+    "dts-bundle-generator": "^2.1.0",
     "jspdf": "1.5.3",
     "mocha": "5.2.0",
     "mock-browser": "0.92.14",
@@ -29,12 +30,13 @@
   },
   "scripts": {
     "start": "webpack-dev-server -d --open",
-    "build": "webpack --mode=production",
+    "build": "webpack --mode=production && npm run generate-dts",
     "copyLib": "cp ./node_modules/jspdf/dist/jspdf.debug.js ./examples/libs/jspdf.debug.js && cp ./dist/jspdf.plugin.autotable.js ./examples/libs/jspdf.plugin.autotable.js",
     "version": "npm test && npm run build && npm run copyLib && git add -A dist && git add -A examples && git add README.md",
     "hosted": "git checkout gh-pages && npm run build && git add -A && git commit -m \"Updated to latest version\" && git push && git checkout master && git clean -f -d",
     "deploy": "git push && git push --tags && npm publish && npm run hosted && npm i",
-    "test": "mocha --require ts-node/register"
+    "test": "mocha --require ts-node/register",
+    "generate-dts": "./node_modules/.bin/dts-bundle-generator -o index.d.ts ./dist/index.d.ts && rm ./dist/*.d.ts && mv ./index.d.ts ./dist/index.d.ts"
   },
   "repository": {
     "type": "git",
