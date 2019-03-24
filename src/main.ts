@@ -6,14 +6,18 @@ import {parseInput} from './inputParser';
 import {setDefaults, setupState, resetState} from './state';
 import './autoTableText';
 import {applyUserStyles} from "./common";
+import {UserOptions} from "./interfaces";
 
 const jsPDF = require('jspdf');
 
-jsPDF.API.autoTable = function() {
+export type autoTable = (options: UserOptions) => void
+
+function autoTable(options: UserOptions)
+function autoTable(...args) {
     setupState(this);
 
     // 1. Parse and unify user input
-    let table = parseInput(arguments);
+    let table = parseInput(args);
 
     // 2. Calculate preliminary table, column, row and cell dimensions
     calculateWidths(table);
@@ -29,7 +33,8 @@ jsPDF.API.autoTable = function() {
     applyUserStyles();
     resetState();
     return this;
-};
+}
+jsPDF.API.autoTable = autoTable;
 
 // Assign false to enable `doc.lastAutoTable.finalY || 40` sugar;
 jsPDF.API.lastAutoTable = false;

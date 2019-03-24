@@ -11,12 +11,10 @@ interface ColumnOption {
  * Properties
  */
 export interface UserOptions {
-
-}
-
-export interface UserOptions {
     columns?: string[] | ColumnOption[];
-    data?: any[][];
+    head?: any[][];
+    body?: any[][];
+    foot?: any[][];
 
     html?: HTMLTableElement | string;
     includeHiddenHtml?: boolean;

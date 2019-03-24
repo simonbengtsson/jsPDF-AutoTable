@@ -2,16 +2,16 @@
   "private": true,
   "dependencies": {
     "jspdf": "^1.5.3",
-    "jspdf-autotable": "github:pmstss/jsPDF-AutoTable#improvement/types-in-npm-package2"
+    "jspdf-autotable": "simonbengtsson/jspdf-AutoTable"
   },
   "devDependencies": {
     "@types/jspdf": "^1.2.2",
     "@types/node": "^11.10.4",
+    "browserify": "^16.2.3",
+    "tsify": "^4.0.1",
     "typescript": "^3.3.3333"
   },
   "scripts": {
-    "postinstall": "npm run build && npm run start",
-    "build": "tsc",
-    "start": "node ./dist/main.js"
+    "build": "browserify index.ts -p [ tsify ] > index.js"
   }
 }
