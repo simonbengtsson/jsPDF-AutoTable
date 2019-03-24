@@ -1,11 +1,10 @@
 {
   "compilerOptions": {
     "strictNullChecks": false,
-    "target": "es5",
+    "target": "ES5",
     "outDir": "./dist",
     "sourceMap": true,
-    "declaration": true,
-    "module": "es2015"
+    "declaration": true
   },
   "include": [
     "src/**/*"
