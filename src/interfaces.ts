@@ -1,4 +1,5 @@
 import {CellHookData} from "./HookData";
+import {UserOptions} from "../dist";
 
 interface ColumnOption {
     header?: string;
@@ -7,46 +8,7 @@ interface ColumnOption {
     dataKey?: string | number;
 }
 
-/**
- * Properties
- */
-export interface UserOptions {
-    columns?: string[] | ColumnOption[];
-    head?: any[][];
-    body?: any[][];
-    foot?: any[][];
-
-    html?: HTMLTableElement | string;
-    includeHiddenHtml?: boolean;
-    useCSS?: boolean;
-
-    headerRows?: number;
-    footerRows?: number;
-
-    startY?: number;
-    margin?: MarginPadding;
-    pageBreak?: boolean;
-    pageBreakRow?: boolean;
-    tableWidth?: 'auto' | 'wrap' | number;
-    showHead?: 'everyPage' | 'firstPage' | 'never';
-    showFoot?: 'everyPage' | 'lastPage' | 'never';
-    tableLineWidth?: number;
-    tableLineColor?: Color;
-    tableId?: any;
-
-    theme?: 'striped' | 'plain' | 'grid' | 'css';
-    styles?: Styles;
-    headerStyles?: Styles;
-    bodyStyles?: Styles;
-    footerStyles?: Styles;
-    alternateRowStyles?: Styles;
-    columnStyles?: Styles; // Prefer using the parseCell hook instead of this
-
-    createdCell?: () => {};
-    drawCell?: () => {};
-    didDrawCell?: () => {};
-    addPageContent?: () => {};
-}
+export type UserOptions = HTMLConfig | ContentConfig;
 
 type Color = [number, number, number] | number | 'transparent' | false;
 type MarginPadding = number | { top?: number, right?: number, bottom?: number, left?: number }
@@ -83,7 +45,7 @@ export interface BaseConfig {
     startY?: number,
     margin?: MarginPadding,
     pageBreak?: 'auto'|'avoid'|'always',
-    rowPageBreak: 'auto'|'avoid',
+    rowPageBreak?: 'auto'|'avoid',
     tableWidth?: 'auto' | 'wrap' | number,
     showHead?: 'everyPage' | 'firstPage' | 'never',
     showFoot?: 'everyPage' | 'lastPage' | 'never',

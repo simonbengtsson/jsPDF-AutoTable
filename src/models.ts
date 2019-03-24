@@ -11,30 +11,10 @@ type HookHandler = (data: HookData) => void | boolean;
 type CellHookHandler = (data: CellHookData) => void | boolean;
 
 class CellHooks {
-    willParseCell: CellHookHandler[] = [];
     didParseCell: CellHookHandler[] = [];
     willDrawCell: CellHookHandler[] = [];
     didDrawCell: CellHookHandler[] = [];
     didDrawPage: HookHandler[] = [];
-}
-
-type Color = [number, number, number] | number | 'transparent' | false;
-type MarginPadding = number | [number, number] | [number, number, number, number]
-
-interface Properties {
-    theme: 'auto' | 'striped' | 'grid' | 'plain', // default: striped
-    includeHiddenHtml: boolean,
-    useCss: boolean,
-    startY: null|number,
-    margin: MarginPadding,
-    pageBreak: 'auto'|'avoid'|'always',
-    rowPageBreak: 'auto'|'avoid',
-    tableWidth: 'auto' | 'wrap' | number,
-    showHead: 'everyPage' | 'firstPage' | 'never',
-    showFoot: 'everyPage' | 'lastPage' | 'never',
-    tableLineWidth: number,
-    tableLineColor: Color,
-    tableId: any,
 }
 
 export class Table {
