@@ -3,8 +3,7 @@
     "strictNullChecks": false,
     "target": "ES5",
     "outDir": "./dist",
-    "sourceMap": true,
-    "declaration": true
+    "sourceMap": true
   },
   "include": [
     "src/**/*"
