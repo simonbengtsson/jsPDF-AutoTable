@@ -1,6 +1,6 @@
 /*!
  * 
- *             jsPDF AutoTable plugin v3.0.13
+ *             jsPDF AutoTable plugin v3.1.0
  *             
  *             Copyright (c) 2014 Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable
  *             Licensed under the MIT License.
@@ -1250,7 +1250,6 @@ var common_1 = __webpack_require__(1);
 var assign = __webpack_require__(11);
 var CellHooks = /** @class */ (function () {
     function CellHooks() {
-        this.willParseCell = [];
         this.didParseCell = [];
         this.willDrawCell = [];
         this.didDrawCell = [];
