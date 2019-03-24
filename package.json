@@ -14,22 +14,22 @@
     "jspdf": "^1.5.3"
   },
   "devDependencies": {
-    "@webpack-cli/migrate": "0.1.5",
+    "@webpack-cli/migrate": "^0.1.5",
     "dts-bundle-generator": "^2.1.0",
-    "jspdf": "1.5.3",
-    "mocha": "6.0.2",
-    "mock-browser": "0.92.14",
-    "mock-require": "3.0.3",
-    "object-assign": "4.1.1",
-    "object.entries": "1.1.0",
-    "ts-loader": "5.3.3",
-    "ts-node": "8.0.3",
-    "typedoc": "0.14.2",
-    "typescript": "3.3.4000",
-    "uglifyjs-webpack-plugin": "2.1.2",
-    "webpack": "4.29.6",
-    "webpack-cli": "3.3.0",
-    "webpack-dev-server": "3.2.1"
+    "jspdf": "^1.5.3",
+    "mocha": "^6.0.2",
+    "mock-browser": "^0.92.14",
+    "mock-require": "^3.0.3",
+    "object-assign": "^4.1.1",
+    "object.entries": "^1.1.0",
+    "ts-loader": "^5.3.3",
+    "ts-node": "^8.0.3",
+    "typedoc": "^0.14.2",
+    "typescript": "^3.3.4000",
+    "uglifyjs-webpack-plugin": "^2.1.2",
+    "webpack": "^4.29.6",
+    "webpack-cli": "^3.3.0",
+    "webpack-dev-server": "^3.2.1"
   },
   "scripts": {
     "start": "webpack-dev-server -d --open",
@@ -37,7 +37,7 @@
     "test": "mocha --require ts-node/register",
     "version": "npm test && npm run build && git add -A dist",
     "deploy": "git push --follow-tags && git push origin master:gh-pages -f && npm publish",
-    "generate-dts": "./node_modules/.bin/dts-bundle-generator -o index.d.ts ./dist/index.d.ts && rm ./dist/*.d.ts && mv ./index.d.ts ./dist/index.d.ts"
+    "generate-dts": "./node_modules/.bin/dts-bundle-generator ./src/main.ts -o ./dist/index.d.ts"
   },
   "repository": {
     "type": "git",
