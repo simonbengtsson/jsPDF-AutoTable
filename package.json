@@ -33,11 +33,11 @@
   },
   "scripts": {
     "start": "webpack-dev-server -d --open",
-    "build": "webpack --mode=production && npm run generate-dts",
+    "build": "webpack --mode=production && npm run types",
     "test": "mocha --require ts-node/register",
     "version": "npm test && npm run build && git add -A dist",
     "deploy": "git push --follow-tags && git push origin master:gh-pages -f && npm publish",
-    "generate-dts": "./node_modules/.bin/dts-bundle-generator ./src/main.ts -o ./dist/index.d.ts"
+    "types": "dts-bundle-generator src/main.ts -o ./dist/index.d.ts"
   },
   "repository": {
     "type": "git",

@@ -7,7 +7,7 @@ export interface ColumnOption {
 /**
  * Properties
  */
-export interface UserOptions {
+interface UserOptions {
 	columns?: string[] | ColumnOption[];
 	head?: any[][];
 	body?: any[][];
@@ -39,8 +39,8 @@ export interface UserOptions {
 	didDrawCell?: () => {};
 	addPageContent?: () => {};
 }
-export declare type Color = [number, number, number] | number | 'transparent' | false;
-export declare type MarginPadding = number | {
+type Color = [number, number, number] | number | 'transparent' | false;
+type MarginPadding = number | {
 	top?: number;
 	right?: number;
 	bottom?: number;
