@@ -1,5 +1,4 @@
 import {CellHookData} from "./HookData";
-import {UserOptions} from "../dist";
 
 interface ColumnOption {
     header?: string;
@@ -39,7 +38,7 @@ type CellType = null | string | number | boolean | CellDefinition
 type MultipleRowType = CellType[][] | { string: CellType }[]
 type SingleRowType = CellType[] | { string: CellType }
 
-export interface BaseConfig {
+interface BaseConfig {
     // Properties
     theme?: 'striped' | 'grid' | 'plain',
     startY?: number,
@@ -68,12 +67,12 @@ export interface BaseConfig {
     didDrawPage?: (data: CellHookData) => void;
 }
 
-export interface ContentConfig extends BaseConfig {
+interface ContentConfig extends BaseConfig {
     head?: SingleRowType | MultipleRowType
     foot?: SingleRowType | MultipleRowType
     body: MultipleRowType
 }
 
-export interface HTMLConfig extends BaseConfig {
+interface HTMLConfig extends BaseConfig {
     html: string | HTMLElement;
 }
