@@ -2,7 +2,7 @@
   "private": true,
   "dependencies": {
     "jspdf": "^1.5.3",
-    "jspdf-autotable": "simonbengtsson/jspdf-AutoTable"
+    "jspdf-autotable": "^3.1.0"
   },
   "devDependencies": {
     "@types/jspdf": "^1.2.2",
