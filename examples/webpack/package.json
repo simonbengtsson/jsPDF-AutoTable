@@ -1,11 +1,11 @@
 {
   "private": true,
   "dependencies": {
-    "jspdf": "^1.3.2",
-    "jspdf-autotable": "simonbengtsson/jspdf-autotable"
+    "jspdf": "^1.5.3",
+    "jspdf-autotable": "^3.1.0"
   },
   "devDependencies": {
-    "webpack": "^1.13.1"
+    "webpack": "^4.29.6"
   },
   "scripts": {
     "build": "webpack"
