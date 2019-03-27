@@ -1,4 +1,4 @@
-import * as jsPDF from 'jspdf';
+import jsPDF = require('jspdf');
 import 'jspdf-autotable';
 type AutoTable = import('jspdf-autotable').autoTable;
 
