@@ -1,5 +1,11 @@
 import jsPDF = require('jspdf');
 import 'jspdf-autotable';
+
+// This is a hack for typing this plugin. It should be possible to do
+// with typescript augmentation feature, but the way jspdf's types are
+// defined and the way jspdf is exported makes it hard to implement
+// https://stackoverflow.com/q/55328516/827047
+
 type AutoTable = import('jspdf-autotable').autoTable;
 
 // stats from https://en.wikipedia.org/wiki/World_Happiness_Report (2018)
