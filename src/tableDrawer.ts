@@ -75,7 +75,7 @@ function printFullRow(row: Row, isLastRow) {
                     }
                 }
 
-                cell.height = remainingPageSpace;
+                cell.height = Math.min(remainingPageSpace, cell.height);
             }
         }
     }
