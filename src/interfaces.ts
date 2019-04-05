@@ -58,9 +58,9 @@ interface BaseConfig {
     headStyles?: Styles,
     footStyles?: Styles,
     alternateRowStyles?: Styles,
-	columnStyles?: {
-		[key: string]: Styles;
-	};
+    columnStyles?: {
+        [key: string]: Styles;
+    };
 
     // Hooks
     didParseCell?: (data: CellHookData) => void;
@@ -76,8 +76,8 @@ interface ContentConfig extends BaseConfig {
 }
 
 interface ColumnDataConfig extends BaseConfig {
-	columns?: ColumnOption[];
-	body: object[];
+    columns?: ColumnOption[];
+    body: object[];
 }
 
 interface HTMLConfig extends BaseConfig {
