@@ -1,6 +1,6 @@
 /*!
  * 
- *             jsPDF AutoTable plugin v3.1.0
+ *             jsPDF AutoTable plugin v3.1.1
  *             
  *             Copyright (c) 2014 Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable
  *             Licensed under the MIT License.
@@ -682,7 +682,7 @@ function printFullRow(row, isLastRow) {
                         remainingRowHeight = rCellHeight;
                     }
                 }
-                cell.height = remainingPageSpace;
+                cell.height = Math.min(remainingPageSpace, cell.height);
             }
         }
     }
