@@ -37,7 +37,7 @@ module.exports = {
     },
     performance: { hints: false },
     devServer: {
-        contentBase: "./examples",
+        contentBase: ".",
         port: 9000,
         proxy: {
             "/libs/jspdf.plugin.autotable.js": {
