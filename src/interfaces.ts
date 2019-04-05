@@ -58,7 +58,9 @@ interface BaseConfig {
     headStyles?: Styles,
     footStyles?: Styles,
     alternateRowStyles?: Styles,
-    columnStyles?: Styles,
+	columnStyles?: {
+		[key: string]: Styles;
+	};
 
     // Hooks
     didParseCell?: (data: CellHookData) => void;

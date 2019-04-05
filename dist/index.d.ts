@@ -160,7 +160,9 @@ export interface BaseConfig {
 	headStyles?: Styles;
 	footStyles?: Styles;
 	alternateRowStyles?: Styles;
-	columnStyles?: Styles;
+	columnStyles?: {
+		[key: string]: Styles;
+	};
 	didParseCell?: (data: CellHookData) => void;
 	willDrawCell?: (data: CellHookData) => void;
 	didDrawCell?: (data: CellHookData) => void;
