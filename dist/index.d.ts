@@ -108,7 +108,13 @@ declare class CellHookData extends HookData {
 	section: 'head' | 'body' | 'foot';
 	constructor(cell: Cell, row: Row, column: Column);
 }
-export declare type UserOptions = HTMLConfig | ContentConfig;
+export interface ColumnOption {
+	header?: string;
+	title?: string;
+	footer?: string;
+	dataKey?: string | number;
+}
+export declare type UserOptions = HTMLConfig | ContentConfig | ColumnDataConfig;
 export declare type Color = [number, number, number] | number | 'transparent' | false;
 export declare type MarginPadding = number | {
 	top?: number;
@@ -172,6 +178,10 @@ export interface ContentConfig extends BaseConfig {
 	head?: SingleRowType | MultipleRowType;
 	foot?: SingleRowType | MultipleRowType;
 	body: MultipleRowType;
+}
+export interface ColumnDataConfig extends BaseConfig {
+	columns?: ColumnOption[];
+	body: object[];
 }
 export interface HTMLConfig extends BaseConfig {
 	html: string | HTMLElement;
