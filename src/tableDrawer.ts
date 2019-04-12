@@ -241,7 +241,7 @@ function printEmptyCellBorder(rowspanCellsCached) {
     let table: Table = state().table;
     table.cursor.x = table.margin('left');
     if (rowspanCellsCached !== undefined) {
-        _.forIn(rowspanCellsCached, (cell: any) => {
+        _.forIn(rowspanCellsCached, (cell: any, key) => {
             applyStyles(cell.styles);
 
             let fillStyle = getFillStyle(cell.styles);
@@ -249,8 +249,8 @@ function printEmptyCellBorder(rowspanCellsCached) {
                 state().doc.rect(table.cursor.x, table.cursor.y, cell.width, cell.height, fillStyle);
             }
             table.cursor.x += cell.width;
+            delete rowspanCellsCached[key];
         });
-        rowspanCellsCached = {};
     }
 }
 
