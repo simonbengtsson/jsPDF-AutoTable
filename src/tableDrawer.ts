@@ -2,6 +2,7 @@ import {FONT_ROW_RATIO} from './config';
 import {getFillStyle, addTableBorder, applyStyles, applyUserStyles} from './common';
 import {Row, Table} from "./models";
 import state from "./state";
+import * as _ from "lodash";
 
 export function drawTable(table: Table) {
     let settings = table.settings;
@@ -23,13 +24,14 @@ export function drawTable(table: Table) {
     
     table.startPageNumber = state().pageNumber();
 
+    let rowspanCellsCached = {};
     applyUserStyles();
     if (settings.showHead === true || settings.showHead === 'firstPage' || settings.showHead === 'everyPage') {
         table.head.forEach((row) => printRow(row))
     }
     applyUserStyles();
     table.body.forEach(function(row, index) {
-        printFullRow(row, index === table.body.length - 1);
+        printFullRow(row, index === table.body.length - 1, rowspanCellsCached);
     });
     applyUserStyles();
     if (settings.showFoot === true || settings.showFoot === 'lastPage' || settings.showFoot === 'everyPage') {
@@ -41,7 +43,7 @@ export function drawTable(table: Table) {
     table.callEndPageHooks();
 }
 
-function printFullRow(row: Row, isLastRow) {
+function printFullRow(row: Row, isLastRow: boolean, rowspanCellsCached: object) {
     let remainingRowHeight = 0;
     let remainingTexts = {};
 
@@ -50,7 +52,7 @@ function printFullRow(row: Row, isLastRow) {
     let remainingPageSpace = getRemainingPageSpace(isLastRow);
     if (remainingPageSpace < row.maxCellHeight) {
         if (remainingPageSpace < getOneRowHeight(row) || (table.settings.rowPageBreak === 'avoid' && !rowHeightGreaterThanMaxTableHeight(row))) {
-            addPage();
+            addPage(rowspanCellsCached);
         } else {
             // Modify the row to fit the current page and calculate text and height of partial row
             row.spansMultiplePages = true;
@@ -73,14 +75,18 @@ function printFullRow(row: Row, isLastRow) {
                     if (rCellHeight > remainingRowHeight) {
                         remainingRowHeight = rCellHeight;
                     }
+                } else if (cell.height > remainingPageSpace) {
+                    // this cell has rowspan and it will break through page
+                    // cache the cell so that border can be printed in next page
+                    rowspanCellsCached[j] = _.cloneDeep(cell);
+                    rowspanCellsCached[j].text = [];
                 }
-
                 cell.height = Math.min(remainingPageSpace, cell.height);
             }
         }
     }
 
-    printRow(row);
+    printRow(row, rowspanCellsCached);
 
     // Parts of the row is now printed. Time for adding a new page, prune 
     // the text and start over
@@ -101,11 +107,11 @@ function printFullRow(row: Row, isLastRow) {
             }
         }
 
-        addPage();
+        addPage(rowspanCellsCached);
         row.pageNumber++;
         row.height = remainingRowHeight;
         row.maxCellHeight = maxCellHeight;
-        printFullRow(row, isLastRow);
+        printFullRow(row, isLastRow, rowspanCellsCached);
     }
 }
 
@@ -127,7 +133,7 @@ function rowHeightGreaterThanMaxTableHeight(row) {
     return row.maxCellHeight > maxTableHeight
 }
 
-function printRow(row) {
+function printRow(row, rowspanCellsCached?: object) {
     let table: Table = state().table;
 
     table.cursor.x = table.margin('left');
@@ -186,6 +192,12 @@ function printRow(row) {
     }
     
     table.cursor.y += row.height;
+    if (rowspanCellsCached !== undefined) {
+        // calculate remaining height of rowspan cell
+        _.forIn(rowspanCellsCached, (value: any) => {
+            value.height -= row.height;
+        });
+    }
 }
 
 function getRemainingPageSpace(isLastRow) {
@@ -198,7 +210,7 @@ function getRemainingPageSpace(isLastRow) {
     return state().pageHeight() - table.cursor.y - bottomContentHeight;
 }
 
-export function addPage() {
+export function addPage(rowspanCellsCached) {
     let table: Table = state().table;
 
     applyUserStyles();
@@ -219,6 +231,26 @@ export function addPage() {
     table.pageStartY = table.cursor.y;
     if (table.settings.showHead === true || table.settings.showHead === 'everyPage') {
         table.head.forEach((row) => printRow(row));
+    }
+    if (!_.isEmpty(rowspanCellsCached)) {
+        printEmptyCellBorder(rowspanCellsCached);
+    }
+}
+
+function printEmptyCellBorder(rowspanCellsCached) {
+    let table: Table = state().table;
+    table.cursor.x = table.margin('left');
+    if (rowspanCellsCached !== undefined) {
+        _.forIn(rowspanCellsCached, (cell: any) => {
+            applyStyles(cell.styles);
+
+            let fillStyle = getFillStyle(cell.styles);
+            if (fillStyle) {
+                state().doc.rect(table.cursor.x, table.cursor.y, cell.width, cell.height, fillStyle);
+            }
+            table.cursor.x += cell.width;
+        });
+        rowspanCellsCached = {};
     }
 }
 
