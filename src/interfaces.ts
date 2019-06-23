@@ -7,7 +7,7 @@ interface ColumnOption {
     dataKey?: string | number;
 }
 
-export type UserOptions = HTMLConfig | ContentConfig;
+export type UserOptions = HTMLConfig | ContentConfig | ColumnDataConfig;
 
 type Color = [number, number, number] | number | 'transparent' | false;
 type MarginPadding = number | { top?: number, right?: number, bottom?: number, left?: number }
@@ -58,7 +58,9 @@ interface BaseConfig {
     headStyles?: Styles,
     footStyles?: Styles,
     alternateRowStyles?: Styles,
-    columnStyles?: Styles,
+    columnStyles?: {
+        [key: string]: Styles;
+    };
 
     // Hooks
     didParseCell?: (data: CellHookData) => void;
@@ -71,6 +73,11 @@ interface ContentConfig extends BaseConfig {
     head?: SingleRowType | MultipleRowType
     foot?: SingleRowType | MultipleRowType
     body: MultipleRowType
+}
+
+interface ColumnDataConfig extends BaseConfig {
+    columns?: ColumnOption[];
+    body: object[];
 }
 
 interface HTMLConfig extends BaseConfig {

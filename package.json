@@ -1,6 +1,6 @@
 {
   "name": "jspdf-autotable",
-  "version": "3.1.0",
+  "version": "3.1.1",
   "description": "Generate pdf tables with javascript (jsPDF plugin)",
   "main": "dist/jspdf.plugin.autotable.js",
   "types": "dist/index",
@@ -25,7 +25,7 @@
     "ts-loader": "^5.3.3",
     "ts-node": "^8.0.3",
     "typedoc": "^0.14.2",
-    "typescript": "^3.3.4000",
+    "typescript": "^3.4.1",
     "uglifyjs-webpack-plugin": "^2.1.2",
     "webpack": "^4.29.6",
     "webpack-cli": "^3.3.0",
