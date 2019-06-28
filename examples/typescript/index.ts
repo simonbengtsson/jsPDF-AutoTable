@@ -6,7 +6,7 @@ import 'jspdf-autotable';
 // defined and the way jspdf is exported makes it hard to implement
 // https://stackoverflow.com/q/55328516/827047
 
-type AutoTable = import('jspdf-autotable').autoTable;
+import { autoTable as AutoTable } from 'jspdf-autotable';
 
 // stats from https://en.wikipedia.org/wiki/World_Happiness_Report (2018)
 var head = [['ID', 'Country', 'Rank', 'Capital']];

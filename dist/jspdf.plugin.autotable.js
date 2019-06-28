@@ -1,6 +1,6 @@
 /*!
  * 
- *             jsPDF AutoTable plugin v3.1.0
+ *             jsPDF AutoTable plugin v3.1.1
  *             
  *             Copyright (c) 2014 Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable
  *             Licensed under the MIT License.
@@ -981,14 +981,7 @@ function printFullRow(row, isLastRow, cachedBreakPageRow) {
     if (cachedBreakPageRow && !(Object.keys(cachedBreakPageRow.cells).length === 0)) {
         // calculate remaining height of rowspan cell
         Object.keys(cachedBreakPageRow.cells).forEach(function (key) {
-            // if (cachedBreakPageRow.cells[key].rowSpan === 0) {
-            //     delete cachedBreakPageRow.cells[key];
-            //     return;
-            // }
             cachedBreakPageRow.cells[key].height -= row.height;
-            // if (row.index !== -1) {
-            //     cachedBreakPageRow.cells[key].rowSpan--;
-            // }
         });
     }
 }
