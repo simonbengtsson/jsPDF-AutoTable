@@ -18,7 +18,7 @@
 		var a = typeof exports === 'object' ? factory(require("jspdf")) : factory(root["jsPDF"]);
 		for(var i in a) (typeof exports === 'object' ? exports : root)[i] = a[i];
 	}
-})(window, function(__WEBPACK_EXTERNAL_MODULE__5__) {
+})(window, function(__WEBPACK_EXTERNAL_MODULE__6__) {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -102,7 +102,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 6);
+/******/ 	return __webpack_require__(__webpack_require__.s = 7);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -493,9 +493,9 @@ exports.assign = assign;
 Object.defineProperty(exports, "__esModule", { value: true });
 var config_1 = __webpack_require__(2);
 var state_1 = __webpack_require__(0);
-var HookData_1 = __webpack_require__(8);
+var HookData_1 = __webpack_require__(9);
 var common_1 = __webpack_require__(1);
-var assign = __webpack_require__(9);
+var assign = __webpack_require__(5);
 var CellHooks = /** @class */ (function () {
     function CellHooks() {
         this.didParseCell = [];
@@ -663,24 +663,121 @@ exports.Column = Column;
 
 /***/ }),
 /* 5 */
-/***/ (function(module, exports) {
+/***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __WEBPACK_EXTERNAL_MODULE__5__;
+"use strict";
+/*
+object-assign
+(c) Sindre Sorhus
+@license MIT
+*/
+
+
+/* eslint-disable no-unused-vars */
+var getOwnPropertySymbols = Object.getOwnPropertySymbols;
+var hasOwnProperty = Object.prototype.hasOwnProperty;
+var propIsEnumerable = Object.prototype.propertyIsEnumerable;
+
+function toObject(val) {
+	if (val === null || val === undefined) {
+		throw new TypeError('Object.assign cannot be called with null or undefined');
+	}
+
+	return Object(val);
+}
+
+function shouldUseNative() {
+	try {
+		if (!Object.assign) {
+			return false;
+		}
+
+		// Detect buggy property enumeration order in older V8 versions.
+
+		// https://bugs.chromium.org/p/v8/issues/detail?id=4118
+		var test1 = new String('abc');  // eslint-disable-line no-new-wrappers
+		test1[5] = 'de';
+		if (Object.getOwnPropertyNames(test1)[0] === '5') {
+			return false;
+		}
+
+		// https://bugs.chromium.org/p/v8/issues/detail?id=3056
+		var test2 = {};
+		for (var i = 0; i < 10; i++) {
+			test2['_' + String.fromCharCode(i)] = i;
+		}
+		var order2 = Object.getOwnPropertyNames(test2).map(function (n) {
+			return test2[n];
+		});
+		if (order2.join('') !== '0123456789') {
+			return false;
+		}
+
+		// https://bugs.chromium.org/p/v8/issues/detail?id=3056
+		var test3 = {};
+		'abcdefghijklmnopqrst'.split('').forEach(function (letter) {
+			test3[letter] = letter;
+		});
+		if (Object.keys(Object.assign({}, test3)).join('') !==
+				'abcdefghijklmnopqrst') {
+			return false;
+		}
+
+		return true;
+	} catch (err) {
+		// We don't expect any of the above to throw, but better to be safe.
+		return false;
+	}
+}
+
+module.exports = shouldUseNative() ? Object.assign : function (target, source) {
+	var from;
+	var to = toObject(target);
+	var symbols;
+
+	for (var s = 1; s < arguments.length; s++) {
+		from = Object(arguments[s]);
+
+		for (var key in from) {
+			if (hasOwnProperty.call(from, key)) {
+				to[key] = from[key];
+			}
+		}
+
+		if (getOwnPropertySymbols) {
+			symbols = getOwnPropertySymbols(from);
+			for (var i = 0; i < symbols.length; i++) {
+				if (propIsEnumerable.call(from, symbols[i])) {
+					to[symbols[i]] = from[symbols[i]];
+				}
+			}
+		}
+	}
+
+	return to;
+};
+
 
 /***/ }),
 /* 6 */
+/***/ (function(module, exports) {
+
+module.exports = __WEBPACK_EXTERNAL_MODULE__6__;
+
+/***/ }),
+/* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var tableDrawer_1 = __webpack_require__(7);
+var tableDrawer_1 = __webpack_require__(8);
 var widthCalculator_1 = __webpack_require__(10);
 var inputParser_1 = __webpack_require__(11);
 var state_1 = __webpack_require__(0);
 __webpack_require__(15);
 var common_1 = __webpack_require__(1);
-var jsPDF = __webpack_require__(5);
+var jsPDF = __webpack_require__(6);
 function autoTable() {
     var args = [];
     for (var _i = 0; _i < arguments.length; _i++) {
@@ -788,7 +885,7 @@ jsPDF.API.autoTableAddPage = function () {
 
 
 /***/ }),
-/* 7 */
+/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -798,6 +895,7 @@ var config_1 = __webpack_require__(2);
 var common_1 = __webpack_require__(1);
 var models_1 = __webpack_require__(4);
 var state_1 = __webpack_require__(0);
+var assign = __webpack_require__(5);
 function drawTable(table) {
     var settings = table.settings;
     table.cursor = {
@@ -817,6 +915,7 @@ function drawTable(table) {
     table.startPageNumber = state_1.default().pageNumber();
     // a empty row used to cached cells those break through page
     var cachedBreakPageRow = new models_1.Row([], 0, 'body');
+    cachedBreakPageRow.index = -1;
     common_1.applyUserStyles();
     if (settings.showHead === true || settings.showHead === 'firstPage' || settings.showHead === 'everyPage') {
         table.head.forEach(function (row) { return printRow(row); });
@@ -834,7 +933,6 @@ function drawTable(table) {
 }
 exports.drawTable = drawTable;
 function printFullRow(row, isLastRow, cachedBreakPageRow) {
-    var remainingRowHeight = 0;
     var remainingTexts = {};
     var table = state_1.default().table;
     var remainingPageSpace = getRemainingPageSpace(isLastRow);
@@ -861,17 +959,19 @@ function printFullRow(row, isLastRow, cachedBreakPageRow) {
                     if (cell.rowSpan === 1) {
                         row.height = Math.min(row.height, actualHeight);
                     }
-                    var newCell = JSON.parse(JSON.stringify(cell));
-                    newCell.hasText = true;
+                    var newCell = new models_1.Cell(cell, cell.styles, cell.section);
+                    newCell.height = cell.height;
+                    newCell.width = cell.width;
                     newCell.text = remainingTexts[column.dataKey];
                     cachedBreakPageRow.cells[column.dataKey] = newCell;
                 }
                 else if (cell.height > remainingPageSpace) {
                     // this cell has rowspan and it will break through page
                     // cache the cell so that border can be printed in next page
-                    cachedBreakPageRow.cells[column.dataKey] = JSON.parse(JSON.stringify(cell));
+                    cachedBreakPageRow.cells[column.dataKey] = new models_1.Cell(cell, cell.styles, cell.section);
+                    cachedBreakPageRow.cells[column.dataKey].height = cell.height;
+                    cachedBreakPageRow.cells[column.dataKey].width = cell.width;
                     cachedBreakPageRow.cells[column.dataKey].text = [];
-                    cachedBreakPageRow.cells[column.dataKey].hasText = false;
                 }
                 cell.height = Math.min(remainingPageSpace, cell.height);
             }
@@ -881,7 +981,14 @@ function printFullRow(row, isLastRow, cachedBreakPageRow) {
     if (cachedBreakPageRow && !(Object.keys(cachedBreakPageRow.cells).length === 0)) {
         // calculate remaining height of rowspan cell
         Object.keys(cachedBreakPageRow.cells).forEach(function (key) {
+            // if (cachedBreakPageRow.cells[key].rowSpan === 0) {
+            //     delete cachedBreakPageRow.cells[key];
+            //     return;
+            // }
             cachedBreakPageRow.cells[key].height -= row.height;
+            // if (row.index !== -1) {
+            //     cachedBreakPageRow.cells[key].rowSpan--;
+            // }
         });
     }
 }
@@ -985,16 +1092,23 @@ function addPage(cachedBreakPageRow) {
     if (table.settings.showHead === true || table.settings.showHead === 'everyPage') {
         table.head.forEach(function (row) { return printRow(row); });
     }
-    // when there is a cached row, print it firstly
-    var cloneCachedRow = JSON.parse(JSON.stringify(cachedBreakPageRow));
-    cloneCachedRow.height = 0;
-    Object.keys(cachedBreakPageRow.cells).forEach(function (key) {
-        if (cachedBreakPageRow.cells[key].rowSpan > 1)
-            return;
-        cloneCachedRow.height = cachedBreakPageRow.cells[key].height;
-    });
-    cachedBreakPageRow = new models_1.Row([], 0, 'body');
-    printFullRow(cloneCachedRow, false, cachedBreakPageRow);
+    if (cachedBreakPageRow && !(Object.keys(cachedBreakPageRow.cells).length === 0)) {
+        // when there is a cached row, print it firstly
+        var cloneCachedRow_1 = assign({}, cachedBreakPageRow);
+        cloneCachedRow_1.height = 0;
+        Object.keys(cachedBreakPageRow.cells).forEach(function (key) {
+            // recalculate maxCellHeight
+            if (cloneCachedRow_1.maxCellHeight < cachedBreakPageRow.cells[key].height) {
+                cloneCachedRow_1.maxCellHeight = cachedBreakPageRow.cells[key].height;
+            }
+            if (cachedBreakPageRow.cells[key].rowSpan > 1)
+                return;
+            // cachedRow height should be equal to the height of non-spanning cells
+            cloneCachedRow_1.height = cachedBreakPageRow.cells[key].height;
+        });
+        cachedBreakPageRow.cells = {};
+        printFullRow(cloneCachedRow_1, false, cachedBreakPageRow);
+    }
 }
 exports.addPage = addPage;
 function nextPage(doc) {
@@ -1008,7 +1122,7 @@ function nextPage(doc) {
 
 
 /***/ }),
-/* 8 */
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1060,103 +1174,6 @@ var CellHookData = /** @class */ (function (_super) {
     return CellHookData;
 }(HookData));
 exports.CellHookData = CellHookData;
-
-
-/***/ }),
-/* 9 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/*
-object-assign
-(c) Sindre Sorhus
-@license MIT
-*/
-
-
-/* eslint-disable no-unused-vars */
-var getOwnPropertySymbols = Object.getOwnPropertySymbols;
-var hasOwnProperty = Object.prototype.hasOwnProperty;
-var propIsEnumerable = Object.prototype.propertyIsEnumerable;
-
-function toObject(val) {
-	if (val === null || val === undefined) {
-		throw new TypeError('Object.assign cannot be called with null or undefined');
-	}
-
-	return Object(val);
-}
-
-function shouldUseNative() {
-	try {
-		if (!Object.assign) {
-			return false;
-		}
-
-		// Detect buggy property enumeration order in older V8 versions.
-
-		// https://bugs.chromium.org/p/v8/issues/detail?id=4118
-		var test1 = new String('abc');  // eslint-disable-line no-new-wrappers
-		test1[5] = 'de';
-		if (Object.getOwnPropertyNames(test1)[0] === '5') {
-			return false;
-		}
-
-		// https://bugs.chromium.org/p/v8/issues/detail?id=3056
-		var test2 = {};
-		for (var i = 0; i < 10; i++) {
-			test2['_' + String.fromCharCode(i)] = i;
-		}
-		var order2 = Object.getOwnPropertyNames(test2).map(function (n) {
-			return test2[n];
-		});
-		if (order2.join('') !== '0123456789') {
-			return false;
-		}
-
-		// https://bugs.chromium.org/p/v8/issues/detail?id=3056
-		var test3 = {};
-		'abcdefghijklmnopqrst'.split('').forEach(function (letter) {
-			test3[letter] = letter;
-		});
-		if (Object.keys(Object.assign({}, test3)).join('') !==
-				'abcdefghijklmnopqrst') {
-			return false;
-		}
-
-		return true;
-	} catch (err) {
-		// We don't expect any of the above to throw, but better to be safe.
-		return false;
-	}
-}
-
-module.exports = shouldUseNative() ? Object.assign : function (target, source) {
-	var from;
-	var to = toObject(target);
-	var symbols;
-
-	for (var s = 1; s < arguments.length; s++) {
-		from = Object(arguments[s]);
-
-		for (var key in from) {
-			if (hasOwnProperty.call(from, key)) {
-				to[key] = from[key];
-			}
-		}
-
-		if (getOwnPropertySymbols) {
-			symbols = getOwnPropertySymbols(from);
-			for (var i = 0; i < symbols.length; i++) {
-				if (propIsEnumerable.call(from, symbols[i])) {
-					to[symbols[i]] = from[symbols[i]];
-				}
-			}
-		}
-	}
-
-	return to;
-};
 
 
 /***/ }),
@@ -1823,7 +1840,7 @@ function checkStyles(styles) {
 /* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var jsPDF = __webpack_require__(5);
+var jsPDF = __webpack_require__(6);
 /**
  * Improved text function with halign and valign support
  * Inspiration from: http://stackoverflow.com/questions/28327510/align-text-right-using-jspdf/28433113#28433113

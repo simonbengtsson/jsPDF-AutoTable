@@ -1,7 +1,8 @@
 import {FONT_ROW_RATIO} from './config';
 import {getFillStyle, addTableBorder, applyStyles, applyUserStyles} from './common';
-import {Row, Table} from "./models";
+import {Row, Table, Cell} from "./models";
 import state from "./state";
+let assign = require('object-assign');
 
 export function drawTable(table: Table) {
     let settings = table.settings;
@@ -25,7 +26,7 @@ export function drawTable(table: Table) {
 
     // a empty row used to cached cells those break through page
     let cachedBreakPageRow = new Row([], 0, 'body');
-
+    cachedBreakPageRow.index = -1;
     applyUserStyles();
     if (settings.showHead === true || settings.showHead === 'firstPage' || settings.showHead === 'everyPage') {
         table.head.forEach((row) => printRow(row))
@@ -45,7 +46,6 @@ export function drawTable(table: Table) {
 }
 
 function printFullRow(row: Row, isLastRow: boolean, cachedBreakPageRow: Row) {
-    let remainingRowHeight = 0;
     let remainingTexts = {};
 
     let table = state().table;
@@ -77,16 +77,19 @@ function printFullRow(row: Row, isLastRow: boolean, cachedBreakPageRow: Row) {
                         row.height = Math.min(row.height, actualHeight);
                     }
 
-                    let newCell = JSON.parse(JSON.stringify(cell));
-                    newCell.hasText = true;
+                    let newCell: Cell = new Cell(cell, cell.styles, cell.section);
+                    newCell.height = cell.height;
+                    newCell.width = cell.width;
                     newCell.text = remainingTexts[column.dataKey];
                     cachedBreakPageRow.cells[column.dataKey] = newCell;
                 } else if (cell.height > remainingPageSpace) {
                     // this cell has rowspan and it will break through page
                     // cache the cell so that border can be printed in next page
-                    cachedBreakPageRow.cells[column.dataKey] = JSON.parse(JSON.stringify(cell));
+                    cachedBreakPageRow.cells[column.dataKey] =  new Cell(cell, cell.styles, cell.section);
+                    cachedBreakPageRow.cells[column.dataKey].height = cell.height;
+                    cachedBreakPageRow.cells[column.dataKey].width = cell.width;
                     cachedBreakPageRow.cells[column.dataKey].text = [];
-                    cachedBreakPageRow.cells[column.dataKey].hasText = false;
+
                 }
                 cell.height = Math.min(remainingPageSpace, cell.height);
             }
@@ -213,16 +216,22 @@ export function addPage(cachedBreakPageRow) {
     if (table.settings.showHead === true || table.settings.showHead === 'everyPage') {
         table.head.forEach((row) => printRow(row));
     }
-    // when there is a cached row, print it firstly
-    let cloneCachedRow = JSON.parse(JSON.stringify(cachedBreakPageRow));
-    cloneCachedRow.height = 0;
-    Object.keys(cachedBreakPageRow.cells).forEach((key: string) => {
-        if (cachedBreakPageRow.cells[key].rowSpan > 1) return;
-        cloneCachedRow.height = cachedBreakPageRow.cells[key].height;
-    });
-    cachedBreakPageRow = new Row([], 0, 'body');
-    printFullRow(cloneCachedRow, false, cachedBreakPageRow);
-
+    if (cachedBreakPageRow && !(Object.keys(cachedBreakPageRow.cells).length === 0)) {
+        // when there is a cached row, print it firstly
+        let cloneCachedRow = assign({}, cachedBreakPageRow);
+        cloneCachedRow.height = 0;
+        Object.keys(cachedBreakPageRow.cells).forEach((key: string) => {
+            // recalculate maxCellHeight
+            if (cloneCachedRow.maxCellHeight < cachedBreakPageRow.cells[key].height) {
+                cloneCachedRow.maxCellHeight = cachedBreakPageRow.cells[key].height;
+            }
+            if (cachedBreakPageRow.cells[key].rowSpan > 1) return;
+            // cachedRow height should be equal to the height of non-spanning cells
+            cloneCachedRow.height = cachedBreakPageRow.cells[key].height;
+        });
+        cachedBreakPageRow.cells = {};
+        printFullRow(cloneCachedRow, false, cachedBreakPageRow);
+    }
 }
 
 function nextPage(doc) {
