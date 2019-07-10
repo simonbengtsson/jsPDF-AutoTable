@@ -143,7 +143,7 @@ export class Cell {
         let fromHtml = typeof window === 'object' && (<any>window).HTMLElement && content instanceof (<any>window).HTMLElement;
         this.raw = fromHtml ? content : raw;
         if (content && fromHtml) {
-            text = (content.innerText || '').replace(/' '+/g, ' ').trim()
+            text = (content.innerText || content.textContent || '').replace(/' '+/g, ' ').trim()
         } else {
             // Stringify 0 and false, but not undefined or null
             text = content != undefined ? '' + content : '';
