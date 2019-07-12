@@ -18,7 +18,7 @@
 		var a = typeof exports === 'object' ? factory(require("jspdf")) : factory(root["jsPDF"]);
 		for(var i in a) (typeof exports === 'object' ? exports : root)[i] = a[i];
 	}
-})(window, function(__WEBPACK_EXTERNAL_MODULE__4__) {
+})(window, function(__WEBPACK_EXTERNAL_MODULE__6__) {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -102,7 +102,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 5);
+/******/ 	return __webpack_require__(__webpack_require__.s = 7);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -486,24 +486,298 @@ exports.assign = assign;
 
 /***/ }),
 /* 4 */
-/***/ (function(module, exports) {
+/***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __WEBPACK_EXTERNAL_MODULE__4__;
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var config_1 = __webpack_require__(2);
+var state_1 = __webpack_require__(0);
+var HookData_1 = __webpack_require__(9);
+var common_1 = __webpack_require__(1);
+var assign = __webpack_require__(5);
+var CellHooks = /** @class */ (function () {
+    function CellHooks() {
+        this.didParseCell = [];
+        this.willDrawCell = [];
+        this.didDrawCell = [];
+        this.didDrawPage = [];
+    }
+    return CellHooks;
+}());
+var Table = /** @class */ (function () {
+    function Table() {
+        this.columns = [];
+        this.head = [];
+        this.body = [];
+        this.foot = [];
+        this.height = 0;
+        this.width = 0;
+        this.preferredWidth = 0;
+        this.wrappedWidth = 0;
+        this.minWidth = 0;
+        this.headHeight = 0;
+        this.footHeight = 0;
+        this.startPageNumber = 1;
+        this.pageNumber = 1;
+        this.styles = {
+            styles: {},
+            headStyles: {},
+            bodyStyles: {},
+            footStyles: {},
+            alternateRowStyles: {},
+            columnStyles: {},
+        };
+        this.cellHooks = new CellHooks();
+    }
+    Object.defineProperty(Table.prototype, "pageCount", {
+        get: function () {
+            return this.pageNumber;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Table.prototype.allRows = function () {
+        return this.head.concat(this.body).concat(this.foot);
+    };
+    Table.prototype.callCellHooks = function (handlers, cell, row, column) {
+        for (var _i = 0, handlers_1 = handlers; _i < handlers_1.length; _i++) {
+            var handler = handlers_1[_i];
+            if (handler(new HookData_1.CellHookData(cell, row, column)) === false) {
+                return false;
+            }
+        }
+        return true;
+    };
+    Table.prototype.callEndPageHooks = function () {
+        common_1.applyUserStyles();
+        for (var _i = 0, _a = this.cellHooks.didDrawPage; _i < _a.length; _i++) {
+            var handler = _a[_i];
+            handler(new HookData_1.HookData());
+        }
+    };
+    Table.prototype.margin = function (side) {
+        return common_1.marginOrPadding(this.settings.margin, config_1.defaultConfig().margin)[side];
+    };
+    return Table;
+}());
+exports.Table = Table;
+var Row = /** @class */ (function () {
+    function Row(raw, index, section) {
+        this.cells = {};
+        this.height = 0;
+        this.maxCellLineCount = 1;
+        this.maxCellHeight = 0;
+        this.pageNumber = 1;
+        this.spansMultiplePages = false;
+        this.raw = raw;
+        if (raw._element) {
+            this.raw = raw._element;
+        }
+        this.index = index;
+        this.section = section;
+    }
+    Object.defineProperty(Row.prototype, "pageCount", {
+        get: function () {
+            return this.pageNumber;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    return Row;
+}());
+exports.Row = Row;
+var Cell = /** @class */ (function () {
+    function Cell(raw, themeStyles, section) {
+        this.contentWidth = 0;
+        this.wrappedWidth = 0;
+        this.minWidth = 0;
+        this.textPos = {};
+        this.height = 0;
+        this.width = 0;
+        this.rowSpan = raw && raw.rowSpan || 1;
+        this.colSpan = raw && raw.colSpan || 1;
+        this.styles = assign(themeStyles, raw && raw.styles || {});
+        this.section = section;
+        var text = '';
+        var content = raw && typeof raw.content !== 'undefined' ? raw.content : raw;
+        content = content != undefined && content.dataKey != undefined ? content.title : content;
+        var fromHtml = typeof window === 'object' && window.HTMLElement && content instanceof window.HTMLElement;
+        this.raw = fromHtml ? content : raw;
+        if (content && fromHtml) {
+            text = (content.innerText || '').replace(/' '+/g, ' ').trim();
+        }
+        else {
+            // Stringify 0 and false, but not undefined or null
+            text = content != undefined ? '' + content : '';
+        }
+        var splitRegex = /\r\n|\r|\n/g;
+        this.text = text.split(splitRegex);
+        this.contentWidth = this.padding('horizontal') + common_1.getStringWidth(this.text, this.styles);
+        if (typeof this.styles.cellWidth === 'number') {
+            this.minWidth = this.styles.cellWidth;
+            this.wrappedWidth = this.styles.cellWidth;
+        }
+        else if (this.styles.cellWidth === 'wrap') {
+            this.minWidth = this.contentWidth;
+            this.wrappedWidth = this.contentWidth;
+        }
+        else { // auto
+            var defaultMinWidth = 10 / state_1.default().scaleFactor();
+            this.minWidth = this.styles.minCellWidth || defaultMinWidth;
+            this.wrappedWidth = this.contentWidth;
+            if (this.minWidth > this.wrappedWidth) {
+                this.wrappedWidth = this.minWidth;
+            }
+        }
+    }
+    Cell.prototype.padding = function (name) {
+        var padding = common_1.marginOrPadding(this.styles.cellPadding, common_1.styles([]).cellPadding);
+        if (name === 'vertical') {
+            return padding.top + padding.bottom;
+        }
+        else if (name === 'horizontal') {
+            return padding.left + padding.right;
+        }
+        else {
+            return padding[name];
+        }
+    };
+    return Cell;
+}());
+exports.Cell = Cell;
+var Column = /** @class */ (function () {
+    function Column(dataKey, raw, index) {
+        this.preferredWidth = 0;
+        this.minWidth = 0;
+        this.wrappedWidth = 0;
+        this.width = 0;
+        this.dataKey = dataKey;
+        this.raw = raw;
+        this.index = index;
+    }
+    return Column;
+}());
+exports.Column = Column;
+
 
 /***/ }),
 /* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
+/*
+object-assign
+(c) Sindre Sorhus
+@license MIT
+*/
+
+
+/* eslint-disable no-unused-vars */
+var getOwnPropertySymbols = Object.getOwnPropertySymbols;
+var hasOwnProperty = Object.prototype.hasOwnProperty;
+var propIsEnumerable = Object.prototype.propertyIsEnumerable;
+
+function toObject(val) {
+	if (val === null || val === undefined) {
+		throw new TypeError('Object.assign cannot be called with null or undefined');
+	}
+
+	return Object(val);
+}
+
+function shouldUseNative() {
+	try {
+		if (!Object.assign) {
+			return false;
+		}
+
+		// Detect buggy property enumeration order in older V8 versions.
+
+		// https://bugs.chromium.org/p/v8/issues/detail?id=4118
+		var test1 = new String('abc');  // eslint-disable-line no-new-wrappers
+		test1[5] = 'de';
+		if (Object.getOwnPropertyNames(test1)[0] === '5') {
+			return false;
+		}
+
+		// https://bugs.chromium.org/p/v8/issues/detail?id=3056
+		var test2 = {};
+		for (var i = 0; i < 10; i++) {
+			test2['_' + String.fromCharCode(i)] = i;
+		}
+		var order2 = Object.getOwnPropertyNames(test2).map(function (n) {
+			return test2[n];
+		});
+		if (order2.join('') !== '0123456789') {
+			return false;
+		}
+
+		// https://bugs.chromium.org/p/v8/issues/detail?id=3056
+		var test3 = {};
+		'abcdefghijklmnopqrst'.split('').forEach(function (letter) {
+			test3[letter] = letter;
+		});
+		if (Object.keys(Object.assign({}, test3)).join('') !==
+				'abcdefghijklmnopqrst') {
+			return false;
+		}
+
+		return true;
+	} catch (err) {
+		// We don't expect any of the above to throw, but better to be safe.
+		return false;
+	}
+}
+
+module.exports = shouldUseNative() ? Object.assign : function (target, source) {
+	var from;
+	var to = toObject(target);
+	var symbols;
+
+	for (var s = 1; s < arguments.length; s++) {
+		from = Object(arguments[s]);
+
+		for (var key in from) {
+			if (hasOwnProperty.call(from, key)) {
+				to[key] = from[key];
+			}
+		}
+
+		if (getOwnPropertySymbols) {
+			symbols = getOwnPropertySymbols(from);
+			for (var i = 0; i < symbols.length; i++) {
+				if (propIsEnumerable.call(from, symbols[i])) {
+					to[symbols[i]] = from[symbols[i]];
+				}
+			}
+		}
+	}
+
+	return to;
+};
+
+
+/***/ }),
+/* 6 */
+/***/ (function(module, exports) {
+
+module.exports = __WEBPACK_EXTERNAL_MODULE__6__;
+
+/***/ }),
+/* 7 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var tableDrawer_1 = __webpack_require__(6);
-var widthCalculator_1 = __webpack_require__(7);
-var inputParser_1 = __webpack_require__(8);
+var tableDrawer_1 = __webpack_require__(8);
+var widthCalculator_1 = __webpack_require__(10);
+var inputParser_1 = __webpack_require__(11);
 var state_1 = __webpack_require__(0);
 __webpack_require__(15);
 var common_1 = __webpack_require__(1);
-var jsPDF = __webpack_require__(4);
+var jsPDF = __webpack_require__(6);
 function autoTable() {
     var args = [];
     for (var _i = 0; _i < arguments.length; _i++) {
@@ -611,7 +885,7 @@ jsPDF.API.autoTableAddPage = function () {
 
 
 /***/ }),
-/* 6 */
+/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -619,7 +893,9 @@ jsPDF.API.autoTableAddPage = function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 var config_1 = __webpack_require__(2);
 var common_1 = __webpack_require__(1);
+var models_1 = __webpack_require__(4);
 var state_1 = __webpack_require__(0);
+var assign = __webpack_require__(5);
 function drawTable(table) {
     var settings = table.settings;
     table.cursor = {
@@ -637,13 +913,16 @@ function drawTable(table) {
     table.pageStartX = table.cursor.x;
     table.pageStartY = table.cursor.y;
     table.startPageNumber = state_1.default().pageNumber();
+    // a empty row used to cached cells those break through page
+    var cachedBreakPageRow = new models_1.Row([], 0, 'body');
+    cachedBreakPageRow.index = -1;
     common_1.applyUserStyles();
     if (settings.showHead === true || settings.showHead === 'firstPage' || settings.showHead === 'everyPage') {
         table.head.forEach(function (row) { return printRow(row); });
     }
     common_1.applyUserStyles();
     table.body.forEach(function (row, index) {
-        printFullRow(row, index === table.body.length - 1);
+        printFullRow(row, index === table.body.length - 1, cachedBreakPageRow);
     });
     common_1.applyUserStyles();
     if (settings.showFoot === true || settings.showFoot === 'lastPage' || settings.showFoot === 'everyPage') {
@@ -653,14 +932,13 @@ function drawTable(table) {
     table.callEndPageHooks();
 }
 exports.drawTable = drawTable;
-function printFullRow(row, isLastRow) {
-    var remainingRowHeight = 0;
+function printFullRow(row, isLastRow, cachedBreakPageRow) {
     var remainingTexts = {};
     var table = state_1.default().table;
     var remainingPageSpace = getRemainingPageSpace(isLastRow);
     if (remainingPageSpace < row.maxCellHeight) {
         if (remainingPageSpace < getOneRowHeight(row) || (table.settings.rowPageBreak === 'avoid' && !rowHeightGreaterThanMaxTableHeight(row))) {
-            addPage();
+            addPage(cachedBreakPageRow);
         }
         else {
             // Modify the row to fit the current page and calculate text and height of partial row
@@ -677,38 +955,34 @@ function printFullRow(row, isLastRow) {
                 // Note that this will cut cells with specified custom min height at page break
                 if (Array.isArray(cell.text) && cell.text.length > remainingLineCount) {
                     remainingTexts[column.dataKey] = cell.text.splice(remainingLineCount, cell.text.length);
-                    var rCellHeight = cell.height - remainingPageSpace;
-                    if (rCellHeight > remainingRowHeight) {
-                        remainingRowHeight = rCellHeight;
+                    var actualHeight = Math.floor(cell.text.length * fontHeight);
+                    if (cell.rowSpan === 1) {
+                        row.height = Math.min(row.height, actualHeight);
                     }
+                    var newCell = new models_1.Cell(cell, cell.styles, cell.section);
+                    newCell.height = cell.height;
+                    newCell.width = cell.width;
+                    newCell.text = remainingTexts[column.dataKey];
+                    cachedBreakPageRow.cells[column.dataKey] = newCell;
+                }
+                else if (cell.height > remainingPageSpace) {
+                    // this cell has rowspan and it will break through page
+                    // cache the cell so that border can be printed in next page
+                    cachedBreakPageRow.cells[column.dataKey] = new models_1.Cell(cell, cell.styles, cell.section);
+                    cachedBreakPageRow.cells[column.dataKey].height = cell.height;
+                    cachedBreakPageRow.cells[column.dataKey].width = cell.width;
+                    cachedBreakPageRow.cells[column.dataKey].text = [];
                 }
                 cell.height = Math.min(remainingPageSpace, cell.height);
             }
         }
     }
     printRow(row);
-    // Parts of the row is now printed. Time for adding a new page, prune 
-    // the text and start over
-    if (Object.keys(remainingTexts).length > 0) {
-        var maxCellHeight = 0;
-        for (var j = 0; j < table.columns.length; j++) {
-            var col = table.columns[j];
-            var cell = row.cells[col.dataKey];
-            if (!cell)
-                continue;
-            cell.height = remainingRowHeight;
-            if (cell.height > maxCellHeight) {
-                maxCellHeight = cell.height;
-            }
-            if (cell) {
-                cell.text = remainingTexts[col.dataKey] || '';
-            }
-        }
-        addPage();
-        row.pageNumber++;
-        row.height = remainingRowHeight;
-        row.maxCellHeight = maxCellHeight;
-        printFullRow(row, isLastRow);
+    if (cachedBreakPageRow && !(Object.keys(cachedBreakPageRow.cells).length === 0)) {
+        // calculate remaining height of rowspan cell
+        Object.keys(cachedBreakPageRow.cells).forEach(function (key) {
+            cachedBreakPageRow.cells[key].height -= row.height;
+        });
     }
 }
 function getOneRowHeight(row) {
@@ -792,7 +1066,7 @@ function getRemainingPageSpace(isLastRow) {
     }
     return state_1.default().pageHeight() - table.cursor.y - bottomContentHeight;
 }
-function addPage() {
+function addPage(cachedBreakPageRow) {
     var table = state_1.default().table;
     common_1.applyUserStyles();
     if (table.settings.showFoot === true || table.settings.showFoot === 'everyPage') {
@@ -811,6 +1085,23 @@ function addPage() {
     if (table.settings.showHead === true || table.settings.showHead === 'everyPage') {
         table.head.forEach(function (row) { return printRow(row); });
     }
+    if (cachedBreakPageRow && !(Object.keys(cachedBreakPageRow.cells).length === 0)) {
+        // when there is a cached row, print it firstly
+        var cloneCachedRow_1 = assign({}, cachedBreakPageRow);
+        cloneCachedRow_1.height = 0;
+        Object.keys(cachedBreakPageRow.cells).forEach(function (key) {
+            // recalculate maxCellHeight
+            if (cloneCachedRow_1.maxCellHeight < cachedBreakPageRow.cells[key].height) {
+                cloneCachedRow_1.maxCellHeight = cachedBreakPageRow.cells[key].height;
+            }
+            if (cachedBreakPageRow.cells[key].rowSpan > 1)
+                return;
+            // cachedRow height should be equal to the height of non-spanning cells
+            cloneCachedRow_1.height = cachedBreakPageRow.cells[key].height;
+        });
+        cachedBreakPageRow.cells = {};
+        printFullRow(cloneCachedRow_1, false, cachedBreakPageRow);
+    }
 }
 exports.addPage = addPage;
 function nextPage(doc) {
@@ -824,7 +1115,62 @@ function nextPage(doc) {
 
 
 /***/ }),
-/* 7 */
+/* 9 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
+var state_1 = __webpack_require__(0);
+var HookData = /** @class */ (function () {
+    function HookData() {
+        var table = state_1.default().table;
+        this.table = table;
+        this.pageNumber = table.pageNumber;
+        this.settings = table.settings;
+        this.cursor = table.cursor;
+        this.doc = state_1.default().doc;
+    }
+    Object.defineProperty(HookData.prototype, "pageCount", {
+        get: function () {
+            return this.pageNumber;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    return HookData;
+}());
+exports.HookData = HookData;
+var CellHookData = /** @class */ (function (_super) {
+    __extends(CellHookData, _super);
+    function CellHookData(cell, row, column) {
+        var _this = _super.call(this) || this;
+        _this.cell = cell;
+        _this.row = row;
+        _this.column = column;
+        _this.section = row.section;
+        return _this;
+    }
+    return CellHookData;
+}(HookData));
+exports.CellHookData = CellHookData;
+
+
+/***/ }),
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1010,7 +1356,7 @@ function distributeWidth(autoColumns, diffWidth, wrappedAutoColumnsWidth) {
 
 
 /***/ }),
-/* 8 */
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1027,7 +1373,7 @@ var __assign = (this && this.__assign) || function () {
     return __assign.apply(this, arguments);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var models_1 = __webpack_require__(9);
+var models_1 = __webpack_require__(4);
 var config_1 = __webpack_require__(2);
 var htmlParser_1 = __webpack_require__(12);
 var polyfills_1 = __webpack_require__(3);
@@ -1234,335 +1580,6 @@ function cellStyles(sectionName, dataKey, rowIndex) {
     var rowStyles = sectionName === 'body' && rowIndex % 2 === 0 ? polyfills_1.assign({}, theme.alternateRow, table.styles.alternateRowStyles) : {};
     return polyfills_1.assign.apply(void 0, [config_1.defaultStyles()].concat(otherStyles.concat([rowStyles, colStyles])));
 }
-
-
-/***/ }),
-/* 9 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var config_1 = __webpack_require__(2);
-var state_1 = __webpack_require__(0);
-var HookData_1 = __webpack_require__(10);
-var common_1 = __webpack_require__(1);
-var assign = __webpack_require__(11);
-var CellHooks = /** @class */ (function () {
-    function CellHooks() {
-        this.didParseCell = [];
-        this.willDrawCell = [];
-        this.didDrawCell = [];
-        this.didDrawPage = [];
-    }
-    return CellHooks;
-}());
-var Table = /** @class */ (function () {
-    function Table() {
-        this.columns = [];
-        this.head = [];
-        this.body = [];
-        this.foot = [];
-        this.height = 0;
-        this.width = 0;
-        this.preferredWidth = 0;
-        this.wrappedWidth = 0;
-        this.minWidth = 0;
-        this.headHeight = 0;
-        this.footHeight = 0;
-        this.startPageNumber = 1;
-        this.pageNumber = 1;
-        this.styles = {
-            styles: {},
-            headStyles: {},
-            bodyStyles: {},
-            footStyles: {},
-            alternateRowStyles: {},
-            columnStyles: {},
-        };
-        this.cellHooks = new CellHooks();
-    }
-    Object.defineProperty(Table.prototype, "pageCount", {
-        get: function () {
-            return this.pageNumber;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Table.prototype.allRows = function () {
-        return this.head.concat(this.body).concat(this.foot);
-    };
-    Table.prototype.callCellHooks = function (handlers, cell, row, column) {
-        for (var _i = 0, handlers_1 = handlers; _i < handlers_1.length; _i++) {
-            var handler = handlers_1[_i];
-            if (handler(new HookData_1.CellHookData(cell, row, column)) === false) {
-                return false;
-            }
-        }
-        return true;
-    };
-    Table.prototype.callEndPageHooks = function () {
-        common_1.applyUserStyles();
-        for (var _i = 0, _a = this.cellHooks.didDrawPage; _i < _a.length; _i++) {
-            var handler = _a[_i];
-            handler(new HookData_1.HookData());
-        }
-    };
-    Table.prototype.margin = function (side) {
-        return common_1.marginOrPadding(this.settings.margin, config_1.defaultConfig().margin)[side];
-    };
-    return Table;
-}());
-exports.Table = Table;
-var Row = /** @class */ (function () {
-    function Row(raw, index, section) {
-        this.cells = {};
-        this.height = 0;
-        this.maxCellLineCount = 1;
-        this.maxCellHeight = 0;
-        this.pageNumber = 1;
-        this.spansMultiplePages = false;
-        this.raw = raw;
-        if (raw._element) {
-            this.raw = raw._element;
-        }
-        this.index = index;
-        this.section = section;
-    }
-    Object.defineProperty(Row.prototype, "pageCount", {
-        get: function () {
-            return this.pageNumber;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    return Row;
-}());
-exports.Row = Row;
-var Cell = /** @class */ (function () {
-    function Cell(raw, themeStyles, section) {
-        this.contentWidth = 0;
-        this.wrappedWidth = 0;
-        this.minWidth = 0;
-        this.textPos = {};
-        this.height = 0;
-        this.width = 0;
-        this.rowSpan = raw && raw.rowSpan || 1;
-        this.colSpan = raw && raw.colSpan || 1;
-        this.styles = assign(themeStyles, raw && raw.styles || {});
-        this.section = section;
-        var text = '';
-        var content = raw && typeof raw.content !== 'undefined' ? raw.content : raw;
-        content = content != undefined && content.dataKey != undefined ? content.title : content;
-        var fromHtml = typeof window === 'object' && window.HTMLElement && content instanceof window.HTMLElement;
-        this.raw = fromHtml ? content : raw;
-        if (content && fromHtml) {
-            text = (content.innerText || '').replace(/' '+/g, ' ').trim();
-        }
-        else {
-            // Stringify 0 and false, but not undefined or null
-            text = content != undefined ? '' + content : '';
-        }
-        var splitRegex = /\r\n|\r|\n/g;
-        this.text = text.split(splitRegex);
-        this.contentWidth = this.padding('horizontal') + common_1.getStringWidth(this.text, this.styles);
-        if (typeof this.styles.cellWidth === 'number') {
-            this.minWidth = this.styles.cellWidth;
-            this.wrappedWidth = this.styles.cellWidth;
-        }
-        else if (this.styles.cellWidth === 'wrap') {
-            this.minWidth = this.contentWidth;
-            this.wrappedWidth = this.contentWidth;
-        }
-        else { // auto
-            var defaultMinWidth = 10 / state_1.default().scaleFactor();
-            this.minWidth = this.styles.minCellWidth || defaultMinWidth;
-            this.wrappedWidth = this.contentWidth;
-            if (this.minWidth > this.wrappedWidth) {
-                this.wrappedWidth = this.minWidth;
-            }
-        }
-    }
-    Cell.prototype.padding = function (name) {
-        var padding = common_1.marginOrPadding(this.styles.cellPadding, common_1.styles([]).cellPadding);
-        if (name === 'vertical') {
-            return padding.top + padding.bottom;
-        }
-        else if (name === 'horizontal') {
-            return padding.left + padding.right;
-        }
-        else {
-            return padding[name];
-        }
-    };
-    return Cell;
-}());
-exports.Cell = Cell;
-var Column = /** @class */ (function () {
-    function Column(dataKey, raw, index) {
-        this.preferredWidth = 0;
-        this.minWidth = 0;
-        this.wrappedWidth = 0;
-        this.width = 0;
-        this.dataKey = dataKey;
-        this.raw = raw;
-        this.index = index;
-    }
-    return Column;
-}());
-exports.Column = Column;
-
-
-/***/ }),
-/* 10 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-Object.defineProperty(exports, "__esModule", { value: true });
-var state_1 = __webpack_require__(0);
-var HookData = /** @class */ (function () {
-    function HookData() {
-        var table = state_1.default().table;
-        this.table = table;
-        this.pageNumber = table.pageNumber;
-        this.settings = table.settings;
-        this.cursor = table.cursor;
-        this.doc = state_1.default().doc;
-    }
-    Object.defineProperty(HookData.prototype, "pageCount", {
-        get: function () {
-            return this.pageNumber;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    return HookData;
-}());
-exports.HookData = HookData;
-var CellHookData = /** @class */ (function (_super) {
-    __extends(CellHookData, _super);
-    function CellHookData(cell, row, column) {
-        var _this = _super.call(this) || this;
-        _this.cell = cell;
-        _this.row = row;
-        _this.column = column;
-        _this.section = row.section;
-        return _this;
-    }
-    return CellHookData;
-}(HookData));
-exports.CellHookData = CellHookData;
-
-
-/***/ }),
-/* 11 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/*
-object-assign
-(c) Sindre Sorhus
-@license MIT
-*/
-
-
-/* eslint-disable no-unused-vars */
-var getOwnPropertySymbols = Object.getOwnPropertySymbols;
-var hasOwnProperty = Object.prototype.hasOwnProperty;
-var propIsEnumerable = Object.prototype.propertyIsEnumerable;
-
-function toObject(val) {
-	if (val === null || val === undefined) {
-		throw new TypeError('Object.assign cannot be called with null or undefined');
-	}
-
-	return Object(val);
-}
-
-function shouldUseNative() {
-	try {
-		if (!Object.assign) {
-			return false;
-		}
-
-		// Detect buggy property enumeration order in older V8 versions.
-
-		// https://bugs.chromium.org/p/v8/issues/detail?id=4118
-		var test1 = new String('abc');  // eslint-disable-line no-new-wrappers
-		test1[5] = 'de';
-		if (Object.getOwnPropertyNames(test1)[0] === '5') {
-			return false;
-		}
-
-		// https://bugs.chromium.org/p/v8/issues/detail?id=3056
-		var test2 = {};
-		for (var i = 0; i < 10; i++) {
-			test2['_' + String.fromCharCode(i)] = i;
-		}
-		var order2 = Object.getOwnPropertyNames(test2).map(function (n) {
-			return test2[n];
-		});
-		if (order2.join('') !== '0123456789') {
-			return false;
-		}
-
-		// https://bugs.chromium.org/p/v8/issues/detail?id=3056
-		var test3 = {};
-		'abcdefghijklmnopqrst'.split('').forEach(function (letter) {
-			test3[letter] = letter;
-		});
-		if (Object.keys(Object.assign({}, test3)).join('') !==
-				'abcdefghijklmnopqrst') {
-			return false;
-		}
-
-		return true;
-	} catch (err) {
-		// We don't expect any of the above to throw, but better to be safe.
-		return false;
-	}
-}
-
-module.exports = shouldUseNative() ? Object.assign : function (target, source) {
-	var from;
-	var to = toObject(target);
-	var symbols;
-
-	for (var s = 1; s < arguments.length; s++) {
-		from = Object(arguments[s]);
-
-		for (var key in from) {
-			if (hasOwnProperty.call(from, key)) {
-				to[key] = from[key];
-			}
-		}
-
-		if (getOwnPropertySymbols) {
-			symbols = getOwnPropertySymbols(from);
-			for (var i = 0; i < symbols.length; i++) {
-				if (propIsEnumerable.call(from, symbols[i])) {
-					to[symbols[i]] = from[symbols[i]];
-				}
-			}
-		}
-	}
-
-	return to;
-};
 
 
 /***/ }),
@@ -1816,7 +1833,7 @@ function checkStyles(styles) {
 /* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var jsPDF = __webpack_require__(4);
+var jsPDF = __webpack_require__(6);
 /**
  * Improved text function with halign and valign support
  * Inspiration from: http://stackoverflow.com/questions/28327510/align-text-right-using-jspdf/28433113#28433113
