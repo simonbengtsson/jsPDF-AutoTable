@@ -2,10 +2,10 @@
   "private": true,
   "dependencies": {
     "jspdf": "^1.5.3",
-    "jspdf-autotable": "^3.1.0"
+    "jspdf-autotable": "^3.1.1"
   },
   "devDependencies": {
-    "browserify": "^16.2.3"
+    "browserify": "^16.3.0"
   },
   "scripts": {
     "build": "browserify main.js > bundle.js"
