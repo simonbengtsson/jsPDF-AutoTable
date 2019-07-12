@@ -187,3 +187,5 @@ export interface HTMLConfig extends BaseConfig {
 	html: string | HTMLElement;
 }
 export declare type autoTable = (options: UserOptions) => void;
+
+export {};

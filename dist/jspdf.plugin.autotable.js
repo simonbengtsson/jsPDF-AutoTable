@@ -1,6 +1,6 @@
 /*!
  * 
- *             jsPDF AutoTable plugin v3.1.1
+ *             jsPDF AutoTable plugin v3.1.2
  *             
  *             Copyright (c) 2014 Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable
  *             Licensed under the MIT License.
@@ -605,7 +605,7 @@ var Cell = /** @class */ (function () {
         var fromHtml = typeof window === 'object' && window.HTMLElement && content instanceof window.HTMLElement;
         this.raw = fromHtml ? content : raw;
         if (content && fromHtml) {
-            text = (content.innerText || '').replace(/' '+/g, ' ').trim();
+            text = (content.innerText || content.textContent || '').replace(/' '+/g, ' ').trim();
         }
         else {
             // Stringify 0 and false, but not undefined or null
