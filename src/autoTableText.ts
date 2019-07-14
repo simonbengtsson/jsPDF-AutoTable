@@ -38,7 +38,7 @@ jsPDF.API.autoTableText = function(text, x, y, styles) {
         if (lineCount >= 1) {
             for (let iLine = 0; iLine < splitText.length; iLine++) {
                 this.text(splitText[iLine], x - this.getStringUnitWidth(splitText[iLine]) * alignSize, y);
-                y += fontSize;
+                y += fontSize * FONT_ROW_RATIO;
             }
             return this;
         }
