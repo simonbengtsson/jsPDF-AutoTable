@@ -1,6 +1,6 @@
 /*!
  * 
- *             jsPDF AutoTable plugin v3.1.2
+ *             jsPDF AutoTable plugin v3.1.3
  *             
  *             Copyright (c) 2014 Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable
  *             Licensed under the MIT License.
@@ -922,7 +922,7 @@ function drawTable(table) {
     }
     common_1.applyUserStyles();
     table.body.forEach(function (row, index) {
-        printFullRow(row, index === table.body.length - 1, cachedBreakPageRow);
+        printFullRow(row, index === table.body.length - 1, cachedBreakPageRow, index); //CE
     });
     common_1.applyUserStyles();
     if (settings.showFoot === true || settings.showFoot === 'lastPage' || settings.showFoot === 'everyPage') {
@@ -932,13 +932,35 @@ function drawTable(table) {
     table.callEndPageHooks();
 }
 exports.drawTable = drawTable;
-function printFullRow(row, isLastRow, cachedBreakPageRow) {
+//CE Get the best fit height for a page breaking cell
+function getPageBreakColSpanCellHeight(cellHeight, remainingPageSpace, rowIndex, rows) {
+    try {
+        if (cellHeight <= remainingPageSpace) {
+            return cellHeight;
+        }
+        var rowsTotalHeight = 0;
+        for (var j = rowIndex; j < rows.length; j++) {
+            var rowHeight = rows[j].height;
+            if (rowsTotalHeight + rowHeight < remainingPageSpace) {
+                rowsTotalHeight += rowHeight;
+            }
+            else {
+                return rowsTotalHeight;
+            }
+        }
+    }
+    catch (error) {
+        return cellHeight;
+    }
+}
+function printFullRow(row, isLastRow, cachedBreakPageRow, rowIndex) {
     var remainingTexts = {};
     var table = state_1.default().table;
     var remainingPageSpace = getRemainingPageSpace(isLastRow);
     if (remainingPageSpace < row.maxCellHeight) {
-        if (remainingPageSpace < getOneRowHeight(row) || (table.settings.rowPageBreak === 'avoid' && !rowHeightGreaterThanMaxTableHeight(row))) {
-            addPage(cachedBreakPageRow);
+        //CE Use actual row.height not calculated
+        if (remainingPageSpace < row.height || (table.settings.rowPageBreak === 'avoid' && !rowHeightGreaterThanMaxTableHeight(row))) {
+            addPage(cachedBreakPageRow, row.index);
         }
         else {
             // Modify the row to fit the current page and calculate text and height of partial row
@@ -951,7 +973,10 @@ function printFullRow(row, isLastRow, cachedBreakPageRow) {
                 }
                 var fontHeight = cell.styles.fontSize / state_1.default().scaleFactor() * config_1.FONT_ROW_RATIO;
                 var vPadding = cell.padding('vertical');
-                var remainingLineCount = Math.floor((remainingPageSpace - vPadding) / fontHeight);
+                //CE Get actual remaining height for this cell
+                var pageBreakColSpanCellHeight = getPageBreakColSpanCellHeight(cell.height, remainingPageSpace, rowIndex, table.body);
+                //CE Remaining Line count should consider actual remaining height for this cell
+                var remainingLineCount = Math.floor((pageBreakColSpanCellHeight - vPadding) / fontHeight);
                 // Note that this will cut cells with specified custom min height at page break
                 if (Array.isArray(cell.text) && cell.text.length > remainingLineCount) {
                     remainingTexts[column.dataKey] = cell.text.splice(remainingLineCount, cell.text.length);
@@ -973,7 +998,8 @@ function printFullRow(row, isLastRow, cachedBreakPageRow) {
                     cachedBreakPageRow.cells[column.dataKey].width = cell.width;
                     cachedBreakPageRow.cells[column.dataKey].text = [];
                 }
-                cell.height = Math.min(remainingPageSpace, cell.height);
+                //CE Actual remaining height for this cell
+                cell.height = Math.min(pageBreakColSpanCellHeight, cell.height);
             }
         }
     }
@@ -982,19 +1008,12 @@ function printFullRow(row, isLastRow, cachedBreakPageRow) {
         // calculate remaining height of rowspan cell
         Object.keys(cachedBreakPageRow.cells).forEach(function (key) {
             cachedBreakPageRow.cells[key].height -= row.height;
+            //Cells smaller then row height doesn't need be maintained.
+            if (cachedBreakPageRow.cells[key].height < row.height) {
+                delete cachedBreakPageRow.cells[key];
+            }
         });
     }
-}
-function getOneRowHeight(row) {
-    return state_1.default().table.columns.reduce(function (acc, column) {
-        var cell = row.cells[column.dataKey];
-        if (!cell)
-            return 0;
-        var fontHeight = cell.styles.fontSize / state_1.default().scaleFactor() * config_1.FONT_ROW_RATIO;
-        var vPadding = cell.padding('vertical');
-        var oneRowHeight = vPadding + fontHeight;
-        return oneRowHeight > acc ? oneRowHeight : acc;
-    }, 0);
 }
 function rowHeightGreaterThanMaxTableHeight(row) {
     var table = state_1.default().table;
@@ -1066,7 +1085,7 @@ function getRemainingPageSpace(isLastRow) {
     }
     return state_1.default().pageHeight() - table.cursor.y - bottomContentHeight;
 }
-function addPage(cachedBreakPageRow) {
+function addPage(cachedBreakPageRow, rowIndex) {
     var table = state_1.default().table;
     common_1.applyUserStyles();
     if (table.settings.showFoot === true || table.settings.showFoot === 'everyPage') {
@@ -1100,7 +1119,7 @@ function addPage(cachedBreakPageRow) {
             cloneCachedRow_1.height = cachedBreakPageRow.cells[key].height;
         });
         cachedBreakPageRow.cells = {};
-        printFullRow(cloneCachedRow_1, false, cachedBreakPageRow);
+        printFullRow(cloneCachedRow_1, false, cachedBreakPageRow, rowIndex);
     }
 }
 exports.addPage = addPage;
@@ -1866,7 +1885,7 @@ jsPDF.API.autoTableText = function (text, x, y, styles) {
         if (lineCount >= 1) {
             for (var iLine = 0; iLine < splitText.length; iLine++) {
                 this.text(splitText[iLine], x - this.getStringUnitWidth(splitText[iLine]) * alignSize, y);
-                y += fontSize;
+                y += fontSize * FONT_ROW_RATIO;
             }
             return this;
         }
