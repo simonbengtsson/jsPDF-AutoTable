@@ -2,6 +2,7 @@ import {FONT_ROW_RATIO} from './config';
 import {getFillStyle, addTableBorder, applyStyles, applyUserStyles} from './common';
 import {Row, Table, Cell} from "./models";
 import state from "./state";
+
 let assign = require('object-assign');
 
 export function drawTable(table: Table) {
@@ -21,7 +22,7 @@ export function drawTable(table: Table) {
     }
     table.pageStartX = table.cursor.x;
     table.pageStartY = table.cursor.y;
-    
+
     table.startPageNumber = state().pageNumber();
 
     // a empty row used to cached cells those break through page
@@ -32,7 +33,7 @@ export function drawTable(table: Table) {
         table.head.forEach((row) => printRow(row))
     }
     applyUserStyles();
-    table.body.forEach(function(row, index) {
+    table.body.forEach(function (row, index) {
         printFullRow(row, index === table.body.length - 1, cachedBreakPageRow, index); //CE
     });
     applyUserStyles();
@@ -46,18 +47,18 @@ export function drawTable(table: Table) {
 }
 
 //CE Get the best fit height for a page breaking cell
- function getPageBreakColSpanCellHeight(cellHeight, remainingPageSpace, rowIndex, rows){
-	try {
-        if(cellHeight <= remainingPageSpace){
+function getPageBreakColSpanCellHeight(cellHeight, remainingPageSpace, rowIndex, rows) {
+    try {
+        if (cellHeight <= remainingPageSpace) {
             return cellHeight;
         }
-    
-    	let rowsTotalHeight = 0;      
+
+        let rowsTotalHeight = 0;
         for (let j = rowIndex; j < rows.length; j++) {
             let rowHeight = rows[j].height;
-            if(rowsTotalHeight + rowHeight < remainingPageSpace ){
+            if (rowsTotalHeight + rowHeight < remainingPageSpace) {
                 rowsTotalHeight += rowHeight;
-            }else{
+            } else {
                 return rowsTotalHeight;
             }
         }
@@ -75,7 +76,7 @@ function printFullRow(row: Row, isLastRow: boolean, cachedBreakPageRow: Row, row
     if (remainingPageSpace < row.maxCellHeight) {
         //CE Use actual row.height not calculated
         if (remainingPageSpace < row.height || (table.settings.rowPageBreak === 'avoid' && !rowHeightGreaterThanMaxTableHeight(row))) {
-            addPage(cachedBreakPageRow, row.index));
+            addPage(cachedBreakPageRow, row.index);
         } else {
             // Modify the row to fit the current page and calculate text and height of partial row
             row.spansMultiplePages = true;
@@ -90,10 +91,10 @@ function printFullRow(row: Row, isLastRow: boolean, cachedBreakPageRow: Row, row
                 let fontHeight = cell.styles.fontSize / state().scaleFactor() * FONT_ROW_RATIO;
                 let vPadding = cell.padding('vertical');
                 //CE Get actual remaining height for this cell
-                let pageBreakColSpanCellHeight = getPageBreakColSpanCellHeight(cell.height, remainingPageSpace, rowIndex, table.body)
-                
+                let pageBreakColSpanCellHeight = getPageBreakColSpanCellHeight(cell.height, remainingPageSpace, rowIndex, table.body);
+
                 //CE Remaining Line count should consider actual remaining height for this cell
-                let remainingLineCount = Math.floor((pageBreakColSpanCellHeight - vPadding) / fontHeight); 
+                let remainingLineCount = Math.floor((pageBreakColSpanCellHeight - vPadding) / fontHeight);
 
                 // Note that this will cut cells with specified custom min height at page break
                 if (Array.isArray(cell.text) && cell.text.length > remainingLineCount) {
@@ -111,7 +112,7 @@ function printFullRow(row: Row, isLastRow: boolean, cachedBreakPageRow: Row, row
                 } else if (cell.height > remainingPageSpace) {
                     // this cell has rowspan and it will break through page
                     // cache the cell so that border can be printed in next page
-                    cachedBreakPageRow.cells[column.dataKey] =  new Cell(cell, cell.styles, cell.section);
+                    cachedBreakPageRow.cells[column.dataKey] = new Cell(cell, cell.styles, cell.section);
                     cachedBreakPageRow.cells[column.dataKey].height = cell.height;
                     cachedBreakPageRow.cells[column.dataKey].width = cell.width;
                     cachedBreakPageRow.cells[column.dataKey].text = [];
@@ -128,23 +129,12 @@ function printFullRow(row: Row, isLastRow: boolean, cachedBreakPageRow: Row, row
         // calculate remaining height of rowspan cell
         Object.keys(cachedBreakPageRow.cells).forEach((key: string) => {
             cachedBreakPageRow.cells[key].height -= row.height;
-             //Cells smaller then row height doesn't need be maintained.
-            if(cachedBreakPageRow.cells[key].height < row.height ){
+            //Cells smaller then row height doesn't need be maintained.
+            if (cachedBreakPageRow.cells[key].height < row.height) {
                 delete cachedBreakPageRow.cells[key];
             }
         });
     }
-}
-
-function getOneRowHeight(row) {
-    return state().table.columns.reduce((acc, column) => {
-        let cell = row.cells[column.dataKey];
-        if (!cell) return 0;
-        let fontHeight = cell.styles.fontSize / state().scaleFactor() * FONT_ROW_RATIO;
-        let vPadding = cell.padding('vertical');
-        let oneRowHeight = vPadding + fontHeight;
-        return oneRowHeight > acc ? oneRowHeight : acc
-    }, 0)
 }
 
 function rowHeightGreaterThanMaxTableHeight(row) {
@@ -211,7 +201,7 @@ function printRow(row) {
 
         table.cursor.x += column.width;
     }
-    
+
     table.cursor.y += row.height;
 }
 
