@@ -54,6 +54,8 @@ export function parseInput(args) {
 
     if (table.settings.startY === false) {
         delete table.settings.startY;
+    } else if (table.settings.startY !== null) {
+        table.settings.startY = parseInt(table.settings.startY);
     }
 
     const previous = state().doc.previousAutoTable;
