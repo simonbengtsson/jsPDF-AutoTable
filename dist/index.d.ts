@@ -187,5 +187,6 @@ export interface HTMLConfig extends BaseConfig {
 	html: string | HTMLElement;
 }
 export declare type autoTable = (options: UserOptions) => void;
+export default function applyAutoTable(jsPDF: any): void;
 
 export {};

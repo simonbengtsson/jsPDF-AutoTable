@@ -11,14 +11,14 @@
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
-		module.exports = factory(require("jspdf"));
+		module.exports = factory();
 	else if(typeof define === 'function' && define.amd)
-		define(["jspdf"], factory);
+		define([], factory);
 	else {
-		var a = typeof exports === 'object' ? factory(require("jspdf")) : factory(root["jsPDF"]);
+		var a = factory();
 		for(var i in a) (typeof exports === 'object' ? exports : root)[i] = a[i];
 	}
-})(window, function(__WEBPACK_EXTERNAL_MODULE__6__) {
+})(window, function() {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -102,7 +102,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 7);
+/******/ 	return __webpack_require__(__webpack_require__.s = 6);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -493,7 +493,7 @@ exports.assign = assign;
 Object.defineProperty(exports, "__esModule", { value: true });
 var config_1 = __webpack_require__(2);
 var state_1 = __webpack_require__(0);
-var HookData_1 = __webpack_require__(9);
+var HookData_1 = __webpack_require__(8);
 var common_1 = __webpack_require__(1);
 var assign = __webpack_require__(5);
 var CellHooks = /** @class */ (function () {
@@ -760,132 +760,173 @@ module.exports = shouldUseNative() ? Object.assign : function (target, source) {
 
 /***/ }),
 /* 6 */
-/***/ (function(module, exports) {
-
-module.exports = __WEBPACK_EXTERNAL_MODULE__6__;
-
-/***/ }),
-/* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var tableDrawer_1 = __webpack_require__(8);
-var widthCalculator_1 = __webpack_require__(10);
-var inputParser_1 = __webpack_require__(11);
+var tableDrawer_1 = __webpack_require__(7);
+var widthCalculator_1 = __webpack_require__(9);
+var inputParser_1 = __webpack_require__(10);
 var state_1 = __webpack_require__(0);
-__webpack_require__(15);
 var common_1 = __webpack_require__(1);
-var jsPDF = __webpack_require__(6);
-function autoTable() {
-    var args = [];
-    for (var _i = 0; _i < arguments.length; _i++) {
-        args[_i] = arguments[_i];
-    }
-    state_1.setupState(this);
-    // 1. Parse and unify user input
-    var table = inputParser_1.parseInput(args);
-    // 2. Calculate preliminary table, column, row and cell dimensions
-    widthCalculator_1.calculateWidths(table);
-    // 3. Output table to pdf
-    tableDrawer_1.drawTable(table);
-    table.finalY = table.cursor.y;
-    this.previousAutoTable = table;
-    this.lastAutoTable = table;
-    this.autoTable.previous = table; // Deprecated
-    common_1.applyUserStyles();
-    state_1.resetState();
-    return this;
-}
-jsPDF.API.autoTable = autoTable;
-// Assign false to enable `doc.lastAutoTable.finalY || 40` sugar;
-jsPDF.API.lastAutoTable = false;
-jsPDF.API.previousAutoTable = false; // deprecated in v3
-jsPDF.API.autoTable.previous = false; // deprecated in v3
-jsPDF.API.autoTableSetDefaults = function (defaults) {
-    state_1.setDefaults(defaults, this);
-    return this;
-};
-jsPDF.autoTableSetDefaults = function (defaults, doc) {
-    state_1.setDefaults(defaults, doc);
-    return this;
-};
-/**
- * @Deprecated. Use html option instead doc.autoTable(html: '#table')
- */
-jsPDF.API.autoTableHtmlToJson = function (tableElem, includeHiddenElements) {
-    console.error("Use of deprecated function: autoTableHtmlToJson. Use html option instead.");
-    includeHiddenElements = includeHiddenElements || false;
-    if (!tableElem || !(tableElem instanceof HTMLTableElement)) {
-        console.error("A HTMLTableElement has to be sent to autoTableHtmlToJson");
-        return null;
-    }
-    var columns = {}, rows = [];
-    var header = tableElem.rows[0];
-    for (var i = 0; i < header.cells.length; i++) {
-        var cell = header.cells[i];
-        var style = window.getComputedStyle(cell);
-        if (includeHiddenElements || style.display !== 'none') {
-            columns[i] = cell;
+function applyAutoTable(jsPDF) {
+    function autoTable() {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
         }
+        state_1.setupState(this);
+        // 1. Parse and unify user input
+        var table = inputParser_1.parseInput(args);
+        // 2. Calculate preliminary table, column, row and cell dimensions
+        widthCalculator_1.calculateWidths(table);
+        // 3. Output table to pdf
+        tableDrawer_1.drawTable(table);
+        table.finalY = table.cursor.y;
+        this.previousAutoTable = table;
+        this.lastAutoTable = table;
+        this.autoTable.previous = table; // Deprecated
+        common_1.applyUserStyles();
+        state_1.resetState();
+        return this;
     }
-    var _loop_1 = function (i) {
-        var tableRow = tableElem.rows[i];
-        var style = window.getComputedStyle(tableRow);
-        if (includeHiddenElements || style.display !== 'none') {
-            var rowData_1 = [];
-            Object.keys(columns).forEach(function (key) {
-                var cell = tableRow.cells[key];
-                rowData_1.push(cell);
-            });
-            rows.push(rowData_1);
+    jsPDF.API.autoTable = autoTable;
+    // Assign false to enable `doc.lastAutoTable.finalY || 40` sugar;
+    jsPDF.API.lastAutoTable = false;
+    jsPDF.API.previousAutoTable = false; // deprecated in v3
+    jsPDF.API.autoTable.previous = false; // deprecated in v3
+    jsPDF.API.autoTableSetDefaults = function (defaults) {
+        state_1.setDefaults(defaults, this);
+        return this;
+    };
+    jsPDF.autoTableSetDefaults = function (defaults, doc) {
+        state_1.setDefaults(defaults, doc);
+        return this;
+    };
+    /**
+     * @Deprecated. Use html option instead doc.autoTable(html: '#table')
+     */
+    jsPDF.API.autoTableHtmlToJson = function (tableElem, includeHiddenElements) {
+        console.error("Use of deprecated function: autoTableHtmlToJson. Use html option instead.");
+        includeHiddenElements = includeHiddenElements || false;
+        if (!tableElem || !(tableElem instanceof HTMLTableElement)) {
+            console.error("A HTMLTableElement has to be sent to autoTableHtmlToJson");
+            return null;
+        }
+        var columns = {}, rows = [];
+        var header = tableElem.rows[0];
+        for (var i = 0; i < header.cells.length; i++) {
+            var cell = header.cells[i];
+            var style = window.getComputedStyle(cell);
+            if (includeHiddenElements || style.display !== 'none') {
+                columns[i] = cell;
+            }
+        }
+        var _loop_1 = function (i) {
+            var tableRow = tableElem.rows[i];
+            var style = window.getComputedStyle(tableRow);
+            if (includeHiddenElements || style.display !== 'none') {
+                var rowData_1 = [];
+                Object.keys(columns).forEach(function (key) {
+                    var cell = tableRow.cells[key];
+                    rowData_1.push(cell);
+                });
+                rows.push(rowData_1);
+            }
+        };
+        for (var i = 1; i < tableElem.rows.length; i++) {
+            _loop_1(i);
+        }
+        var values = Object.keys(columns).map(function (key) {
+            return columns[key];
+        });
+        return { columns: values, rows: rows, data: rows };
+    };
+    /**
+     * @deprecated
+     */
+    jsPDF.API.autoTableEndPosY = function () {
+        console.error("Use of deprecated function: autoTableEndPosY. Use doc.previousAutoTable.finalY instead.");
+        var prev = this.previousAutoTable;
+        if (prev.cursor && typeof prev.cursor.y === 'number') {
+            return prev.cursor.y;
+        }
+        else {
+            return 0;
         }
     };
-    for (var i = 1; i < tableElem.rows.length; i++) {
-        _loop_1(i);
-    }
-    var values = Object.keys(columns).map(function (key) {
-        return columns[key];
-    });
-    return { columns: values, rows: rows, data: rows };
-};
-/**
- * @deprecated
- */
-jsPDF.API.autoTableEndPosY = function () {
-    console.error("Use of deprecated function: autoTableEndPosY. Use doc.previousAutoTable.finalY instead.");
-    var prev = this.previousAutoTable;
-    if (prev.cursor && typeof prev.cursor.y === 'number') {
-        return prev.cursor.y;
-    }
-    else {
-        return 0;
-    }
-};
-/**
- * @deprecated
- */
-jsPDF.API.autoTableAddPageContent = function (hook) {
-    console.error("Use of deprecated function: autoTableAddPageContent. Use jsPDF.autoTableSetDefaults({didDrawPage: () => {}}) instead.");
-    if (!jsPDF.API.autoTable.globalDefaults) {
-        jsPDF.API.autoTable.globalDefaults = {};
-    }
-    jsPDF.API.autoTable.globalDefaults.addPageContent = hook;
-    return this;
-};
-/**
- * @deprecated
- */
-jsPDF.API.autoTableAddPage = function () {
-    console.error("Use of deprecated function: autoTableAddPage. Use doc.addPage()");
-    this.addPage();
-    return this;
-};
+    /**
+     * @deprecated
+     */
+    jsPDF.API.autoTableAddPageContent = function (hook) {
+        console.error("Use of deprecated function: autoTableAddPageContent. Use jsPDF.autoTableSetDefaults({didDrawPage: () => {}}) instead.");
+        if (!jsPDF.API.autoTable.globalDefaults) {
+            jsPDF.API.autoTable.globalDefaults = {};
+        }
+        jsPDF.API.autoTable.globalDefaults.addPageContent = hook;
+        return this;
+    };
+    /**
+     * @deprecated
+     */
+    jsPDF.API.autoTableAddPage = function () {
+        console.error("Use of deprecated function: autoTableAddPage. Use doc.addPage()");
+        this.addPage();
+        return this;
+    };
+    /**
+     * Improved text function with halign and valign support
+     * Inspiration from: http://stackoverflow.com/questions/28327510/align-text-right-using-jspdf/28433113#28433113
+     */
+    jsPDF.API.autoTableText = function (text, x, y, styles) {
+        styles = styles || {};
+        var FONT_ROW_RATIO = 1.15;
+        if (typeof x !== 'number' || typeof y !== 'number') {
+            console.error('The x and y parameters are required. Missing for text: ', text);
+        }
+        var k = this.internal.scaleFactor;
+        var fontSize = this.internal.getFontSize() / k;
+        var splitRegex = /\r\n|\r|\n/g;
+        var splitText = null;
+        var lineCount = 1;
+        if (styles.valign === 'middle' || styles.valign === 'bottom' || styles.halign === 'center' || styles.halign === 'right') {
+            splitText = typeof text === 'string' ? text.split(splitRegex) : text;
+            lineCount = splitText.length || 1;
+        }
+        // Align the top
+        y += fontSize * (2 - FONT_ROW_RATIO);
+        if (styles.valign === 'middle')
+            y -= (lineCount / 2) * fontSize * FONT_ROW_RATIO;
+        else if (styles.valign === 'bottom')
+            y -= lineCount * fontSize * FONT_ROW_RATIO;
+        if (styles.halign === 'center' || styles.halign === 'right') {
+            var alignSize = fontSize;
+            if (styles.halign === 'center')
+                alignSize *= 0.5;
+            if (lineCount >= 1) {
+                for (var iLine = 0; iLine < splitText.length; iLine++) {
+                    this.text(splitText[iLine], x - this.getStringUnitWidth(splitText[iLine]) * alignSize, y);
+                    y += fontSize * FONT_ROW_RATIO;
+                }
+                return this;
+            }
+            x -= this.getStringUnitWidth(text) * alignSize;
+        }
+        if (styles.halign === 'justify') {
+            this.text(text, x, y, { maxWidth: styles.maxWidth || 100, align: 'justify' });
+        }
+        else {
+            this.text(text, x, y);
+        }
+        return this;
+    };
+}
+exports.default = applyAutoTable;
 
 
 /***/ }),
-/* 8 */
+/* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1134,7 +1175,7 @@ function nextPage(doc) {
 
 
 /***/ }),
-/* 9 */
+/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1189,7 +1230,7 @@ exports.CellHookData = CellHookData;
 
 
 /***/ }),
-/* 10 */
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1375,7 +1416,7 @@ function distributeWidth(autoColumns, diffWidth, wrappedAutoColumnsWidth) {
 
 
 /***/ }),
-/* 11 */
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1394,11 +1435,11 @@ var __assign = (this && this.__assign) || function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 var models_1 = __webpack_require__(4);
 var config_1 = __webpack_require__(2);
-var htmlParser_1 = __webpack_require__(12);
+var htmlParser_1 = __webpack_require__(11);
 var polyfills_1 = __webpack_require__(3);
 var common_1 = __webpack_require__(1);
 var state_1 = __webpack_require__(0);
-var inputValidator_1 = __webpack_require__(14);
+var inputValidator_1 = __webpack_require__(13);
 /**
  * Create models from the user input
  */
@@ -1602,13 +1643,13 @@ function cellStyles(sectionName, dataKey, rowIndex) {
 
 
 /***/ }),
-/* 12 */
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var cssParser_1 = __webpack_require__(13);
+var cssParser_1 = __webpack_require__(12);
 var state_1 = __webpack_require__(0);
 function parseHtml(input, includeHiddenHtml, useCss) {
     if (includeHiddenHtml === void 0) { includeHiddenHtml = false; }
@@ -1665,7 +1706,7 @@ function parseTableSection(window, sectionElement, includeHidden, useCss) {
 
 
 /***/ }),
-/* 13 */
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1757,7 +1798,7 @@ function parsePadding(val, fontSize, lineHeight, scaleFactor) {
 
 
 /***/ }),
-/* 14 */
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1846,59 +1887,6 @@ function checkStyles(styles) {
         }
     }
 }
-
-
-/***/ }),
-/* 15 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var jsPDF = __webpack_require__(6);
-/**
- * Improved text function with halign and valign support
- * Inspiration from: http://stackoverflow.com/questions/28327510/align-text-right-using-jspdf/28433113#28433113
- */
-jsPDF.API.autoTableText = function (text, x, y, styles) {
-    styles = styles || {};
-    var FONT_ROW_RATIO = 1.15;
-    if (typeof x !== 'number' || typeof y !== 'number') {
-        console.error('The x and y parameters are required. Missing for text: ', text);
-    }
-    var k = this.internal.scaleFactor;
-    var fontSize = this.internal.getFontSize() / k;
-    var splitRegex = /\r\n|\r|\n/g;
-    var splitText = null;
-    var lineCount = 1;
-    if (styles.valign === 'middle' || styles.valign === 'bottom' || styles.halign === 'center' || styles.halign === 'right') {
-        splitText = typeof text === 'string' ? text.split(splitRegex) : text;
-        lineCount = splitText.length || 1;
-    }
-    // Align the top
-    y += fontSize * (2 - FONT_ROW_RATIO);
-    if (styles.valign === 'middle')
-        y -= (lineCount / 2) * fontSize * FONT_ROW_RATIO;
-    else if (styles.valign === 'bottom')
-        y -= lineCount * fontSize * FONT_ROW_RATIO;
-    if (styles.halign === 'center' || styles.halign === 'right') {
-        var alignSize = fontSize;
-        if (styles.halign === 'center')
-            alignSize *= 0.5;
-        if (lineCount >= 1) {
-            for (var iLine = 0; iLine < splitText.length; iLine++) {
-                this.text(splitText[iLine], x - this.getStringUnitWidth(splitText[iLine]) * alignSize, y);
-                y += fontSize * FONT_ROW_RATIO;
-            }
-            return this;
-        }
-        x -= this.getStringUnitWidth(text) * alignSize;
-    }
-    if (styles.halign === 'justify') {
-        this.text(text, x, y, { maxWidth: styles.maxWidth || 100, align: 'justify' });
-    }
-    else {
-        this.text(text, x, y);
-    }
-    return this;
-};
 
 
 /***/ })
