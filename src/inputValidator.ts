@@ -13,6 +13,10 @@ export default function(allOptions) {
             if (typeof settings.margin === 'undefined') settings.margin = settings.margins;
             console.error("Use of deprecated option: margins, use margin instead.");
         }
+        if (settings.startY && typeof settings.startY !== 'number') {
+            console.error('Invalid value for startY option', settings.startY)
+        }
+
         if (!settings.didDrawPage && (settings.afterPageContent || settings.beforePageContent || settings.afterPageAdd)) {
             console.error("The afterPageContent, beforePageContent and afterPageAdd hooks are deprecated. Use didDrawPage instead");
             settings.didDrawPage = function(data) {
