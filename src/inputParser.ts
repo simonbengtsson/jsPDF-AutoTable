@@ -34,13 +34,12 @@ export function parseInput(args) {
         let styles = allOptions.map(opts => opts[styleProp] || {});
         table.styles[styleProp] = assign({}, ...styles);
     }
-    
+
     // Append hooks
     for (let opts of allOptions) {
         for (let hookName of Object.keys(table.cellHooks)) {
             if (opts && typeof opts[hookName] === 'function') {
                 table.cellHooks[hookName].push(opts[hookName]);
-                delete opts[hookName]
             }
         }
     }
@@ -194,8 +193,7 @@ function getTableColumns(settings) {
     if (settings.columns) {
         return settings.columns.map((input, index) => {
             const key = input.dataKey || input.key || index;
-            const raw = input != null ? input : index;
-            return new Column(key, raw, index);
+            return new Column(key, input, index);
         });
     } else {
         let merged = {...settings.head[0], ...settings.body[0], ...settings.foot[0]};
