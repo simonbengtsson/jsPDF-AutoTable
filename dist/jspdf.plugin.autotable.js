@@ -1,6 +1,6 @@
 /*!
  * 
- *             jsPDF AutoTable plugin v3.1.3
+ *             jsPDF AutoTable plugin v3.1.4
  *             
  *             Copyright (c) 2014 Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable
  *             Licensed under the MIT License.
@@ -605,7 +605,17 @@ var Cell = /** @class */ (function () {
         var fromHtml = typeof window === 'object' && window.HTMLElement && content instanceof window.HTMLElement;
         this.raw = fromHtml ? content : raw;
         if (content && fromHtml) {
-            text = (content.innerText || content.textContent || '').replace(/' '+/g, ' ').trim();
+            var original = content.innerHTML;
+            // Remove extra space and line breaks in markup to make it more similar to
+            // what would be shown in html
+            content.innerHTML = content.innerHTML.replace(/\n/g, '');
+            content.innerHTML = content.innerHTML.replace(/ +/g, ' ');
+            // Hack for preserving br tags as line breaks in the pdf
+            var parts = content.innerHTML.split('<br>');
+            parts = parts.map(function (part) { return part.trim(); });
+            content.innerHTML = parts.join('\n');
+            text = content.innerText || content.textContent || '';
+            content.innerHTML = original;
         }
         else {
             // Stringify 0 and false, but not undefined or null
@@ -1435,7 +1445,6 @@ function parseInput(args) {
             var hookName = _d[_c];
             if (opts && typeof opts[hookName] === 'function') {
                 table.cellHooks[hookName].push(opts[hookName]);
-                delete opts[hookName];
             }
         }
     }
@@ -1580,8 +1589,7 @@ function getTableColumns(settings) {
     if (settings.columns) {
         return settings.columns.map(function (input, index) {
             var key = input.dataKey || input.key || index;
-            var raw = input != null ? input : index;
-            return new models_1.Column(key, raw, index);
+            return new models_1.Column(key, input, index);
         });
     }
     else {
@@ -1689,14 +1697,15 @@ function parseCss(element, scaleFactor, ignored) {
     }
     var pxScaleFactor = 96 / 72;
     assign('fillColor', parseColor(element, 'backgroundColor'));
-    assign('lineColor', parseColor(element, 'borderColor'));
     assign('fontStyle', parseFontStyle(style));
     assign('textColor', parseColor(element, 'color'));
     assign('halign', style.textAlign, ['left', 'right', 'center', 'justify']);
     assign('valign', style.verticalAlign, ['middle', 'bottom', 'top']);
     assign('fontSize', parseInt(style.fontSize || '') / pxScaleFactor);
     assign('cellPadding', parsePadding(style.padding, style.fontSize, style.lineHeight, scaleFactor));
-    assign('lineWidth', parseInt(style.borderWidth || '') / pxScaleFactor / scaleFactor);
+    // style.borderWidth only works in chrome (borderTopWidth etc works in firefox and ie as well)
+    assign('lineWidth', parseInt(style.borderTopWidth || '') / pxScaleFactor / scaleFactor);
+    assign('lineColor', parseColor(element, 'borderTopColor'));
     assign('font', (style.fontFamily || '').toLowerCase());
     return result;
 }
@@ -1777,6 +1786,9 @@ function default_1(allOptions) {
             if (typeof settings.margin === 'undefined')
                 settings.margin = settings.margins;
             console.error("Use of deprecated option: margins, use margin instead.");
+        }
+        if (settings.startY && typeof settings.startY !== 'number') {
+            console.error('Invalid value for startY option', settings.startY);
         }
         if (!settings.didDrawPage && (settings.afterPageContent || settings.beforePageContent || settings.afterPageAdd)) {
             console.error("The afterPageContent, beforePageContent and afterPageAdd hooks are deprecated. Use didDrawPage instead");
