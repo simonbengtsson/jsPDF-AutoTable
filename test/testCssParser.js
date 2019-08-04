@@ -21,7 +21,7 @@ describe('css parser', function () {
                 verticalAlign: 'top',
                 fontSize: "16px",
                 padding: "5px",
-                borderWidth: "2px",
+                borderTopWidth: "2px",
             }
         }};
 
