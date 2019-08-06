@@ -121,7 +121,7 @@ function parseContent(table) {
                 .forEach(col => {
                     let columnData = col.raw;
                     if (sectionName === 'head') {
-                        let val = typeof columnData === 'object' ? columnData.header : columnData;
+                        let val = typeof columnData === 'object' && columnData.header ? columnData.header : columnData;
                         if (val) {
                             sectionRow[col.dataKey] = val;
                         }
@@ -170,7 +170,7 @@ function parseContent(table) {
             }
         });
     }
-    
+
     table.allRows().forEach(row => {
         for (let column of table.columns) {
             let cell = row.cells[column.dataKey];
