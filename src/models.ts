@@ -138,29 +138,13 @@ export class Cell {
         this.section = section;
 
         let text;
-        let content = raw && typeof raw.content !== 'undefined' ? raw.content : raw;
+        let content = raw && raw.content != null ? raw.content : raw;
         content = content != undefined && content.dataKey != undefined ? content.title : content;
-        let fromHtml = typeof window === 'object' && (<any>window).HTMLElement && content instanceof (<any>window).HTMLElement;
-        this.raw = fromHtml ? content : raw;
-        if (content && fromHtml) {
-            let original = content.innerHTML;
 
-            // Remove extra space and line breaks in markup to make it more similar to
-            // what would be shown in html
-            content.innerHTML = content.innerHTML.replace(/\n/g, '');
-            content.innerHTML = content.innerHTML.replace(/ +/g, ' ');
+        this.raw = raw && raw._element ? raw._element : raw;
 
-            // Hack for preserving br tags as line breaks in the pdf
-            let parts = content.innerHTML.split('<br>');
-            parts = parts.map(part => part.trim());
-            content.innerHTML = parts.join('\n');
-
-            text = content.innerText || content.textContent || '';
-            content.innerHTML = original;
-        } else {
-            // Stringify 0 and false, but not undefined or null
-            text = content != null ? '' + content : '';
-        }
+        // Stringify 0 and false, but not undefined or null
+        text = content != null ? '' + content : '';
 
         let splitRegex = /\r\n|\r|\n/g;
         this.text = text.split(splitRegex);

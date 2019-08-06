@@ -42,7 +42,8 @@ function parseTableSection(window, sectionElement, includeHidden, useCss) {
                     rowSpan: cell.rowSpan,
                     colSpan: cell.colSpan,
                     styles: useCss ? cellStyles : null,
-                    content: cell
+                    _element: cell, // For hooks
+                    content: parseCellContent(cell)
                 });
             }
         }
@@ -53,4 +54,24 @@ function parseTableSection(window, sectionElement, includeHidden, useCss) {
     }
 
     return results;
+}
+
+function parseCellContent(orgCell) {
+    // Work on cloned node to make sure no changes are applied to html table
+    const cell = orgCell.cloneNode(true);
+
+    // Remove extra space and line breaks in markup to make it more similar to
+    // what would be shown in html
+    cell.innerHTML = cell.innerHTML
+        .replace(/\n/g, '')
+        .replace(/ +/g, ' ');
+
+    // Preserve <br> tags as line breaks in the pdf
+    cell.innerHTML = cell.innerHTML
+        .split('<br>')
+        .map(part => part.trim())
+        .join('\n');
+
+    // innerText for ie
+    return cell.innerText || cell.textContent || '';
 }
