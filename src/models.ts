@@ -137,7 +137,7 @@ export class Cell {
         this.styles = assign(themeStyles, raw && raw.styles || {});
         this.section = section;
 
-        let text = '';
+        let text;
         let content = raw && typeof raw.content !== 'undefined' ? raw.content : raw;
         content = content != undefined && content.dataKey != undefined ? content.title : content;
         let fromHtml = typeof window === 'object' && (<any>window).HTMLElement && content instanceof (<any>window).HTMLElement;
@@ -159,7 +159,7 @@ export class Cell {
             content.innerHTML = original;
         } else {
             // Stringify 0 and false, but not undefined or null
-            text = content != undefined ? '' + content : '';
+            text = content != null ? '' + content : '';
         }
 
         let splitRegex = /\r\n|\r|\n/g;

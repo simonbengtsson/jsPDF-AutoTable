@@ -54,7 +54,7 @@ class TableState {
     };
     
     pageNumber() {
-        const pageInfo = this.doc.internal.getCurrentPageInfo()
+        const pageInfo = this.doc.internal.getCurrentPageInfo();
         if (!pageInfo) {
             // Only recent versions of jspdf has pageInfo
             return this.doc.internal.getNumberOfPages()
