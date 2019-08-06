@@ -2,6 +2,7 @@
 // - No support for border spacing
 // - No support for transparency
 import {marginOrPadding} from "./common";
+import state from "./state";
 
 export function parseCss(element, scaleFactor, ignored: string[] = []) {
     let result: any = {};
@@ -28,7 +29,10 @@ export function parseCss(element, scaleFactor, ignored: string[] = []) {
     assign('lineWidth', parseInt(style.borderTopWidth || '') / pxScaleFactor / scaleFactor);
     assign('lineColor', parseColor(element, 'borderTopColor'));
 
-    assign('font', (style.fontFamily || '').toLowerCase());
+    const font = (style.fontFamily || '').toLowerCase();
+    if (state().doc.getFontList()[font]) {
+        assign('font', font);
+    }
 
     return result;
 }
