@@ -51,11 +51,7 @@ jsPDF.autoTableSetDefaults = function(defaults, doc) {
     return this;
 };
 
-/**
- * @Deprecated. Use html option instead doc.autoTable(html: '#table')
- */
 jsPDF.API.autoTableHtmlToJson = function(tableElem, includeHiddenElements) {
-    console.error("Use of deprecated function: autoTableHtmlToJson. Use html option instead.");
     includeHiddenElements = includeHiddenElements || false;
 
     if (!tableElem || !(tableElem instanceof HTMLTableElement)) {
