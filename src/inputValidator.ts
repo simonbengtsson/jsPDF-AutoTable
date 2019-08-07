@@ -14,7 +14,8 @@ export default function(allOptions) {
             console.error("Use of deprecated option: margins, use margin instead.");
         }
         if (settings.startY && typeof settings.startY !== 'number') {
-            console.error('Invalid value for startY option', settings.startY)
+            console.error('Invalid value for startY option', settings.startY);
+            delete settings.startY
         }
 
         if (!settings.didDrawPage && (settings.afterPageContent || settings.beforePageContent || settings.afterPageAdd)) {
