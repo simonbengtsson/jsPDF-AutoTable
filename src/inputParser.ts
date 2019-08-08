@@ -207,7 +207,8 @@ function cellStyles(sectionName, column, rowIndex) {
     let table = state().table;
     let theme = getTheme(table.settings.theme);
     let otherStyles = [theme.table, theme[sectionName], table.styles.styles, table.styles[`${sectionName}Styles`]];
-    let colStyles = sectionName === 'body' ? table.styles.columnStyles[column.dataKey] || {} : {};
+    let columnStyles = table.styles.columnStyles[column.dataKey] || table.styles.columnStyles[column.index] || {};
+    let colStyles = sectionName === 'body' ? columnStyles : {};
     let rowStyles = sectionName === 'body' && rowIndex % 2 === 0 ? assign({}, theme.alternateRow, table.styles.alternateRowStyles) : {};
     return assign(defaultStyles(), ...[...otherStyles, rowStyles, colStyles]);
 }
