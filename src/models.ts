@@ -139,7 +139,7 @@ export class Cell {
 
         let text;
         let content = raw && raw.content != null ? raw.content : raw;
-        content = content != undefined && content.dataKey != undefined ? content.title : content;
+        content = content && content.title != null ? content.title : content;
 
         this.raw = raw && raw._element ? raw._element : raw;
 
