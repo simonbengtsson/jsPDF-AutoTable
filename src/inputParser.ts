@@ -205,8 +205,8 @@ function getTableColumns(settings) {
     } else {
         let merged = {...settings.head[0], ...settings.body[0], ...settings.foot[0]};
         delete merged._element;
-        let dataKeys = Object.keys(merged);
-        return dataKeys.map((key, i) => new Column(key, key, i));
+        let keys = Object.keys(merged);
+        return keys.map((key, i) => new Column(key, key, i));
     }
 }
 

@@ -63,8 +63,8 @@ export default function(allOptions) {
         }
 
         let columnStyles = settings['columnStyles'] || {};
-        for (let dataKey of Object.keys(columnStyles)) {
-            checkStyles(columnStyles[dataKey] || {});
+        for (let key of Object.keys(columnStyles)) {
+            checkStyles(columnStyles[key] || {});
         }
     }
 }
