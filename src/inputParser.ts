@@ -134,7 +134,7 @@ function parseContent(table) {
                     if (columnSpansLeft === 0) {
                         let rawCell;
                         if (Array.isArray(rawRow)) {
-                            rawCell = rawRow[column.index - colSpansAdded - skippedRowForRowSpans];
+                            rawCell = rawRow[column.index - colSpansAdded];
                         } else {
                             rawCell = rawRow[column.dataKey];
                         }
@@ -198,15 +198,24 @@ function generateSectionRowFromColumnData(table, sectionName) {
 
 function getTableColumns(settings) {
     if (settings.columns) {
-        return settings.columns.map((input, index) => {
+        let cols = settings.columns.map((input, index) => {
             const key = input.dataKey || input.key || index;
             return new Column(key, input, index);
         });
+        return cols;
     } else {
-        let merged = {...settings.head[0], ...settings.body[0], ...settings.foot[0]};
-        delete merged._element;
-        let keys = Object.keys(merged);
-        return keys.map((key, i) => new Column(key, key, i));
+        let firstRow = settings.head[0] || settings.body[0] || settings.foot[0];
+        let columns = [];
+        Object.keys(firstRow)
+            .filter(key => key !== '_element')
+            .forEach(key => {
+                let colSpan = firstRow[key].colSpan || 1;
+                for (let i = 0; i < colSpan; i++) {
+                    const id = key + (i > 0 ? `_${i}` : '');
+                    columns.push(new Column(id, id, columns.length));
+                }
+            });
+        return columns;
     }
 }
 
