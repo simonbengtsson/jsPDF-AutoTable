@@ -115,21 +115,10 @@ function parseContent(table) {
     for (let sectionName of ['head', 'body', 'foot']) {
         let rowSpansLeftForColumn = {};
         let sectionRows = settings[sectionName];
-        if (sectionRows.length === 0 && settings.columns) {
-            let sectionRow = {};
-            table.columns
-                .forEach(col => {
-                    let columnData = col.raw;
-                    if (sectionName === 'head') {
-                        let val = typeof columnData === 'object' && columnData.header ? columnData.header : columnData;
-                        if (val) {
-                            sectionRow[col.dataKey] = val;
-                        }
-                    } else if (sectionName === 'foot' && columnData.footer) {
-                        sectionRow[col.dataKey] = columnData.footer
-                    }
-                });
-            if (Object.keys(sectionRow).length) {
+        if (sectionRows.length === 0 && settings.columns && sectionName !== 'body') {
+            // If no head or foot is set, try generating one with content in columns
+            let sectionRow = generateSectionRowFromColumnData(table, sectionName);
+            if (sectionRow) {
                 sectionRows.push(sectionRow)
             }
         }
@@ -187,6 +176,24 @@ function parseContent(table) {
             }
         }
     });
+}
+
+function generateSectionRowFromColumnData(table, sectionName) {
+    let sectionRow = {};
+    table.columns
+        .forEach(col => {
+            let columnData = col.raw;
+            if (sectionName === 'head') {
+                let val = columnData && columnData.header ? columnData.header : columnData;
+                if (val) {
+                    sectionRow[col.dataKey] = val;
+                }
+            } else if (sectionName === 'foot' && columnData.footer) {
+                sectionRow[col.dataKey] = columnData.footer
+            }
+        });
+
+    return Object.keys(sectionRow).length > 0 ? sectionRow : null;
 }
 
 function getTableColumns(settings) {
