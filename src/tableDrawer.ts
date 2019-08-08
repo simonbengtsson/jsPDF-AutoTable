@@ -72,7 +72,7 @@ function printFullRow(row: Row, isLastRow: boolean, cachedBreakPageRow: Row) {
 
                 // Note that this will cut cells with specified custom min height at page break
                 if (Array.isArray(cell.text) && cell.text.length > remainingLineCount) {
-                    remainingTexts[column.dataKey] = cell.text.splice(remainingLineCount, cell.text.length);
+                    remainingTexts[column.index] = cell.text.splice(remainingLineCount, cell.text.length);
                     let actualHeight = Math.floor(cell.text.length * fontHeight);
                     if (cell.rowSpan === 1) {
                         row.height = Math.min(row.height, actualHeight);
@@ -81,15 +81,16 @@ function printFullRow(row: Row, isLastRow: boolean, cachedBreakPageRow: Row) {
                     let newCell: Cell = new Cell(cell, cell.styles, cell.section);
                     newCell.height = cell.height;
                     newCell.width = cell.width;
-                    newCell.text = remainingTexts[column.dataKey];
+                    newCell.text = remainingTexts[column.index];
                     cachedBreakPageRow.cells[column.dataKey] = newCell;
                 } else if (cell.height > remainingPageSpace) {
                     // this cell has rowspan and it will break through page
                     // cache the cell so that border can be printed in next page
-                    cachedBreakPageRow.cells[column.dataKey] = new Cell(cell, cell.styles, cell.section);
-                    cachedBreakPageRow.cells[column.dataKey].height = cell.height;
-                    cachedBreakPageRow.cells[column.dataKey].width = cell.width;
-                    cachedBreakPageRow.cells[column.dataKey].text = [];
+                    const cachedCell = new Cell(cell, cell.styles, cell.section);
+                    cachedCell.height = cell.height;
+                    cachedCell.width = cell.width;
+                    cachedCell.text = [];
+                    cachedBreakPageRow.cells[column.dataKey] = cachedCell
 
                 }
                 cell.height = Math.min(remainingPageSpace, cell.height);
