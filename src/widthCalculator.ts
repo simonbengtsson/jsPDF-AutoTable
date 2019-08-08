@@ -31,7 +31,7 @@ function applyRowSpans(table) {
     for (let rowIndex = 0; rowIndex < all.length; rowIndex++) {
         let row = all[rowIndex];
         for (let column of table.columns) {
-            let data = rowSpanCells[column.dataKey];
+            let data = rowSpanCells[column.index];
             if (colRowSpansLeft > 1) {
                 colRowSpansLeft--;
                 delete row.cells[column.dataKey];
@@ -45,7 +45,7 @@ function applyRowSpans(table) {
                 delete row.cells[column.dataKey];
                 data.left--;
                 if (data.left <= 1) {
-                    delete rowSpanCells[column.dataKey];
+                    delete rowSpanCells[column.index];
                 }
             } else {
                 var cell = row.cells[column.dataKey];
@@ -56,7 +56,7 @@ function applyRowSpans(table) {
                 if (cell.rowSpan > 1) {
                     let remaining = all.length - rowIndex;
                     let left = cell.rowSpan > remaining ? remaining : cell.rowSpan;
-                    rowSpanCells[column.dataKey] = {cell, left, row};
+                    rowSpanCells[column.index] = {cell, left, row};
                 }
             }
         }
