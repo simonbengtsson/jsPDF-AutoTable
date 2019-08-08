@@ -141,7 +141,7 @@ function parseContent(table) {
 
                         let styles = cellStyles(sectionName, column, rowIndex);
                         let cell = new Cell(rawCell, styles, sectionName);
-                        row.cells[column.dataKey] = cell;
+                        row.cells[column.index] = cell;
 
                         table.callCellHooks(table.cellHooks.didParseCell, cell, row, column);
 
@@ -162,7 +162,7 @@ function parseContent(table) {
 
     table.allRows().forEach(row => {
         for (let column of table.columns) {
-            let cell = row.cells[column.dataKey];
+            let cell = row.cells[column.index];
 
             // Kind of make sense to not consider width of cells with colspan columns
             // Consider this in a future release however

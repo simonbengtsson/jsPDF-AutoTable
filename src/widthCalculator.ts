@@ -34,7 +34,7 @@ function applyRowSpans(table) {
             let data = rowSpanCells[column.index];
             if (colRowSpansLeft > 1) {
                 colRowSpansLeft--;
-                delete row.cells[column.dataKey];
+                delete row.cells[column.index];
             } else if (data) {
                 data.cell.height += row.height;
                 if (data.cell.height > row.maxCellHeight) {
@@ -42,13 +42,13 @@ function applyRowSpans(table) {
                     data.row.maxCellLineCount = Array.isArray(data.cell.text) ? data.cell.text.length : 1;
                 }
                 colRowSpansLeft = data.cell.colSpan;
-                delete row.cells[column.dataKey];
+                delete row.cells[column.index];
                 data.left--;
                 if (data.left <= 1) {
                     delete rowSpanCells[column.index];
                 }
             } else {
-                var cell = row.cells[column.dataKey];
+                var cell = row.cells[column.index];
                 if (!cell) {
                     continue;
                 }
@@ -88,14 +88,14 @@ function applyColSpans(table) {
             colSpansLeft -= 1;
             if (colSpansLeft > 1 && table.columns[columnIndex + 1]) {
                 combinedColSpanWidth += column.width;
-                delete row.cells[column.dataKey];
+                delete row.cells[column.index];
                 continue;
             } else if (colSpanCell) {
                 cell = colSpanCell;
-                delete row.cells[column.dataKey];
+                delete row.cells[column.index];
                 colSpanCell = null;
             } else {
-                cell = row.cells[column.dataKey];
+                cell = row.cells[column.index];
                 if (!cell) continue;
                 colSpansLeft = cell.colSpan;
                 combinedColSpanWidth = 0;
@@ -114,7 +114,7 @@ function fitContent(table) {
     let rowSpanHeight = {count: 0, height: 0};
     for (let row of table.allRows()) {
         for (let column of table.columns) {
-            let cell = row.cells[column.dataKey];
+            let cell = row.cells[column.index];
             if (!cell) continue;
 
             applyStyles(cell.styles);

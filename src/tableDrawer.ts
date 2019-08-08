@@ -61,7 +61,7 @@ function printFullRow(row: Row, isLastRow: boolean, cachedBreakPageRow: Row) {
 
             for (let j = 0; j < table.columns.length; j++) {
                 let column = table.columns[j];
-                let cell = row.cells[column.dataKey];
+                let cell = row.cells[column.index];
                 if (!cell) {
                     continue;
                 }
@@ -82,7 +82,7 @@ function printFullRow(row: Row, isLastRow: boolean, cachedBreakPageRow: Row) {
                     newCell.height = cell.height;
                     newCell.width = cell.width;
                     newCell.text = remainingTexts[column.index];
-                    cachedBreakPageRow.cells[column.dataKey] = newCell;
+                    cachedBreakPageRow.cells[column.index] = newCell;
                 } else if (cell.height > remainingPageSpace) {
                     // this cell has rowspan and it will break through page
                     // cache the cell so that border can be printed in next page
@@ -90,7 +90,7 @@ function printFullRow(row: Row, isLastRow: boolean, cachedBreakPageRow: Row) {
                     cachedCell.height = cell.height;
                     cachedCell.width = cell.width;
                     cachedCell.text = [];
-                    cachedBreakPageRow.cells[column.dataKey] = cachedCell
+                    cachedBreakPageRow.cells[column.index] = cachedCell
 
                 }
                 cell.height = Math.min(remainingPageSpace, cell.height);
@@ -109,7 +109,7 @@ function printFullRow(row: Row, isLastRow: boolean, cachedBreakPageRow: Row) {
 
 function getOneRowHeight(row) {
     return state().table.columns.reduce((acc, column) => {
-        let cell = row.cells[column.dataKey];
+        let cell = row.cells[column.index];
         if (!cell) return 0;
         let fontHeight = cell.styles.fontSize / state().scaleFactor() * FONT_ROW_RATIO;
         let vPadding = cell.padding('vertical');
@@ -138,7 +138,7 @@ function printRow(row) {
     row.x = table.cursor.x;
 
     for (let column of table.columns) {
-        let cell = row.cells[column.dataKey];
+        let cell = row.cells[column.index];
         if (!cell) {
             table.cursor.x += column.width;
             continue;
