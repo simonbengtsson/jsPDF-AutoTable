@@ -141,7 +141,7 @@ function parseContent(table) {
             let colSpansAdded = 0;
             let columnSpansLeft = 0;
             for (let column of table.columns) {
-                if (rowSpansLeftForColumn[column.dataKey] == null || rowSpansLeftForColumn[column.dataKey].left === 0) {
+                if (rowSpansLeftForColumn[column.index] == null || rowSpansLeftForColumn[column.index].left === 0) {
                     if (columnSpansLeft === 0) {
                         let rawCell;
                         if (Array.isArray(rawRow)) {
@@ -157,14 +157,14 @@ function parseContent(table) {
                         table.callCellHooks(table.cellHooks.didParseCell, cell, row, column);
 
                         columnSpansLeft = cell.colSpan - 1;
-                        rowSpansLeftForColumn[column.dataKey] = {left: cell.rowSpan - 1, times: columnSpansLeft};
+                        rowSpansLeftForColumn[column.index] = {left: cell.rowSpan - 1, times: columnSpansLeft};
                     } else {
                         columnSpansLeft--;
                         colSpansAdded++;
                     }
                 } else {
-                    rowSpansLeftForColumn[column.dataKey].left--;
-                    columnSpansLeft = rowSpansLeftForColumn[column.dataKey].times;
+                    rowSpansLeftForColumn[column.index].left--;
+                    columnSpansLeft = rowSpansLeftForColumn[column.index].times;
                     skippedRowForRowSpans++;
                 }
             }
