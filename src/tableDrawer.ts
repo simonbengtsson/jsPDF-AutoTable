@@ -34,7 +34,7 @@ export function drawTable(table: Table) {
     }
     applyUserStyles();
     table.body.forEach(function (row, index) {
-        printFullRow(row, index === table.body.length - 1, cachedBreakPageRow, index); //CE
+        printFullRow(row, index === table.body.length - 1, cachedBreakPageRow);
     });
     applyUserStyles();
     if (settings.showFoot === true || settings.showFoot === 'lastPage' || settings.showFoot === 'everyPage') {
@@ -46,37 +46,15 @@ export function drawTable(table: Table) {
     table.callEndPageHooks();
 }
 
-//CE Get the best fit height for a page breaking cell
-function getPageBreakColSpanCellHeight(cellHeight, remainingPageSpace, rowIndex, rows) {
-    try {
-        if (cellHeight <= remainingPageSpace) {
-            return cellHeight;
-        }
-
-        let rowsTotalHeight = 0;
-        for (let j = rowIndex; j < rows.length; j++) {
-            let rowHeight = rows[j].height;
-            if (rowsTotalHeight + rowHeight < remainingPageSpace) {
-                rowsTotalHeight += rowHeight;
-            } else {
-                return rowsTotalHeight;
-            }
-        }
-    } catch (error) {
-        return cellHeight;
-    }
-}
-
-function printFullRow(row: Row, isLastRow: boolean, cachedBreakPageRow: Row, rowIndex) {
+function printFullRow(row: Row, isLastRow: boolean, cachedBreakPageRow: Row) {
     let remainingTexts = {};
 
     let table = state().table;
 
     let remainingPageSpace = getRemainingPageSpace(isLastRow);
     if (remainingPageSpace < row.maxCellHeight) {
-        //CE Use actual row.height not calculated
-        if (remainingPageSpace < row.height || (table.settings.rowPageBreak === 'avoid' && !rowHeightGreaterThanMaxTableHeight(row))) {
-            addPage(cachedBreakPageRow, row.index);
+        if (remainingPageSpace < getOneRowHeight(row) || (table.settings.rowPageBreak === 'avoid' && !rowHeightGreaterThanMaxTableHeight(row))) {
+            addPage(cachedBreakPageRow);
         } else {
             // Modify the row to fit the current page and calculate text and height of partial row
             row.spansMultiplePages = true;
@@ -90,11 +68,7 @@ function printFullRow(row: Row, isLastRow: boolean, cachedBreakPageRow: Row, row
 
                 let fontHeight = cell.styles.fontSize / state().scaleFactor() * FONT_ROW_RATIO;
                 let vPadding = cell.padding('vertical');
-                //CE Get actual remaining height for this cell
-                let pageBreakColSpanCellHeight = getPageBreakColSpanCellHeight(cell.height, remainingPageSpace, rowIndex, table.body);
-
-                //CE Remaining Line count should consider actual remaining height for this cell
-                let remainingLineCount = Math.floor((pageBreakColSpanCellHeight - vPadding) / fontHeight);
+                let remainingLineCount = Math.floor((remainingPageSpace - vPadding) / fontHeight);
 
                 // Note that this will cut cells with specified custom min height at page break
                 if (Array.isArray(cell.text) && cell.text.length > remainingLineCount) {
@@ -118,8 +92,7 @@ function printFullRow(row: Row, isLastRow: boolean, cachedBreakPageRow: Row, row
                     cachedBreakPageRow.cells[column.dataKey].text = [];
 
                 }
-                //CE Actual remaining height for this cell
-                cell.height = Math.min(pageBreakColSpanCellHeight, cell.height);
+                cell.height = Math.min(remainingPageSpace, cell.height);
             }
         }
     }
@@ -129,12 +102,19 @@ function printFullRow(row: Row, isLastRow: boolean, cachedBreakPageRow: Row, row
         // calculate remaining height of rowspan cell
         Object.keys(cachedBreakPageRow.cells).forEach((key: string) => {
             cachedBreakPageRow.cells[key].height -= row.height;
-            //Cells smaller then row height doesn't need be maintained.
-            if (cachedBreakPageRow.cells[key].height < row.height) {
-                delete cachedBreakPageRow.cells[key];
-            }
         });
     }
+}
+
+function getOneRowHeight(row) {
+    return state().table.columns.reduce((acc, column) => {
+        let cell = row.cells[column.dataKey];
+        if (!cell) return 0;
+        let fontHeight = cell.styles.fontSize / state().scaleFactor() * FONT_ROW_RATIO;
+        let vPadding = cell.padding('vertical');
+        let oneRowHeight = vPadding + fontHeight;
+        return oneRowHeight > acc ? oneRowHeight : acc
+    }, 0)
 }
 
 function rowHeightGreaterThanMaxTableHeight(row) {
@@ -215,7 +195,7 @@ function getRemainingPageSpace(isLastRow) {
     return state().pageHeight() - table.cursor.y - bottomContentHeight;
 }
 
-export function addPage(cachedBreakPageRow, rowIndex) {
+export function addPage(cachedBreakPageRow) {
     let table: Table = state().table;
 
     applyUserStyles();
@@ -225,7 +205,7 @@ export function addPage(cachedBreakPageRow, rowIndex) {
 
     table.finalY = table.cursor.y;
 
-    // Add user content just before adding new page ensure it will 
+    // Add user content just before adding new page ensure it will
     // be drawn above other things on the page
     table.callEndPageHooks();
     addTableBorder();
@@ -251,7 +231,7 @@ export function addPage(cachedBreakPageRow, rowIndex) {
             cloneCachedRow.height = cachedBreakPageRow.cells[key].height;
         });
         cachedBreakPageRow.cells = {};
-        printFullRow(cloneCachedRow, false, cachedBreakPageRow, rowIndex);
+        printFullRow(cloneCachedRow, false, cachedBreakPageRow);
     }
 }
 
