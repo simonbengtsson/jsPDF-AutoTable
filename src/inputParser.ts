@@ -199,7 +199,7 @@ function getTableColumns(settings) {
         let merged = {...settings.head[0], ...settings.body[0], ...settings.foot[0]};
         delete merged._element;
         let dataKeys = Object.keys(merged);
-        return dataKeys.map(key => new Column(key, key, key));
+        return dataKeys.map((key, i) => new Column(key, key, i));
     }
 }
 
