@@ -145,12 +145,12 @@ function parseContent(table) {
                     if (columnSpansLeft === 0) {
                         let rawCell;
                         if (Array.isArray(rawRow)) {
-                            rawCell = rawRow[column.dataKey - colSpansAdded - skippedRowForRowSpans];
+                            rawCell = rawRow[column.index - colSpansAdded - skippedRowForRowSpans];
                         } else {
                             rawCell = rawRow[column.dataKey];
                         }
 
-                        let styles = cellStyles(sectionName, column.dataKey, rowIndex);
+                        let styles = cellStyles(sectionName, column, rowIndex);
                         let cell = new Cell(rawCell, styles, sectionName);
                         row.cells[column.dataKey] = cell;
 
@@ -203,11 +203,11 @@ function getTableColumns(settings) {
     }
 }
 
-function cellStyles(sectionName, dataKey, rowIndex) {
+function cellStyles(sectionName, column, rowIndex) {
     let table = state().table;
     let theme = getTheme(table.settings.theme);
     let otherStyles = [theme.table, theme[sectionName], table.styles.styles, table.styles[`${sectionName}Styles`]];
-    let colStyles = sectionName === 'body' ? table.styles.columnStyles[dataKey] || {} : {};
+    let colStyles = sectionName === 'body' ? table.styles.columnStyles[column.dataKey] || {} : {};
     let rowStyles = sectionName === 'body' && rowIndex % 2 === 0 ? assign({}, theme.alternateRow, table.styles.alternateRowStyles) : {};
     return assign(defaultStyles(), ...[...otherStyles, rowStyles, colStyles]);
 }
