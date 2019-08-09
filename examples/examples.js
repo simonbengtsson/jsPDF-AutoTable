@@ -21,22 +21,7 @@ examples.basic = function () {
     var doc = new jsPDF();
 
     // From HTML
-    doc.autoTable({
-        tableWidth: 'wrap',
-        body: [
-            [{content: 'test', rowSpan: 2}, 'one'],
-            ['one', 'twp']
-        ]
-    });
-
-    doc.autoTable({
-        tableWidth: 'wrap',
-        body: [
-            [{content: 'test', colSpan: 2}, 'one'],
-        ]
-    });
-
-    return doc;
+    doc.autoTable({html: '.table'});
 
     // From Javascript
     let finalY = doc.previousAutoTable.finalY;
