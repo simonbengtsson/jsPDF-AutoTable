@@ -1,6 +1,6 @@
 /*!
  * 
- *             jsPDF AutoTable plugin v3.1.4
+ *             jsPDF AutoTable plugin v3.2.0
  *             
  *             Copyright (c) 2014 Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable
  *             Licensed under the MIT License.
@@ -158,7 +158,12 @@ var TableState = /** @class */ (function () {
     };
     ;
     TableState.prototype.pageNumber = function () {
-        return this.doc.internal.getCurrentPageInfo().pageNumber;
+        var pageInfo = this.doc.internal.getCurrentPageInfo();
+        if (!pageInfo) {
+            // Only recent versions of jspdf has pageInfo
+            return this.doc.internal.getNumberOfPages();
+        }
+        return pageInfo.pageNumber;
     };
     return TableState;
 }());
@@ -599,28 +604,12 @@ var Cell = /** @class */ (function () {
         this.colSpan = raw && raw.colSpan || 1;
         this.styles = assign(themeStyles, raw && raw.styles || {});
         this.section = section;
-        var text = '';
-        var content = raw && typeof raw.content !== 'undefined' ? raw.content : raw;
-        content = content != undefined && content.dataKey != undefined ? content.title : content;
-        var fromHtml = typeof window === 'object' && window.HTMLElement && content instanceof window.HTMLElement;
-        this.raw = fromHtml ? content : raw;
-        if (content && fromHtml) {
-            var original = content.innerHTML;
-            // Remove extra space and line breaks in markup to make it more similar to
-            // what would be shown in html
-            content.innerHTML = content.innerHTML.replace(/\n/g, '');
-            content.innerHTML = content.innerHTML.replace(/ +/g, ' ');
-            // Hack for preserving br tags as line breaks in the pdf
-            var parts = content.innerHTML.split('<br>');
-            parts = parts.map(function (part) { return part.trim(); });
-            content.innerHTML = parts.join('\n');
-            text = content.innerText || content.textContent || '';
-            content.innerHTML = original;
-        }
-        else {
-            // Stringify 0 and false, but not undefined or null
-            text = content != undefined ? '' + content : '';
-        }
+        var text;
+        var content = raw && raw.content != null ? raw.content : raw;
+        content = content && content.title != null ? content.title : content;
+        this.raw = raw && raw._element ? raw._element : raw;
+        // Stringify 0 and false, but not undefined or null
+        text = content != null ? '' + content : '';
         var splitRegex = /\r\n|\r|\n/g;
         this.text = text.split(splitRegex);
         this.contentWidth = this.padding('horizontal') + common_1.getStringWidth(this.text, this.styles);
@@ -821,11 +810,7 @@ jsPDF.autoTableSetDefaults = function (defaults, doc) {
     state_1.setDefaults(defaults, doc);
     return this;
 };
-/**
- * @Deprecated. Use html option instead doc.autoTable(html: '#table')
- */
 jsPDF.API.autoTableHtmlToJson = function (tableElem, includeHiddenElements) {
-    console.error("Use of deprecated function: autoTableHtmlToJson. Use html option instead.");
     includeHiddenElements = includeHiddenElements || false;
     if (!tableElem || !(tableElem instanceof HTMLTableElement)) {
         console.error("A HTMLTableElement has to be sent to autoTableHtmlToJson");
@@ -932,7 +917,7 @@ function drawTable(table) {
     }
     common_1.applyUserStyles();
     table.body.forEach(function (row, index) {
-        printFullRow(row, index === table.body.length - 1, cachedBreakPageRow, index); //CE
+        printFullRow(row, index === table.body.length - 1, cachedBreakPageRow);
     });
     common_1.applyUserStyles();
     if (settings.showFoot === true || settings.showFoot === 'lastPage' || settings.showFoot === 'everyPage') {
@@ -942,54 +927,29 @@ function drawTable(table) {
     table.callEndPageHooks();
 }
 exports.drawTable = drawTable;
-//CE Get the best fit height for a page breaking cell
-function getPageBreakColSpanCellHeight(cellHeight, remainingPageSpace, rowIndex, rows) {
-    try {
-        if (cellHeight <= remainingPageSpace) {
-            return cellHeight;
-        }
-        var rowsTotalHeight = 0;
-        for (var j = rowIndex; j < rows.length; j++) {
-            var rowHeight = rows[j].height;
-            if (rowsTotalHeight + rowHeight < remainingPageSpace) {
-                rowsTotalHeight += rowHeight;
-            }
-            else {
-                return rowsTotalHeight;
-            }
-        }
-    }
-    catch (error) {
-        return cellHeight;
-    }
-}
-function printFullRow(row, isLastRow, cachedBreakPageRow, rowIndex) {
+function printFullRow(row, isLastRow, cachedBreakPageRow) {
     var remainingTexts = {};
     var table = state_1.default().table;
     var remainingPageSpace = getRemainingPageSpace(isLastRow);
     if (remainingPageSpace < row.maxCellHeight) {
-        //CE Use actual row.height not calculated
-        if (remainingPageSpace < row.height || (table.settings.rowPageBreak === 'avoid' && !rowHeightGreaterThanMaxTableHeight(row))) {
-            addPage(cachedBreakPageRow, row.index);
+        if (remainingPageSpace < getOneRowHeight(row) || (table.settings.rowPageBreak === 'avoid' && !rowHeightGreaterThanMaxTableHeight(row))) {
+            addPage(cachedBreakPageRow);
         }
         else {
             // Modify the row to fit the current page and calculate text and height of partial row
             row.spansMultiplePages = true;
             for (var j = 0; j < table.columns.length; j++) {
                 var column = table.columns[j];
-                var cell = row.cells[column.dataKey];
+                var cell = row.cells[column.index];
                 if (!cell) {
                     continue;
                 }
                 var fontHeight = cell.styles.fontSize / state_1.default().scaleFactor() * config_1.FONT_ROW_RATIO;
                 var vPadding = cell.padding('vertical');
-                //CE Get actual remaining height for this cell
-                var pageBreakColSpanCellHeight = getPageBreakColSpanCellHeight(cell.height, remainingPageSpace, rowIndex, table.body);
-                //CE Remaining Line count should consider actual remaining height for this cell
-                var remainingLineCount = Math.floor((pageBreakColSpanCellHeight - vPadding) / fontHeight);
+                var remainingLineCount = Math.floor((remainingPageSpace - vPadding) / fontHeight);
                 // Note that this will cut cells with specified custom min height at page break
                 if (Array.isArray(cell.text) && cell.text.length > remainingLineCount) {
-                    remainingTexts[column.dataKey] = cell.text.splice(remainingLineCount, cell.text.length);
+                    remainingTexts[column.index] = cell.text.splice(remainingLineCount, cell.text.length);
                     var actualHeight = Math.floor(cell.text.length * fontHeight);
                     if (cell.rowSpan === 1) {
                         row.height = Math.min(row.height, actualHeight);
@@ -997,19 +957,19 @@ function printFullRow(row, isLastRow, cachedBreakPageRow, rowIndex) {
                     var newCell = new models_1.Cell(cell, cell.styles, cell.section);
                     newCell.height = cell.height;
                     newCell.width = cell.width;
-                    newCell.text = remainingTexts[column.dataKey];
-                    cachedBreakPageRow.cells[column.dataKey] = newCell;
+                    newCell.text = remainingTexts[column.index];
+                    cachedBreakPageRow.cells[column.index] = newCell;
                 }
                 else if (cell.height > remainingPageSpace) {
                     // this cell has rowspan and it will break through page
                     // cache the cell so that border can be printed in next page
-                    cachedBreakPageRow.cells[column.dataKey] = new models_1.Cell(cell, cell.styles, cell.section);
-                    cachedBreakPageRow.cells[column.dataKey].height = cell.height;
-                    cachedBreakPageRow.cells[column.dataKey].width = cell.width;
-                    cachedBreakPageRow.cells[column.dataKey].text = [];
+                    var cachedCell = new models_1.Cell(cell, cell.styles, cell.section);
+                    cachedCell.height = cell.height;
+                    cachedCell.width = cell.width;
+                    cachedCell.text = [];
+                    cachedBreakPageRow.cells[column.index] = cachedCell;
                 }
-                //CE Actual remaining height for this cell
-                cell.height = Math.min(pageBreakColSpanCellHeight, cell.height);
+                cell.height = Math.min(remainingPageSpace, cell.height);
             }
         }
     }
@@ -1018,12 +978,19 @@ function printFullRow(row, isLastRow, cachedBreakPageRow, rowIndex) {
         // calculate remaining height of rowspan cell
         Object.keys(cachedBreakPageRow.cells).forEach(function (key) {
             cachedBreakPageRow.cells[key].height -= row.height;
-            //Cells smaller then row height doesn't need be maintained.
-            if (cachedBreakPageRow.cells[key].height < row.height) {
-                delete cachedBreakPageRow.cells[key];
-            }
         });
     }
+}
+function getOneRowHeight(row) {
+    return state_1.default().table.columns.reduce(function (acc, column) {
+        var cell = row.cells[column.index];
+        if (!cell)
+            return 0;
+        var fontHeight = cell.styles.fontSize / state_1.default().scaleFactor() * config_1.FONT_ROW_RATIO;
+        var vPadding = cell.padding('vertical');
+        var oneRowHeight = vPadding + fontHeight;
+        return oneRowHeight > acc ? oneRowHeight : acc;
+    }, 0);
 }
 function rowHeightGreaterThanMaxTableHeight(row) {
     var table = state_1.default().table;
@@ -1042,7 +1009,7 @@ function printRow(row) {
     row.x = table.cursor.x;
     for (var _i = 0, _a = table.columns; _i < _a.length; _i++) {
         var column = _a[_i];
-        var cell = row.cells[column.dataKey];
+        var cell = row.cells[column.index];
         if (!cell) {
             table.cursor.x += column.width;
             continue;
@@ -1095,14 +1062,14 @@ function getRemainingPageSpace(isLastRow) {
     }
     return state_1.default().pageHeight() - table.cursor.y - bottomContentHeight;
 }
-function addPage(cachedBreakPageRow, rowIndex) {
+function addPage(cachedBreakPageRow) {
     var table = state_1.default().table;
     common_1.applyUserStyles();
     if (table.settings.showFoot === true || table.settings.showFoot === 'everyPage') {
         table.foot.forEach(function (row) { return printRow(row); });
     }
     table.finalY = table.cursor.y;
-    // Add user content just before adding new page ensure it will 
+    // Add user content just before adding new page ensure it will
     // be drawn above other things on the page
     table.callEndPageHooks();
     common_1.addTableBorder();
@@ -1129,7 +1096,7 @@ function addPage(cachedBreakPageRow, rowIndex) {
             cloneCachedRow_1.height = cachedBreakPageRow.cells[key].height;
         });
         cachedBreakPageRow.cells = {};
-        printFullRow(cloneCachedRow_1, false, cachedBreakPageRow, rowIndex);
+        printFullRow(cloneCachedRow_1, false, cachedBreakPageRow);
     }
 }
 exports.addPage = addPage;
@@ -1236,10 +1203,10 @@ function applyRowSpans(table) {
         var row = all[rowIndex];
         for (var _i = 0, _a = table.columns; _i < _a.length; _i++) {
             var column = _a[_i];
-            var data = rowSpanCells[column.dataKey];
+            var data = rowSpanCells[column.index];
             if (colRowSpansLeft > 1) {
                 colRowSpansLeft--;
-                delete row.cells[column.dataKey];
+                delete row.cells[column.index];
             }
             else if (data) {
                 data.cell.height += row.height;
@@ -1248,14 +1215,14 @@ function applyRowSpans(table) {
                     data.row.maxCellLineCount = Array.isArray(data.cell.text) ? data.cell.text.length : 1;
                 }
                 colRowSpansLeft = data.cell.colSpan;
-                delete row.cells[column.dataKey];
+                delete row.cells[column.index];
                 data.left--;
                 if (data.left <= 1) {
-                    delete rowSpanCells[column.dataKey];
+                    delete rowSpanCells[column.index];
                 }
             }
             else {
-                var cell = row.cells[column.dataKey];
+                var cell = row.cells[column.index];
                 if (!cell) {
                     continue;
                 }
@@ -1263,7 +1230,7 @@ function applyRowSpans(table) {
                 if (cell.rowSpan > 1) {
                     var remaining = all.length - rowIndex;
                     var left = cell.rowSpan > remaining ? remaining : cell.rowSpan;
-                    rowSpanCells[column.dataKey] = { cell: cell, left: left, row: row };
+                    rowSpanCells[column.index] = { cell: cell, left: left, row: row };
                 }
             }
         }
@@ -1290,16 +1257,16 @@ function applyColSpans(table) {
             colSpansLeft -= 1;
             if (colSpansLeft > 1 && table.columns[columnIndex + 1]) {
                 combinedColSpanWidth += column.width;
-                delete row.cells[column.dataKey];
+                delete row.cells[column.index];
                 continue;
             }
             else if (colSpanCell) {
                 cell = colSpanCell;
-                delete row.cells[column.dataKey];
+                delete row.cells[column.index];
                 colSpanCell = null;
             }
             else {
-                cell = row.cells[column.dataKey];
+                cell = row.cells[column.index];
                 if (!cell)
                     continue;
                 colSpansLeft = cell.colSpan;
@@ -1320,7 +1287,7 @@ function fitContent(table) {
         var row = _a[_i];
         for (var _b = 0, _c = table.columns; _b < _c.length; _b++) {
             var column = _c[_b];
-            var cell = row.cells[column.dataKey];
+            var cell = row.cells[column.index];
             if (!cell)
                 continue;
             common_1.applyStyles(cell.styles);
@@ -1390,17 +1357,6 @@ function distributeWidth(autoColumns, diffWidth, wrappedAutoColumnsWidth) {
 
 "use strict";
 
-var __assign = (this && this.__assign) || function () {
-    __assign = Object.assign || function(t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-                t[p] = s[p];
-        }
-        return t;
-    };
-    return __assign.apply(this, arguments);
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 var models_1 = __webpack_require__(4);
 var config_1 = __webpack_require__(2);
@@ -1508,23 +1464,11 @@ function parseContent(table) {
     var _loop_2 = function (sectionName) {
         var rowSpansLeftForColumn = {};
         var sectionRows = settings[sectionName];
-        if (sectionRows.length === 0 && settings.columns) {
-            var sectionRow_1 = {};
-            table.columns
-                .forEach(function (col) {
-                var columnData = col.raw;
-                if (sectionName === 'head') {
-                    var val = typeof columnData === 'object' ? columnData.header : columnData;
-                    if (val) {
-                        sectionRow_1[col.dataKey] = val;
-                    }
-                }
-                else if (sectionName === 'foot' && columnData.footer) {
-                    sectionRow_1[col.dataKey] = columnData.footer;
-                }
-            });
-            if (Object.keys(sectionRow_1).length) {
-                sectionRows.push(sectionRow_1);
+        if (sectionRows.length === 0 && settings.columns && sectionName !== 'body') {
+            // If no head or foot is set, try generating one with content in columns
+            var sectionRow = generateSectionRowFromColumnData(table, sectionName);
+            if (sectionRow) {
+                sectionRows.push(sectionRow);
             }
         }
         sectionRows.forEach(function (rawRow, rowIndex) {
@@ -1535,21 +1479,23 @@ function parseContent(table) {
             var columnSpansLeft = 0;
             for (var _i = 0, _a = table.columns; _i < _a.length; _i++) {
                 var column = _a[_i];
-                if (rowSpansLeftForColumn[column.dataKey] == null || rowSpansLeftForColumn[column.dataKey].left === 0) {
+                if (rowSpansLeftForColumn[column.index] == null || rowSpansLeftForColumn[column.index].left === 0) {
                     if (columnSpansLeft === 0) {
                         var rawCell = void 0;
                         if (Array.isArray(rawRow)) {
-                            rawCell = rawRow[column.dataKey - colSpansAdded - skippedRowForRowSpans];
+                            rawCell = rawRow[column.index - colSpansAdded - skippedRowForRowSpans];
                         }
                         else {
                             rawCell = rawRow[column.dataKey];
                         }
-                        var styles = cellStyles(sectionName, column.dataKey, rowIndex);
+                        var styles = cellStyles(sectionName, column, rowIndex);
                         var cell = new models_1.Cell(rawCell, styles, sectionName);
+                        // dataKey is not used internally anymore but keep for backwards compat in hooks
                         row.cells[column.dataKey] = cell;
+                        row.cells[column.index] = cell;
                         table.callCellHooks(table.cellHooks.didParseCell, cell, row, column);
                         columnSpansLeft = cell.colSpan - 1;
-                        rowSpansLeftForColumn[column.dataKey] = { left: cell.rowSpan - 1, times: columnSpansLeft };
+                        rowSpansLeftForColumn[column.index] = { left: cell.rowSpan - 1, times: columnSpansLeft };
                     }
                     else {
                         columnSpansLeft--;
@@ -1557,8 +1503,8 @@ function parseContent(table) {
                     }
                 }
                 else {
-                    rowSpansLeftForColumn[column.dataKey].left--;
-                    columnSpansLeft = rowSpansLeftForColumn[column.dataKey].times;
+                    rowSpansLeftForColumn[column.index].left--;
+                    columnSpansLeft = rowSpansLeftForColumn[column.index].times;
                     skippedRowForRowSpans++;
                 }
             }
@@ -1571,9 +1517,9 @@ function parseContent(table) {
     table.allRows().forEach(function (row) {
         for (var _i = 0, _a = table.columns; _i < _a.length; _i++) {
             var column = _a[_i];
-            var cell = row.cells[column.dataKey];
-            // Kind of make sense to not consider width of cells with colspan columns
-            // Consider this in a future release however
+            var cell = row.cells[column.index];
+            // For now we ignore the minWidth and wrappedWidth of colspan cells when calculating colspan widths.
+            // Could probably be improved upon however.
             if (cell && cell.colSpan === 1) {
                 if (cell.wrappedWidth > column.wrappedWidth) {
                     column.wrappedWidth = cell.wrappedWidth;
@@ -1582,28 +1528,69 @@ function parseContent(table) {
                     column.minWidth = cell.minWidth;
                 }
             }
+            else {
+                // Respect cellWidth set in columnStyles even if there is no cells for this column
+                // or of it the column only have colspan cells. Since the width of colspan cells
+                // does not affect the width of columns, setting columnStyles cellWidth enables the
+                // user to at least do it manually.
+                // Note that this is not perfect for now since for example row and table styles are
+                // not accounted for
+                var columnStyles = table.styles.columnStyles[column.dataKey] || table.styles.columnStyles[column.index] || {};
+                var cellWidth = columnStyles.cellWidth;
+                if (cellWidth) {
+                    column.minWidth = cellWidth;
+                    column.wrappedWidth = cellWidth;
+                }
+            }
         }
     });
 }
+function generateSectionRowFromColumnData(table, sectionName) {
+    var sectionRow = {};
+    table.columns
+        .forEach(function (col) {
+        var columnData = col.raw;
+        if (sectionName === 'head') {
+            var val = columnData && columnData.header ? columnData.header : columnData;
+            if (val) {
+                sectionRow[col.dataKey] = val;
+            }
+        }
+        else if (sectionName === 'foot' && columnData.footer) {
+            sectionRow[col.dataKey] = columnData.footer;
+        }
+    });
+    return Object.keys(sectionRow).length > 0 ? sectionRow : null;
+}
 function getTableColumns(settings) {
     if (settings.columns) {
-        return settings.columns.map(function (input, index) {
+        var cols = settings.columns.map(function (input, index) {
             var key = input.dataKey || input.key || index;
             return new models_1.Column(key, input, index);
         });
+        return cols;
     }
     else {
-        var merged = __assign({}, settings.head[0], settings.body[0], settings.foot[0]);
-        delete merged._element;
-        var dataKeys = Object.keys(merged);
-        return dataKeys.map(function (key) { return new models_1.Column(key, key, key); });
+        var firstRow_1 = settings.head[0] || settings.body[0] || settings.foot[0];
+        var columns_1 = [];
+        Object.keys(firstRow_1)
+            .filter(function (key) { return key !== '_element'; })
+            .forEach(function (key) {
+            var colSpan = firstRow_1[key].colSpan || 1;
+            for (var i = 0; i < colSpan; i++) {
+                var id = key + (i > 0 ? "_" + i : '');
+                columns_1.push(new models_1.Column(id, id, columns_1.length));
+            }
+        });
+        return columns_1;
     }
 }
-function cellStyles(sectionName, dataKey, rowIndex) {
+function cellStyles(sectionName, column, rowIndex) {
     var table = state_1.default().table;
     var theme = config_1.getTheme(table.settings.theme);
     var otherStyles = [theme.table, theme[sectionName], table.styles.styles, table.styles[sectionName + "Styles"]];
-    var colStyles = sectionName === 'body' ? table.styles.columnStyles[dataKey] || {} : {};
+    var columnStyles = table.styles.columnStyles[column.dataKey] || table.styles.columnStyles[column.index] || {};
+    var colStyles = sectionName === 'body' ? columnStyles : {};
     var rowStyles = sectionName === 'body' && rowIndex % 2 === 0 ? polyfills_1.assign({}, theme.alternateRow, table.styles.alternateRowStyles) : {};
     return polyfills_1.assign.apply(void 0, [config_1.defaultStyles()].concat(otherStyles.concat([rowStyles, colStyles])));
 }
@@ -1659,7 +1646,8 @@ function parseTableSection(window, sectionElement, includeHidden, useCss) {
                     rowSpan: cell.rowSpan,
                     colSpan: cell.colSpan,
                     styles: useCss ? cellStyles : null,
-                    content: cell
+                    _element: cell,
+                    content: parseCellContent(cell)
                 });
             }
         }
@@ -1669,6 +1657,22 @@ function parseTableSection(window, sectionElement, includeHidden, useCss) {
         }
     }
     return results;
+}
+function parseCellContent(orgCell) {
+    // Work on cloned node to make sure no changes are applied to html table
+    var cell = orgCell.cloneNode(true);
+    // Remove extra space and line breaks in markup to make it more similar to
+    // what would be shown in html
+    cell.innerHTML = cell.innerHTML
+        .replace(/\n/g, '')
+        .replace(/ +/g, ' ');
+    // Preserve <br> tags as line breaks in the pdf
+    cell.innerHTML = cell.innerHTML
+        .split('<br>')
+        .map(function (part) { return part.trim(); })
+        .join('\n');
+    // innerText for ie
+    return cell.innerText || cell.textContent || '';
 }
 
 
@@ -1683,6 +1687,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 // - No support for border spacing
 // - No support for transparency
 var common_1 = __webpack_require__(1);
+var state_1 = __webpack_require__(0);
 function parseCss(element, scaleFactor, ignored) {
     if (ignored === void 0) { ignored = []; }
     var result = {};
@@ -1706,7 +1711,10 @@ function parseCss(element, scaleFactor, ignored) {
     // style.borderWidth only works in chrome (borderTopWidth etc works in firefox and ie as well)
     assign('lineWidth', parseInt(style.borderTopWidth || '') / pxScaleFactor / scaleFactor);
     assign('lineColor', parseColor(element, 'borderTopColor'));
-    assign('font', (style.fontFamily || '').toLowerCase());
+    var font = (style.fontFamily || '').toLowerCase();
+    if (state_1.default().doc.getFontList()[font]) {
+        assign('font', font);
+    }
     return result;
 }
 exports.parseCss = parseCss;
@@ -1789,6 +1797,7 @@ function default_1(allOptions) {
         }
         if (settings.startY && typeof settings.startY !== 'number') {
             console.error('Invalid value for startY option', settings.startY);
+            delete settings.startY;
         }
         if (!settings.didDrawPage && (settings.afterPageContent || settings.beforePageContent || settings.afterPageAdd)) {
             console.error("The afterPageContent, beforePageContent and afterPageAdd hooks are deprecated. Use didDrawPage instead");
@@ -1834,8 +1843,8 @@ function default_1(allOptions) {
         }
         var columnStyles = settings['columnStyles'] || {};
         for (var _b = 0, _c = Object.keys(columnStyles); _b < _c.length; _b++) {
-            var dataKey = _c[_b];
-            checkStyles(columnStyles[dataKey] || {});
+            var key = _c[_b];
+            checkStyles(columnStyles[key] || {});
         }
     };
     for (var _i = 0, allOptions_1 = allOptions; _i < allOptions_1.length; _i++) {
