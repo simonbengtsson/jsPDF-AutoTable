@@ -175,7 +175,7 @@ function printRow(row) {
         state().doc.autoTableText(cell.text, cell.textPos.x, cell.textPos.y, {
             halign: cell.styles.halign,
             valign: cell.styles.valign,
-            maxWidth: cell.width - cell.padding('left') - cell.padding('right')
+            maxWidth: Math.ceil(cell.width - cell.padding('left') - cell.padding('right'))
         });
 
         table.callCellHooks(table.cellHooks.didDrawCell, cell, row, column);
