@@ -1,6 +1,6 @@
 /*!
  * 
- *             jsPDF AutoTable plugin v3.2.1
+ *             jsPDF AutoTable plugin v3.2.2
  *             
  *             Copyright (c) 2014 Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable
  *             Licensed under the MIT License.
@@ -1578,7 +1578,7 @@ function getTableColumns(settings) {
         return cols;
     }
     else {
-        var firstRow_1 = settings.head[0] || settings.body[0] || settings.foot[0];
+        var firstRow_1 = settings.head[0] || settings.body[0] || settings.foot[0] || [];
         var columns_1 = [];
         Object.keys(firstRow_1)
             .filter(function (key) { return key !== '_element'; })
