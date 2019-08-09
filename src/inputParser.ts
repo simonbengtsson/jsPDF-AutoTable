@@ -228,7 +228,7 @@ function getTableColumns(settings) {
         });
         return cols;
     } else {
-        let firstRow = settings.head[0] || settings.body[0] || settings.foot[0];
+        let firstRow = settings.head[0] || settings.body[0] || settings.foot[0] || [];
         let columns = [];
         Object.keys(firstRow)
             .filter(key => key !== '_element')
