@@ -1,6 +1,6 @@
 /*!
  * 
- *             jsPDF AutoTable plugin v3.2.0
+ *             jsPDF AutoTable plugin v3.2.1
  *             
  *             Copyright (c) 2014 Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable
  *             Licensed under the MIT License.
@@ -1542,6 +1542,13 @@ function parseContent(table) {
                     column.wrappedWidth = cellWidth;
                 }
             }
+            // Make sure all columns get at least min width even though width calculations are not based on them
+            if (cell && cell.colSpan > 1 && !column.minWidth) {
+                column.minWidth = cell.minWidth;
+            }
+            if (cell && cell.colSpan > 1 && !column.wrappedWidth) {
+                column.wrappedWidth = cell.minWidth;
+            }
         }
     });
 }
@@ -1578,7 +1585,13 @@ function getTableColumns(settings) {
             .forEach(function (key) {
             var colSpan = firstRow_1[key].colSpan || 1;
             for (var i = 0; i < colSpan; i++) {
-                var id = key + (i > 0 ? "_" + i : '');
+                var id = void 0;
+                if (Array.isArray(firstRow_1)) {
+                    id = columns_1.length;
+                }
+                else {
+                    id = key + (i > 0 ? "_" + i : '');
+                }
                 columns_1.push(new models_1.Column(id, id, columns_1.length));
             }
         });
