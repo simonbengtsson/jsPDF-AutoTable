@@ -134,13 +134,15 @@ function parseContent(table) {
                     if (columnSpansLeft === 0) {
                         let rawCell;
                         if (Array.isArray(rawRow)) {
-                            rawCell = rawRow[column.index - colSpansAdded];
+                            rawCell = rawRow[column.index - colSpansAdded - skippedRowForRowSpans];
                         } else {
                             rawCell = rawRow[column.dataKey];
                         }
 
                         let styles = cellStyles(sectionName, column, rowIndex);
                         let cell = new Cell(rawCell, styles, sectionName);
+                        // dataKey is not used internally anymore but keep for backwards compat in hooks
+                        row.cells[column.dataKey] = cell;
                         row.cells[column.index] = cell;
 
                         table.callCellHooks(table.cellHooks.didParseCell, cell, row, column);
