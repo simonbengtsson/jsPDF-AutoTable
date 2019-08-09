@@ -227,7 +227,12 @@ function getTableColumns(settings) {
             .forEach(key => {
                 let colSpan = firstRow[key].colSpan || 1;
                 for (let i = 0; i < colSpan; i++) {
-                    const id = key + (i > 0 ? `_${i}` : '');
+                    let id;
+                    if (Array.isArray(firstRow)) {
+                        id = columns.length
+                    } else {
+                        id = key + (i > 0 ? `_${i}` : '');
+                    }
                     columns.push(new Column(id, id, columns.length));
                 }
             });
