@@ -18,17 +18,17 @@ describe('html parser', function () {
     });
 
     it('full table', function () {
+
         var table = {
-            tHead: {rows: [{cells: [{innerText: 'test'}]}]},
-            tBodies: [{rows: [{cells: [{innerText: 'test'}, {innerText: 'test'}]}]}],
-            tFoot: {rows: [{cells: [{innerText: 'test'}]}]}
+            tHead: {rows: [{cells: [{cloneNode: () => ({innerText: 'test', innerHTML: ''})}]}]},
+            tBodies: [{rows: [{cells: [{cloneNode: () => ({innerText: 'test', innerHTML: ''})}, {cloneNode: () => ({innerText: 'test', innerHTML: ''})}]}]}],
+            tFoot: {rows: [{cells: [{cloneNode: () => ({innerText: 'test', innerHTML: ''})}]}]}
         };
         let res = parseHtml(table);
         assert(res, 'Should have result');
         assert(res.head[0].length, 'Should have head cell');
         assert.equal(res.body[0].length, 2, 'Should have two body cells');
         assert(res.foot[0].length, 'Should have foot cell');
-
     });
 
     it('hidden content', function () {

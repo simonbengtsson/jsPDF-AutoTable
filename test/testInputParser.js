@@ -33,6 +33,7 @@ describe('input parser', function () {
     it('object input', function () {
         let table = parseInput([{head: [{id: 'ID', name: 'Name', email: 'Email', city: 'City', expenses: 'Expenses'}]}]);
         assert.equal(table.head[0].cells['id'].text, 'ID');
+        assert.equal(table.head[0].cells[0].text, 'ID');
     });
 
     it('object input', function () {

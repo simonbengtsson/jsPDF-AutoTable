@@ -5,8 +5,22 @@ let it = global.it;
 
 var assert = require('assert');
 let parseCss = require('../src/cssParser').parseCss;
+var state = require('../src/state');
 
 describe('css parser', function () {
+
+    before(function() {
+        this.timeout(5000);
+        global.window = {document: {createElementNS: function() {return {}}}};
+        global.navigator = {};
+        let jsPDF = require('jspdf');
+        require('../src/main');
+        state.setupState(new jsPDF());
+    });
+
+    after(function() {
+        state.resetState();
+    });
     
     it('normal styles', function () {
         global.window = {getComputedStyle: function () {
