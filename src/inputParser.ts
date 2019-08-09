@@ -164,16 +164,14 @@ function parseContent(table) {
         for (let column of table.columns) {
             let cell = row.cells[column.index];
 
-            if (cell) {
-                // Kind of make sense to not consider width of cells with colspan columns
-                // Consider this in a future release however
-                if (cell.colSpan === 1) {
-                    if (cell.wrappedWidth > column.wrappedWidth) {
-                        column.wrappedWidth = cell.wrappedWidth;
-                    }
-                    if (cell.minWidth > column.minWidth) {
-                        column.minWidth = cell.minWidth;
-                    }
+            // Kind of make sense to not consider width of cells with colspan columns
+            // Consider this in a future release however
+            if (cell && cell.colSpan === 1) {
+                if (cell.wrappedWidth > column.wrappedWidth) {
+                    column.wrappedWidth = cell.wrappedWidth;
+                }
+                if (cell.minWidth > column.minWidth) {
+                    column.minWidth = cell.minWidth;
                 }
             } else {
                 // Respect cellWidth set in columnStyles even if there is no cells for this column
