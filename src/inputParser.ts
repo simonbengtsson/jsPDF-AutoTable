@@ -164,8 +164,8 @@ function parseContent(table) {
         for (let column of table.columns) {
             let cell = row.cells[column.index];
 
-            // Kind of make sense to not consider width of cells with colspan columns
-            // Consider this in a future release however
+            // For now we ignore the minWidth and wrappedWidth of colspan cells when calculating colspan widths.
+            // Could probably be improved upon however.
             if (cell && cell.colSpan === 1) {
                 if (cell.wrappedWidth > column.wrappedWidth) {
                     column.wrappedWidth = cell.wrappedWidth;
@@ -175,7 +175,12 @@ function parseContent(table) {
                 }
             } else {
                 // Respect cellWidth set in columnStyles even if there is no cells for this column
-                // This fixes some issues with width calculations for colspan cells
+                // or of it the column only have colspan cells. Since the width of colspan cells
+                // does not affect the width of columns, setting columnStyles cellWidth enables the
+                // user to at least do it manually.
+
+                // Note that this is not perfect for now since for example row and table styles are
+                // not accounted for
                 let columnStyles = table.styles.columnStyles[column.dataKey] || table.styles.columnStyles[column.index] || {};
                 let cellWidth = columnStyles.cellWidth;
                 if (cellWidth) {
