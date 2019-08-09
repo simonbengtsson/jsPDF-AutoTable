@@ -19,10 +19,25 @@ var examples = {};
 // Basic - shows what a default table looks like
 examples.basic = function () {
     var doc = new jsPDF();
-    
+
     // From HTML
-    doc.autoTable({html: '.table'});
-    
+    doc.autoTable({
+        tableWidth: 'wrap',
+        body: [
+            [{content: 'test', rowSpan: 2}, 'one'],
+            ['one', 'twp']
+        ]
+    });
+
+    doc.autoTable({
+        tableWidth: 'wrap',
+        body: [
+            [{content: 'test', colSpan: 2}, 'one'],
+        ]
+    });
+
+    return doc;
+
     // From Javascript
     let finalY = doc.previousAutoTable.finalY;
     doc.text("From javascript arrays", 14, finalY + 15);
@@ -271,19 +286,17 @@ examples.spans = function() {
     doc.setFontStyle('bold');
     doc.text('Rowspan and colspan', 40, 50);
 
-    let body = bodyRows(40);
+    let body = bodyRows(40).map(row => Object.keys(row).map(key => row[key]));
     for (var i = 0; i < body.length; i++) {
         var row = body[i];
         if (i % 5 === 0) {
-            row['id'] = {rowSpan: 5, content: i / 5 + 1, styles: {valign: 'middle', halign: 'center'}};
+            row.unshift({rowSpan: 5, content: i / 5 + 1, styles: {valign: 'middle', halign: 'center'}});
         }
     }
-    let head = headRows();
-    head[0]['id'] = {content: 'People', colSpan: 5, styles: {halign: 'center', fillColor: [22, 160, 133]}};
-    
+
     doc.autoTable({
         startY: 60,
-        head: head,
+        head: [[{content: 'People', colSpan: 5, styles: {halign: 'center', fillColor: [22, 160, 133]}}]],
         body: body,
         theme: 'grid'
     });
