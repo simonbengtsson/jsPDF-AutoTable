@@ -190,6 +190,14 @@ function parseContent(table) {
                     column.wrappedWidth = cellWidth;
                 }
             }
+
+            // Make sure all columns get at least min width even though width calculations are not based on them
+            if (cell && cell.colSpan > 1 && !column.minWidth) {
+                column.minWidth = cell.minWidth;
+            }
+            if (cell && cell.colSpan > 1 && !column.wrappedWidth) {
+                column.wrappedWidth = cell.minWidth;
+            }
         }
     });
 }
