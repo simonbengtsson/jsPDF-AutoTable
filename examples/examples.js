@@ -20,6 +20,16 @@ var examples = {};
 examples.basic = function () {
     var doc = new jsPDF();
 
+    let rows = bodyRows(2);
+    rows.unshift({id: 'ID', name: 'Name', email: 'Email', city: 'City', expenses: 'Sum'});
+    doc.autoTable({
+        head: [{id: 'ID', name: 'Name', email: 'Email', city: 'City', expenses: 'Sum'}],
+        body: rows,
+        tableWidth: 100,
+    });
+
+    return doc;
+
     // From HTML
     doc.autoTable({html: '.table'});
 
@@ -134,7 +144,12 @@ examples.multiple = function () {
     let pageNumber = doc.internal.getNumberOfPages();
 
     doc.autoTable({
-        head: headRows(), body: bodyRows(15),
+        columns: [
+            {dataKey: 'id', header: 'ID'},
+            {dataKey: 'name', header: 'Name'},
+            {dataKey: 'expenses', header: 'Sum'}
+        ],
+        body: bodyRows(15),
         startY: 240,
         showHead: 'firstPage',
         styles: {overflow: 'hidden'},
@@ -144,7 +159,11 @@ examples.multiple = function () {
     doc.setPage(pageNumber);
 
     doc.autoTable({
-        head: headRows(),
+        columns: [
+            {dataKey: 'id', header: 'ID'},
+            {dataKey: 'name', header: 'Name'},
+            {dataKey: 'expenses', header: 'Sum'}
+        ],
         body: bodyRows(15),
         startY: 240,
         showHead: 'firstPage',
@@ -170,7 +189,7 @@ examples['header-footer'] = function () {
     var totalPagesExp = "{total_pages_count_string}";
 
     doc.autoTable({
-        head: headRows(), 
+        head: headRows(),
         body: bodyRows(40),
         didDrawPage: function (data) {
             // Header
