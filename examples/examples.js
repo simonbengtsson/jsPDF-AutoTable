@@ -18,17 +18,7 @@ var examples = {};
 
 // Basic - shows what a default table looks like
 examples.basic = function () {
-    var doc = new jsPDF();
-
-    let rows = bodyRows(2);
-    rows.unshift({id: 'ID', name: 'Name', email: 'Email', city: 'City', expenses: 'Sum'});
-    doc.autoTable({
-        head: [{id: 'ID', name: 'Name', email: 'Email', city: 'City', expenses: 'Sum'}],
-        body: rows,
-        tableWidth: 100,
-    });
-
-    return doc;
+    let doc = new jsPDF();
 
     // From HTML
     doc.autoTable({html: '.table'});

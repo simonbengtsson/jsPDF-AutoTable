@@ -1,4 +1,4 @@
-import {defaultConfig} from "./config";
+import {defaultConfig, FONT_ROW_RATIO} from "./config";
 import state from './state';
 import {CellHookData, HookData} from "./HookData";
 import {applyUserStyles, getStringWidth, marginOrPadding, styles} from "./common";
@@ -91,7 +91,6 @@ export class Row {
     section: 'head' | 'body' | 'foot';
 
     height = 0;
-    maxCellLineCount = 1;
     maxCellHeight = 0;
     x: number;
     y: number;
@@ -111,6 +110,21 @@ export class Row {
         this.index = index;
         this.section = section;
     }
+
+    canEntireRowFit(height) {
+        return this.maxCellHeight <= height;
+    }
+
+    getMinimumRowHeight() {
+        return state().table.columns.reduce((acc, column) => {
+            let cell = this.cells[column.index];
+            if (!cell) return 0;
+            let fontHeight = cell.styles.fontSize / state().scaleFactor() * FONT_ROW_RATIO;
+            let vPadding = cell.padding('vertical');
+            let oneRowHeight = vPadding + fontHeight;
+            return oneRowHeight > acc ? oneRowHeight : acc;
+        }, 0);
+    }
 }
 
 export class Cell {
@@ -119,6 +133,7 @@ export class Cell {
     text: string[];
     section: 'head' | 'body' | 'foot';
 
+    contentHeight = 0;
     contentWidth = 0;
     wrappedWidth = 0;
     minWidth = 0;
@@ -164,6 +179,12 @@ export class Cell {
                 this.wrappedWidth = this.minWidth
             }
         }
+    }
+
+    getContentHeight() {
+        let lineCount = Array.isArray(this.text) ? this.text.length : 1;
+        let fontHeight = this.styles.fontSize / state().scaleFactor() * FONT_ROW_RATIO;
+        return lineCount * fontHeight + this.padding('vertical');
     }
 
     padding(name) {

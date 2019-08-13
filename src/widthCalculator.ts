@@ -39,7 +39,6 @@ function applyRowSpans(table) {
                 data.cell.height += row.height;
                 if (data.cell.height > row.maxCellHeight) {
                     data.row.maxCellHeight = data.cell.height;
-                    data.row.maxCellLineCount = Array.isArray(data.cell.text) ? data.cell.text.length : 1;
                 }
                 colRowSpansLeft = data.cell.colSpan;
                 delete row.cells[column.index];
@@ -114,7 +113,7 @@ function fitContent(table) {
     let rowSpanHeight = {count: 0, height: 0};
     for (let row of table.allRows()) {
         for (let column of table.columns) {
-            let cell = row.cells[column.index];
+            let cell: Cell = row.cells[column.index];
             if (!cell) continue;
 
             applyStyles(cell.styles);
@@ -130,9 +129,7 @@ function fitContent(table) {
                 cell.text = cell.styles.overflow(cell.text, textSpace);
             }
 
-            let lineCount = Array.isArray(cell.text) ? cell.text.length : 1;
-            let fontHeight = cell.styles.fontSize / state().scaleFactor() * FONT_ROW_RATIO;
-            cell.contentHeight = lineCount * fontHeight + cell.padding('vertical');
+            cell.contentHeight = cell.getContentHeight();
 
             if (cell.styles.minCellHeight > cell.contentHeight) {
                 cell.contentHeight = cell.styles.minCellHeight;
@@ -149,7 +146,6 @@ function fitContent(table) {
             if (realContentHeight > row.height) {
                 row.height = realContentHeight;
                 row.maxCellHeight = realContentHeight;
-                row.maxCellLineCount = lineCount;
             }
         }
         rowSpanHeight.count--;
