@@ -52,7 +52,6 @@ declare class Row {
 	cells: {};
 	section: 'head' | 'body' | 'foot';
 	height: number;
-	maxCellLineCount: number;
 	maxCellHeight: number;
 	x: number;
 	y: number;
@@ -60,12 +59,15 @@ declare class Row {
 	spansMultiplePages: boolean;
 	readonly pageCount: number;
 	constructor(raw: any, index: any, section: any);
+	canEntireRowFit(height: any): boolean;
+	getMinimumRowHeight(): any;
 }
 declare class Cell {
 	raw: HTMLTableCellElement | any;
 	styles: any;
 	text: string[];
 	section: 'head' | 'body' | 'foot';
+	contentHeight: number;
 	contentWidth: number;
 	wrappedWidth: number;
 	minWidth: number;
@@ -77,6 +79,7 @@ declare class Cell {
 	colSpan: number;
 	rowSpan: number;
 	constructor(raw: any, themeStyles: any, section: any);
+	getContentHeight(): any;
 	padding(name: any): any;
 }
 declare class Column {
