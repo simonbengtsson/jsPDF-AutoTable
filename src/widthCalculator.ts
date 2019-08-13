@@ -7,12 +7,12 @@ import state from "./state";
  * Calculate the column widths
  */
 export function calculateWidths(table: Table) {
-    // TODO Handle these cases
     let columnMinWidth = 10 / state().scaleFactor();
     if (columnMinWidth * table.columns.length > table.width) {
         console.error('Columns could not fit on page');
     } else if (table.minWidth > table.width) {
-        console.error("Column widths to wide and can't fit page");
+        // Would be nice to improve the user experience of this
+        console.error("Column widths too wide and can't fit page");
     }
 
     let copy = table.columns.slice(0);
