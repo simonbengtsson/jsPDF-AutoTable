@@ -145,8 +145,6 @@ function parseContent(table) {
                         row.cells[column.dataKey] = cell;
                         row.cells[column.index] = cell;
 
-                        table.callCellHooks(table.cellHooks.didParseCell, cell, row, column);
-
                         columnSpansLeft = cell.colSpan - 1;
                         rowSpansLeftForColumn[column.index] = {left: cell.rowSpan - 1, times: columnSpansLeft};
                     } else {
@@ -198,6 +196,8 @@ function parseContent(table) {
             if (cell && cell.colSpan > 1 && !column.wrappedWidth) {
                 column.wrappedWidth = cell.minWidth;
             }
+
+            table.callCellHooks(table.cellHooks.didParseCell, cell, row, column);
         }
     });
 }
