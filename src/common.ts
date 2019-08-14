@@ -3,19 +3,18 @@ import state from './state';
 import {assign} from "./polyfills";
 
 export function getStringWidth(text, styles) {
-    let fontSize = styles.fontSize / state().scaleFactor();
     applyStyles(styles);
-    text = Array.isArray(text) ? text : [text];
-    let maxWidth = 0;
-    text.forEach(function(line) {
-        let width = state().doc.getStringUnitWidth(line);
-        if (width > maxWidth) {
-            maxWidth = width;
-        }
-    });
-    let precision = 10000 * state().scaleFactor();
-    maxWidth = Math.floor(maxWidth * precision) / precision;
-    return maxWidth * fontSize;
+    const textArr: any = Array.isArray(text) ? text : [text];
+
+    const doc = state().doc;
+    const widestLineWidth = textArr
+        .map(doc.getStringUnitWidth.bind(doc))
+        // Shave off a few digits for potential improvement in width calculation
+        .map(val => Math.floor(val * 10000) / 10000)
+        .reduce(Math.max, 0);
+
+    const fontSize = styles.fontSize / state().scaleFactor();
+    return widestLineWidth * fontSize;
 }
 
 /**
