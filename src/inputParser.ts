@@ -96,7 +96,6 @@ function parseUserArguments(args) {
         opts.body = args[1];
         opts.columns = args[0];
         
-        // Support v2 title prop in v3
         opts.columns.forEach(col => {
             // Support v2 title prop in v3
             if (typeof col === 'object' && col.header == null) {
