@@ -15,7 +15,7 @@ doc.autoTable({
         ['ID', 'Name', 'Email', 'Country', 'IP-address'],
     ],
     body: [
-        ['1', 'Donna', 'dmoore0@furl.net', 'China', '211.56.242.221'],
+        ['1', 'HelloäöüßÄÖÜ', 'dmoore0@furl.net', 'China', '211.56.242.221'],
         ['2', 'Janice', 'jhenry1@theatlantic.com', 'Ukraine', '38.36.7.199'],
         ['3', 'Ruth', 'rwells2@constantcontact.com', 'Trinidad and Tobago', '19.162.133.184'],
         ['4', 'Jason', 'jray3@psu.edu', 'Brazil', '10.68.11.42'],
@@ -26,7 +26,7 @@ doc.autoTable({
 
 const data = doc.output();
 
-fs.writeFileSync('./document.pdf', data);
+fs.writeFileSync('./document.pdf', data, 'binary');
 
 delete global.window;
 delete global.navigator;
