@@ -32,6 +32,7 @@ interface CellDefinition {
     rowSpan?: number,
     colSpan?: number,
     styles?: Styles,
+    content?: Styles,
 }
 
 type CellType = null | string | number | boolean | CellDefinition

@@ -23,10 +23,10 @@ Get the library by doing one of these things:
 
 <script>
     var doc = new jsPDF();
-    // You can use html:
+    // It can parse html:
     doc.autoTable({html: '#my-table'});
     
-    // Or JavaScript:
+    // Or use javascript directly:
     doc.autoTable({
         head: [['Name', 'Email', 'Country']],
         body: [
