@@ -10,7 +10,7 @@ define(['jspdf', 'jspdf-autotable'], function(jsPDF) {
                 [5, "Finland", 7.413, "Helsinki"]
             ];
 
-            var doc = new jsPDF('p', 'pt');
+            var doc = new jsPDF();
             doc.autoTable({head: head, body: body});
             doc.save("table.pdf");
         }
