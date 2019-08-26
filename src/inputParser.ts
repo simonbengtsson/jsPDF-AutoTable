@@ -81,7 +81,7 @@ export function parseInput(args) {
     } else {
         table.width = state().pageWidth() - table.margin('left') - table.margin('right');
     }
-    
+
     return table;
 }
 
@@ -92,17 +92,17 @@ function parseUserArguments(args) {
     } else {
         // Deprecated initialization on format doc.autoTable(columns, body, [options])
         let opts = args[2] || {};
-        
+
         opts.body = args[1];
         opts.columns = args[0];
-        
+
         opts.columns.forEach(col => {
             // Support v2 title prop in v3
             if (typeof col === 'object' && col.header == null) {
                 col.header = col.title
             }
         });
-        
+
         return opts;
     }
 }
@@ -233,7 +233,7 @@ function getTableColumns(settings) {
         Object.keys(firstRow)
             .filter(key => key !== '_element')
             .forEach(key => {
-                let colSpan = firstRow[key].colSpan || 1;
+                let colSpan = firstRow[key] && firstRow[key].colSpan ? firstRow[key].colSpan : 1;
                 for (let i = 0; i < colSpan; i++) {
                     let id;
                     if (Array.isArray(firstRow)) {
