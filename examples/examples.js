@@ -87,8 +87,9 @@ examples.long = function () {
         head: head,
         body: body,
         startY: doc.previousAutoTable.finalY + 15,
+        rowPageBreak: 'auto',
         bodyStyles: {valign: 'top'},
-        styles: {cellWidth: 'wrap', rowPageBreak: 'auto'},
+        styles: {cellWidth: 'wrap'},
         columnStyles: {text: {cellWidth: 'auto'}}
     });
 
