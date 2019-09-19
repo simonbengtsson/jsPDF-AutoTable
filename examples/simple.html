@@ -52,19 +52,21 @@
 
 <script>
     function generate() {
+        var doc = new jsPDF();
+
+        // Simple data example
         var head = [["ID", "Country", "Rank", "Capital"]];
         var body = [
             [1, "Denmark", 7.526, "Copenhagen"],
             [2, "Switzerland", 	7.509, "Bern"],
-            [3, "Iceland", 7.501, "Reykjavík"],
-            [4, "Norway", 7.498, "Oslo"],
-            [5, "Finland", 7.413, "Helsinki"]
+            [3, "Iceland", 7.501, "Reykjavík"]
         ];
-
-        var doc = new jsPDF();
         doc.autoTable({head: head, body: body});
-        doc.autoTable({html: '#table', startY: 100});
-        doc.output("dataurlnewwindow");
+
+        // Simple html example
+        doc.autoTable({html: '#table'});
+
+        doc.save('table.pdf');
     }
 </script>
 </body>
