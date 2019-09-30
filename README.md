@@ -7,13 +7,13 @@ This jsPDF plugin aims at making it easy to generate pdf tables either from HTML
 
 ![sample javascript table pdf](samples.png)
 
-### Installation
+## Installation
 Get the library by doing one of these things:
 - `npm install jspdf jspdf-autotable`
 - Download [jspdf](https://raw.githubusercontent.com/MrRio/jsPDF/master/dist/jspdf.min.js) and [jspdf-autotable](https://raw.githubusercontent.com/simonbengtsson/jsPDF-AutoTable/master/dist/jspdf.plugin.autotable.js) from github
 - Use a CDN, for example: [https://unpkg.com/jspdf](https://unpkg.com/jspdf) and [https://unpkg.com/jspdf-autotable](https://unpkg.com/jspdf-autotable)
 
-### Usage example
+## Usage
 
 ```html
 <table id="my-table"><!-- ... --></table>
@@ -53,17 +53,17 @@ doc.save('table.pdf');
 
 Checkout more examples in [examples.js](examples) which is also the source code for the [demo](https://simonbengtsson.github.io/jsPDF-AutoTable/) documents.
 
-### API
+## API
 - `doc.autoTable({ /* options */ })`
 - `doc.autoTableSetDefaults({ /* ... */ })` Use for setting default options for all tables in the specific document. Settings and styles will be overridden in the following order `global` < `document` < `table`. Hooks will be added and not overridden.
 - `jsPDF.autoTableSetDefaults({ /* ... */ })` Use for setting global defaults which will be applied for all document and tabels.
 
 If you want to know something about the last table that was drawn you can use `doc.lastAutoTable`. It has a `doc.lastAutoTable.finalY` property among other things that has the value of the last printed y coordinate on a page. This can be used to draw text, multiple tables or other content after a table.
 
-### Options
+## Options
 Below is a list of all options supported in the plugin. All of them are used in the [examples](examples).
 
-##### Content options
+#### Content options
 The only thing required is either the html or body option. If you want more control over the columns you can specify the columns property. It is not needed however and if not set the columns will be automatically computed based on the content of the html content or head, body and foot.
 
 - `html: string|HTMLTableElement` A css selector (for example "#table") or an html table element.
@@ -87,7 +87,7 @@ doc.autoTable({
 })
 ```
 
-##### Styling options
+#### Styling options
 
 - `theme: 'striped'|'grid'|'plain'|'css' = 'striped'`
 - `styles: StyleDef`
@@ -147,7 +147,7 @@ doc.autoTable({
 })
 ```
 
-##### Other options
+#### Other options
 
 - `startY: number = null` Where the table should start to be printed (basically a margin top value only for the first page)
 - `margin: Margin = 40`
@@ -162,7 +162,7 @@ doc.autoTable({
 `Margin`:
 Either a number or object `{top: number, right: number, bottom: number, left: number}`
 
-#### Hooks
+### Hooks
 You can customize the content and styling of the table by using the hooks. See the custom styles example for usage of the hooks.
 
 - `didParseCell: (HookData) => {}` - Called when the plugin finished parsing cell content. Can be used to override content or styles for a specific cell.
@@ -199,7 +199,7 @@ doc.autoTable({
 })
 ```
 
-### Contributions
+## Contributions
 Contributions are always welcome, especially on open issues. If you have something major you want to add or change, please post an issue about it first to discuss it further. The workflow for contributing would be something like this:
 
 - Start watcher with `npm start`
