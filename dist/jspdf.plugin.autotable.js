@@ -1,6 +1,6 @@
 /*!
  * 
- *             jsPDF AutoTable plugin v3.2.4
+ *             jsPDF AutoTable plugin v3.2.5
  *             
  *             Copyright (c) 2014 Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable
  *             Licensed under the MIT License.
@@ -199,6 +199,13 @@ exports.setDefaults = setDefaults;
 
 "use strict";
 
+var __spreadArrays = (this && this.__spreadArrays) || function () {
+    for (var s = 0, i = 0, il = arguments.length; i < il; i++) s += arguments[i].length;
+    for (var r = Array(s), k = 0, i = 0; i < il; i++)
+        for (var a = arguments[i], j = 0, jl = a.length; j < jl; j++, k++)
+            r[k] = a[j];
+    return r;
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 var config_1 = __webpack_require__(2);
 var state_1 = __webpack_require__(0);
@@ -340,7 +347,7 @@ function marginOrPadding(value, defaultValue) {
 exports.marginOrPadding = marginOrPadding;
 function styles(styles) {
     styles = Array.isArray(styles) ? styles : [styles];
-    return polyfills_1.assign.apply(void 0, [config_1.defaultStyles()].concat(styles));
+    return polyfills_1.assign.apply(void 0, __spreadArrays([config_1.defaultStyles()], styles));
 }
 exports.styles = styles;
 
@@ -1416,11 +1423,16 @@ function distributeWidth(autoColumns, diffWidth, wrappedAutoColumnsWidth) {
         var ratio = column.wrappedWidth / wrappedAutoColumnsWidth;
         var suggestedChange = diffWidth * ratio;
         var suggestedWidth = column.wrappedWidth + suggestedChange;
-        if (suggestedWidth >= column.minWidth) {
-            column.width = suggestedWidth;
+        var hasCustomWidth = false;
+        for (var _i = 0, _a = state_1.default().table.allRows(); _i < _a.length; _i++) {
+            var row = _a[_i];
+            var cell = row.cells[column.index];
+            if (cell && typeof cell.styles.cellWidth === 'number') {
+                hasCustomWidth = true;
+                break;
+            }
         }
-        else {
-            // We can't reduce the width of this column. Mark as none auto column and start over
+        if (suggestedWidth < column.minWidth || hasCustomWidth) {
             // Add 1 to minWidth as linebreaks calc otherwise sometimes made two rows
             column.width = column.minWidth + 1 / state_1.default().scaleFactor();
             wrappedAutoColumnsWidth -= column.wrappedWidth;
@@ -1428,6 +1440,7 @@ function distributeWidth(autoColumns, diffWidth, wrappedAutoColumnsWidth) {
             distributeWidth(autoColumns, diffWidth, wrappedAutoColumnsWidth);
             break;
         }
+        column.width = suggestedWidth;
     }
 }
 
@@ -1438,6 +1451,13 @@ function distributeWidth(autoColumns, diffWidth, wrappedAutoColumnsWidth) {
 
 "use strict";
 
+var __spreadArrays = (this && this.__spreadArrays) || function () {
+    for (var s = 0, i = 0, il = arguments.length; i < il; i++) s += arguments[i].length;
+    for (var r = Array(s), k = 0, i = 0; i < il; i++)
+        for (var a = arguments[i], j = 0, jl = a.length; j < jl; j++, k++)
+            r[k] = a[j];
+    return r;
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 var models_1 = __webpack_require__(4);
 var config_1 = __webpack_require__(2);
@@ -1468,7 +1488,7 @@ function parseInput(args) {
     };
     var _loop_1 = function (styleProp) {
         var styles = allOptions.map(function (opts) { return opts[styleProp] || {}; });
-        table.styles[styleProp] = polyfills_1.assign.apply(void 0, [{}].concat(styles));
+        table.styles[styleProp] = polyfills_1.assign.apply(void 0, __spreadArrays([{}], styles));
     };
     // Merge styles one level deeper
     for (var _i = 0, _a = Object.keys(table.styles); _i < _a.length; _i++) {
@@ -1485,7 +1505,7 @@ function parseInput(args) {
             }
         }
     }
-    table.settings = polyfills_1.assign.apply(void 0, [{}, config_1.defaultConfig()].concat(allOptions));
+    table.settings = polyfills_1.assign.apply(void 0, __spreadArrays([{}, config_1.defaultConfig()], allOptions));
     table.settings.margin = common_1.marginOrPadding(table.settings.margin, config_1.defaultConfig().margin);
     if (table.settings.theme === 'auto') {
         table.settings.theme = table.settings.useCss ? 'plain' : 'striped';
@@ -1664,7 +1684,7 @@ function getTableColumns(settings) {
         Object.keys(firstRow_1)
             .filter(function (key) { return key !== '_element'; })
             .forEach(function (key) {
-            var colSpan = firstRow_1[key].colSpan || 1;
+            var colSpan = firstRow_1[key] && firstRow_1[key].colSpan ? firstRow_1[key].colSpan : 1;
             for (var i = 0; i < colSpan; i++) {
                 var id = void 0;
                 if (Array.isArray(firstRow_1)) {
@@ -1686,7 +1706,7 @@ function cellStyles(sectionName, column, rowIndex) {
     var columnStyles = table.styles.columnStyles[column.dataKey] || table.styles.columnStyles[column.index] || {};
     var colStyles = sectionName === 'body' ? columnStyles : {};
     var rowStyles = sectionName === 'body' && rowIndex % 2 === 0 ? polyfills_1.assign({}, theme.alternateRow, table.styles.alternateRowStyles) : {};
-    return polyfills_1.assign.apply(void 0, [config_1.defaultStyles()].concat(otherStyles.concat([rowStyles, colStyles])));
+    return polyfills_1.assign.apply(void 0, __spreadArrays([config_1.defaultStyles()], __spreadArrays(otherStyles, [rowStyles, colStyles])));
 }
 
 
