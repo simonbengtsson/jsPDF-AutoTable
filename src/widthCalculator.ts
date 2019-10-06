@@ -158,10 +158,17 @@ function distributeWidth(autoColumns, diffWidth, wrappedAutoColumnsWidth) {
         let ratio = column.wrappedWidth / wrappedAutoColumnsWidth;
         let suggestedChange = diffWidth * ratio;
         let suggestedWidth = column.wrappedWidth + suggestedChange;
-        if (suggestedWidth >= column.minWidth) {
-            column.width = suggestedWidth;
-        } else {
-            // We can't reduce the width of this column. Mark as none auto column and start over
+
+        let hasCustomWidth = false;
+        for (const row of state().table.allRows()) {
+            const cell: Cell = row.cells[column.index];
+            if (cell && typeof cell.styles.cellWidth === 'number') {
+                hasCustomWidth = true;
+                break;
+            }
+        }
+
+        if (suggestedWidth < column.minWidth || hasCustomWidth) {
             // Add 1 to minWidth as linebreaks calc otherwise sometimes made two rows
             column.width = column.minWidth + 1 / state().scaleFactor();
             wrappedAutoColumnsWidth -= column.wrappedWidth;
@@ -169,5 +176,7 @@ function distributeWidth(autoColumns, diffWidth, wrappedAutoColumnsWidth) {
             distributeWidth(autoColumns, diffWidth, wrappedAutoColumnsWidth);
             break;
         }
+
+        column.width = suggestedWidth;
     }
 }
