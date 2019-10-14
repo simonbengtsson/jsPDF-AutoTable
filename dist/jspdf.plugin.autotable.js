@@ -215,7 +215,7 @@ function getStringWidth(text, styles) {
     var textArr = Array.isArray(text) ? text : [text];
     var doc = state_1.default().doc;
     var widestLineWidth = textArr
-        .map(doc.getStringUnitWidth.bind(doc))
+        .map(function (text) { return doc.getStringUnitWidth(text); })
         // Shave off a few digits for potential improvement in width calculation
         .map(function (val) { return Math.floor(val * 10000) / 10000; })
         .reduce(Math.max, 0);
