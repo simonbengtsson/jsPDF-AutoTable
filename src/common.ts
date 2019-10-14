@@ -8,7 +8,7 @@ export function getStringWidth(text, styles) {
 
     const doc = state().doc;
     const widestLineWidth = textArr
-        .map(doc.getStringUnitWidth.bind(doc))
+        .map(text => doc.getStringUnitWidth(text))
         // Shave off a few digits for potential improvement in width calculation
         .map(val => Math.floor(val * 10000) / 10000)
         .reduce(Math.max, 0);
