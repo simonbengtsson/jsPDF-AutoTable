@@ -15,6 +15,7 @@
 var faker = window.faker;
 
 var examples = {};
+window.examples = examples;
 
 // Basic - shows what a default table looks like
 examples.basic = function () {
@@ -281,12 +282,18 @@ examples.spans = function() {
     doc.setFontStyle('bold');
     doc.text('Rowspan and colspan', 40, 50);
 
-    let body = bodyRows(40).map(row => Object.keys(row).map(key => row[key]));
-    for (var i = 0; i < body.length; i++) {
-        var row = body[i];
+    var raw = bodyRows(40);
+    var body = [];
+
+    for (var i = 0; i < raw.length; i++) {
+        var row = [];
+        for(var key in raw[i]) {
+            row.push(raw[i][key]);
+        }
         if (i % 5 === 0) {
             row.unshift({rowSpan: 5, content: i / 5 + 1, styles: {valign: 'middle', halign: 'center'}});
         }
+        body.push(row)
     }
 
     doc.autoTable({

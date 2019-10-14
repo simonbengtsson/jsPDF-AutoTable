@@ -215,7 +215,7 @@
 
     function update(shouldDownload) {
         var funcStr = window.location.hash.replace(/#/g, '') || 'basic';
-        var doc = examples[funcStr]();
+        var doc = window.examples[funcStr]();
 
         doc.setProperties({
             title: 'Example: ' + funcStr,
