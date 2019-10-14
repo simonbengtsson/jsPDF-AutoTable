@@ -1,6 +1,5 @@
 'use strict';
 
-import './polyfills';
 import {drawTable, addPage} from './tableDrawer';
 import {calculateWidths} from './widthCalculator';
 import {parseInput} from './inputParser';
