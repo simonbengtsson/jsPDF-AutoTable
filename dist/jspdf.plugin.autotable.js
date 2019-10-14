@@ -213,9 +213,8 @@ var polyfills_1 = __webpack_require__(3);
 function getStringWidth(text, styles) {
     applyStyles(styles);
     var textArr = Array.isArray(text) ? text : [text];
-    var doc = state_1.default().doc;
     var widestLineWidth = textArr
-        .map(function (text) { return doc.getStringUnitWidth(text); })
+        .map(function (text) { return state_1.default().doc.getStringUnitWidth(text); })
         // Shave off a few digits for potential improvement in width calculation
         .map(function (val) { return Math.floor(val * 10000) / 10000; })
         .reduce(Math.max, 0);
