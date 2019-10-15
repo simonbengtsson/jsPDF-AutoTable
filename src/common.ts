@@ -7,13 +7,13 @@ export function getStringWidth(text, styles) {
     const textArr: any = Array.isArray(text) ? text : [text];
 
     const widestLineWidth = textArr
-        .map(text => state().doc.getStringUnitWidth(text))
+        .map(text => state().doc.getTextWidth(text))
         // Shave off a few digits for potential improvement in width calculation
         .map(val => Math.floor(val * 10000) / 10000)
         .reduce(Math.max, 0);
 
     const fontSize = styles.fontSize / state().scaleFactor();
-    return widestLineWidth * fontSize;
+    return widestLineWidth;
 }
 
 /**

@@ -214,12 +214,12 @@ function getStringWidth(text, styles) {
     applyStyles(styles);
     var textArr = Array.isArray(text) ? text : [text];
     var widestLineWidth = textArr
-        .map(function (text) { return state_1.default().doc.getStringUnitWidth(text); })
+        .map(function (text) { return state_1.default().doc.getTextWidth(text); })
         // Shave off a few digits for potential improvement in width calculation
         .map(function (val) { return Math.floor(val * 10000) / 10000; })
         .reduce(Math.max, 0);
     var fontSize = styles.fontSize / state_1.default().scaleFactor();
-    return widestLineWidth * fontSize;
+    return widestLineWidth;
 }
 exports.getStringWidth = getStringWidth;
 /**
