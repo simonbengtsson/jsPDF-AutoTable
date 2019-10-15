@@ -55,6 +55,7 @@
         var doc = new jsPDF();
 
         doc.text(10, 10, 'IE Test');
+        doc.autoTable({html: '#table'});
 
         doc.save('table.pdf');
     }
