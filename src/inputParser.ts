@@ -189,15 +189,16 @@ function parseContent(table) {
                 }
             }
 
-            // Make sure all columns get at least min width even though width calculations are not based on them
-            if (cell && cell.colSpan > 1 && !column.minWidth) {
-                column.minWidth = cell.minWidth;
+            if (cell) {
+                // Make sure all columns get at least min width even though width calculations are not based on them
+                if (cell.colSpan > 1 && !column.minWidth) {
+                    column.minWidth = cell.minWidth;
+                }
+                if (cell.colSpan > 1 && !column.wrappedWidth) {
+                    column.wrappedWidth = cell.minWidth;
+                }
+                table.callCellHooks(table.cellHooks.didParseCell, cell, row, column);
             }
-            if (cell && cell.colSpan > 1 && !column.wrappedWidth) {
-                column.wrappedWidth = cell.minWidth;
-            }
-
-            table.callCellHooks(table.cellHooks.didParseCell, cell, row, column);
         }
     });
 }
