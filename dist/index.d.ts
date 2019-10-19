@@ -126,7 +126,7 @@ export declare type MarginPadding = number | {
 	left?: number;
 };
 export interface Styles {
-	font?: 'helvetica' | 'times' | 'courier';
+	font?: 'helvetica' | 'times' | 'courier' | string;
 	fontStyle?: 'normal' | 'bold' | 'italic' | 'bolditalic';
 	overflow?: 'linebreak' | 'ellipsize' | 'visible' | 'hidden';
 	fillColor?: Color;
