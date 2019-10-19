@@ -32,7 +32,7 @@
     "webpack-dev-server": "^3.8.2"
   },
   "scripts": {
-    "start": "webpack-dev-server -d --open",
+    "start": "webpack-dev-server -d --open --host 0.0.0.0",
     "build": "webpack --mode=production && npm run types",
     "test": "mocha --require ts-node/register",
     "version": "npm test && npm run build && git add -A dist",
