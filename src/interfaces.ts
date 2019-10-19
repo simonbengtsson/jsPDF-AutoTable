@@ -13,7 +13,7 @@ type Color = [number, number, number] | number | 'transparent' | false;
 type MarginPadding = number | { top?: number, right?: number, bottom?: number, left?: number }
 
 interface Styles {
-    font?: 'helvetica' | 'times' | 'courier',
+    font?: 'helvetica' | 'times' | 'courier' | string,
     fontStyle?: 'normal' | 'bold' | 'italic' | 'bolditalic',
     overflow?: 'linebreak' | 'ellipsize' | 'visible' | 'hidden',
     fillColor?: Color,
