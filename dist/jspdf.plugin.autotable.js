@@ -1,6 +1,6 @@
 /*!
  * 
- *             jsPDF AutoTable plugin v3.2.7
+ *             jsPDF AutoTable plugin v3.2.8
  *             
  *             Copyright (c) 2014 Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable
  *             Licensed under the MIT License.
@@ -630,23 +630,6 @@ var Cell = /** @class */ (function () {
         text = content != null ? '' + content : '';
         var splitRegex = /\r\n|\r|\n/g;
         this.text = text.split(splitRegex);
-        this.contentWidth = this.padding('horizontal') + common_1.getStringWidth(this.text, this.styles);
-        if (typeof this.styles.cellWidth === 'number') {
-            this.minWidth = this.styles.cellWidth;
-            this.wrappedWidth = this.styles.cellWidth;
-        }
-        else if (this.styles.cellWidth === 'wrap') {
-            this.minWidth = this.contentWidth;
-            this.wrappedWidth = this.contentWidth;
-        }
-        else { // auto
-            var defaultMinWidth = 10 / state_1.default().scaleFactor();
-            this.minWidth = this.styles.minCellWidth || defaultMinWidth;
-            this.wrappedWidth = this.contentWidth;
-            if (this.minWidth > this.wrappedWidth) {
-                this.wrappedWidth = this.minWidth;
-            }
-        }
     }
     Cell.prototype.getContentHeight = function () {
         var lineCount = Array.isArray(this.text) ? this.text.length : 1;
@@ -1613,6 +1596,32 @@ function parseContent(table) {
         var sectionName = _a[_i];
         _loop_2(sectionName);
     }
+    table.allRows().forEach(function (row) {
+        for (var _i = 0, _a = table.columns; _i < _a.length; _i++) {
+            var column = _a[_i];
+            var cell = row.cells[column.index];
+            if (!cell)
+                continue;
+            table.callCellHooks(table.cellHooks.didParseCell, cell, row, column);
+            cell.contentWidth = cell.padding('horizontal') + common_1.getStringWidth(cell.text, cell.styles);
+            if (typeof cell.styles.cellWidth === 'number') {
+                cell.minWidth = cell.styles.cellWidth;
+                cell.wrappedWidth = cell.styles.cellWidth;
+            }
+            else if (cell.styles.cellWidth === 'wrap') {
+                cell.minWidth = cell.contentWidth;
+                cell.wrappedWidth = cell.contentWidth;
+            }
+            else { // auto
+                var defaultMinWidth = 10 / state_1.default().scaleFactor();
+                cell.minWidth = cell.styles.minCellWidth || defaultMinWidth;
+                cell.wrappedWidth = cell.contentWidth;
+                if (cell.minWidth > cell.wrappedWidth) {
+                    cell.wrappedWidth = cell.minWidth;
+                }
+            }
+        }
+    });
     table.allRows().forEach(function (row) {
         for (var _i = 0, _a = table.columns; _i < _a.length; _i++) {
             var column = _a[_i];
