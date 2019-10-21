@@ -2,7 +2,7 @@ import {Row, Cell, Column, Table} from './models';
 import {getTheme, defaultConfig, defaultStyles} from './config';
 import {parseHtml} from "./htmlParser";
 import {assign} from './polyfills';
-import {marginOrPadding} from './common';
+import {getStringWidth, marginOrPadding} from './common';
 import state, {getGlobalOptions, getDocumentOptions} from './state';
 import validateInput from './inputValidator';
 
@@ -159,6 +159,30 @@ function parseContent(table) {
             }
         });
     }
+
+    table.allRows().forEach(row => {
+        for (let column of table.columns) {
+            let cell = row.cells[column.index];
+            if (!cell) continue;
+            table.callCellHooks(table.cellHooks.didParseCell, cell, row, column);
+
+            cell.contentWidth = cell.padding('horizontal') + getStringWidth(cell.text, cell.styles);
+            if (typeof cell.styles.cellWidth === 'number') {
+                cell.minWidth = cell.styles.cellWidth;
+                cell.wrappedWidth = cell.styles.cellWidth;
+            } else if (cell.styles.cellWidth === 'wrap') {
+                cell.minWidth = cell.contentWidth;
+                cell.wrappedWidth = cell.contentWidth;
+            } else { // auto
+                const defaultMinWidth = 10 / state().scaleFactor();
+                cell.minWidth = cell.styles.minCellWidth || defaultMinWidth;
+                cell.wrappedWidth = cell.contentWidth;
+                if (cell.minWidth > cell.wrappedWidth) {
+                    cell.wrappedWidth = cell.minWidth
+                }
+            }
+        }
+    });
 
     table.allRows().forEach(row => {
         for (let column of table.columns) {

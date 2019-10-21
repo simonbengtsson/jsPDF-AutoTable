@@ -163,22 +163,6 @@ export class Cell {
 
         let splitRegex = /\r\n|\r|\n/g;
         this.text = text.split(splitRegex);
-
-        this.contentWidth = this.padding('horizontal') + getStringWidth(this.text, this.styles);
-        if (typeof this.styles.cellWidth === 'number') {
-            this.minWidth = this.styles.cellWidth;
-            this.wrappedWidth = this.styles.cellWidth;
-        } else if (this.styles.cellWidth === 'wrap') {
-            this.minWidth = this.contentWidth;
-            this.wrappedWidth = this.contentWidth;
-        } else { // auto
-            const defaultMinWidth = 10 / state().scaleFactor();
-            this.minWidth = this.styles.minCellWidth || defaultMinWidth;
-            this.wrappedWidth = this.contentWidth;
-            if (this.minWidth > this.wrappedWidth) {
-                this.wrappedWidth = this.minWidth
-            }
-        }
     }
 
     getContentHeight() {
