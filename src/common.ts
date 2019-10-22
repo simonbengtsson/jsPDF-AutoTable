@@ -10,7 +10,7 @@ export function getStringWidth(text, styles) {
         .map(text => state().doc.getTextWidth(text))
         // Shave off a few digits for potential improvement in width calculation
         .map(val => Math.floor(val * 10000) / 10000)
-        .reduce(Math.max, 0);
+        .reduce((a, b) => Math.max(a, b), 0);
 
     const fontSize = styles.fontSize / state().scaleFactor();
     return widestLineWidth;
