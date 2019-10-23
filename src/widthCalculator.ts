@@ -16,8 +16,7 @@ export function calculateWidths(table: Table) {
     }
 
     let copy = table.columns.slice(0);
-    let diffWidth = table.width - table.wrappedWidth;
-    distributeWidth(copy, diffWidth, table.wrappedWidth);
+    distributeWidth(copy, table.width, table.wrappedWidth);
 
     applyColSpans(table);
     fitContent(table);
@@ -152,7 +151,9 @@ function fitContent(table) {
     }
 }
 
-function distributeWidth(autoColumns, diffWidth, wrappedAutoColumnsWidth) {
+function distributeWidth(autoColumns, availableSpace, wrappedAutoColumnsWidth) {
+    let diffWidth = availableSpace - wrappedAutoColumnsWidth;
+
     for (let i = 0; i < autoColumns.length; i++) {
         let column = autoColumns[i];
         let ratio = column.wrappedWidth / wrappedAutoColumnsWidth;
@@ -172,8 +173,9 @@ function distributeWidth(autoColumns, diffWidth, wrappedAutoColumnsWidth) {
             // Add 1 to minWidth as linebreaks calc otherwise sometimes made two rows
             column.width = column.minWidth + 1 / state().scaleFactor();
             wrappedAutoColumnsWidth -= column.wrappedWidth;
+            availableSpace -= column.width;
             autoColumns.splice(i, 1);
-            distributeWidth(autoColumns, diffWidth, wrappedAutoColumnsWidth);
+            distributeWidth(autoColumns, availableSpace, wrappedAutoColumnsWidth);
             break;
         }
 
