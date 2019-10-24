@@ -1,6 +1,6 @@
 /*!
  * 
- *             jsPDF AutoTable plugin v3.2.8
+ *             jsPDF AutoTable plugin v3.2.9
  *             
  *             Copyright (c) 2014 Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable
  *             Licensed under the MIT License.
@@ -217,7 +217,7 @@ function getStringWidth(text, styles) {
         .map(function (text) { return state_1.default().doc.getTextWidth(text); })
         // Shave off a few digits for potential improvement in width calculation
         .map(function (val) { return Math.floor(val * 10000) / 10000; })
-        .reduce(Math.max, 0);
+        .reduce(function (a, b) { return Math.max(a, b); }, 0);
     var fontSize = styles.fontSize / state_1.default().scaleFactor();
     return widestLineWidth;
 }
@@ -1262,8 +1262,7 @@ function calculateWidths(table) {
         console.error("Column widths too wide and can't fit page");
     }
     var copy = table.columns.slice(0);
-    var diffWidth = table.width - table.wrappedWidth;
-    distributeWidth(copy, diffWidth, table.wrappedWidth);
+    distributeWidth(copy, table.width, table.wrappedWidth);
     applyColSpans(table);
     fitContent(table);
     applyRowSpans(table);
@@ -1399,7 +1398,8 @@ function fitContent(table) {
         rowSpanHeight.count--;
     }
 }
-function distributeWidth(autoColumns, diffWidth, wrappedAutoColumnsWidth) {
+function distributeWidth(autoColumns, availableSpace, wrappedAutoColumnsWidth) {
+    var diffWidth = availableSpace - wrappedAutoColumnsWidth;
     for (var i = 0; i < autoColumns.length; i++) {
         var column = autoColumns[i];
         var ratio = column.wrappedWidth / wrappedAutoColumnsWidth;
@@ -1418,8 +1418,9 @@ function distributeWidth(autoColumns, diffWidth, wrappedAutoColumnsWidth) {
             // Add 1 to minWidth as linebreaks calc otherwise sometimes made two rows
             column.width = column.minWidth + 1 / state_1.default().scaleFactor();
             wrappedAutoColumnsWidth -= column.wrappedWidth;
+            availableSpace -= column.width;
             autoColumns.splice(i, 1);
-            distributeWidth(autoColumns, diffWidth, wrappedAutoColumnsWidth);
+            distributeWidth(autoColumns, availableSpace, wrappedAutoColumnsWidth);
             break;
         }
         column.width = suggestedWidth;
