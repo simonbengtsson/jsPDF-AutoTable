@@ -207,7 +207,7 @@ function parseContent(table) {
                 // not accounted for
                 let columnStyles = table.styles.columnStyles[column.dataKey] || table.styles.columnStyles[column.index] || {};
                 let cellWidth = columnStyles.cellWidth;
-                if (cellWidth) {
+                if (cellWidth && typeof cellWidth === 'number') {
                     column.minWidth = cellWidth;
                     column.wrappedWidth = cellWidth;
                 }
