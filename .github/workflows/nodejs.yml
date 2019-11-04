@@ -10,8 +10,6 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - uses: actions/setup-node@v1
-      with:
-        node-version: '12.x'
     - name: npm install and test
       run: |
         npm install
