@@ -10,10 +10,6 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - uses: actions/setup-node@v1
+    - run: npm install
+    - run: npm test
     - name: npm install and test
-      run: |
-        npm install
-        npm test
-        echo "Done"
-      env:
-        CI: true
