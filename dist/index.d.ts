@@ -144,7 +144,7 @@ export interface CellDefinition {
 	rowSpan?: number;
 	colSpan?: number;
 	styles?: Styles;
-	content?: Styles;
+	content?: string | string[] | number;
 }
 export declare type CellType = null | string | number | boolean | CellDefinition;
 export declare type MultipleRowType = CellType[][] | {
