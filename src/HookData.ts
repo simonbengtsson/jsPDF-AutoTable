@@ -4,7 +4,7 @@ import {Table, Cell, Row, Column} from "./models";
 export class HookData {
     table: Table;
     pageNumber: number;
-    settings: {};
+    settings: any;
     doc: any;
     cursor: { x: number, y: number };
 
