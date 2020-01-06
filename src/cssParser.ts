@@ -17,14 +17,17 @@ export function parseCss(element, scaleFactor, ignored: string[] = []) {
 
     let pxScaleFactor = 96 / 72;
     assign('fillColor', parseColor(element, 'backgroundColor'));
-    assign('lineColor', parseColor(element, 'borderColor'));
     assign('fontStyle', parseFontStyle(style));
     assign('textColor', parseColor(element, 'color'));
     assign('halign', style.textAlign, ['left', 'right', 'center', 'justify']);
     assign('valign', style.verticalAlign, ['middle', 'bottom', 'top']);
     assign('fontSize', parseInt(style.fontSize || '') / pxScaleFactor);
     assign('cellPadding', parsePadding(style.padding, style.fontSize, style.lineHeight, scaleFactor));
-    assign('lineWidth', parseInt(style.borderWidth || '') / pxScaleFactor / scaleFactor);
+
+    // style.borderWidth only works in chrome (borderTopWidth etc works in firefox and ie as well)
+    assign('lineWidth', parseInt(style.borderTopWidth || '') / pxScaleFactor / scaleFactor);
+    assign('lineColor', parseColor(element, 'borderTopColor'));
+
     assign('font', (style.fontFamily || '').toLowerCase());
 
     return result;

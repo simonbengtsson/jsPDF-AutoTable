@@ -143,7 +143,20 @@ export class Cell {
         let fromHtml = typeof window === 'object' && (<any>window).HTMLElement && content instanceof (<any>window).HTMLElement;
         this.raw = fromHtml ? content : raw;
         if (content && fromHtml) {
-            text = (content.innerText || content.textContent || '').replace(/' '+/g, ' ').trim()
+            let original = content.innerHTML;
+
+            // Remove extra space and line breaks in markup to make it more similar to
+            // what would be shown in html
+            content.innerHTML = content.innerHTML.replace(/\n/g, '');
+            content.innerHTML = content.innerHTML.replace(/ +/g, ' ');
+
+            // Hack for preserving br tags as line breaks in the pdf
+            let parts = content.innerHTML.split('<br>');
+            parts = parts.map(part => part.trim());
+            content.innerHTML = parts.join('\n');
+
+            text = content.innerText || content.textContent || '';
+            content.innerHTML = original;
         } else {
             // Stringify 0 and false, but not undefined or null
             text = content != undefined ? '' + content : '';
