@@ -1,13 +1,11 @@
 ---
+
 name: Bug report
 about: Create a report to help us improve
 title: ''
 labels: ''
 assignees: ''
-
----
-
-If you have a question of how to use this plugin, please post on StackOverflow with the tags jspdf and jspdf-autotable.
+---If you have a question of how to use this plugin, please post on StackOverflow with the tags jspdf and jspdf-autotable.
 
 If you have found a bug, try to describe it in a way that makes it possible to reproduce. Code is always helpful, and live code even more so. Here is a [codepen](http://codepen.io/someatoms/pen/EjwPEb) with `jspdf` and `jspdf-autotable` included that you can fork. When writing your codepen or posting code here, try to modify the below basic example until you see the issue. That way it gets is easier to troubleshoot.
 

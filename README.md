@@ -1,4 +1,5 @@
-<a href='https://ko-fi.com/A535IR4' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://az743702.vo.msecnd.net/cdn/kofi4.png?v=f' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a> 
+<a href='https://ko-fi.com/A535IR4' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://az743702.vo.msecnd.net/cdn/kofi4.png?v=f' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a>
+
 # AutoTable - Table plugin for jsPDF
 
 **Generate PDF tables with Javascript**
@@ -8,7 +9,9 @@ This jsPDF plugin aims at making it easy to generate pdf tables either from HTML
 ![sample javascript table pdf](samples.png)
 
 ## Installation
+
 Get the library by doing one of these things:
+
 - `npm install jspdf jspdf-autotable`
 - Download [jspdf](https://raw.githubusercontent.com/MrRio/jsPDF/master/dist/jspdf.min.js) and [jspdf-autotable](https://raw.githubusercontent.com/simonbengtsson/jsPDF-AutoTable/master/dist/jspdf.plugin.autotable.js) from github
 - Use a CDN, for example: [https://unpkg.com/jspdf](https://unpkg.com/jspdf) and [https://unpkg.com/jspdf-autotable](https://unpkg.com/jspdf-autotable)
@@ -16,44 +19,47 @@ Get the library by doing one of these things:
 ## Usage
 
 ```html
-<table id="my-table"><!-- ... --></table>
+<table id="my-table">
+  <!-- ... -->
+</table>
 
 <script src="jspdf.min.js"></script>
 <script src="jspdf.plugin.autotable.min.js"></script>
 
 <script>
-    var doc = new jsPDF();
-    // It can parse html:
-    doc.autoTable({html: '#my-table'});
-    
-    // Or use javascript directly:
-    doc.autoTable({
-        head: [['Name', 'Email', 'Country']],
-        body: [
-            ['David', 'david@example.com', 'Sweden'],
-            ['Castille', 'castille@example.com', 'Norway'],
-            // ...
-        ]
-    });
-    
-    doc.save('table.pdf');
+  var doc = new jsPDF()
+  // It can parse html:
+  doc.autoTable({ html: '#my-table' })
+
+  // Or use javascript directly:
+  doc.autoTable({
+    head: [['Name', 'Email', 'Country']],
+    body: [
+      ['David', 'david@example.com', 'Sweden'],
+      ['Castille', 'castille@example.com', 'Norway'],
+      // ...
+    ],
+  })
+
+  doc.save('table.pdf')
 </script>
 ```
 
 Or if using javascript modules and es6:
 
 ```js
-import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import jsPDF from 'jspdf'
+import 'jspdf-autotable'
 
-const doc = new jsPDF();
-doc.autoTable({html: '#my-table'});
-doc.save('table.pdf');
+const doc = new jsPDF()
+doc.autoTable({ html: '#my-table' })
+doc.save('table.pdf')
 ```
 
 Checkout more examples in [examples.js](examples) which is also the source code for the [demo](https://simonbengtsson.github.io/jsPDF-AutoTable/) documents.
 
 ## API
+
 - `doc.autoTable({ /* options */ })`
 - `doc.autoTableSetDefaults({ /* ... */ })` Use for setting default options for all tables in the specific document. Settings and styles will be overridden in the following order `global` < `document` < `table`. Hooks will be added and not overridden.
 - `jsPDF.autoTableSetDefaults({ /* ... */ })` Use for setting global defaults which will be applied for all document and tabels.
@@ -61,9 +67,11 @@ Checkout more examples in [examples.js](examples) which is also the source code 
 If you want to know something about the last table that was drawn you can use `doc.lastAutoTable`. It has a `doc.lastAutoTable.finalY` property among other things that has the value of the last printed y coordinate on a page. This can be used to draw text, multiple tables or other content after a table.
 
 ## Options
+
 Below is a list of all options supported in the plugin. All of them are used in the [examples](examples).
 
 #### Content options
+
 The only thing required is either the html or body option. If you want more control over the columns you can specify the columns property. It is not needed however and if not set the columns will be automatically computed based on the content of the html content or head, body and foot.
 
 - `html: string|HTMLTableElement` A css selector (for example "#table") or an html table element.
@@ -83,7 +91,9 @@ Usage with colspan, rowspan and inline cell styles:
 
 ```js
 doc.autoTable({
-    body: [[{content: 'Text', colSpan: 2, rowSpan: 2, styles: {halign: 'center'}}]]
+  body: [
+    [{ content: 'Text', colSpan: 2, rowSpan: 2, styles: { halign: 'center' } }],
+  ],
 })
 ```
 
@@ -98,6 +108,7 @@ doc.autoTable({
 - `columnStyles: {&columnDataKey: StyleDef}` Note that the columnDataKey is normally the index of the column, but could also be the `dataKey` of a column if content initialized with the columns property
 
 `StyleDef`:
+
 - `font: 'helvetica'|'times'|'courier' = 'helvetica'`
 - `fontStyle: 'normal'|'bold'|'italic'|'bolditalic' = 'normal'`
 - `overflow: 'linebreak'|'ellipsize'|'visible'|'hidden' = 'normal'`
@@ -120,6 +131,7 @@ Either false for transparent, rbg array e.g. [255, 0, 0] or gray level e.g 200
 Either a number or object `{top: number, right: number, bottom: number, left: number}`
 
 Styles work similar to css and can be overridden by more specific styles. Overriding order:
+
 1. Theme styles
 2. `styles`
 3. `headStyles`, `bodyStyles` and `footStyles`
@@ -131,19 +143,29 @@ Styles for specific cells can also be applied using either the hooks (see hooks 
 Example usage of column styles (note that the 0 in the columnStyles below should be dataKey if )
 
 ```js
-// Example usage with columnStyles, 
+// Example usage with columnStyles,
 doc.autoTable({
-    styles: {fillColor: [255, 0, 0]},
-    columnStyles: {0: {halign: 'center', fillColor: [0, 255, 0]}}, // Cells in first column centered and green
-    margin: {top: 10},
-    body: [['Sweden', 'Japan', 'Canada'], ['Norway', 'China', 'USA'], ['Denmark', 'China', 'Mexico']]
+  styles: { fillColor: [255, 0, 0] },
+  columnStyles: { 0: { halign: 'center', fillColor: [0, 255, 0] } }, // Cells in first column centered and green
+  margin: { top: 10 },
+  body: [
+    ['Sweden', 'Japan', 'Canada'],
+    ['Norway', 'China', 'USA'],
+    ['Denmark', 'China', 'Mexico'],
+  ],
 })
 
 // Example usage of columns property. Note that America will not be included even though it exist in the body since there is no column specified for it.
 doc.autoTable({
-    columnStyles: {europe: {halign: 'center'}}, // European countries centered
-    body: [{europe: 'Sweden', america: 'Canada', asia: 'China'}, {europe: 'Norway', america: 'Mexico', asia: 'Japan'}],
-    columns: [{header: 'Europe', dataKey: 'europe'}, {header: 'Asia', dataKey: 'asia'}]
+  columnStyles: { europe: { halign: 'center' } }, // European countries centered
+  body: [
+    { europe: 'Sweden', america: 'Canada', asia: 'China' },
+    { europe: 'Norway', america: 'Mexico', asia: 'Japan' },
+  ],
+  columns: [
+    { header: 'Europe', dataKey: 'europe' },
+    { header: 'Asia', dataKey: 'asia' },
+  ],
 })
 ```
 
@@ -163,6 +185,7 @@ doc.autoTable({
 Either a number or object `{top: number, right: number, bottom: number, left: number}`
 
 ### Hooks
+
 You can customize the content and styling of the table by using the hooks. See the custom styles example for usage of the hooks.
 
 - `didParseCell: (HookData) => {}` - Called when the plugin finished parsing cell content. Can be used to override content or styles for a specific cell.
@@ -173,13 +196,15 @@ You can customize the content and styling of the table by using the hooks. See t
 All hooks functions get passed an HookData object with information about the state of the table and cell. For example the position on the page, which page it is on etc.
 
 `HookData`:
+
 - `table: Table`
 - `pageNumber: number` The page number specific to this table
-- `settings: object` Parsed user supplied options 
+- `settings: object` Parsed user supplied options
 - `doc` The jsPDF document instance of this table
 - `cursor: { x: number, y: number }` To draw each table this plugin keeps a cursor state where the next cell/row should be drawn. You can assign new values to this cursor to dynamically change how the cells and rows are drawn.
 
 For cell hooks these properties are also passed:
+
 - `cell: Cell`
 - `row: Row`
 - `column: Column`
@@ -190,16 +215,17 @@ To see what is included in the `Table`, `Row`, `Column` and `Cell` types, either
 ```js
 // Example with an image drawn in each cell in the first column
 doc.autoTable({
-   didDrawCell: data => {
-      if (data.section === 'body' && data.column.index === 0) {
-         var base64Img = "data:image/jpeg;base64,iVBORw0KGgoAAAANS...";
-         doc.addImage(base64Img, 'JPEG', data.cell.x + 2, data.cell.y + 2, 10, 10);
-      }
-   }
+  didDrawCell: data => {
+    if (data.section === 'body' && data.column.index === 0) {
+      var base64Img = 'data:image/jpeg;base64,iVBORw0KGgoAAAANS...'
+      doc.addImage(base64Img, 'JPEG', data.cell.x + 2, data.cell.y + 2, 10, 10)
+    }
+  },
 })
 ```
 
 ## Contributions
+
 Contributions are always welcome, especially on open issues. If you have something major you want to add or change, please post an issue about it first to discuss it further. The workflow for contributing would be something like this:
 
 - Start watcher with `npm start`
@@ -207,15 +233,20 @@ Contributions are always welcome, especially on open issues. If you have somethi
 - Make sure all examples works
 - Commit and submit pull request
 
+**If you don't use [Prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode) on autosave, please run `yarn run format-all` before opening your PR**
+
 ### Release workflow (write access required)
+
 - `npm version <semver|major|minor|patch>`
 - `npm run deploy`
 - Verify release at https://simonbengtsson.github.io/jsPDF-AutoTable
 
 ### Pull requests locally
+
 - `git fetch origin pull/478/head:pr478`
 - `git checkout pr478`
 
 ### Release prerelease
+
 - `npm version prerelease`
 - `git push && git push --tags && npm publish --tag alpha`
