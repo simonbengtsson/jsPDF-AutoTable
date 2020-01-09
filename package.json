@@ -46,7 +46,7 @@
     "version": "npm test && npm run build && git add -A dist",
     "hosting": "git push origin master:gh-pages -f",
     "deploy": "git push --follow-tags && npm run hosting && npm publish",
-    "types": "dts-bundle-generator src/main.ts -o ./dist/index.d.ts"
+    "types": "dts-bundle-generator src/main.ts -o ./dist/index.d.ts && dts-bundle-generator src/node.ts -o ./dist/node.d.ts"
   },
   "repository": {
     "type": "git",

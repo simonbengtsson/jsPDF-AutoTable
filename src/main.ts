@@ -4,7 +4,7 @@ import { drawTable, addPage } from './tableDrawer'
 import { calculateWidths } from './widthCalculator'
 import { parseInput } from './inputParser'
 import { setDefaults, setupState, resetState } from './state'
-import './autoTableText'
+import { autoTableText } from './autoTableText'
 import { applyUserStyles } from './common'
 import { UserOptions } from './interfaces'
 import { parseHtml } from './htmlParser'
@@ -36,6 +36,7 @@ function autoTable(...args) {
   return this
 }
 jsPDF.API.autoTable = autoTable
+jsPDF.API.autoTableText = autoTableText
 
 // Assign false to enable `doc.lastAutoTable.finalY || 40` sugar;
 jsPDF.API.lastAutoTable = false

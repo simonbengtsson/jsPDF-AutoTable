@@ -19,6 +19,8 @@ module.exports = {
   entry: {
     'dist/jspdf.plugin.autotable': './src/main.ts',
     'dist/jspdf.plugin.autotable.min': './src/main.ts',
+    'dist/jspdf.plugin.autotable.node': './src/node.ts',
+    'dist/jspdf.plugin.autotable.node.min': './src/node.ts',
   },
   resolve: {
     extensions: ['.ts', '.js'],

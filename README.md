@@ -56,6 +56,20 @@ doc.autoTable({ html: '#my-table' })
 doc.save('table.pdf')
 ```
 
+### NodeJS usage
+
+```js
+import jsPDF from 'jspdf'
+import {jsPDFAutoTable} 'jspdf-autotable/dist/jspdf.plugin.autotable.node.min.js'
+
+const doc = new jsPDF()
+
+jsPDFAutoTable(doc)
+
+doc.autoTable({ html: '#my-table' })
+doc.save('table.pdf')
+```
+
 Checkout more examples in [examples.js](examples) which is also the source code for the [demo](https://simonbengtsson.github.io/jsPDF-AutoTable/) documents.
 
 ## API
