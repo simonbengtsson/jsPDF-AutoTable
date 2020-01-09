@@ -1,26 +1,21 @@
-"use strict";
+'use strict'
 
-let describe = global.describe;
-let it = global.it;
-let before = global.before;
-let after = global.after;
+let describe = global.describe
+let it = global.it
+let before = global.before
+let after = global.after
 
-var assert = require('assert');
+var assert = require('assert')
 global.html2pdf = {}
 global.URL = {}
-let validateInput = require('../src/inputValidator').default;
+let validateInput = require('../src/inputValidator').default
 
-describe('input parser', function () {
-    
-    before(() => {
-        
-    });
+describe('input parser', function() {
+  before(() => {})
 
-    after(() => {
-    });
+  after(() => {})
 
-    it('empty input', () => {
-        validateInput({});
-    });
-
-});
+  it('empty input', () => {
+    validateInput({})
+  })
+})
