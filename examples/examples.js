@@ -392,7 +392,8 @@ examples.custom = function() {
       },
       city: {
         // The font file mitubachi-normal.js is included on the page and was created from mitubachi.ttf
-        // with https://github.com/MrRio/jsPDF/tree/master/fontconverter/fontconveter.html
+        // with https://rawgit.com/MrRio/jsPDF/master/fontconverter/fontconverter.html
+        // refer to https://github.com/MrRio/jsPDF#use-of-utf-8--ttf
         font: 'mitubachi',
       },
       id: {
