@@ -28,7 +28,17 @@ export function parseCss(element, scaleFactor, ignored: string[] = []) {
   assign('fontSize', parseInt(style.fontSize || '') / pxScaleFactor)
   assign(
     'cellPadding',
-    parsePadding(style.padding, style.fontSize, style.lineHeight, scaleFactor)
+    parsePadding(
+      [
+        style.paddingTop,
+        style.paddingRight,
+        style.paddingBottom,
+        style.paddingLeft,
+      ],
+      style.fontSize,
+      style.lineHeight,
+      scaleFactor
+    )
   )
 
   // style.borderWidth only works in chrome (borderTopWidth etc works in firefox and ie as well)
@@ -105,10 +115,9 @@ function parsePadding(val, fontSize, lineHeight, scaleFactor) {
   let linePadding =
     (parseInt(lineHeight) - parseInt(fontSize)) / scaleFactor / 2
 
-  let padding = val.split(' ').map(n => {
+  let padding = val.map(n => {
     return parseInt(n) / pxScaleFactor
   })
-
   padding = marginOrPadding(padding, 0)
   if (linePadding > padding.top) {
     padding.top = linePadding
