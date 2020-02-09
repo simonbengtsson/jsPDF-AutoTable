@@ -31,7 +31,7 @@ declare class Table {
   pageStartX: number
   pageStartY: number
   finalY: number
-  get pageCount(): number
+  readonly pageCount: number
   styles: {
     styles: {}
     headStyles: {}
@@ -62,7 +62,7 @@ declare class Row {
   y: number
   pageNumber: number
   spansMultiplePages: boolean
-  get pageCount(): number
+  readonly pageCount: number
   constructor(raw: any, index: any, section: any)
   canEntireRowFit(height: any): boolean
   getMinimumRowHeight(): any
@@ -100,13 +100,13 @@ declare class Column {
 declare class HookData {
   table: Table
   pageNumber: number
-  settings: any
+  settings: {}
   doc: any
   cursor: {
     x: number
     y: number
   }
-  get pageCount(): number
+  readonly pageCount: number
   constructor()
 }
 declare class CellHookData extends HookData {
