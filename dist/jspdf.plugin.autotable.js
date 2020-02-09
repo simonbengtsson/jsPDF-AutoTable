@@ -2131,7 +2131,12 @@ object-assign
           assign(
             'cellPadding',
             parsePadding(
-              style.padding,
+              [
+                style.paddingTop,
+                style.paddingRight,
+                style.paddingBottom,
+                style.paddingLeft,
+              ],
               style.fontSize,
               style.lineHeight,
               scaleFactor
@@ -2204,7 +2209,7 @@ object-assign
           var pxScaleFactor = 96 / (72 / scaleFactor)
           var linePadding =
             (parseInt(lineHeight) - parseInt(fontSize)) / scaleFactor / 2
-          var padding = val.split(' ').map(function(n) {
+          var padding = val.map(function(n) {
             return parseInt(n) / pxScaleFactor
           })
           padding = common_1.marginOrPadding(padding, 0)
