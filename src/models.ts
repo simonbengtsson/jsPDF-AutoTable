@@ -45,13 +45,15 @@ export class Table {
 
   startPageNumber = 1
   pageNumber = 1
+
+  // Deprecated, use pageNumber instead
+  // Not using getter since:
+  // https://github.com/simonbengtsson/jsPDF-AutoTable/issues/596
+  pageCount = 1
+
   pageStartX: number
   pageStartY: number
   finalY: number
-
-  get pageCount() {
-    return this.pageNumber
-  }
 
   styles = {
     styles: {},
@@ -105,12 +107,7 @@ export class Row {
   x: number
   y: number
 
-  pageNumber = 1
   spansMultiplePages = false
-
-  get pageCount() {
-    return this.pageNumber
-  }
 
   constructor(raw, index, section) {
     this.raw = raw

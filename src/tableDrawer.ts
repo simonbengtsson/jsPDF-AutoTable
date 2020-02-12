@@ -299,6 +299,7 @@ export function addPage() {
   addTableBorder()
   nextPage(state().doc)
   table.pageNumber++
+  table.pageCount++
   table.cursor = { x: table.margin('left'), y: table.margin('top') }
   table.pageStartX = table.cursor.x
   table.pageStartY = table.cursor.y
