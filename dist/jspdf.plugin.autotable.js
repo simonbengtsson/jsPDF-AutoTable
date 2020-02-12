@@ -1,6 +1,6 @@
 /*!
  * 
- *             jsPDF AutoTable plugin v3.2.12
+ *             jsPDF AutoTable plugin v3.2.13
  *             
  *             Copyright (c) 2014 Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable
  *             Licensed under the MIT License.
@@ -556,6 +556,10 @@ var Table = /** @class */ (function () {
         this.footHeight = 0;
         this.startPageNumber = 1;
         this.pageNumber = 1;
+        // Deprecated, use pageNumber instead
+        // Not using getter since:
+        // https://github.com/simonbengtsson/jsPDF-AutoTable/issues/596
+        this.pageCount = 1;
         this.styles = {
             styles: {},
             headStyles: {},
@@ -566,13 +570,6 @@ var Table = /** @class */ (function () {
         };
         this.cellHooks = new CellHooks();
     }
-    Object.defineProperty(Table.prototype, "pageCount", {
-        get: function () {
-            return this.pageNumber;
-        },
-        enumerable: true,
-        configurable: true
-    });
     Table.prototype.allRows = function () {
         return this.head.concat(this.body).concat(this.foot);
     };
@@ -603,7 +600,6 @@ var Row = /** @class */ (function () {
         this.cells = {};
         this.height = 0;
         this.maxCellHeight = 0;
-        this.pageNumber = 1;
         this.spansMultiplePages = false;
         this.raw = raw;
         if (raw._element) {
@@ -612,13 +608,6 @@ var Row = /** @class */ (function () {
         this.index = index;
         this.section = section;
     }
-    Object.defineProperty(Row.prototype, "pageCount", {
-        get: function () {
-            return this.pageNumber;
-        },
-        enumerable: true,
-        configurable: true
-    });
     Row.prototype.canEntireRowFit = function (height) {
         return this.maxCellHeight <= height;
     };
@@ -1214,6 +1203,7 @@ function addPage() {
     common_1.addTableBorder();
     nextPage(state_1.default().doc);
     table.pageNumber++;
+    table.pageCount++;
     table.cursor = { x: table.margin('left'), y: table.margin('top') };
     table.pageStartX = table.cursor.x;
     table.pageStartY = table.cursor.y;
@@ -1259,17 +1249,11 @@ var HookData = /** @class */ (function () {
         var table = state_1.default().table;
         this.table = table;
         this.pageNumber = table.pageNumber;
+        this.pageCount = this.pageNumber;
         this.settings = table.settings;
         this.cursor = table.cursor;
         this.doc = state_1.default().doc;
     }
-    Object.defineProperty(HookData.prototype, "pageCount", {
-        get: function () {
-            return this.pageNumber;
-        },
-        enumerable: true,
-        configurable: true
-    });
     return HookData;
 }());
 exports.HookData = HookData;

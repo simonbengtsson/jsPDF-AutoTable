@@ -28,10 +28,10 @@ declare class Table {
 	footHeight: number;
 	startPageNumber: number;
 	pageNumber: number;
+	pageCount: number;
 	pageStartX: number;
 	pageStartY: number;
 	finalY: number;
-	get pageCount(): number;
 	styles: {
 		styles: {};
 		headStyles: {};
@@ -55,9 +55,7 @@ declare class Row {
 	maxCellHeight: number;
 	x: number;
 	y: number;
-	pageNumber: number;
 	spansMultiplePages: boolean;
-	get pageCount(): number;
 	constructor(raw: any, index: any, section: any);
 	canEntireRowFit(height: any): boolean;
 	getMinimumRowHeight(): any;
@@ -95,13 +93,13 @@ declare class Column {
 declare class HookData {
 	table: Table;
 	pageNumber: number;
+	pageCount: number;
 	settings: any;
 	doc: any;
 	cursor: {
 		x: number;
 		y: number;
 	};
-	get pageCount(): number;
 	constructor();
 }
 declare class CellHookData extends HookData {
