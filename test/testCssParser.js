@@ -40,7 +40,10 @@ describe('css parser', function() {
           textAlign: 'center',
           verticalAlign: 'top',
           fontSize: '16px',
-          padding: '5px',
+          paddingTop: '5px',
+          paddingLeft: '5px',
+          paddingRight: '5px',
+          paddingBottom: '5px',
           borderTopWidth: '2px',
         }
       },
@@ -48,6 +51,7 @@ describe('css parser', function() {
 
     let pxScaleFactor = 96 / 72
     let styles = parseCss({}, 1)
+    console.log(styles)
     assert(styles, 'Should have result')
     assert(!styles.lineColor, 'Transparent color')
     assert(styles.fillColor, 'Parse color')
@@ -55,6 +59,7 @@ describe('css parser', function() {
     assert(styles.valign === 'top', 'String value')
     assert.equal(styles.cellPadding.top, 5 / pxScaleFactor, 'Cell padding')
     assert.equal(styles.lineWidth, 2 / pxScaleFactor, 'Line width')
+    assert(styles.fontSize === 16 / pxScaleFactor, 'No font size')
 
     delete global.window
   })
@@ -63,14 +68,16 @@ describe('css parser', function() {
     global.window = {
       getComputedStyle: function() {
         return {
-          backgroundColor: 'transparent',
-          textAlign: '',
-          verticalAlign: '',
-          padding: '',
+          backgroundColor: 'rgba(0, 0, 0, 0)',
+          textAlign: 'baseline',
+          verticalAlign: 'start',
+          paddingTop: '0px',
+          paddingLeft: '0px',
+          paddingRight: '0px',
+          paddingBottom: '0px',
           fontStyle: 'normal',
           fontWeight: 'normal',
-          fontSize: '',
-          borderWidth: '',
+          borderWidth: '0px',
           display: 'none',
         }
       },
@@ -81,9 +88,8 @@ describe('css parser', function() {
     assert(!styles.fillColor, 'Transparent')
     assert(!styles.halign, 'Empty string halign')
     assert(!styles.valign, 'Empty tring valign')
-    assert(!styles.cellPadding, 'Empty string padding')
+    assert(!styles.cellPadding.top, 'Empty string padding')
     assert(!styles.fontStyle, 'No font style')
-    assert(!styles.fontSize, 'No font size')
 
     delete global.window
   })
