@@ -1,11 +1,8 @@
-const jsPDF = require('jspdf')
-
 /**
  * Improved text function with halign and valign support
  * Inspiration from: http://stackoverflow.com/questions/28327510/align-text-right-using-jspdf/28433113#28433113
  */
-jsPDF.API.autoTableText = function(text, x, y, styles) {
-  const doc = this
+export default function(text, x, y, styles, doc) {
   styles = styles || {}
   let FONT_ROW_RATIO = 1.15
 

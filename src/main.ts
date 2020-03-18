@@ -1,6 +1,6 @@
 'use strict'
 
-import { drawTable, addPage } from './tableDrawer'
+import { drawTable } from './tableDrawer'
 import { calculateWidths } from './widthCalculator'
 import { parseInput } from './inputParser'
 import { setDefaults, setupState, resetState } from './state'
@@ -8,6 +8,7 @@ import './autoTableText'
 import { applyUserStyles } from './common'
 import { UserOptions } from './interfaces'
 import { parseHtml } from './htmlParser'
+import autoTableText from './autoTableText'
 
 const jsPDF = require('jspdf')
 
@@ -41,6 +42,10 @@ jsPDF.API.autoTable = autoTable
 jsPDF.API.lastAutoTable = false
 jsPDF.API.previousAutoTable = false // deprecated in v3
 jsPDF.API.autoTable.previous = false // deprecated in v3
+
+jsPDF.API.autoTableText = function(text, x, y, styles) {
+  autoTableText(text, x, y, styles, this)
+}
 
 jsPDF.API.autoTableSetDefaults = function(defaults) {
   setDefaults(defaults, this)
