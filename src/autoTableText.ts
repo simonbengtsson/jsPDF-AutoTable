@@ -5,6 +5,7 @@ const jsPDF = require('jspdf')
  * Inspiration from: http://stackoverflow.com/questions/28327510/align-text-right-using-jspdf/28433113#28433113
  */
 jsPDF.API.autoTableText = function(text, x, y, styles) {
+  const doc = this
   styles = styles || {}
   let FONT_ROW_RATIO = 1.15
 
@@ -14,8 +15,8 @@ jsPDF.API.autoTableText = function(text, x, y, styles) {
       text
     )
   }
-  let k = this.internal.scaleFactor
-  let fontSize = this.internal.getFontSize() / k
+  let k = doc.internal.scaleFactor
+  let fontSize = doc.internal.getFontSize() / k
 
   let splitRegex = /\r\n|\r|\n/g
   let splitText = null
@@ -42,28 +43,28 @@ jsPDF.API.autoTableText = function(text, x, y, styles) {
     let alignSize = fontSize
     if (styles.halign === 'center') alignSize *= 0.5
 
-    if (lineCount >= 1) {
+    if (splitText && lineCount >= 1) {
       for (let iLine = 0; iLine < splitText.length; iLine++) {
-        this.text(
+        doc.text(
           splitText[iLine],
-          x - this.getStringUnitWidth(splitText[iLine]) * alignSize,
+          x - doc.getStringUnitWidth(splitText[iLine]) * alignSize,
           y
         )
         y += fontSize * FONT_ROW_RATIO
       }
-      return this
+      return doc
     }
-    x -= this.getStringUnitWidth(text) * alignSize
+    x -= doc.getStringUnitWidth(text) * alignSize
   }
 
   if (styles.halign === 'justify') {
-    this.text(text, x, y, {
+    doc.text(text, x, y, {
       maxWidth: styles.maxWidth || 100,
       align: 'justify',
     })
   } else {
-    this.text(text, x, y)
+    doc.text(text, x, y)
   }
 
-  return this
+  return doc
 }
