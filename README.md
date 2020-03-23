@@ -56,6 +56,8 @@ doc.autoTable({ html: '#my-table' })
 doc.save('table.pdf')
 ```
 
+Checkout [this example](examples/nodejs/index.js) for nodejs usage
+
 Checkout more examples in [examples.js](examples) which is also the source code for the [demo](https://simonbengtsson.github.io/jsPDF-AutoTable/) documents.
 
 ## API
@@ -65,6 +67,15 @@ Checkout more examples in [examples.js](examples) which is also the source code 
 - `jsPDF.autoTableSetDefaults({ /* ... */ })` Use for setting global defaults which will be applied for all document and tabels.
 
 If you want to know something about the last table that was drawn you can use `doc.lastAutoTable`. It has a `doc.lastAutoTable.finalY` property among other things that has the value of the last printed y coordinate on a page. This can be used to draw text, multiple tables or other content after a table.
+
+If you for example are using nodejs and want to use the nodejs jspdf dist files you can apply the plugin to any
+jsPDF class like this
+
+```
+import jsPDF from 'jspdf/dist/jspdf.node.debug'
+import { applyPlugin } from 'jspdf-autotable'
+applyPlugin(jsPDF)
+```
 
 ## Options
 
