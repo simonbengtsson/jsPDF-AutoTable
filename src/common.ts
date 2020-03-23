@@ -7,9 +7,9 @@ export function getStringWidth(text, styles) {
   const textArr: any = Array.isArray(text) ? text : [text]
 
   const widestLineWidth = textArr
-    .map(text => state().doc.getTextWidth(text))
+    .map((text) => state().doc.getTextWidth(text))
     // Shave off a few digits for potential improvement in width calculation
-    .map(val => Math.floor(val * 10000) / 10000)
+    .map((val) => Math.floor(val * 10000) / 10000)
     .reduce((a, b) => Math.max(a, b), 0)
 
   const fontSize = styles.fontSize / state().scaleFactor()
@@ -22,7 +22,7 @@ export function getStringWidth(text, styles) {
 export function ellipsize(text, width, styles, ellipsizeStr = '...') {
   if (Array.isArray(text)) {
     let value = []
-    text.forEach(function(str, i) {
+    text.forEach(function (str, i) {
       value[i] = ellipsize(str, width, styles, ellipsizeStr)
     })
     return value
@@ -91,7 +91,7 @@ export function applyStyles(styles) {
     font: doc.setFont,
     fontSize: doc.setFontSize,
   }
-  Object.keys(styleModifiers).forEach(function(name) {
+  Object.keys(styleModifiers).forEach(function (name) {
     let style = styles[name]
     let modifier = styleModifiers[name]
     if (typeof style !== 'undefined') {

@@ -7,7 +7,7 @@ let tableState: TableState = null
 export let globalDefaults = {}
 export let documentDefaults = {}
 
-export default function() {
+export default function () {
   return tableState
 }
 

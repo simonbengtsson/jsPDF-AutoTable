@@ -4,7 +4,7 @@ import { parseHtml } from './htmlParser'
 import autoTableText from './autoTableText'
 import autoTable from './autoTable'
 
-export default function(jsPDF) {
+export default function (jsPDF) {
   jsPDF.API.autoTable = autoTable
 
   // Assign false to enable `doc.lastAutoTable.finalY || 40` sugar;
@@ -12,21 +12,21 @@ export default function(jsPDF) {
   jsPDF.API.previousAutoTable = false // deprecated in v3
   jsPDF.API.autoTable.previous = false // deprecated in v3
 
-  jsPDF.API.autoTableText = function(text, x, y, styles) {
+  jsPDF.API.autoTableText = function (text, x, y, styles) {
     autoTableText(text, x, y, styles, this)
   }
 
-  jsPDF.API.autoTableSetDefaults = function(defaults) {
+  jsPDF.API.autoTableSetDefaults = function (defaults) {
     setDefaults(defaults, this)
     return this
   }
 
-  jsPDF.autoTableSetDefaults = function(defaults, doc) {
+  jsPDF.autoTableSetDefaults = function (defaults, doc) {
     setDefaults(defaults, doc)
     return this
   }
 
-  jsPDF.API.autoTableHtmlToJson = function(tableElem, includeHiddenElements) {
+  jsPDF.API.autoTableHtmlToJson = function (tableElem, includeHiddenElements) {
     includeHiddenElements = includeHiddenElements || false
 
     if (!tableElem || !(tableElem instanceof HTMLTableElement)) {
@@ -47,7 +47,7 @@ export default function(jsPDF) {
   /**
    * @deprecated
    */
-  jsPDF.API.autoTableEndPosY = function() {
+  jsPDF.API.autoTableEndPosY = function () {
     console.error(
       'Use of deprecated function: autoTableEndPosY. Use doc.previousAutoTable.finalY instead.'
     )
@@ -62,7 +62,7 @@ export default function(jsPDF) {
   /**
    * @deprecated
    */
-  jsPDF.API.autoTableAddPageContent = function(hook) {
+  jsPDF.API.autoTableAddPageContent = function (hook) {
     console.error(
       'Use of deprecated function: autoTableAddPageContent. Use jsPDF.autoTableSetDefaults({didDrawPage: () => {}}) instead.'
     )
@@ -76,7 +76,7 @@ export default function(jsPDF) {
   /**
    * @deprecated
    */
-  jsPDF.API.autoTableAddPage = function() {
+  jsPDF.API.autoTableAddPage = function () {
     console.error(
       'Use of deprecated function: autoTableAddPage. Use doc.addPage()'
     )

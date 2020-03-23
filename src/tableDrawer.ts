@@ -46,10 +46,10 @@ export function drawTable(table: Table) {
     settings.showHead === 'firstPage' ||
     settings.showHead === 'everyPage'
   ) {
-    table.head.forEach(row => printRow(row))
+    table.head.forEach((row) => printRow(row))
   }
   applyUserStyles()
-  table.body.forEach(function(row, index) {
+  table.body.forEach(function (row, index) {
     printFullRow(row, index === table.body.length - 1)
   })
   applyUserStyles()
@@ -58,7 +58,7 @@ export function drawTable(table: Table) {
     settings.showFoot === 'lastPage' ||
     settings.showFoot === 'everyPage'
   ) {
-    table.foot.forEach(row => printRow(row))
+    table.foot.forEach((row) => printRow(row))
   }
 
   addTableBorder()
@@ -146,7 +146,7 @@ function shouldPrintOnCurrentPage(row, remainingPageSpace, table) {
   }
 
   let rowHasRowSpanCell =
-    table.columns.filter(column => {
+    table.columns.filter((column) => {
       let cell = row.cells[column.index]
       if (!cell) return false
       return cell.rowSpan > 1
@@ -287,7 +287,7 @@ export function addPage() {
     table.settings.showFoot === true ||
     table.settings.showFoot === 'everyPage'
   ) {
-    table.foot.forEach(row => printRow(row))
+    table.foot.forEach((row) => printRow(row))
   }
 
   table.finalY = table.cursor.y
@@ -308,7 +308,7 @@ export function addPage() {
     table.settings.showHead === true ||
     table.settings.showHead === 'everyPage'
   ) {
-    table.head.forEach(row => printRow(row))
+    table.head.forEach((row) => printRow(row))
   }
 }
 

@@ -31,7 +31,7 @@ export function parseInput(args) {
 
   // Merge styles one level deeper
   for (let styleProp of Object.keys(table.styles)) {
-    let styles = allOptions.map(opts => opts[styleProp] || {})
+    let styles = allOptions.map((opts) => opts[styleProp] || {})
     table.styles[styleProp] = assign({}, ...styles)
   }
 
@@ -110,7 +110,7 @@ function parseUserArguments(args) {
     opts.body = args[1]
     opts.columns = args[0]
 
-    opts.columns.forEach(col => {
+    opts.columns.forEach((col) => {
       // Support v2 title prop in v3
       if (typeof col === 'object' && col.header == null) {
         col.header = col.title
@@ -185,7 +185,7 @@ function parseContent(table) {
     })
   }
 
-  table.allRows().forEach(row => {
+  table.allRows().forEach((row) => {
     for (let column of table.columns) {
       let cell = row.cells[column.index]
       if (!cell) continue
@@ -211,7 +211,7 @@ function parseContent(table) {
     }
   })
 
-  table.allRows().forEach(row => {
+  table.allRows().forEach((row) => {
     for (let column of table.columns) {
       let cell = row.cells[column.index]
 
@@ -259,7 +259,7 @@ function parseContent(table) {
 
 function generateSectionRowFromColumnData(table, sectionName) {
   let sectionRow = {}
-  table.columns.forEach(col => {
+  table.columns.forEach((col) => {
     let columnData = col.raw
     if (sectionName === 'head') {
       let val = columnData && columnData.header ? columnData.header : columnData
@@ -286,8 +286,8 @@ function getTableColumns(settings) {
       settings.head[0] || settings.body[0] || settings.foot[0] || []
     let columns = []
     Object.keys(firstRow)
-      .filter(key => key !== '_element')
-      .forEach(key => {
+      .filter((key) => key !== '_element')
+      .forEach((key) => {
         let colSpan =
           firstRow[key] && firstRow[key].colSpan ? firstRow[key].colSpan : 1
         for (let i = 0; i < colSpan; i++) {

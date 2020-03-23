@@ -1,6 +1,6 @@
 import { applyUserStyles } from './common'
 
-export default function(allOptions) {
+export default function (allOptions) {
   for (let settings of allOptions) {
     if (settings && typeof settings !== 'object') {
       console.error(
@@ -32,7 +32,7 @@ export default function(allOptions) {
       console.error(
         'The afterPageContent, beforePageContent and afterPageAdd hooks are deprecated. Use didDrawPage instead'
       )
-      settings.didDrawPage = function(data) {
+      settings.didDrawPage = function (data) {
         applyUserStyles()
         if (settings.beforePageContent) settings.beforePageContent(data)
         applyUserStyles()
@@ -51,7 +51,7 @@ export default function(allOptions) {
       'drawHeaderRow',
       'drawRow',
       'drawHeaderCell',
-    ].forEach(name => {
+    ].forEach((name) => {
       if (settings[name]) {
         console.error(
           `The "${name}" hook has changed in version 3.0, check the changelog for how to migrate.`
@@ -77,7 +77,7 @@ export default function(allOptions) {
       ['lineHeight', 'rowHeight'],
       'fontSize',
       'overflow',
-    ].forEach(function(o) {
+    ].forEach(function (o) {
       let deprecatedOption = typeof o === 'string' ? o : o[0]
       let style = typeof o === 'string' ? o : o[1]
       if (typeof settings[deprecatedOption] !== 'undefined') {

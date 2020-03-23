@@ -39,12 +39,12 @@ export function defaultConfig() {
 
     // Hooks
     // Use to change the content of the cell before width calculations etc are performed
-    didParseCell: function(data) {},
-    willDrawCell: function(data) {},
+    didParseCell: function (data) {},
+    willDrawCell: function (data) {},
     // Use to draw additional content such as images in table cells
-    didDrawCell: function(data) {},
+    didDrawCell: function (data) {},
     // Use to draw additional content to each page such as headers and footers
-    didDrawPage: function(data) {},
+    didDrawPage: function (data) {},
   }
 }
 

@@ -115,7 +115,7 @@ function parsePadding(val, fontSize, lineHeight, scaleFactor) {
   let linePadding =
     (parseInt(lineHeight) - parseInt(fontSize)) / scaleFactor / 2
 
-  let padding = val.map(n => {
+  let padding = val.map((n) => {
     return parseInt(n) / pxScaleFactor
   })
   padding = marginOrPadding(padding, 0)
