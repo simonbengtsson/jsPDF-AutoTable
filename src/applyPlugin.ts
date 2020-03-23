@@ -7,7 +7,7 @@ import autoTable from './autoTable'
 export default function (jsPDF) {
   jsPDF.API.autoTable = autoTable
 
-  // Assign false to enable `doc.lastAutoTable.finalY || 40` sugar;
+  // Assign false to enable `doc.lastAutoTable.finalY || 40` sugar
   jsPDF.API.lastAutoTable = false
   jsPDF.API.previousAutoTable = false // deprecated in v3
   jsPDF.API.autoTable.previous = false // deprecated in v3
@@ -30,7 +30,7 @@ export default function (jsPDF) {
     includeHiddenElements = includeHiddenElements || false
 
     if (!tableElem || !(tableElem instanceof HTMLTableElement)) {
-      console.error('A HTMLTableElement has to be sent to autoTableHtmlToJson')
+      console.error('An HTMLTableElement has to be sent to autoTableHtmlToJson')
       return null
     }
 
