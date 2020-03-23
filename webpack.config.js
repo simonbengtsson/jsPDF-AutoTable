@@ -39,18 +39,6 @@ module.exports = {
       amd: 'jspdf',
       root: 'jsPDF',
     },
-    'jspdf/dist/jspdf.node.min': {
-      commonjs: 'jspdf/dist/jspdf.node.min',
-      commonjs2: 'jspdf/dist/jspdf.node.min',
-      amd: 'jspdf/dist/jspdf.node.min',
-      root: 'jsPDF',
-    },
-    'jspdf/dist/jspdf.node.debug': {
-      commonjs: 'jspdf/dist/jspdf.node.debug',
-      commonjs2: 'jspdf/dist/jspdf.node.debug',
-      amd: 'jspdf/dist/jspdf.node.debug',
-      root: 'jsPDF',
-    },
   },
   performance: { hints: false },
   devServer: {
