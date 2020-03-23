@@ -1,12 +1,10 @@
 /*!
  * 
- *             jsPDF AutoTable plugin v3.2.15
+ *             jsPDF AutoTable plugin v3.2.16
  *             
  *             Copyright (c) 2014 Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable
  *             Licensed under the MIT License.
  *             http://opensource.org/licenses/mit-license
- *             
- *             * /if (typeof window === 'object') window.jspdfAutoTableVersion = '" + newVersion + "';/*"
  *         
  */
 (function webpackUniversalModuleDefinition(root, factory) {
