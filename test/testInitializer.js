@@ -7,14 +7,14 @@ let after = global.after
 
 var assert = require('assert')
 
-describe('execution', function() {
+describe('execution', function () {
   let jsPDF = null
 
-  before(function() {
+  before(function () {
     this.timeout(5000)
     global.window = {
       document: {
-        createElementNS: function() {
+        createElementNS: function () {
           return {}
         },
       },
@@ -24,17 +24,17 @@ describe('execution', function() {
     require('../src/main')
   })
 
-  after(function() {
+  after(function () {
     delete global.navigator
     delete global.window
   })
 
-  it('init', function() {
+  it('init', function () {
     let doc = new jsPDF()
     assert.equal(typeof doc.autoTable, 'function')
   })
 
-  it('state', function() {
+  it('state', function () {
     let state = require('../src/state')
     state.setupState({ internal: { scaleFactor: 1.5 } })
     assert.equal(state.default().scaleFactor(), 1.5)
@@ -55,13 +55,13 @@ describe('execution', function() {
     assert.equal(state.getDocumentOptions().margin, null)
   })
 
-  it('concurrent tables', function() {
+  it('concurrent tables', function () {
     let doc = new jsPDF('p', 'pt')
     doc.autoTable({
       tableId: 'first',
       margin: 10,
       body: [['Test first']],
-      eventHandler: function(event) {
+      eventHandler: function (event) {
         if (event.name === 'addingCell') {
           let d = new jsPDF()
           d.autoTable({
@@ -80,13 +80,13 @@ describe('execution', function() {
     assert.equal(doc.previousAutoTable.margin('top'), 10)
   })
 
-  it('add page in hook', function() {
+  it('add page in hook', function () {
     let doc = new jsPDF()
 
     doc.autoTable({
       head: [],
       body: [['test']],
-      willDrawCell: function(data) {
+      willDrawCell: function (data) {
         doc.addPage()
       },
     })

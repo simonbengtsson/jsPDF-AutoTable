@@ -8,20 +8,20 @@ let after = global.after
 var assert = require('assert')
 let parseHtml = require('../src/htmlParser').parseHtml
 
-describe('html parser', function() {
-  before(function() {
+describe('html parser', function () {
+  before(function () {
     global.window = {
-      getComputedStyle: function() {
+      getComputedStyle: function () {
         return { display: 'visible' }
       },
     }
   })
 
-  after(function() {
+  after(function () {
     delete global.window
   })
 
-  it('full table', function() {
+  it('full table', function () {
     var table = {
       tHead: {
         rows: [
@@ -61,14 +61,14 @@ describe('html parser', function() {
     assert(res.foot[0].length, 'Should have foot cell')
   })
 
-  it('hidden content', function() {
+  it('hidden content', function () {
     var table = {
       tHead: { rows: [{ cells: [{ innerText: 'test' }] }] },
       tBodies: [{ rows: [{ cells: [{ innerText: 'test' }] }] }],
       tFoot: { rows: [{ cells: [{ innerText: 'test' }] }] },
     }
     global.window = {
-      getComputedStyle: function() {
+      getComputedStyle: function () {
         return { display: 'none' }
       },
     }
@@ -79,7 +79,7 @@ describe('html parser', function() {
     assert(res.foot.length === 0, 'Should have no foot cells')
   })
 
-  it('empty table', function() {
+  it('empty table', function () {
     var table = {
       tHead: { rows: [{ cells: [] }] },
       tBodies: [{ rows: [{ cells: [] }] }],

@@ -24,7 +24,7 @@ const doc = new jsPDF()
 ;((doc as any).autoTable as AutoTable)({
   head: head,
   body: data,
-  didDrawCell: data => {
+  didDrawCell: (data) => {
     console.log(data.column.index)
   },
 })

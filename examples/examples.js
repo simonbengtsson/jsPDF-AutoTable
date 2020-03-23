@@ -18,7 +18,7 @@ var examples = {}
 window.examples = examples
 
 // Basic - shows what a default table looks like
-examples.basic = function() {
+examples.basic = function () {
   let doc = new jsPDF()
 
   // From HTML
@@ -58,7 +58,7 @@ examples.basic = function() {
 }
 
 // Minimal - shows how compact tables can be drawn
-examples.minimal = function() {
+examples.minimal = function () {
   var doc = new jsPDF()
   doc.autoTable({
     html: '.table',
@@ -69,13 +69,13 @@ examples.minimal = function() {
 }
 
 // Long data - shows how the overflow features looks and can be used
-examples.long = function() {
+examples.long = function () {
   var doc = new jsPDF('l')
 
   let head = headRows()
   head[0]['text'] = 'Text'
   let body = bodyRows(4)
-  body.forEach(function(row) {
+  body.forEach(function (row) {
     row['text'] = faker.lorem.sentence(100)
   })
 
@@ -108,7 +108,7 @@ examples.long = function() {
 }
 
 // Content - shows how tables can be integrated with any other pdf content
-examples.content = function() {
+examples.content = function () {
   var doc = new jsPDF()
 
   doc.setFontSize(18)
@@ -135,7 +135,7 @@ examples.content = function() {
 }
 
 // Multiple - shows how multiple tables can be drawn both horizontally and vertically
-examples.multiple = function() {
+examples.multiple = function () {
   var doc = new jsPDF()
   doc.setFontSize(22)
   doc.text('Multiple tables', 14, 20)
@@ -186,14 +186,14 @@ examples.multiple = function() {
 }
 
 // Header and footers - shows how header and footers can be drawn
-examples['header-footer'] = function() {
+examples['header-footer'] = function () {
   var doc = new jsPDF()
   var totalPagesExp = '{total_pages_count_string}'
 
   doc.autoTable({
     head: headRows(),
     body: bodyRows(40),
-    didDrawPage: function(data) {
+    didDrawPage: function (data) {
       // Header
       doc.setFontSize(20)
       doc.setTextColor(40)
@@ -228,7 +228,7 @@ examples['header-footer'] = function() {
 }
 
 // Minimal - shows how compact tables can be drawn
-examples.defaults = function() {
+examples.defaults = function () {
   // Global defaults
   // (would apply to all documents if more than one were created)
   jsPDF.autoTableSetDefaults({
@@ -242,7 +242,7 @@ examples.defaults = function() {
   doc.autoTableSetDefaults({
     headStyles: { fillColor: [155, 89, 182] }, // Purple
     margin: { top: 25 },
-    didDrawPage: function(data) {
+    didDrawPage: function (data) {
       doc.setFontSize(20)
       doc.text('Default options', data.settings.margin.left, 20)
     },
@@ -267,7 +267,7 @@ examples.defaults = function() {
 }
 
 // Column styles - shows how tables can be drawn with specific column styles
-examples.colstyles = function() {
+examples.colstyles = function () {
   var doc = new jsPDF()
   doc.autoTable({
     head: headRows(),
@@ -284,7 +284,7 @@ examples.colstyles = function() {
 }
 
 // Col spans and row spans
-examples.spans = function() {
+examples.spans = function () {
   var doc = new jsPDF('p', 'pt')
   doc.setFontSize(12)
   doc.setTextColor(0)
@@ -327,7 +327,7 @@ examples.spans = function() {
 }
 
 // Themes - shows how the different themes looks
-examples.themes = function() {
+examples.themes = function () {
   var doc = new jsPDF()
   doc.setFontSize(12)
   doc.setFontStyle('bold')
@@ -355,7 +355,7 @@ examples.themes = function() {
 }
 
 // Custom style - shows how custom styles can be applied
-examples.custom = function() {
+examples.custom = function () {
   var doc = new jsPDF()
   doc.autoTable({
     head: headRows(),
@@ -403,7 +403,7 @@ examples.custom = function() {
     allSectionHooks: true,
     // Use for customizing texts or styles of specific cells after they have been formatted by this plugin.
     // This hook is called just before the column width and other features are computed.
-    didParseCell: function(data) {
+    didParseCell: function (data) {
       if (data.row.index === 5) {
         data.cell.styles.fillColor = [40, 170, 100]
       }
@@ -425,7 +425,7 @@ examples.custom = function() {
     },
     // Use for changing styles with jspdf functions or customize the positioning of cells or cell text
     // just before they are drawn to the page.
-    willDrawCell: function(data) {
+    willDrawCell: function (data) {
       if (data.row.section === 'body' && data.column.dataKey === 'expenses') {
         if (data.cell.raw > 750) {
           doc.setTextColor(231, 76, 60) // Red
@@ -436,7 +436,7 @@ examples.custom = function() {
     // Use for adding content to the cells after they are drawn. This could be images or links.
     // You can also use this to draw other custom jspdf content to cells with doc.text or doc.rect
     // for example.
-    didDrawCell: function(data) {
+    didDrawCell: function (data) {
       if (
         (data.row.section === 'head' || data.row.section === 'foot') &&
         data.column.dataKey === 'expenses' &&
@@ -454,7 +454,7 @@ examples.custom = function() {
     },
     // Use this to add content to each page that has the autoTable on it. This can be page headers,
     // page footers and page numbers for example.
-    didDrawPage: function(data) {
+    didDrawPage: function (data) {
       doc.setFontSize(18)
       doc.text('Custom styling with hooks', data.settings.margin.left, 22)
       doc.setFontSize(12)

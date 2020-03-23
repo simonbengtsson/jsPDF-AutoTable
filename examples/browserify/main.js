@@ -1,7 +1,7 @@
 var jsPDF = require('jspdf')
 require('jspdf-autotable')
 
-document.getElementById('pdf-button').onclick = function() {
+document.getElementById('pdf-button').onclick = function () {
   generatePdf()
 }
 

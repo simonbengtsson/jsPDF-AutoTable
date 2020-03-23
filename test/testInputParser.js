@@ -4,12 +4,12 @@ var assert = require('assert')
 var parseInput = require('../src/inputParser').parseInput
 var state = require('../src/state')
 
-describe('input parser', function() {
-  before(function() {
+describe('input parser', function () {
+  before(function () {
     this.timeout(5000)
     global.window = {
       document: {
-        createElementNS: function() {
+        createElementNS: function () {
           return {}
         },
       },
@@ -20,11 +20,11 @@ describe('input parser', function() {
     state.setupState(new jsPDF())
   })
 
-  after(function() {
+  after(function () {
     state.resetState()
   })
 
-  it('array input', function() {
+  it('array input', function () {
     let table = parseInput([
       {
         head: [['test', 'test']],
@@ -43,7 +43,7 @@ describe('input parser', function() {
     assert(table.head[0].cells[0].minWidth > 0)
   })
 
-  it('object input', function() {
+  it('object input', function () {
     let table = parseInput([
       {
         head: [
@@ -61,7 +61,7 @@ describe('input parser', function() {
     assert.equal(table.head[0].cells[0].text, 'ID')
   })
 
-  it('object input', function() {
+  it('object input', function () {
     let table = parseInput([
       {
         head: [[{ content: 'test' }, 'test 2']],
@@ -76,7 +76,7 @@ describe('input parser', function() {
     assert.equal(table.body[0].cells[0].text, 'body')
   })
 
-  it('rowspan input', function() {
+  it('rowspan input', function () {
     let table = parseInput([
       { body: [[{ content: 'test', rowSpan: 2 }, 'one'], ['two']] },
     ])

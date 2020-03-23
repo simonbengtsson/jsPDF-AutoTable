@@ -1,6 +1,6 @@
-define(['jspdf', 'jspdf-autotable'], function(jsPDF) {
+define(['jspdf', 'jspdf-autotable'], function (jsPDF) {
   return {
-    generatePdf: function() {
+    generatePdf: function () {
       var head = [['ID', 'Country', 'Rank', 'Capital']]
       var body = [
         [1, 'Denmark', 7.526, 'Copenhagen'],

@@ -7,12 +7,12 @@ var assert = require('assert')
 let parseCss = require('../src/cssParser').parseCss
 var state = require('../src/state')
 
-describe('css parser', function() {
-  before(function() {
+describe('css parser', function () {
+  before(function () {
     this.timeout(5000)
     global.window = {
       document: {
-        createElementNS: function() {
+        createElementNS: function () {
           return {}
         },
       },
@@ -23,13 +23,13 @@ describe('css parser', function() {
     state.setupState(new jsPDF())
   })
 
-  after(function() {
+  after(function () {
     state.resetState()
   })
 
-  it('normal styles', function() {
+  it('normal styles', function () {
     global.window = {
-      getComputedStyle: function() {
+      getComputedStyle: function () {
         return {
           fontFamily: 'Times',
           borderColor: 'rgba(0, 0, 0, 0)',
@@ -64,9 +64,9 @@ describe('css parser', function() {
     delete global.window
   })
 
-  it('minimal styles', function() {
+  it('minimal styles', function () {
     global.window = {
-      getComputedStyle: function() {
+      getComputedStyle: function () {
         return {
           backgroundColor: 'rgba(0, 0, 0, 0)',
           textAlign: 'baseline',

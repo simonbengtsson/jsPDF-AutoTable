@@ -18,7 +18,6 @@
     "singleQuote": true
   },
   "devDependencies": {
-    "@webpack-cli/migrate": "^0.1.9",
     "dts-bundle-generator": "^4.0.0",
     "jspdf": "^1.5.3",
     "mocha": "^7.1.1",
@@ -40,7 +39,7 @@
     "start": "webpack-dev-server -d --open --host 0.0.0.0",
     "build": "webpack --mode=production && npm run types",
     "test": "mocha --require ts-node/register",
-    "format-all": "yarn prettier --write \"**/!(libs)/*.{js,ts,json,css,md}\"",
+    "format-all": "prettier --write src",
     "version": "npm test && npm run build && git add -A dist",
     "hosting": "git push origin master:gh-pages -f",
     "deploy": "git push --follow-tags && npm run hosting && npm publish",

@@ -10,7 +10,7 @@ global.html2pdf = {}
 global.URL = {}
 let validateInput = require('../src/inputValidator').default
 
-describe('input parser', function() {
+describe('input parser', function () {
   before(() => {})
 
   after(() => {})
