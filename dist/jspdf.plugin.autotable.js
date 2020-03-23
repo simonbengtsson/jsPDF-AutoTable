@@ -1,21 +1,19 @@
 /*!
  * 
- *             jsPDF AutoTable plugin v3.2.15
+ *             jsPDF AutoTable plugin v3.3.0
  *             
  *             Copyright (c) 2014 Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable
  *             Licensed under the MIT License.
  *             http://opensource.org/licenses/mit-license
- *             
- *             * /if (typeof window === 'object') window.jspdfAutoTableVersion = '" + newVersion + "';/*"
  *         
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
-		module.exports = factory(require("jspdf"));
+		module.exports = factory((function webpackLoadOptionalExternalModule() { try { return require("jspdf"); } catch(e) {} }()));
 	else if(typeof define === 'function' && define.amd)
 		define(["jspdf"], factory);
 	else {
-		var a = typeof exports === 'object' ? factory(require("jspdf")) : factory(root["jsPDF"]);
+		var a = typeof exports === 'object' ? factory((function webpackLoadOptionalExternalModule() { try { return require("jspdf"); } catch(e) {} }())) : factory(root["jsPDF"]);
 		for(var i in a) (typeof exports === 'object' ? exports : root)[i] = a[i];
 	}
 })(this, function(__WEBPACK_EXTERNAL_MODULE__17__) {
@@ -935,8 +933,18 @@ module.exports = shouldUseNative() ? Object.assign : function (target, source) {
 
 Object.defineProperty(exports, "__esModule", { value: true });
 var applyApi_1 = __webpack_require__(9);
-var jsPDF = __webpack_require__(17);
-applyApi_1.default(jsPDF);
+function applyPlugin(jsPDF) {
+    applyApi_1.default(jsPDF);
+}
+exports.applyPlugin = applyPlugin;
+try {
+    var jsPDF = __webpack_require__(17);
+    applyApi_1.default(jsPDF);
+}
+catch (error) {
+    // Importing jspdf in nodejs environment currently does not work
+    // so we need to silence any errors
+}
 
 
 /***/ }),
@@ -2100,6 +2108,7 @@ function nextPage(doc) {
 /* 17 */
 /***/ (function(module, exports) {
 
+if(typeof __WEBPACK_EXTERNAL_MODULE__17__ === 'undefined') {var e = new Error("Cannot find module 'undefined'"); e.code = 'MODULE_NOT_FOUND'; throw e;}
 module.exports = __WEBPACK_EXTERNAL_MODULE__17__;
 
 /***/ })
