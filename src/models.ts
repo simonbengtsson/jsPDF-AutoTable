@@ -118,6 +118,14 @@ export class Row {
     this.section = section
   }
 
+  hasRowSpan() {
+    return state().table.columns.filter((column) => {
+      let cell = this.cells[column.index]
+      if (!cell) return false
+      return cell.rowSpan > 1
+    }).length > 0
+  }
+
   canEntireRowFit(height) {
     return this.maxCellHeight <= height
   }

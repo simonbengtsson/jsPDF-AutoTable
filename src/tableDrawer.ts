@@ -133,30 +133,30 @@ function modifyRowToFit(row, remainingPageSpace, table) {
 
 function shouldPrintOnCurrentPage(row, remainingPageSpace, table) {
   let pageHeight = state().pageHeight()
-  let marginHeight = table.margin('top') - table.margin('bottom')
-  let maxTableHeight = pageHeight - marginHeight
+  let marginHeight = table.margin('top') + table.margin('bottom')
+  let maxRowHeight = pageHeight - marginHeight
+  if (row.section === 'body') {
+    // Should also take into account that head and foot is not
+    // on every page with some settings
+    maxRowHeight -= table.headHeight + table.footHeight
+  }
 
   let minRowFits = row.getMinimumRowHeight() < remainingPageSpace
 
-  if (row.getMinimumRowHeight() > maxTableHeight) {
+  if (row.getMinimumRowHeight() > maxRowHeight) {
     console.error(
       `Will not be able to print row ${row.index} correctly since it's minimum height is larger than page height`
     )
     return true
   }
 
-  let rowHasRowSpanCell =
-    table.columns.filter((column) => {
-      let cell = row.cells[column.index]
-      if (!cell) return false
-      return cell.rowSpan > 1
-    }).length > 0
+  let rowHasRowSpanCell = row.hasRowSpan()
 
   if (!minRowFits) {
     return false
   }
 
-  let rowHigherThanPage = row.maxCellHeight > maxTableHeight
+  let rowHigherThanPage = row.maxCellHeight > maxRowHeight
   if (rowHigherThanPage) {
     if (rowHasRowSpanCell) {
       console.error(
