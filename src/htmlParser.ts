@@ -18,57 +18,35 @@ export function parseHtml(
     return
   }
 
-  let head = parseTableSection(
-    window,
-    tableElement.tHead,
-    includeHiddenHtml,
-    useCss
-  )
-  let body = []
-  for (var i = 0; i < tableElement.tBodies.length; i++) {
-    body = body.concat(
-      parseTableSection(
-        window,
-        tableElement.tBodies[i],
-        includeHiddenHtml,
-        useCss
-      )
-    )
-  }
-  let foot = parseTableSection(
-    window,
-    tableElement.tFoot,
-    includeHiddenHtml,
-    useCss
-  )
+  const head = [],
+    body = [],
+    foot = []
+  for (const rowNode of tableElement.rows) {
+    const tagName = rowNode.parentNode.tagName.toLowerCase()
+    let row = parseRowContent(window, rowNode, includeHiddenHtml, useCss)
+    if (!row) continue
 
-  return { head, body, foot }
-}
-
-// Should be rewritten with table.rows instead of table.tBodies.rows
-function parseTableSection(window, sectionElement, includeHidden, useCss) {
-  let sectionRows = []
-  if (!sectionElement) {
-    return sectionRows
-  }
-  for (let i = 0; i < sectionElement.rows.length; i++) {
-    const row = sectionElement.rows[i]
-    const result = parseRowContent(window, row, includeHidden, useCss)
-    if (result) {
-      sectionRows.push(result)
+    if (tagName === 'thead') {
+      head.push(row)
+    } else if (tagName === 'tfoot') {
+      foot.push(row)
+    } else {
+      // Add to body both if parent is tbody or table
+      // (not contained in any section)
+      body.push(row)
     }
   }
-  return sectionRows
+  return { head, body, foot }
 }
 
 function parseRowContent(window, row, includeHidden, useCss) {
   let resultRow: any = []
   let rowStyles = useCss
     ? parseCss(row, state().scaleFactor(), [
-      'cellPadding',
-      'lineWidth',
-      'lineColor',
-    ])
+        'cellPadding',
+        'lineWidth',
+        'lineColor',
+      ])
     : {}
   for (let i = 0; i < row.cells.length; i++) {
     let cell = row.cells[i]
@@ -84,10 +62,7 @@ function parseRowContent(window, row, includeHidden, useCss) {
       })
     }
   }
-  if (
-    resultRow.length > 0 &&
-    (includeHidden || rowStyles.display !== 'none')
-  ) {
+  if (resultRow.length > 0 && (includeHidden || rowStyles.display !== 'none')) {
     resultRow._element = row
     return resultRow
   }
