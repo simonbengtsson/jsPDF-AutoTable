@@ -1,12 +1,12 @@
 'use strict'
 
-let describe = global.describe
-let it = global.it
-let before = global.before
-let after = global.after
+const describe = global.describe
+const it = global.it
+const before = global.before
+const after = global.after
 
-var assert = require('assert')
-let parseHtml = require('../src/htmlParser').parseHtml
+const assert = require('assert')
+const parseHtml = require('../src/htmlParser').parseHtml
 
 describe('html parser', function () {
   before(function () {
@@ -22,37 +22,24 @@ describe('html parser', function () {
   })
 
   it('full table', function () {
-    var table = {
-      tHead: {
-        rows: [
-          {
-            cells: [
-              { cloneNode: () => ({ innerText: 'test', innerHTML: '' }) },
-            ],
-          },
-        ],
-      },
-      tBodies: [
+    const table = {
+      rows: [
         {
-          rows: [
-            {
-              cells: [
-                { cloneNode: () => ({ innerText: 'test', innerHTML: '' }) },
-                { cloneNode: () => ({ innerText: 'test', innerHTML: '' }) },
-              ],
-            },
+          parentNode: { tagName: 'THEAD' },
+          cells: [{ cloneNode: () => ({ innerText: 'test', innerHTML: '' }) }],
+        },
+        {
+          parentNode: { tagName: 'TBODY' },
+          cells: [
+            { cloneNode: () => ({ innerText: 'test', innerHTML: '' }) },
+            { cloneNode: () => ({ innerText: 'test', innerHTML: '' }) },
           ],
         },
+        {
+          parentNode: { tagName: 'TFOOT' },
+          cells: [{ cloneNode: () => ({ innerText: 'test', innerHTML: '' }) }],
+        },
       ],
-      tFoot: {
-        rows: [
-          {
-            cells: [
-              { cloneNode: () => ({ innerText: 'test', innerHTML: '' }) },
-            ],
-          },
-        ],
-      },
     }
     let res = parseHtml(table)
     assert(res, 'Should have result')
@@ -62,10 +49,12 @@ describe('html parser', function () {
   })
 
   it('hidden content', function () {
-    var table = {
-      tHead: { rows: [{ cells: [{ innerText: 'test' }] }] },
-      tBodies: [{ rows: [{ cells: [{ innerText: 'test' }] }] }],
-      tFoot: { rows: [{ cells: [{ innerText: 'test' }] }] },
+    const table = {
+      rows: [
+        { parentNode: { tagName: 'THEAD' }, cells: [{ innerText: 'test' }] },
+        { parentNode: { tagName: 'TBODY' }, cells: [{ innerText: 'test' }] },
+        { parentNode: { tagName: 'TFOOT' }, cells: [{ innerText: 'test' }] },
+      ],
     }
     global.window = {
       getComputedStyle: function () {
@@ -80,13 +69,15 @@ describe('html parser', function () {
   })
 
   it('empty table', function () {
-    var table = {
-      tHead: { rows: [{ cells: [] }] },
-      tBodies: [{ rows: [{ cells: [] }] }],
-      tFoot: { rows: [{ cells: [] }] },
+    const table = {
+      rows: [
+        { parentNode: { tagName: 'THEAD' }, cells: [] },
+        { parentNode: { tagName: 'TBODY' }, cells: [] },
+        { parentNode: { tagName: 'TFOOT' }, cells: [] },
+      ],
     }
 
-    let res = parseHtml(table)
+    const res = parseHtml(table)
     assert(res, 'Should have result')
     assert(res.head.length === 0, 'Should have no head cells')
     assert(res.body.length === 0, 'Should have no body cells')
