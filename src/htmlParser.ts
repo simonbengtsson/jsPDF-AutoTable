@@ -45,45 +45,52 @@ export function parseHtml(
   return { head, body, foot }
 }
 
+// Should be rewritten with table.rows instead of table.tBodies.rows
 function parseTableSection(window, sectionElement, includeHidden, useCss) {
-  let results = []
+  let sectionRows = []
   if (!sectionElement) {
-    return results
+    return sectionRows
   }
   for (let i = 0; i < sectionElement.rows.length; i++) {
-    let row = sectionElement.rows[i]
-    let resultRow: any = []
-    let rowStyles = useCss
-      ? parseCss(row, state().scaleFactor(), [
-          'cellPadding',
-          'lineWidth',
-          'lineColor',
-        ])
-      : {}
-    for (let i = 0; i < row.cells.length; i++) {
-      let cell = row.cells[i]
-      let style = window.getComputedStyle(cell)
-      if (includeHidden || style.display !== 'none') {
-        let cellStyles = useCss ? parseCss(cell, state().scaleFactor()) : {}
-        resultRow.push({
-          rowSpan: cell.rowSpan,
-          colSpan: cell.colSpan,
-          styles: useCss ? cellStyles : null,
-          _element: cell, // For hooks
-          content: parseCellContent(cell),
-        })
-      }
-    }
-    if (
-      resultRow.length > 0 &&
-      (includeHidden || rowStyles.display !== 'none')
-    ) {
-      resultRow._element = row
-      results.push(resultRow)
+    const row = sectionElement.rows[i]
+    const result = parseRowContent(window, row, includeHidden, useCss)
+    if (result) {
+      sectionRows.push(result)
     }
   }
+  return sectionRows
+}
 
-  return results
+function parseRowContent(window, row, includeHidden, useCss) {
+  let resultRow: any = []
+  let rowStyles = useCss
+    ? parseCss(row, state().scaleFactor(), [
+      'cellPadding',
+      'lineWidth',
+      'lineColor',
+    ])
+    : {}
+  for (let i = 0; i < row.cells.length; i++) {
+    let cell = row.cells[i]
+    let style = window.getComputedStyle(cell)
+    if (includeHidden || style.display !== 'none') {
+      let cellStyles = useCss ? parseCss(cell, state().scaleFactor()) : {}
+      resultRow.push({
+        rowSpan: cell.rowSpan,
+        colSpan: cell.colSpan,
+        styles: useCss ? cellStyles : null,
+        _element: cell, // For hooks
+        content: parseCellContent(cell),
+      })
+    }
+  }
+  if (
+    resultRow.length > 0 &&
+    (includeHidden || rowStyles.display !== 'none')
+  ) {
+    resultRow._element = row
+    return resultRow
+  }
 }
 
 function parseCellContent(orgCell) {
