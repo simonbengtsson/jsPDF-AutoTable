@@ -190,7 +190,6 @@ export interface ColumnDataConfig extends BaseConfig {
 export interface HTMLConfig extends BaseConfig {
 	html: string | HTMLElement;
 }
-export declare function applyPlugin(jsPDF: any): void;
 export declare type autoTable = (options: UserOptions) => void;
 
 export {};

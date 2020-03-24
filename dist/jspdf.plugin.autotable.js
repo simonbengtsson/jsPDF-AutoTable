@@ -1,6 +1,6 @@
 /*!
  * 
- *             jsPDF AutoTable plugin v3.3.0
+ *             jsPDF AutoTable plugin v3.3.1
  *             
  *             Copyright (c) 2014 Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable
  *             Licensed under the MIT License.
@@ -564,51 +564,55 @@ function parseHtml(input, includeHiddenHtml, useCss) {
         console.error('Html table could not be found with input: ', input);
         return;
     }
-    var head = parseTableSection(window, tableElement.tHead, includeHiddenHtml, useCss);
-    var body = [];
-    for (var i = 0; i < tableElement.tBodies.length; i++) {
-        body = body.concat(parseTableSection(window, tableElement.tBodies[i], includeHiddenHtml, useCss));
+    var head = [], body = [], foot = [];
+    for (var _i = 0, _a = tableElement.rows; _i < _a.length; _i++) {
+        var rowNode = _a[_i];
+        var tagName = rowNode.parentNode.tagName.toLowerCase();
+        var row = parseRowContent(window, rowNode, includeHiddenHtml, useCss);
+        if (!row)
+            continue;
+        if (tagName === 'thead') {
+            head.push(row);
+        }
+        else if (tagName === 'tfoot') {
+            foot.push(row);
+        }
+        else {
+            // Add to body both if parent is tbody or table
+            // (not contained in any section)
+            body.push(row);
+        }
     }
-    var foot = parseTableSection(window, tableElement.tFoot, includeHiddenHtml, useCss);
     return { head: head, body: body, foot: foot };
 }
 exports.parseHtml = parseHtml;
-function parseTableSection(window, sectionElement, includeHidden, useCss) {
-    var results = [];
-    if (!sectionElement) {
-        return results;
-    }
-    for (var i = 0; i < sectionElement.rows.length; i++) {
-        var row = sectionElement.rows[i];
-        var resultRow = [];
-        var rowStyles = useCss
-            ? cssParser_1.parseCss(row, state_1.default().scaleFactor(), [
-                'cellPadding',
-                'lineWidth',
-                'lineColor',
-            ])
-            : {};
-        for (var i_1 = 0; i_1 < row.cells.length; i_1++) {
-            var cell = row.cells[i_1];
-            var style = window.getComputedStyle(cell);
-            if (includeHidden || style.display !== 'none') {
-                var cellStyles = useCss ? cssParser_1.parseCss(cell, state_1.default().scaleFactor()) : {};
-                resultRow.push({
-                    rowSpan: cell.rowSpan,
-                    colSpan: cell.colSpan,
-                    styles: useCss ? cellStyles : null,
-                    _element: cell,
-                    content: parseCellContent(cell),
-                });
-            }
-        }
-        if (resultRow.length > 0 &&
-            (includeHidden || rowStyles.display !== 'none')) {
-            resultRow._element = row;
-            results.push(resultRow);
+function parseRowContent(window, row, includeHidden, useCss) {
+    var resultRow = [];
+    var rowStyles = useCss
+        ? cssParser_1.parseCss(row, state_1.default().scaleFactor(), [
+            'cellPadding',
+            'lineWidth',
+            'lineColor',
+        ])
+        : {};
+    for (var i = 0; i < row.cells.length; i++) {
+        var cell = row.cells[i];
+        var style = window.getComputedStyle(cell);
+        if (includeHidden || style.display !== 'none') {
+            var cellStyles = useCss ? cssParser_1.parseCss(cell, state_1.default().scaleFactor()) : {};
+            resultRow.push({
+                rowSpan: cell.rowSpan,
+                colSpan: cell.colSpan,
+                styles: useCss ? cellStyles : null,
+                _element: cell,
+                content: parseCellContent(cell),
+            });
         }
     }
-    return results;
+    if (resultRow.length > 0 && (includeHidden || rowStyles.display !== 'none')) {
+        resultRow._element = row;
+        return resultRow;
+    }
 }
 function parseCellContent(orgCell) {
     // Work on cloned node to make sure no changes are applied to html table
@@ -932,18 +936,16 @@ module.exports = shouldUseNative() ? Object.assign : function (target, source) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var applyApi_1 = __webpack_require__(9);
-function applyPlugin(jsPDF) {
-    applyApi_1.default(jsPDF);
-}
-exports.applyPlugin = applyPlugin;
+var applyPlugin_1 = __webpack_require__(9);
+exports.applyPlugin = applyPlugin_1.default;
 try {
     var jsPDF = __webpack_require__(17);
-    applyApi_1.default(jsPDF);
+    applyPlugin_1.default(jsPDF);
 }
 catch (error) {
-    // Importing jspdf in nodejs environment currently does not work
-    // so we need to silence any errors
+    // Importing jspdf in nodejs environments does not work as of jspdf
+    // 1.5.3 so we need to silence any errors to support using for example
+    // the nodejs jspdf dist files with the exported applyPlugin
 }
 
 
@@ -961,7 +963,7 @@ var autoTableText_1 = __webpack_require__(3);
 var autoTable_1 = __webpack_require__(11);
 function default_1(jsPDF) {
     jsPDF.API.autoTable = autoTable_1.default;
-    // Assign false to enable `doc.lastAutoTable.finalY || 40` sugar;
+    // Assign false to enable `doc.lastAutoTable.finalY || 40` sugar
     jsPDF.API.lastAutoTable = false;
     jsPDF.API.previousAutoTable = false; // deprecated in v3
     jsPDF.API.autoTable.previous = false; // deprecated in v3
@@ -979,7 +981,7 @@ function default_1(jsPDF) {
     jsPDF.API.autoTableHtmlToJson = function (tableElem, includeHiddenElements) {
         includeHiddenElements = includeHiddenElements || false;
         if (!tableElem || !(tableElem instanceof HTMLTableElement)) {
-            console.error('A HTMLTableElement has to be sent to autoTableHtmlToJson');
+            console.error('An HTMLTableElement has to be sent to autoTableHtmlToJson');
             return null;
         }
         var _a = htmlParser_1.parseHtml(tableElem, includeHiddenElements, false), head = _a.head, body = _a.body, foot = _a.foot;
