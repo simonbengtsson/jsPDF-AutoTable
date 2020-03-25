@@ -163,21 +163,21 @@ function fitContent(table) {
   }
 }
 
-function distributeWidth(autoColumns, availableSpace, wrappedAutoColumnsWidth) {
-  let diffWidth = availableSpace - wrappedAutoColumnsWidth
+function distributeWidth(autoColumns, availableSpace, optimalTableWidth) {
+  let diffWidth = availableSpace - optimalTableWidth
 
   for (const [i, column] of entries(autoColumns)) {
-    let ratio = column.wrappedWidth / wrappedAutoColumnsWidth
+    let ratio = column.wrappedWidth / optimalTableWidth
     let suggestedChange = diffWidth * ratio
     let suggestedWidth = column.wrappedWidth + suggestedChange
 
     if (suggestedWidth < column.minWidth || column.hasCustomWidth()) {
       // Add 1 to minWidth as linebreaks calc otherwise sometimes made two rows
       column.width = column.minWidth + 1 / state().scaleFactor()
-      wrappedAutoColumnsWidth -= column.wrappedWidth
+      optimalTableWidth -= column.wrappedWidth
       availableSpace -= column.width
       autoColumns.splice(i, 1)
-      distributeWidth(autoColumns, availableSpace, wrappedAutoColumnsWidth)
+      distributeWidth(autoColumns, availableSpace, optimalTableWidth)
       break
     }
 
