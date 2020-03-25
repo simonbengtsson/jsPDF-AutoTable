@@ -1,7 +1,6 @@
-import { ellipsize, applyStyles } from './common'
+import { ellipsize, applyStyles, entries } from './common'
 import { Table, Cell } from './models'
 import state from './state'
-const entries = require('object.entries')
 
 /**
  * Calculate the column widths
