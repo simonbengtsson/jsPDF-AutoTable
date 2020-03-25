@@ -218,4 +218,14 @@ export class Column {
     this.raw = raw
     this.index = index
   }
+
+  hasCustomWidth() {
+    for (const row of state().table.allRows()) {
+      const cell: Cell = row.cells[this.index]
+      if (cell && typeof cell.styles.cellWidth === 'number') {
+        return true
+      }
+    }
+    return false
+  }
 }

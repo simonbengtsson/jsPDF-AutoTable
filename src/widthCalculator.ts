@@ -172,16 +172,7 @@ function distributeWidth(autoColumns, availableSpace, wrappedAutoColumnsWidth) {
     let suggestedChange = diffWidth * ratio
     let suggestedWidth = column.wrappedWidth + suggestedChange
 
-    let hasCustomWidth = false
-    for (const row of state().table.allRows()) {
-      const cell: Cell = row.cells[column.index]
-      if (cell && typeof cell.styles.cellWidth === 'number') {
-        hasCustomWidth = true
-        break
-      }
-    }
-
-    if (suggestedWidth < column.minWidth || hasCustomWidth) {
+    if (suggestedWidth < column.minWidth || column.hasCustomWidth()) {
       // Add 1 to minWidth as linebreaks calc otherwise sometimes made two rows
       column.width = column.minWidth + 1 / state().scaleFactor()
       wrappedAutoColumnsWidth -= column.wrappedWidth
