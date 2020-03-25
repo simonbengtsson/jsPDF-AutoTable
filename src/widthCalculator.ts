@@ -1,7 +1,7 @@
-import { FONT_ROW_RATIO, getTheme } from './config'
 import { ellipsize, applyStyles } from './common'
 import { Table, Cell } from './models'
 import state from './state'
+const entries = require('object.entries')
 
 /**
  * Calculate the column widths
@@ -166,8 +166,7 @@ function fitContent(table) {
 function distributeWidth(autoColumns, availableSpace, wrappedAutoColumnsWidth) {
   let diffWidth = availableSpace - wrappedAutoColumnsWidth
 
-  for (let i = 0; i < autoColumns.length; i++) {
-    let column = autoColumns[i]
+  for (const [i, column] of entries(autoColumns)) {
     let ratio = column.wrappedWidth / wrappedAutoColumnsWidth
     let suggestedChange = diffWidth * ratio
     let suggestedWidth = column.wrappedWidth + suggestedChange
