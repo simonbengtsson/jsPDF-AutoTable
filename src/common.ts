@@ -161,3 +161,16 @@ export function styles(styles) {
   styles = Array.isArray(styles) ? styles : [styles]
   return assign(defaultStyles(), ...styles)
 }
+
+// core-js etc increases jspdf-autotable bundle size by 50%
+// even though only the Object.entries method is imported
+// Until better solution we can use this polyfill:
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/entries#Polyfill
+export function entries(obj) {
+  var ownProps = Object.keys(obj),
+    i = ownProps.length,
+    resArray = new Array(i)
+  while (i--) resArray[i] = [ownProps[i], obj[ownProps[i]]]
+
+  return resArray
+}
