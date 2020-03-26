@@ -210,6 +210,7 @@ export class Column {
 
   preferredWidth = 0
   minWidth = 0
+  longestWordWidth = 0
   wrappedWidth = 0
   width = 0
 

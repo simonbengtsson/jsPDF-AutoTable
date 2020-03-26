@@ -187,10 +187,17 @@ function parseContent(table) {
 
   table.allRows().forEach((row) => {
     for (let column of table.columns) {
-      let cell = row.cells[column.index]
+      const cell = row.cells[column.index]
       if (!cell) continue
       table.callCellHooks(table.cellHooks.didParseCell, cell, row, column)
 
+      const text = cell.text.join(' ')
+      const wordWidths = `${text}`
+        .trim()
+        .split(/\s+/)
+        .map((word) => getStringWidth(word, cell.styles))
+      wordWidths.sort()
+      cell.longestWordWidth = wordWidths[wordWidths.length - 1]
       cell.contentWidth =
         cell.padding('horizontal') + getStringWidth(cell.text, cell.styles)
       if (typeof cell.styles.cellWidth === 'number') {
@@ -218,12 +225,12 @@ function parseContent(table) {
       // For now we ignore the minWidth and wrappedWidth of colspan cells when calculating colspan widths.
       // Could probably be improved upon however.
       if (cell && cell.colSpan === 1) {
-        if (cell.wrappedWidth > column.wrappedWidth) {
-          column.wrappedWidth = cell.wrappedWidth
-        }
-        if (cell.minWidth > column.minWidth) {
-          column.minWidth = cell.minWidth
-        }
+        column.wrappedWidth = Math.max(column.wrappedWidth, cell.wrappedWidth)
+        column.minWidth = Math.max(column.minWidth, cell.minWidth)
+        column.longestWordWidth = Math.max(
+          column.longestWordWidth,
+          cell.longestWordWidth
+        )
       } else {
         // Respect cellWidth set in columnStyles even if there is no cells for this column
         // or of it the column only have colspan cells. Since the width of colspan cells

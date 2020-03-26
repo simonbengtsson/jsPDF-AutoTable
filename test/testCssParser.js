@@ -51,7 +51,6 @@ describe('css parser', function () {
 
     let pxScaleFactor = 96 / 72
     let styles = parseCss({}, 1)
-    console.log(styles)
     assert(styles, 'Should have result')
     assert(!styles.lineColor, 'Transparent color')
     assert(styles.fillColor, 'Parse color')
