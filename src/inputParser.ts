@@ -190,6 +190,7 @@ function parseContent(table) {
       const cell = row.cells[column.index]
       if (!cell) continue
       table.callCellHooks(table.cellHooks.didParseCell, cell, row, column)
+      cell.text = Array.isArray(cell.text) ? cell.text : [cell.text]
 
       const text = cell.text.join(' ')
       const wordWidths = `${text}`
