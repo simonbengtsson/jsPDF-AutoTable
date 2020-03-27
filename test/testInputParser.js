@@ -43,7 +43,7 @@ describe('input parser', function () {
     assert(table.head[0].cells[0].minWidth > 0)
   })
 
-  it.only('longest word', function () {
+  it('longest word', function () {
     let table = parseInput([
       {
         head: [['aaaa', 'aa', 'aaa']],
@@ -56,7 +56,7 @@ describe('input parser', function () {
     assert(cols[1].longestWordWidth < cols[2].longestWordWidth)
   })
 
-  it.only('has sentence', function () {
+  it('has sentence', function () {
     let table = parseInput([
       {
         head: [['a a a', ' aa ', 'aaa', ' a \n a ']],
