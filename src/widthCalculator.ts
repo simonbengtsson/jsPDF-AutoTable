@@ -1,21 +1,36 @@
 import { ellipsize, applyStyles, entries } from './common'
-import { Table, Cell } from './models'
+import { Table, Cell, Column } from './models'
 import state from './state'
+import { resizeColumns, resizeSentencesColumns } from './columnResizer'
 
 /**
  * Calculate the column widths
  */
 export function calculateWidths(table: Table) {
-  let columnMinWidth = 10 / state().scaleFactor()
-  if (columnMinWidth * table.columns.length > table.width) {
-    console.error('Columns could not fit on page')
-  } else if (table.minWidth > table.width) {
-    // Would be nice to improve the user experience of this
-    console.error("Column widths too wide and can't fit page")
+  let columns: Column[] = table.columns.slice(0)
+  for (const [i, column] of entries(columns)) {
+    const width = column.getMaxCustomCellWidth()
+    if (width) {
+      column.width = width
+      columns.splice(i, 1)
+    }
   }
+  let resizeWidth = table.width - table.wrappedWidth
+  const shouldShrink = resizeWidth < 0
+  if (shouldShrink) {
+    const sentencesColumns = columns.filter((column) => column.hasSentence)
+    resizeWidth = resizeSentencesColumns(sentencesColumns, resizeWidth)
+  }
+  resizeWidth = resizeColumns(columns, resizeWidth)
 
-  let copy = table.columns.slice(0)
-  distributeWidth(copy, table.width, table.wrappedWidth)
+  if (Math.abs(resizeWidth) > 1e-10) {
+    // We can't really do anything here. Up to user to for example
+    // reduce font size, increase page size or remove custom cell widths
+    // to allow more columns to be reduced in size
+    console.error(
+      `Of the table content ${Math.round(resizeWidth)} could not fit page`
+    )
+  }
 
   applyColSpans(table)
   fitContent(table)
@@ -159,27 +174,5 @@ function fitContent(table) {
       }
     }
     rowSpanHeight.count--
-  }
-}
-
-function distributeWidth(autoColumns, availableSpace, optimalTableWidth) {
-  let diffWidth = availableSpace - optimalTableWidth
-
-  for (const [i, column] of entries(autoColumns)) {
-    let ratio = column.wrappedWidth / optimalTableWidth
-    let suggestedChange = diffWidth * ratio
-    let suggestedWidth = column.wrappedWidth + suggestedChange
-
-    if (suggestedWidth < column.minWidth || column.hasCustomWidth()) {
-      // Add 1 to minWidth as linebreaks calc otherwise sometimes made two rows
-      column.width = column.minWidth + 1 / state().scaleFactor()
-      optimalTableWidth -= column.wrappedWidth
-      availableSpace -= column.width
-      autoColumns.splice(i, 1)
-      distributeWidth(autoColumns, availableSpace, optimalTableWidth)
-      break
-    }
-
-    column.width = suggestedWidth
   }
 }
