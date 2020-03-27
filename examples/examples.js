@@ -87,7 +87,7 @@ examples.long = function () {
     // Default for all columns
     styles: { overflow: 'ellipsize', cellWidth: 'wrap' },
     // Override the default above for the text column
-    columnStyles: { text: { cellWidth: 'auto' } },
+    columnStyles: { text: { cellWidth: 'auto' }, id: { cellWidth: 10 } },
   })
   doc.text(
     "Overflow 'linebreak' (default) with one column with long content",
