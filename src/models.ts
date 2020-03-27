@@ -3,7 +3,6 @@ import state from './state'
 import { CellHookData, HookData } from './HookData'
 import {
   applyUserStyles,
-  getStringWidth,
   marginOrPadding,
   styles,
 } from './common'
@@ -151,6 +150,8 @@ export class Cell {
 
   contentHeight = 0
   contentWidth = 0
+  longestWordWidth = 0
+  hasSentence = false
   wrappedWidth = 0
   minWidth = 0
   textPos = {}
@@ -211,6 +212,7 @@ export class Column {
   preferredWidth = 0
   minWidth = 0
   longestWordWidth = 0
+  hasSentence = false
   wrappedWidth = 0
   width = 0
 

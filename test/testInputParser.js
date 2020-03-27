@@ -56,6 +56,21 @@ describe('input parser', function () {
     assert(cols[1].longestWordWidth < cols[2].longestWordWidth)
   })
 
+  it.only('has sentence', function () {
+    let table = parseInput([
+      {
+        head: [['a a a', ' aa ', 'aaa', ' a \n a ']],
+      },
+    ])
+    const cols = table.columns
+    assert(table.head[0].cells[0].hasSentence)
+    assert(!table.head[0].cells[1].hasSentence)
+    assert(!table.head[0].cells[2].hasSentence)
+    assert(!table.head[0].cells[3].hasSentence)
+    assert(cols[0].hasSentence)
+    assert(!cols[1].hasSentence)
+  })
+
   it('object input', function () {
     let table = parseInput([
       {
