@@ -222,14 +222,13 @@ export class Column {
     this.index = index
   }
 
-  getMaxCustomCellWidth() {
-    let max = 0
+  hasCustomWidth() {
     for (const row of state().table.allRows()) {
       const cell: Cell = row.cells[this.index]
       if (cell && typeof cell.styles.cellWidth === 'number') {
-        max = Math.max(max, cell.styles.cellWidth)
+        return true
       }
     }
-    return max
+    return false
   }
 }
