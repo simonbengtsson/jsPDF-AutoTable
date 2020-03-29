@@ -198,11 +198,7 @@ function parseContent(table) {
         .split(/\s+/)
         .map((word) => getStringWidth(word, cell.styles))
       wordWidths.sort()
-      cell.longestWordWidth = wordWidths[wordWidths.length - 1]
-      cell.hasSentence = cell.text.reduce(
-        (prev, text) => `${text}`.trim().indexOf(' ') > 0,
-        false
-      )
+      cell.longestWordWidth = wordWidths[wordWidths.length - 1] + cell.padding('horizontal')
       cell.contentWidth =
         cell.padding('horizontal') + getStringWidth(cell.text, cell.styles)
       if (typeof cell.styles.cellWidth === 'number') {
@@ -232,7 +228,6 @@ function parseContent(table) {
       if (cell && cell.colSpan === 1) {
         column.wrappedWidth = Math.max(column.wrappedWidth, cell.wrappedWidth)
         column.minWidth = Math.max(column.minWidth, cell.minWidth)
-        column.hasSentence = column.hasSentence || cell.hasSentence
         column.longestWordWidth = Math.max(
           column.longestWordWidth,
           cell.longestWordWidth
