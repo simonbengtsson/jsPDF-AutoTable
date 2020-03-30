@@ -192,15 +192,15 @@ function parseContent(table) {
       table.callCellHooks(table.cellHooks.didParseCell, cell, row, column)
       cell.text = Array.isArray(cell.text) ? cell.text : [cell.text]
 
-      const text = cell.text.join(' ')
-      const wordWidths = `${text}`
-        .trim()
-        .split(/\s+/)
-        .map((word) => getStringWidth(word, cell.styles))
-      wordWidths.sort()
-      cell.longestWordWidth = wordWidths[wordWidths.length - 1] + cell.padding('horizontal')
       cell.contentWidth =
-        cell.padding('horizontal') + getStringWidth(cell.text, cell.styles)
+        getStringWidth(cell.text, cell.styles) + cell.padding('horizontal')
+
+      const longestWordWidth = getStringWidth(
+        cell.text.join(' ').split(/\s+/),
+        cell.styles
+      )
+      cell.minReadableWidth = longestWordWidth + cell.padding('horizontal')
+
       if (typeof cell.styles.cellWidth === 'number') {
         cell.minWidth = cell.styles.cellWidth
         cell.wrappedWidth = cell.styles.cellWidth
@@ -228,9 +228,9 @@ function parseContent(table) {
       if (cell && cell.colSpan === 1) {
         column.wrappedWidth = Math.max(column.wrappedWidth, cell.wrappedWidth)
         column.minWidth = Math.max(column.minWidth, cell.minWidth)
-        column.longestWordWidth = Math.max(
-          column.longestWordWidth,
-          cell.longestWordWidth
+        column.minReadableWidth = Math.max(
+          column.minReadableWidth,
+          cell.minReadableWidth
         )
       } else {
         // Respect cellWidth set in columnStyles even if there is no cells for this column

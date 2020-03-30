@@ -150,7 +150,7 @@ export class Cell {
 
   contentHeight = 0
   contentWidth = 0
-  longestWordWidth = 0
+  minReadableWidth = 0
   wrappedWidth = 0
   minWidth = 0
   textPos = {}
@@ -210,7 +210,7 @@ export class Column {
 
   preferredWidth = 0
   minWidth = 0
-  longestWordWidth = 0
+  minReadableWidth = 0
   wrappedWidth = 0
   width = 0
 
