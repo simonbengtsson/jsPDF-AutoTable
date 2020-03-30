@@ -11,8 +11,8 @@ export function resizeSentencesColumns(columns, resizeWidth) {
     let suggestedChange = originalResizeWidth * ratio
     let suggestedWidth = column.wrappedWidth + suggestedChange
 
-    if (suggestedWidth < column.longestWordWidth) {
-      column.width = column.longestWordWidth + 1 / state().scaleFactor()
+    if (suggestedWidth < column.minReadableWidth) {
+      column.width = column.minReadableWidth + 1 / state().scaleFactor()
       columns.splice(i, 1)
       return resizeSentencesColumns(columns, originalResizeWidth)
     }
