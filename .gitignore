@@ -2,3 +2,4 @@
 .idea
 yarn.lock
 node_modules
+local-examples
