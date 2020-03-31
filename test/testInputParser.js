@@ -43,7 +43,7 @@ describe('input parser', function () {
     assert(table.head[0].cells[0].minWidth > 0)
   })
 
-  it('longest word', function () {
+  it('minReadableWidth', function () {
     let table = parseInput([
       {
         head: [['aaaa', 'aa', 'aaa']],
@@ -51,9 +51,9 @@ describe('input parser', function () {
       },
     ])
     const cols = table.columns
-    assert(table.body[0].cells[0].longestWordWidth > 0)
-    assert(cols[0].longestWordWidth > cols[1].longestWordWidth)
-    assert(cols[1].longestWordWidth < cols[2].longestWordWidth)
+    assert(table.body[0].cells[0].minReadableWidth > 0)
+    assert(cols[0].minReadableWidth > cols[1].minReadableWidth)
+    assert(cols[1].minReadableWidth < cols[2].minReadableWidth)
   })
 
   it('object input', function () {
