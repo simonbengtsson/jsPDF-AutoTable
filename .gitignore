@@ -2,4 +2,5 @@
 .idea
 yarn.lock
 node_modules
-local-examples
+examples/local/*
+!examples/local/basic.html
