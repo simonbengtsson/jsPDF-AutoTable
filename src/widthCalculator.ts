@@ -45,9 +45,8 @@ export function calculateWidths(table: Table) {
     // We can't really do anything here. Up to user to for example
     // reduce font size, increase page size or remove custom cell widths
     // to allow more columns to be reduced in size
-    console.error(
-      `Of the table content, (${Math.round(Math.abs(resizeWidth))}) width could not fit page`
-    )
+    const width = Math.round(Math.abs(resizeWidth))
+    console.error(`Of the table content, (${width}) width could not fit page`)
   }
 
   applyColSpans(table)
