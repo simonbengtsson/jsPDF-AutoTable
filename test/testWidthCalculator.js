@@ -3,7 +3,7 @@
 
 const assert = require('assert')
 const state = require('../src/state')
-const { resizeSentencesColumns, resizeColumns } = require('../src/columnResizer')
+const { resizeColumns } = require('../src/widthCalculator')
 const { Column } = require('../src/models')
 
 describe('column resizer', () => {
@@ -26,50 +26,87 @@ describe('column resizer', () => {
     state.resetState()
   })
 
-  describe('sentence columns resizer', () => {
-    it('one columns', () => {
+  describe('columns resizer', () => {
+    it('shrink: one column - no min', () => {
       const one = new Column('one', 'one', 0)
+      one.width = 700
       one.wrappedWidth = 700
-      one.longestWordWidth = 100
-      const resizeWidth = resizeSentencesColumns([one], -500)
-      assert.equal(one.width, 200)
-      assert.equal(resizeWidth, 0)
+      const resizeWidth = resizeColumns([one], -700, () => 0)
+      assert.equal(one.width, 0, 'width')
+      assert.equal(resizeWidth, 0, 'resizeWidth')
     })
 
-    it('two columns', () => {
+    it('shrink: one column - min', () => {
       const one = new Column('one', 'one', 0)
-      one.wrappedWidth = 1200
-      one.longestWordWidth = 100
-      const two = new Column('two', 'two', 1)
-      two.wrappedWidth = 300
-      two.longestWordWidth = 100
-      const resizeWidth = resizeSentencesColumns([one, two], -500)
-      assert.equal(resizeWidth, 0)
-      assert.equal(one.width + two.width, 1200 + 300 - 500)
-    })
-
-    it('long one word', () => {
-      const one = new Column('one', 'one', 0)
-      one.wrappedWidth = 1200
-      one.longestWordWidth = 100
-      const two = new Column('two', 'two', 1)
-      two.wrappedWidth = 300
-      two.longestWordWidth = 300
-      const width = resizeSentencesColumns([one, two], -500)
-      assert.equal(width, 0)
-      assert.equal(one.width + two.width, 300 + 1200 - 500)
-      assert(two.width >= 300, `${two.width}`)
-    })
-  })
-
-  describe('word columns resizer', () => {
-    it('one columns', () => {
-      const one = new Column('one', 'one', 0)
+      one.width = 700
       one.wrappedWidth = 700
-      one.minWidth = 100
-      const resizeWidth = resizeColumns([one], -500)
-      assert.equal(one.width, 200)
-      assert.equal(resizeWidth, 0)
+      one.minWidth = 200
+      const resizeWidth = resizeColumns([one], -600, (col) => col.minWidth)
+      assert.equal(one.width, 200, 'width')
+      assert.equal(resizeWidth, -100, 'resizeWidth')
+    })
+
+    it('shrink: two columns - no min', () => {
+      const one = new Column('one', 'one', 0)
+      const w1 = 1200, w2 = 400, r = -500
+      one.width = w1
+      one.wrappedWidth = w1
+      const two = new Column('two', 'two', 1)
+      two.width = w2
+      two.wrappedWidth = w2
+      const resizeWidth = resizeColumns([one, two], r, () => 0)
+      assert.equal(one.width, w1 + (r * (w1 / (w1 + w2))), 'width one')
+      assert.equal(two.width, w2 + (r * (w2 / (w1 + w2))), 'width two')
+      assert.equal(resizeWidth, 0, 'resizeWidth')
+    })
+
+    it('shrink: two columns - min', () => {
+      const one = new Column('one', 'one', 0)
+      const w1 = 1200, w2 = 400, r = -500
+      one.width = w1
+      one.wrappedWidth = w1
+      one.minWidth = 900
+      const two = new Column('two', 'two', 1)
+      two.width = w2
+      two.wrappedWidth = w2
+      two.minWidth = 100
+      const resizeWidth = resizeColumns([one, two], r, (col) => col.minWidth)
+      assert.equal(one.width, 900, 'width one')
+      assert.equal(two.width, 200, 'width two')
+      assert.equal(resizeWidth, 0, 'resizeWidth')
+    })
+
+    it('grow: two columns - no min', () => {
+      const one = new Column('one', 'one', 0)
+      const w1 = 50, w2 = 60, w3 = 70, r = 1000
+      one.width = w1
+      one.wrappedWidth = w1
+      const two = new Column('two', 'two', 1)
+      two.width = w2
+      two.wrappedWidth = w2
+      const resizeWidth = resizeColumns([one, two], r, () => 0)
+      assert.equal(one.width, w1 + (r * (w1 / (w1 + w2))), 'width three')
+      assert.equal(two.width, w2 + (r * (w2 / (w1 + w2))), 'width two')
+      assert.equal(resizeWidth, 0, 'resizeWidth')
+    })
+
+    it('grow: three columns - one min', () => {
+      const one = new Column('one', 'one', 0)
+      const w1 = 50, w2 = 60, w3 = 70, r = 1000
+      one.width = w1
+      one.wrappedWidth = w1
+      one.minWidth = 500
+      const two = new Column('two', 'two', 1)
+      two.width = w2
+      two.wrappedWidth = w2
+      const three = new Column('three', 'three', 1)
+      three.width = w3
+      three.wrappedWidth = w3
+      const resizeWidth = resizeColumns([one, two, three], r, (col) => col.minWidth)
+      assert.equal(one.width, 500, 'width one')
+      assert.equal(two.width, w2 + ((r - one.minWidth + w1) * (w2 / (w2 + w3))), 'width two')
+      assert.equal(three.width, w3 + ((r - one.minWidth + w1) * (w3 / (w2 + w3))), 'width three')
+      assert.equal(resizeWidth, 0, 'resizeWidth')
     })
   })
 })

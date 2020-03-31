@@ -1,39 +1,94 @@
-import { ellipsize, applyStyles, entries } from './common'
+import { ellipsize, applyStyles } from './common'
 import { Table, Cell, Column } from './models'
 import state from './state'
-import { resizeColumns, resizeSentencesColumns } from './columnResizer'
 
 /**
  * Calculate the column widths
  */
 export function calculateWidths(table: Table) {
-  let columns: Column[] = table.columns.slice(0)
-  for (const [i, column] of entries(columns)) {
-    const width = column.getMaxCustomCellWidth()
-    if (width) {
-      column.width = width
-      columns.splice(i, 1)
+  let resizableColumns: Column[] = []
+  let initialTableWidth = 0
+  table.columns.forEach((column) => {
+    const customWidth = column.getMaxCustomCellWidth()
+    if (customWidth) {
+      // final column width
+      column.width = customWidth
+    } else {
+      // initial column width (will be resized)
+      column.width = column.wrappedWidth
+      resizableColumns.push(column)
     }
+    initialTableWidth += column.width
+  })
+  let resizeWidth = table.width - initialTableWidth
+
+  if (resizeWidth) {
+    // first resize attempt : with respect to minReadableWidth and minWidth
+    resizeWidth = resizeColumns(
+      resizableColumns.slice(),
+      resizeWidth,
+      (column) => Math.max(column.minReadableWidth, column.minWidth)
+    )
   }
-  let resizeWidth = table.width - table.wrappedWidth
-  const shouldShrink = resizeWidth < 0
-  if (shouldShrink) {
-    resizeWidth = resizeSentencesColumns(columns.slice(0), resizeWidth)
+
+  if (resizeWidth) {
+    // second resize attempt : ignore minReadableWidth but respect minWidth
+    resizeWidth = resizeColumns(
+      resizableColumns.slice(),
+      resizeWidth,
+      (column) => column.minWidth
+    )
   }
-  resizeWidth = resizeColumns(columns, resizeWidth)
 
   if (Math.abs(resizeWidth) > 1e-10) {
+    // Table can't get any smaller due to custom-width or minWidth restrictions
     // We can't really do anything here. Up to user to for example
     // reduce font size, increase page size or remove custom cell widths
     // to allow more columns to be reduced in size
     console.error(
-      `Of the table content ${Math.round(resizeWidth)} could not fit page`
+      `Of the table content, (${Math.round(Math.abs(resizeWidth))}) width could not fit page`
     )
   }
 
   applyColSpans(table)
   fitContent(table)
   applyRowSpans(table)
+}
+
+/**
+ * Distribute resizeWidth on passed resizable columns
+ */
+export function resizeColumns(
+  columns: Column[],
+  resizeWidth: number,
+  getMinWidth: (column: Column) => number
+) {
+  const originalResizeWidth = resizeWidth
+  const sumWrappedWidth = columns.reduce(
+    (acc, column) => acc + column.wrappedWidth,
+    0
+  )
+
+  for (let i = 0; i < columns.length; i++) {
+    const column = columns[i]
+    const ratio = column.wrappedWidth / sumWrappedWidth
+    const suggestedChange = originalResizeWidth * ratio
+    const suggestedWidth = column.width + suggestedChange
+    const minWidth = getMinWidth(column)
+
+    if (suggestedWidth < minWidth) {
+      resizeWidth -= minWidth - column.width
+      column.width = minWidth
+      // Keep removing columns that reached its size limit and
+      // run the resizing again on the rest of the columns
+      columns.splice(i, 1)
+      return resizeColumns(columns, resizeWidth, getMinWidth)
+    }
+
+    column.width = suggestedWidth
+    resizeWidth -= suggestedChange
+  }
+  return Math.round(resizeWidth * 1e10) / 1e10
 }
 
 function applyRowSpans(table) {
