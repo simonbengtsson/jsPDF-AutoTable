@@ -258,7 +258,6 @@ function parseContent(table) {
         if (cell.colSpan > 1 && !column.wrappedWidth) {
           column.wrappedWidth = cell.minWidth
         }
-        table.callCellHooks(table.cellHooks.didParseCell, cell, row, column)
       }
     }
   })
