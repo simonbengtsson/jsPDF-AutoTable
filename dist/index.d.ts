@@ -59,6 +59,7 @@ declare class Row {
 	y: number;
 	spansMultiplePages: boolean;
 	constructor(raw: any, index: any, section: any);
+	hasRowSpan(): boolean;
 	canEntireRowFit(height: any): boolean;
 	getMinimumRowHeight(): any;
 }
@@ -69,6 +70,7 @@ declare class Cell {
 	section: 'head' | 'body' | 'foot';
 	contentHeight: number;
 	contentWidth: number;
+	longestWordWidth: number;
 	wrappedWidth: number;
 	minWidth: number;
 	textPos: {};
@@ -88,9 +90,11 @@ declare class Column {
 	index: number;
 	preferredWidth: number;
 	minWidth: number;
+	longestWordWidth: number;
 	wrappedWidth: number;
 	width: number;
 	constructor(dataKey: any, raw: any, index: any);
+	hasCustomWidth(): boolean;
 }
 declare class HookData {
 	table: Table;

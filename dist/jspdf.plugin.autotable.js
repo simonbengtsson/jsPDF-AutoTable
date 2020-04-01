@@ -1,6 +1,6 @@
 /*!
  * 
- *             jsPDF AutoTable plugin v3.3.1
+ *             jsPDF AutoTable plugin v3.3.2
  *             
  *             Copyright (c) 2014 Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable
  *             Licensed under the MIT License.
@@ -362,6 +362,17 @@ function styles(styles) {
     return polyfills_1.assign.apply(void 0, __spreadArrays([config_1.defaultStyles()], styles));
 }
 exports.styles = styles;
+// core-js etc increases jspdf-autotable bundle size by 50%
+// even though only the Object.entries method is imported
+// Until better solution we can use this polyfill:
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/entries#Polyfill
+function entries(obj) {
+    var ownProps = Object.keys(obj), i = ownProps.length, resArray = new Array(i);
+    while (i--)
+        resArray[i] = [ownProps[i], obj[ownProps[i]]];
+    return resArray;
+}
+exports.entries = entries;
 
 
 /***/ }),
@@ -757,6 +768,15 @@ var Row = /** @class */ (function () {
         this.index = index;
         this.section = section;
     }
+    Row.prototype.hasRowSpan = function () {
+        var _this = this;
+        return state_1.default().table.columns.filter(function (column) {
+            var cell = _this.cells[column.index];
+            if (!cell)
+                return false;
+            return cell.rowSpan > 1;
+        }).length > 0;
+    };
     Row.prototype.canEntireRowFit = function (height) {
         return this.maxCellHeight <= height;
     };
@@ -779,6 +799,7 @@ var Cell = /** @class */ (function () {
     function Cell(raw, themeStyles, section) {
         this.contentHeight = 0;
         this.contentWidth = 0;
+        this.longestWordWidth = 0;
         this.wrappedWidth = 0;
         this.minWidth = 0;
         this.textPos = {};
@@ -821,12 +842,23 @@ var Column = /** @class */ (function () {
     function Column(dataKey, raw, index) {
         this.preferredWidth = 0;
         this.minWidth = 0;
+        this.longestWordWidth = 0;
         this.wrappedWidth = 0;
         this.width = 0;
         this.dataKey = dataKey;
         this.raw = raw;
         this.index = index;
     }
+    Column.prototype.hasCustomWidth = function () {
+        for (var _i = 0, _a = state_1.default().table.allRows(); _i < _a.length; _i++) {
+            var row = _a[_i];
+            var cell = row.cells[this.index];
+            if (cell && typeof cell.styles.cellWidth === 'number') {
+                return true;
+            }
+        }
+        return false;
+    };
     return Column;
 }());
 exports.Column = Column;
@@ -937,10 +969,15 @@ module.exports = shouldUseNative() ? Object.assign : function (target, source) {
 
 Object.defineProperty(exports, "__esModule", { value: true });
 var applyPlugin_1 = __webpack_require__(9);
-exports.applyPlugin = applyPlugin_1.default;
+// export { applyPlugin } didn't export applyPlugin
+// to index.d.ts for some reason
+function applyPlugin(jsPDF) {
+    applyPlugin_1.default(jsPDF);
+}
+exports.applyPlugin = applyPlugin;
 try {
     var jsPDF = __webpack_require__(17);
-    applyPlugin_1.default(jsPDF);
+    applyPlugin(jsPDF);
 }
 catch (error) {
     // Importing jspdf in nodejs environments does not work as of jspdf
@@ -1347,12 +1384,19 @@ function parseContent(table) {
         _loop_2(sectionName);
     }
     table.allRows().forEach(function (row) {
-        for (var _i = 0, _a = table.columns; _i < _a.length; _i++) {
-            var column = _a[_i];
+        var _loop_3 = function (column) {
             var cell = row.cells[column.index];
             if (!cell)
-                continue;
+                return "continue";
             table.callCellHooks(table.cellHooks.didParseCell, cell, row, column);
+            cell.text = Array.isArray(cell.text) ? cell.text : [cell.text];
+            var text = cell.text.join(' ');
+            var wordWidths = ("" + text)
+                .trim()
+                .split(/\s+/)
+                .map(function (word) { return common_1.getStringWidth(word, cell.styles); });
+            wordWidths.sort();
+            cell.longestWordWidth = wordWidths[wordWidths.length - 1] + cell.padding('horizontal');
             cell.contentWidth =
                 cell.padding('horizontal') + common_1.getStringWidth(cell.text, cell.styles);
             if (typeof cell.styles.cellWidth === 'number') {
@@ -1372,6 +1416,10 @@ function parseContent(table) {
                     cell.wrappedWidth = cell.minWidth;
                 }
             }
+        };
+        for (var _i = 0, _a = table.columns; _i < _a.length; _i++) {
+            var column = _a[_i];
+            _loop_3(column);
         }
     });
     table.allRows().forEach(function (row) {
@@ -1381,12 +1429,9 @@ function parseContent(table) {
             // For now we ignore the minWidth and wrappedWidth of colspan cells when calculating colspan widths.
             // Could probably be improved upon however.
             if (cell && cell.colSpan === 1) {
-                if (cell.wrappedWidth > column.wrappedWidth) {
-                    column.wrappedWidth = cell.wrappedWidth;
-                }
-                if (cell.minWidth > column.minWidth) {
-                    column.minWidth = cell.minWidth;
-                }
+                column.wrappedWidth = Math.max(column.wrappedWidth, cell.wrappedWidth);
+                column.minWidth = Math.max(column.minWidth, cell.minWidth);
+                column.longestWordWidth = Math.max(column.longestWordWidth, cell.longestWordWidth);
             }
             else {
                 // Respect cellWidth set in columnStyles even if there is no cells for this column
@@ -1816,29 +1861,20 @@ function fitContent(table) {
         rowSpanHeight.count--;
     }
 }
-function distributeWidth(autoColumns, availableSpace, wrappedAutoColumnsWidth) {
-    var diffWidth = availableSpace - wrappedAutoColumnsWidth;
-    for (var i = 0; i < autoColumns.length; i++) {
-        var column = autoColumns[i];
-        var ratio = column.wrappedWidth / wrappedAutoColumnsWidth;
+function distributeWidth(autoColumns, availableSpace, optimalTableWidth) {
+    var diffWidth = availableSpace - optimalTableWidth;
+    for (var _i = 0, _a = common_1.entries(autoColumns); _i < _a.length; _i++) {
+        var _b = _a[_i], i = _b[0], column = _b[1];
+        var ratio = column.wrappedWidth / optimalTableWidth;
         var suggestedChange = diffWidth * ratio;
         var suggestedWidth = column.wrappedWidth + suggestedChange;
-        var hasCustomWidth = false;
-        for (var _i = 0, _a = state_1.default().table.allRows(); _i < _a.length; _i++) {
-            var row = _a[_i];
-            var cell = row.cells[column.index];
-            if (cell && typeof cell.styles.cellWidth === 'number') {
-                hasCustomWidth = true;
-                break;
-            }
-        }
-        if (suggestedWidth < column.minWidth || hasCustomWidth) {
+        if (suggestedWidth < column.minWidth || column.hasCustomWidth()) {
             // Add 1 to minWidth as linebreaks calc otherwise sometimes made two rows
             column.width = column.minWidth + 1 / state_1.default().scaleFactor();
-            wrappedAutoColumnsWidth -= column.wrappedWidth;
+            optimalTableWidth -= column.wrappedWidth;
             availableSpace -= column.width;
             autoColumns.splice(i, 1);
-            distributeWidth(autoColumns, availableSpace, wrappedAutoColumnsWidth);
+            distributeWidth(autoColumns, availableSpace, optimalTableWidth);
             break;
         }
         column.width = suggestedWidth;
@@ -1957,23 +1993,23 @@ function modifyRowToFit(row, remainingPageSpace, table) {
 }
 function shouldPrintOnCurrentPage(row, remainingPageSpace, table) {
     var pageHeight = state_1.default().pageHeight();
-    var marginHeight = table.margin('top') - table.margin('bottom');
-    var maxTableHeight = pageHeight - marginHeight;
+    var marginHeight = table.margin('top') + table.margin('bottom');
+    var maxRowHeight = pageHeight - marginHeight;
+    if (row.section === 'body') {
+        // Should also take into account that head and foot is not
+        // on every page with some settings
+        maxRowHeight -= table.headHeight + table.footHeight;
+    }
     var minRowFits = row.getMinimumRowHeight() < remainingPageSpace;
-    if (row.getMinimumRowHeight() > maxTableHeight) {
+    if (row.getMinimumRowHeight() > maxRowHeight) {
         console.error("Will not be able to print row " + row.index + " correctly since it's minimum height is larger than page height");
         return true;
     }
-    var rowHasRowSpanCell = table.columns.filter(function (column) {
-        var cell = row.cells[column.index];
-        if (!cell)
-            return false;
-        return cell.rowSpan > 1;
-    }).length > 0;
+    var rowHasRowSpanCell = row.hasRowSpan();
     if (!minRowFits) {
         return false;
     }
-    var rowHigherThanPage = row.maxCellHeight > maxTableHeight;
+    var rowHigherThanPage = row.maxCellHeight > maxRowHeight;
     if (rowHigherThanPage) {
         if (rowHasRowSpanCell) {
             console.error("The content of row " + row.index + " will not be drawn correctly since drawing rows with a height larger than the page height and has cells with rowspans is not supported.");
