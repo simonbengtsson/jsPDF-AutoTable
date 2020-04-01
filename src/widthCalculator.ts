@@ -23,18 +23,16 @@ export function calculateWidths(table: Table) {
   let resizeWidth = table.width - initialTableWidth
 
   if (resizeWidth) {
-    // first resize attempt : with respect to minReadableWidth and minWidth
-    resizeWidth = resizeColumns(
-      resizableColumns.slice(),
-      resizeWidth,
-      (column) => Math.max(column.minReadableWidth, column.minWidth)
+    // first resize attempt: with respect to minReadableWidth and minWidth
+    resizeWidth = resizeColumns(resizableColumns, resizeWidth, (column) =>
+      Math.max(column.minReadableWidth, column.minWidth)
     )
   }
 
   if (resizeWidth) {
-    // second resize attempt : ignore minReadableWidth but respect minWidth
+    // second resize attempt: ignore minReadableWidth but respect minWidth
     resizeWidth = resizeColumns(
-      resizableColumns.slice(),
+      resizableColumns,
       resizeWidth,
       (column) => column.minWidth
     )
@@ -62,7 +60,7 @@ export function resizeColumns(
   resizeWidth: number,
   getMinWidth: (column: Column) => number
 ) {
-  const originalResizeWidth = resizeWidth
+  const initialResizeWidth = resizeWidth
   const sumWrappedWidth = columns.reduce(
     (acc, column) => acc + column.wrappedWidth,
     0
@@ -70,24 +68,35 @@ export function resizeColumns(
 
   for (let i = 0; i < columns.length; i++) {
     const column = columns[i]
+
     const ratio = column.wrappedWidth / sumWrappedWidth
-    const suggestedChange = originalResizeWidth * ratio
+    const suggestedChange = initialResizeWidth * ratio
     const suggestedWidth = column.width + suggestedChange
+
     const minWidth = getMinWidth(column)
+    const newWidth = suggestedWidth < minWidth ? minWidth : suggestedWidth
 
-    if (suggestedWidth < minWidth) {
-      resizeWidth -= minWidth - column.width
-      column.width = minWidth
-      // Keep removing columns that reached its size limit and
-      // run the resizing again on the rest of the columns
-      columns.splice(i, 1)
-      return resizeColumns(columns, resizeWidth, getMinWidth)
-    }
-
-    column.width = suggestedWidth
-    resizeWidth -= suggestedChange
+    resizeWidth -= newWidth - column.width
+    column.width = newWidth
   }
-  return Math.round(resizeWidth * 1e10) / 1e10
+
+  resizeWidth = Math.round(resizeWidth * 1e10) / 1e10
+
+  if (resizeWidth) {
+    const resizableColumns = columns.filter((column) => {
+      return resizeWidth < 0
+        ? column.width > getMinWidth(column) // check if column can shrink
+        : true // check if column can grow
+    })
+
+    // Run the resizer again if there's remaining width needs
+    // to be resized and there're columns that can be resized
+    if (resizableColumns.length) {
+      resizeWidth = resizeColumns(resizableColumns, resizeWidth, getMinWidth)
+    }
+  }
+
+  return resizeWidth
 }
 
 function applyRowSpans(table) {
