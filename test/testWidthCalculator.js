@@ -28,84 +28,115 @@ describe('column resizer', () => {
 
   describe('columns resizer', () => {
     it('shrink: one column - no min', () => {
-      const one = new Column('one', 'one', 0)
-      one.width = 700
-      one.wrappedWidth = 700
-      const resizeWidth = resizeColumns([one], -700, () => 0)
-      assert.equal(one.width, 0, 'width')
+      const col1 = new Column('col1', 'col1', 0)
+      col1.width = 700
+      col1.wrappedWidth = 700
+      const resizeWidth = resizeColumns([col1], -700, () => 0)
+      assert.equal(col1.width, 0, 'width')
       assert.equal(resizeWidth, 0, 'resizeWidth')
     })
 
     it('shrink: one column - min', () => {
-      const one = new Column('one', 'one', 0)
-      one.width = 700
-      one.wrappedWidth = 700
-      one.minWidth = 200
-      const resizeWidth = resizeColumns([one], -600, (col) => col.minWidth)
-      assert.equal(one.width, 200, 'width')
+      const col1 = new Column('col1', 'col1', 0)
+      col1.width = 700
+      col1.wrappedWidth = 700
+      col1.minWidth = 200
+      const resizeWidth = resizeColumns([col1], -600, (col) => col.minWidth)
+      assert.equal(col1.width, 200, 'width')
       assert.equal(resizeWidth, -100, 'resizeWidth')
     })
 
     it('shrink: two columns - no min', () => {
-      const one = new Column('one', 'one', 0)
       const w1 = 1200, w2 = 400, r = -500
-      one.width = w1
-      one.wrappedWidth = w1
-      const two = new Column('two', 'two', 1)
-      two.width = w2
-      two.wrappedWidth = w2
-      const resizeWidth = resizeColumns([one, two], r, () => 0)
-      assert.equal(one.width, w1 + (r * (w1 / (w1 + w2))), 'width one')
-      assert.equal(two.width, w2 + (r * (w2 / (w1 + w2))), 'width two')
+      const col1 = new Column('col1', 'col1', 0)
+      col1.width = w1
+      col1.wrappedWidth = w1
+      const col2 = new Column('col2', 'col2', 1)
+      col2.width = w2
+      col2.wrappedWidth = w2
+      const resizeWidth = resizeColumns([col1, col2], r, () => 0)
+      assert.equal(col1.width, w1 + (r * (w1 / (w1 + w2))), 'col1 width')
+      assert.equal(col2.width, w2 + (r * (w2 / (w1 + w2))), 'col2 width')
       assert.equal(resizeWidth, 0, 'resizeWidth')
     })
 
     it('shrink: two columns - min', () => {
-      const one = new Column('one', 'one', 0)
       const w1 = 1200, w2 = 400, r = -500
-      one.width = w1
-      one.wrappedWidth = w1
-      one.minWidth = 900
-      const two = new Column('two', 'two', 1)
-      two.width = w2
-      two.wrappedWidth = w2
-      two.minWidth = 100
-      const resizeWidth = resizeColumns([one, two], r, (col) => col.minWidth)
-      assert.equal(one.width, 900, 'width one')
-      assert.equal(two.width, 200, 'width two')
+      const col1 = new Column('col1', 'col1', 0)
+      col1.width = w1
+      col1.wrappedWidth = w1
+      col1.minWidth = 900
+      const col2 = new Column('col2', 'col2', 1)
+      col2.width = w2
+      col2.wrappedWidth = w2
+      col2.minWidth = 100
+      const resizeWidth = resizeColumns([col1, col2], r, (col) => col.minWidth)
+      assert.equal(col1.width, 900, 'col1 width')
+      assert.equal(col2.width, 200, 'col2 width')
       assert.equal(resizeWidth, 0, 'resizeWidth')
+    })
+
+    // this case will test if the space distribution is consistent for equal columns (important)
+    it('shrink: consistent distribution', () => {
+      const w1 = 1200, w2 = 400, r = -500
+      const col1 = new Column('col1', 'col1', 0)
+      col1.width = w1
+      col1.wrappedWidth = w1
+      col1.minWidth = 350
+      const col2 = new Column('col2', 'col2', 0)
+      col2.width = w2
+      col2.wrappedWidth = w2
+      col2.minWidth = 350
+      const col3 = new Column('col3', 'col3', 0)
+      col3.width = w1
+      col3.wrappedWidth = w1
+      col3.minWidth = 350
+      const col4 = new Column('col4', 'col4', 0)
+      col4.width = w2
+      col4.wrappedWidth = w2
+      col4.minWidth = 350
+
+      let resizeWidth = resizeColumns([col1, col2, col3, col4], r, (col) => col.minWidth)
+      assert.equal(resizeWidth, 0, 'resizeWidth')
+      assert.equal(col1.width, col3.width, 'col1 = col3')
+      assert.equal(col2.width, col4.width, 'col2 = col4')
+      
+      resizeWidth = resizeColumns([col1, col2, col4, col3], r, (col) => col.minWidth)
+      assert.equal(resizeWidth, 0, 'resizeWidth')
+      assert.equal(col1.width, col3.width, 'col1 = col3')
+      assert.equal(col2.width, col4.width, 'col2 = col4')
     })
 
     it('grow: two columns - no min', () => {
-      const one = new Column('one', 'one', 0)
       const w1 = 50, w2 = 60, w3 = 70, r = 1000
-      one.width = w1
-      one.wrappedWidth = w1
-      const two = new Column('two', 'two', 1)
-      two.width = w2
-      two.wrappedWidth = w2
-      const resizeWidth = resizeColumns([one, two], r, () => 0)
-      assert.equal(one.width, w1 + (r * (w1 / (w1 + w2))), 'width three')
-      assert.equal(two.width, w2 + (r * (w2 / (w1 + w2))), 'width two')
+      const col1 = new Column('col1', 'col1', 0)
+      col1.width = w1
+      col1.wrappedWidth = w1
+      const col2 = new Column('col2', 'col2', 1)
+      col2.width = w2
+      col2.wrappedWidth = w2
+      const resizeWidth = resizeColumns([col1, col2], r, () => 0)
+      assert.equal(Math.round(col1.width), Math.round(w1 + (r * (w1 / (w1 + w2)))), 'col3 width')
+      assert.equal(Math.round(col2.width), Math.round(w2 + (r * (w2 / (w1 + w2)))), 'col2 width')
       assert.equal(resizeWidth, 0, 'resizeWidth')
     })
 
-    it('grow: three columns - one min', () => {
-      const one = new Column('one', 'one', 0)
+    it('grow: three columns - col1 min', () => {
       const w1 = 50, w2 = 60, w3 = 70, r = 1000
-      one.width = w1
-      one.wrappedWidth = w1
-      one.minWidth = 500
-      const two = new Column('two', 'two', 1)
-      two.width = w2
-      two.wrappedWidth = w2
-      const three = new Column('three', 'three', 1)
-      three.width = w3
-      three.wrappedWidth = w3
-      const resizeWidth = resizeColumns([one, two, three], r, (col) => col.minWidth)
-      assert.equal(one.width, 500, 'width one')
-      assert.equal(two.width, w2 + ((r - one.minWidth + w1) * (w2 / (w2 + w3))), 'width two')
-      assert.equal(three.width, w3 + ((r - one.minWidth + w1) * (w3 / (w2 + w3))), 'width three')
+      const col1 = new Column('col1', 'col1', 0)
+      col1.width = w1
+      col1.wrappedWidth = w1
+      col1.minWidth = 500
+      const col2 = new Column('col2', 'col2', 1)
+      col2.width = w2
+      col2.wrappedWidth = w2
+      const col3 = new Column('col3', 'col3', 1)
+      col3.width = w3
+      col3.wrappedWidth = w3
+      const resizeWidth = resizeColumns([col1, col2, col3], r, (col) => col.minWidth)
+      assert.equal(col1.width, 500, 'col1 width')
+      assert.equal(Math.round(col2.width), Math.round(w2 + ((r - col1.minWidth + w1) * (w2 / (w2 + w3)))), 'col2 width')
+      assert.equal(Math.round(col3.width), Math.round(w3 + ((r - col1.minWidth + w1) * (w3 / (w2 + w3)))), 'col3 width')
       assert.equal(resizeWidth, 0, 'resizeWidth')
     })
   })
