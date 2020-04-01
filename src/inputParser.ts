@@ -234,7 +234,7 @@ function parseContent(table) {
         )
       } else {
         // Respect cellWidth set in columnStyles even if there is no cells for this column
-        // or of it the column only have colspan cells. Since the width of colspan cells
+        // or if the column only have colspan cells. Since the width of colspan cells
         // does not affect the width of columns, setting columnStyles cellWidth enables the
         // user to at least do it manually.
 

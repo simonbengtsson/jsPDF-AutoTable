@@ -1,11 +1,7 @@
 import { defaultConfig, FONT_ROW_RATIO } from './config'
 import state from './state'
 import { CellHookData, HookData } from './HookData'
-import {
-  applyUserStyles,
-  marginOrPadding,
-  styles,
-} from './common'
+import { applyUserStyles, marginOrPadding, styles } from './common'
 
 declare function require(path: string): any
 
@@ -34,11 +30,10 @@ export class Table {
   body: Row[] = []
   foot: Row[] = []
 
-  height = 0
-  width = 0
-  preferredWidth = 0
   wrappedWidth = 0
   minWidth = 0
+  width = 0
+  height = 0
   headHeight = 0
   footHeight = 0
 
@@ -118,11 +113,13 @@ export class Row {
   }
 
   hasRowSpan() {
-    return state().table.columns.filter((column) => {
-      let cell = this.cells[column.index]
-      if (!cell) return false
-      return cell.rowSpan > 1
-    }).length > 0
+    return (
+      state().table.columns.filter((column) => {
+        let cell = this.cells[column.index]
+        if (!cell) return false
+        return cell.rowSpan > 1
+      }).length > 0
+    )
   }
 
   canEntireRowFit(height) {
@@ -150,12 +147,12 @@ export class Cell {
 
   contentHeight = 0
   contentWidth = 0
-  minReadableWidth = 0
   wrappedWidth = 0
+  minReadableWidth = 0
   minWidth = 0
-  textPos = {}
-  height = 0
   width = 0
+  height = 0
+  textPos = {}
   x: number
   y: number
 
@@ -208,10 +205,9 @@ export class Column {
   dataKey: string | number
   index: number
 
-  preferredWidth = 0
-  minWidth = 0
-  minReadableWidth = 0
   wrappedWidth = 0
+  minReadableWidth = 0
+  minWidth = 0
   width = 0
 
   constructor(dataKey, raw, index) {

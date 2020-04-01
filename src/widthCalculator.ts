@@ -8,6 +8,7 @@ import state from './state'
 export function calculateWidths(table: Table) {
   let resizableColumns: Column[] = []
   let initialTableWidth = 0
+
   table.columns.forEach((column) => {
     const customWidth = column.getMaxCustomCellWidth()
     if (customWidth) {
@@ -20,17 +21,19 @@ export function calculateWidths(table: Table) {
     }
     initialTableWidth += column.width
   })
+
+  // width difference that needs to be distributed
   let resizeWidth = table.width - initialTableWidth
 
+  // first resize attempt: with respect to minReadableWidth and minWidth
   if (resizeWidth) {
-    // first resize attempt: with respect to minReadableWidth and minWidth
     resizeWidth = resizeColumns(resizableColumns, resizeWidth, (column) =>
       Math.max(column.minReadableWidth, column.minWidth)
     )
   }
 
+  // second resize attempt: ignore minReadableWidth but respect minWidth
   if (resizeWidth) {
-    // second resize attempt: ignore minReadableWidth but respect minWidth
     resizeWidth = resizeColumns(
       resizableColumns,
       resizeWidth,
@@ -38,13 +41,16 @@ export function calculateWidths(table: Table) {
     )
   }
 
-  if (Math.abs(resizeWidth) > 1e-10) {
+  resizeWidth = Math.abs(resizeWidth)
+  if (resizeWidth > 1e-10) {
     // Table can't get any smaller due to custom-width or minWidth restrictions
     // We can't really do anything here. Up to user to for example
     // reduce font size, increase page size or remove custom cell widths
     // to allow more columns to be reduced in size
-    const width = Math.round(Math.abs(resizeWidth))
-    console.error(`Of the table content, (${width}) width could not fit page`)
+    resizeWidth = resizeWidth < 1 ? resizeWidth : Math.round(resizeWidth)
+    console.error(
+      `Of the table content, ${resizeWidth} units width could not fit page`
+    )
   }
 
   applyColSpans(table)
@@ -82,6 +88,8 @@ export function resizeColumns(
 
   resizeWidth = Math.round(resizeWidth * 1e10) / 1e10
 
+  // Run the resizer again if there's remaining width needs
+  // to be distributed and there're columns that can be resized
   if (resizeWidth) {
     const resizableColumns = columns.filter((column) => {
       return resizeWidth < 0
@@ -89,8 +97,6 @@ export function resizeColumns(
         : true // check if column can grow
     })
 
-    // Run the resizer again if there's remaining width needs
-    // to be resized and there're columns that can be resized
     if (resizableColumns.length) {
       resizeWidth = resizeColumns(resizableColumns, resizeWidth, getMinWidth)
     }
