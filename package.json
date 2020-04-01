@@ -23,6 +23,7 @@
     "mocha": "^7.1.1",
     "mock-browser": "^0.92.14",
     "mock-require": "^3.0.3",
+    "npm-check-updates": "^4.1.1",
     "object-assign": "^4.1.1",
     "prettier": "2.0.2",
     "ts-loader": "^6.2.2",
