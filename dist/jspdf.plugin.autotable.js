@@ -1,8 +1,8 @@
 /*!
  * 
- *             jsPDF AutoTable plugin v3.3.2
+ *             jsPDF AutoTable plugin v3.4.0
  *             
- *             Copyright (c) 2014 Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable
+ *             Copyright (c) 2020 Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable
  *             Licensed under the MIT License.
  *             http://opensource.org/licenses/mit-license
  *         
@@ -362,17 +362,6 @@ function styles(styles) {
     return polyfills_1.assign.apply(void 0, __spreadArrays([config_1.defaultStyles()], styles));
 }
 exports.styles = styles;
-// core-js etc increases jspdf-autotable bundle size by 50%
-// even though only the Object.entries method is imported
-// Until better solution we can use this polyfill:
-// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/entries#Polyfill
-function entries(obj) {
-    var ownProps = Object.keys(obj), i = ownProps.length, resArray = new Array(i);
-    while (i--)
-        resArray[i] = [ownProps[i], obj[ownProps[i]]];
-    return resArray;
-}
-exports.entries = entries;
 
 
 /***/ }),
@@ -707,11 +696,10 @@ var Table = /** @class */ (function () {
         this.head = [];
         this.body = [];
         this.foot = [];
-        this.height = 0;
-        this.width = 0;
-        this.preferredWidth = 0;
         this.wrappedWidth = 0;
         this.minWidth = 0;
+        this.width = 0;
+        this.height = 0;
         this.headHeight = 0;
         this.footHeight = 0;
         this.startPageNumber = 1;
@@ -770,12 +758,12 @@ var Row = /** @class */ (function () {
     }
     Row.prototype.hasRowSpan = function () {
         var _this = this;
-        return state_1.default().table.columns.filter(function (column) {
+        return (state_1.default().table.columns.filter(function (column) {
             var cell = _this.cells[column.index];
             if (!cell)
                 return false;
             return cell.rowSpan > 1;
-        }).length > 0;
+        }).length > 0);
     };
     Row.prototype.canEntireRowFit = function (height) {
         return this.maxCellHeight <= height;
@@ -799,12 +787,12 @@ var Cell = /** @class */ (function () {
     function Cell(raw, themeStyles, section) {
         this.contentHeight = 0;
         this.contentWidth = 0;
-        this.longestWordWidth = 0;
         this.wrappedWidth = 0;
+        this.minReadableWidth = 0;
         this.minWidth = 0;
-        this.textPos = {};
-        this.height = 0;
         this.width = 0;
+        this.height = 0;
+        this.textPos = {};
         this.rowSpan = (raw && raw.rowSpan) || 1;
         this.colSpan = (raw && raw.colSpan) || 1;
         this.styles = assign(themeStyles, (raw && raw.styles) || {});
@@ -840,24 +828,24 @@ var Cell = /** @class */ (function () {
 exports.Cell = Cell;
 var Column = /** @class */ (function () {
     function Column(dataKey, raw, index) {
-        this.preferredWidth = 0;
-        this.minWidth = 0;
-        this.longestWordWidth = 0;
         this.wrappedWidth = 0;
+        this.minReadableWidth = 0;
+        this.minWidth = 0;
         this.width = 0;
         this.dataKey = dataKey;
         this.raw = raw;
         this.index = index;
     }
-    Column.prototype.hasCustomWidth = function () {
+    Column.prototype.getMaxCustomCellWidth = function () {
+        var max = 0;
         for (var _i = 0, _a = state_1.default().table.allRows(); _i < _a.length; _i++) {
             var row = _a[_i];
             var cell = row.cells[this.index];
             if (cell && typeof cell.styles.cellWidth === 'number') {
-                return true;
+                max = Math.max(max, cell.styles.cellWidth);
             }
         }
-        return false;
+        return max;
     };
     return Column;
 }());
@@ -1384,21 +1372,17 @@ function parseContent(table) {
         _loop_2(sectionName);
     }
     table.allRows().forEach(function (row) {
-        var _loop_3 = function (column) {
+        for (var _i = 0, _a = table.columns; _i < _a.length; _i++) {
+            var column = _a[_i];
             var cell = row.cells[column.index];
             if (!cell)
-                return "continue";
+                continue;
             table.callCellHooks(table.cellHooks.didParseCell, cell, row, column);
             cell.text = Array.isArray(cell.text) ? cell.text : [cell.text];
-            var text = cell.text.join(' ');
-            var wordWidths = ("" + text)
-                .trim()
-                .split(/\s+/)
-                .map(function (word) { return common_1.getStringWidth(word, cell.styles); });
-            wordWidths.sort();
-            cell.longestWordWidth = wordWidths[wordWidths.length - 1] + cell.padding('horizontal');
             cell.contentWidth =
-                cell.padding('horizontal') + common_1.getStringWidth(cell.text, cell.styles);
+                common_1.getStringWidth(cell.text, cell.styles) + cell.padding('horizontal');
+            var longestWordWidth = common_1.getStringWidth(cell.text.join(' ').split(/\s+/), cell.styles);
+            cell.minReadableWidth = longestWordWidth + cell.padding('horizontal');
             if (typeof cell.styles.cellWidth === 'number') {
                 cell.minWidth = cell.styles.cellWidth;
                 cell.wrappedWidth = cell.styles.cellWidth;
@@ -1416,10 +1400,6 @@ function parseContent(table) {
                     cell.wrappedWidth = cell.minWidth;
                 }
             }
-        };
-        for (var _i = 0, _a = table.columns; _i < _a.length; _i++) {
-            var column = _a[_i];
-            _loop_3(column);
         }
     });
     table.allRows().forEach(function (row) {
@@ -1431,11 +1411,11 @@ function parseContent(table) {
             if (cell && cell.colSpan === 1) {
                 column.wrappedWidth = Math.max(column.wrappedWidth, cell.wrappedWidth);
                 column.minWidth = Math.max(column.minWidth, cell.minWidth);
-                column.longestWordWidth = Math.max(column.longestWordWidth, cell.longestWordWidth);
+                column.minReadableWidth = Math.max(column.minReadableWidth, cell.minReadableWidth);
             }
             else {
                 // Respect cellWidth set in columnStyles even if there is no cells for this column
-                // or of it the column only have colspan cells. Since the width of colspan cells
+                // or if the column only have colspan cells. Since the width of colspan cells
                 // does not affect the width of columns, setting columnStyles cellWidth enables the
                 // user to at least do it manually.
                 // Note that this is not perfect for now since for example row and table styles are
@@ -1457,7 +1437,6 @@ function parseContent(table) {
                 if (cell.colSpan > 1 && !column.wrappedWidth) {
                     column.wrappedWidth = cell.minWidth;
                 }
-                table.callCellHooks(table.cellHooks.didParseCell, cell, row, column);
             }
         }
     });
@@ -1714,21 +1693,79 @@ var state_1 = __webpack_require__(0);
  * Calculate the column widths
  */
 function calculateWidths(table) {
-    var columnMinWidth = 10 / state_1.default().scaleFactor();
-    if (columnMinWidth * table.columns.length > table.width) {
-        console.error('Columns could not fit on page');
+    var resizableColumns = [];
+    var initialTableWidth = 0;
+    table.columns.forEach(function (column) {
+        var customWidth = column.getMaxCustomCellWidth();
+        if (customWidth) {
+            // final column width
+            column.width = customWidth;
+        }
+        else {
+            // initial column width (will be resized)
+            column.width = column.wrappedWidth;
+            resizableColumns.push(column);
+        }
+        initialTableWidth += column.width;
+    });
+    // width difference that needs to be distributed
+    var resizeWidth = table.width - initialTableWidth;
+    // first resize attempt: with respect to minReadableWidth and minWidth
+    if (resizeWidth) {
+        resizeWidth = resizeColumns(resizableColumns, resizeWidth, function (column) {
+            return Math.max(column.minReadableWidth, column.minWidth);
+        });
     }
-    else if (table.minWidth > table.width) {
-        // Would be nice to improve the user experience of this
-        console.error("Column widths too wide and can't fit page");
+    // second resize attempt: ignore minReadableWidth but respect minWidth
+    if (resizeWidth) {
+        resizeWidth = resizeColumns(resizableColumns, resizeWidth, function (column) { return column.minWidth; });
     }
-    var copy = table.columns.slice(0);
-    distributeWidth(copy, table.width, table.wrappedWidth);
+    resizeWidth = Math.abs(resizeWidth);
+    if (resizeWidth > 1e-10) {
+        // Table can't get any smaller due to custom-width or minWidth restrictions
+        // We can't really do anything here. Up to user to for example
+        // reduce font size, increase page size or remove custom cell widths
+        // to allow more columns to be reduced in size
+        resizeWidth = resizeWidth < 1 ? resizeWidth : Math.round(resizeWidth);
+        console.error("Of the table content, " + resizeWidth + " units width could not fit page");
+    }
     applyColSpans(table);
     fitContent(table);
     applyRowSpans(table);
 }
 exports.calculateWidths = calculateWidths;
+/**
+ * Distribute resizeWidth on passed resizable columns
+ */
+function resizeColumns(columns, resizeWidth, getMinWidth) {
+    var initialResizeWidth = resizeWidth;
+    var sumWrappedWidth = columns.reduce(function (acc, column) { return acc + column.wrappedWidth; }, 0);
+    for (var i = 0; i < columns.length; i++) {
+        var column = columns[i];
+        var ratio = column.wrappedWidth / sumWrappedWidth;
+        var suggestedChange = initialResizeWidth * ratio;
+        var suggestedWidth = column.width + suggestedChange;
+        var minWidth = getMinWidth(column);
+        var newWidth = suggestedWidth < minWidth ? minWidth : suggestedWidth;
+        resizeWidth -= newWidth - column.width;
+        column.width = newWidth;
+    }
+    resizeWidth = Math.round(resizeWidth * 1e10) / 1e10;
+    // Run the resizer again if there's remaining width needs
+    // to be distributed and there're columns that can be resized
+    if (resizeWidth) {
+        var resizableColumns = columns.filter(function (column) {
+            return resizeWidth < 0
+                ? column.width > getMinWidth(column) // check if column can shrink
+                : true; // check if column can grow
+        });
+        if (resizableColumns.length) {
+            resizeWidth = resizeColumns(resizableColumns, resizeWidth, getMinWidth);
+        }
+    }
+    return resizeWidth;
+}
+exports.resizeColumns = resizeColumns;
 function applyRowSpans(table) {
     var rowSpanCells = {};
     var colRowSpansLeft = 1;
@@ -1859,25 +1896,6 @@ function fitContent(table) {
             }
         }
         rowSpanHeight.count--;
-    }
-}
-function distributeWidth(autoColumns, availableSpace, optimalTableWidth) {
-    var diffWidth = availableSpace - optimalTableWidth;
-    for (var _i = 0, _a = common_1.entries(autoColumns); _i < _a.length; _i++) {
-        var _b = _a[_i], i = _b[0], column = _b[1];
-        var ratio = column.wrappedWidth / optimalTableWidth;
-        var suggestedChange = diffWidth * ratio;
-        var suggestedWidth = column.wrappedWidth + suggestedChange;
-        if (suggestedWidth < column.minWidth || column.hasCustomWidth()) {
-            // Add 1 to minWidth as linebreaks calc otherwise sometimes made two rows
-            column.width = column.minWidth + 1 / state_1.default().scaleFactor();
-            optimalTableWidth -= column.wrappedWidth;
-            availableSpace -= column.width;
-            autoColumns.splice(i, 1);
-            distributeWidth(autoColumns, availableSpace, optimalTableWidth);
-            break;
-        }
-        column.width = suggestedWidth;
     }
 }
 

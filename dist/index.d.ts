@@ -21,11 +21,10 @@ declare class Table {
 	head: Row[];
 	body: Row[];
 	foot: Row[];
-	height: number;
-	width: number;
-	preferredWidth: number;
 	wrappedWidth: number;
 	minWidth: number;
+	width: number;
+	height: number;
 	headHeight: number;
 	footHeight: number;
 	startPageNumber: number;
@@ -70,12 +69,12 @@ declare class Cell {
 	section: 'head' | 'body' | 'foot';
 	contentHeight: number;
 	contentWidth: number;
-	longestWordWidth: number;
 	wrappedWidth: number;
+	minReadableWidth: number;
 	minWidth: number;
-	textPos: {};
-	height: number;
 	width: number;
+	height: number;
+	textPos: {};
 	x: number;
 	y: number;
 	colSpan: number;
@@ -88,13 +87,12 @@ declare class Column {
 	raw: any;
 	dataKey: string | number;
 	index: number;
-	preferredWidth: number;
-	minWidth: number;
-	longestWordWidth: number;
 	wrappedWidth: number;
+	minReadableWidth: number;
+	minWidth: number;
 	width: number;
 	constructor(dataKey: any, raw: any, index: any);
-	hasCustomWidth(): boolean;
+	getMaxCustomCellWidth(): number;
 }
 declare class HookData {
 	table: Table;
