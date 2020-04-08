@@ -12,7 +12,6 @@ export function getStringWidth(text, styles) {
     .map((val) => Math.floor(val * 10000) / 10000)
     .reduce((a, b) => Math.max(a, b), 0)
 
-  const fontSize = styles.fontSize / state().scaleFactor()
   return widestLineWidth
 }
 
@@ -21,11 +20,7 @@ export function getStringWidth(text, styles) {
  */
 export function ellipsize(text, width, styles, ellipsizeStr = '...') {
   if (Array.isArray(text)) {
-    let value = []
-    text.forEach(function (str, i) {
-      value[i] = ellipsize(str, width, styles, ellipsizeStr)
-    })
-    return value
+    return text.map(str => ellipsize(str, width, styles, ellipsizeStr))
   }
 
   let precision = 10000 * state().scaleFactor()
