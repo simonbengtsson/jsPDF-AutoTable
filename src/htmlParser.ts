@@ -5,7 +5,7 @@ export function parseHtml(
   input: HTMLTableElement | string,
   includeHiddenHtml = false,
   useCss = false
-) {
+): { head: any[][], body: any[][], foot: any[][] } {
   let tableElement
   if (typeof input === 'string') {
     tableElement = <HTMLTableElement>window.document.querySelector(input)
@@ -13,14 +13,15 @@ export function parseHtml(
     tableElement = input
   }
 
+  const head: any[] = [],
+    body: any[] = [],
+    foot: any[] = []
+
   if (!tableElement) {
     console.error('Html table could not be found with input: ', input)
-    return
+    return { head, body, foot }
   }
 
-  const head = [],
-    body = [],
-    foot = []
   for (const rowNode of tableElement.rows) {
     const tagName = rowNode.parentNode.tagName.toLowerCase()
     let row = parseRowContent(window, rowNode, includeHiddenHtml, useCss)

@@ -166,20 +166,19 @@ function applyColSpans(table) {
       columnIndex++
     ) {
       let column = table.columns[columnIndex]
-      let cell = null
 
       // Width and colspan
       colSpansLeft -= 1
       if (colSpansLeft > 1 && table.columns[columnIndex + 1]) {
         combinedColSpanWidth += column.width
         delete row.cells[column.index]
-        continue
       } else if (colSpanCell) {
-        cell = colSpanCell
+        let cell: Cell = colSpanCell
         delete row.cells[column.index]
         colSpanCell = null
+        cell.width = column.width + combinedColSpanWidth
       } else {
-        cell = row.cells[column.index]
+        let cell = row.cells[column.index]
         if (!cell) continue
         colSpansLeft = cell.colSpan
         combinedColSpanWidth = 0
@@ -188,8 +187,8 @@ function applyColSpans(table) {
           combinedColSpanWidth += column.width
           continue
         }
+        cell.width = column.width + combinedColSpanWidth
       }
-      cell.width = column.width + combinedColSpanWidth
     }
   }
 }

@@ -16,7 +16,7 @@ export default function (text, x, y, styles, doc) {
   let fontSize = doc.internal.getFontSize() / k
 
   let splitRegex = /\r\n|\r|\n/g
-  let splitText = null
+  let splitText = ''
   let lineCount = 1
   if (
     styles.valign === 'middle' ||

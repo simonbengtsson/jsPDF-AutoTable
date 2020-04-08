@@ -283,15 +283,14 @@ function generateSectionRowFromColumnData(table, sectionName) {
 
 function getTableColumns(settings) {
   if (settings.columns) {
-    let cols = settings.columns.map((input, index) => {
+    return settings.columns.map((input, index) => {
       const key = input.dataKey || input.key || index
       return new Column(key, input, index)
     })
-    return cols
   } else {
     let firstRow =
       settings.head[0] || settings.body[0] || settings.foot[0] || []
-    let columns = []
+    let columns: Column[] = []
     Object.keys(firstRow)
       .filter((key) => key !== '_element')
       .forEach((key) => {

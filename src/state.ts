@@ -3,11 +3,11 @@ import { Table } from './models'
 let defaultsDocument = null
 let previousTableState
 
-let tableState: TableState = null
+let tableState: any = null
 export let globalDefaults = {}
 export let documentDefaults = {}
 
-export default function () {
+export default function (): TableState {
   return tableState
 }
 
@@ -21,7 +21,7 @@ export function getDocumentOptions(): any {
 
 class TableState {
   table: Table
-  doc
+  doc: any
 
   constructor(doc) {
     this.doc = doc
