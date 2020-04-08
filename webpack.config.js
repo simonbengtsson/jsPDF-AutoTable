@@ -1,24 +1,13 @@
-var webpack = require('webpack')
-var fs = require('fs')
-var path = require('path')
-const UglifyJSPlugin = require('uglifyjs-webpack-plugin')
+const webpack = require('webpack')
+const path = require('path')
 
-var newVersion = require('./package.json').version
-var readme = '' + fs.readFileSync('./README.md')
-var newVersionStr =
-  'cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/' +
-  newVersion +
-  '/jspdf.plugin.autotable.js'
-readme = readme.replace(
-  /cdnjs\.cloudflare\.com\/ajax\/libs\/jspdf-autotable\/.*\/jspdf\.plugin\.autotable\.js/,
-  newVersionStr
-)
-fs.writeFileSync('./README.md', readme)
+const minified = process.argv.includes('--minified')
+const newVersion = require('./package.json').version
+const currentYear = new Date().getFullYear()
 
 module.exports = {
   entry: {
-    'dist/jspdf.plugin.autotable': './src/main.ts',
-    'dist/jspdf.plugin.autotable.min': './src/main.ts',
+    [`dist/jspdf.plugin.autotable${minified ? '.min' : ''}`]: './src/main.ts',
   },
   resolve: {
     extensions: ['.ts', '.js'],
@@ -27,7 +16,7 @@ module.exports = {
     path: path.join(__dirname, './'),
     filename: '[name].js',
     libraryTarget: 'umd',
-    globalObject: 'this'
+    globalObject: 'this',
   },
   module: {
     rules: [{ test: /\.ts$/, use: [{ loader: 'ts-loader' }] }],
@@ -55,17 +44,12 @@ module.exports = {
     new webpack.BannerPlugin(`
             jsPDF AutoTable plugin v${newVersion}
             
-            Copyright (c) 2014 Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable
+            Copyright (c) ${currentYear} Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable
             Licensed under the MIT License.
             http://opensource.org/licenses/mit-license
         `),
   ],
   optimization: {
-    minimize: true,
-    minimizer: [
-      new UglifyJSPlugin({
-        include: /\.min\.js$/,
-      }),
-    ],
+    minimize: minified,
   },
 }
