@@ -32,7 +32,8 @@
     "webpack-dev-server": "^3.10.3"
   },
   "scripts": {
-    "start": "webpack-dev-server -d --open --host 0.0.0.0",
+    "start": "webpack-dev-server -d --open",
+    "start-external": "webpack-dev-server -d --open --host 0.0.0.0",
     "build": "webpack --mode=production && webpack --mode=production --minified && npm run types",
     "test": "mocha --require ts-node/register",
     "format-all": "prettier --write src",
