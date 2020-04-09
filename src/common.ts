@@ -3,7 +3,7 @@ import state from './state'
 import { assign } from './polyfills'
 
 export function getStringWidth(text, styles) {
-  applyStyles(styles)
+  applyStyles(styles, true)
   const textArr: any = Array.isArray(text) ? text : [text]
 
   const widestLineWidth = textArr
@@ -75,20 +75,24 @@ export function applyUserStyles() {
   applyStyles(state().table.userStyles)
 }
 
-export function applyStyles(styles) {
-  let doc = state().doc
-  let styleModifiers = {
+export function applyStyles(styles, fontOnly = false) {
+  const doc = state().doc
+  const nonFontModifiers = {
     fillColor: doc.setFillColor,
     textColor: doc.setTextColor,
-    fontStyle: doc.setFontStyle,
     lineColor: doc.setDrawColor,
     lineWidth: doc.setLineWidth,
+  }
+  const styleModifiers = {
     font: doc.setFont,
     fontSize: doc.setFontSize,
+    fontStyle: doc.setFontStyle,
+    ...(fontOnly ? {} : nonFontModifiers),
   }
+
   Object.keys(styleModifiers).forEach(function (name) {
-    let style = styles[name]
-    let modifier = styleModifiers[name]
+    const style = styles[name]
+    const modifier = styleModifiers[name]
     if (typeof style !== 'undefined') {
       if (Array.isArray(style)) {
         modifier.apply(this, style)

@@ -200,7 +200,7 @@ function fitContent(table) {
       let cell: Cell = row.cells[column.index]
       if (!cell) continue
 
-      applyStyles(cell.styles)
+      applyStyles(cell.styles, true)
       let textSpace = cell.width - cell.padding('horizontal')
       if (cell.styles.overflow === 'linebreak') {
         // Add one pt to textSpace to fix rounding error
