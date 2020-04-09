@@ -1,6 +1,6 @@
 /*!
  * 
- *             jsPDF AutoTable plugin v3.4.0
+ *             jsPDF AutoTable plugin v3.4.1
  *             
  *             Copyright (c) 2020 Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable
  *             Licensed under the MIT License.
@@ -16,7 +16,7 @@
 		var a = typeof exports === 'object' ? factory((function webpackLoadOptionalExternalModule() { try { return require("jspdf"); } catch(e) {} }())) : factory(root["jsPDF"]);
 		for(var i in a) (typeof exports === 'object' ? exports : root)[i] = a[i];
 	}
-})(this, function(__WEBPACK_EXTERNAL_MODULE__17__) {
+})(this, function(__WEBPACK_EXTERNAL_MODULE__16__) {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -100,7 +100,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 8);
+/******/ 	return __webpack_require__(__webpack_require__.s = 7);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -193,6 +193,17 @@ exports.setDefaults = setDefaults;
 
 "use strict";
 
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
 var __spreadArrays = (this && this.__spreadArrays) || function () {
     for (var s = 0, i = 0, il = arguments.length; i < il; i++) s += arguments[i].length;
     for (var r = Array(s), k = 0, i = 0; i < il; i++)
@@ -203,16 +214,15 @@ var __spreadArrays = (this && this.__spreadArrays) || function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 var config_1 = __webpack_require__(2);
 var state_1 = __webpack_require__(0);
-var polyfills_1 = __webpack_require__(5);
+var polyfills_1 = __webpack_require__(3);
 function getStringWidth(text, styles) {
-    applyStyles(styles);
+    applyStyles(styles, true);
     var textArr = Array.isArray(text) ? text : [text];
     var widestLineWidth = textArr
         .map(function (text) { return state_1.default().doc.getTextWidth(text); })
         // Shave off a few digits for potential improvement in width calculation
         .map(function (val) { return Math.floor(val * 10000) / 10000; })
         .reduce(function (a, b) { return Math.max(a, b); }, 0);
-    var fontSize = styles.fontSize / state_1.default().scaleFactor();
     return widestLineWidth;
 }
 exports.getStringWidth = getStringWidth;
@@ -222,11 +232,7 @@ exports.getStringWidth = getStringWidth;
 function ellipsize(text, width, styles, ellipsizeStr) {
     if (ellipsizeStr === void 0) { ellipsizeStr = '...'; }
     if (Array.isArray(text)) {
-        var value_1 = [];
-        text.forEach(function (str, i) {
-            value_1[i] = ellipsize(str, width, styles, ellipsizeStr);
-        });
-        return value_1;
+        return text.map(function (str) { return ellipsize(str, width, styles, ellipsizeStr); });
     }
     var precision = 10000 * state_1.default().scaleFactor();
     width = Math.ceil(width * precision) / precision;
@@ -276,17 +282,16 @@ function applyUserStyles() {
     applyStyles(state_1.default().table.userStyles);
 }
 exports.applyUserStyles = applyUserStyles;
-function applyStyles(styles) {
+function applyStyles(styles, fontOnly) {
+    if (fontOnly === void 0) { fontOnly = false; }
     var doc = state_1.default().doc;
-    var styleModifiers = {
+    var nonFontModifiers = {
         fillColor: doc.setFillColor,
         textColor: doc.setTextColor,
-        fontStyle: doc.setFontStyle,
         lineColor: doc.setDrawColor,
         lineWidth: doc.setLineWidth,
-        font: doc.setFont,
-        fontSize: doc.setFontSize,
     };
+    var styleModifiers = __assign({ font: doc.setFont, fontSize: doc.setFontSize, fontStyle: doc.setFontStyle }, (fontOnly ? {} : nonFontModifiers));
     Object.keys(styleModifiers).forEach(function (name) {
         var style = styles[name];
         var modifier = styleModifiers[name];
@@ -485,6 +490,45 @@ exports.getTheme = getTheme;
 
 "use strict";
 
+/*
+ * Include common small polyfills instead of requiring the user to to do it
+ */
+Object.defineProperty(exports, "__esModule", { value: true });
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/assign
+function assign(target) {
+    'use strict';
+    var varArgs = [];
+    for (var _i = 1; _i < arguments.length; _i++) {
+        varArgs[_i - 1] = arguments[_i];
+    }
+    if (target == null) {
+        // TypeError if undefined or null
+        throw new TypeError('Cannot convert undefined or null to object');
+    }
+    var to = Object(target);
+    for (var index = 1; index < arguments.length; index++) {
+        var nextSource = arguments[index];
+        if (nextSource != null) {
+            // Skip over if undefined or null
+            for (var nextKey in nextSource) {
+                // Avoid bugs when hasOwnProperty is shadowed
+                if (Object.prototype.hasOwnProperty.call(nextSource, nextKey)) {
+                    to[nextKey] = nextSource[nextKey];
+                }
+            }
+        }
+    }
+    return to;
+}
+exports.assign = assign;
+
+
+/***/ }),
+/* 4 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
 Object.defineProperty(exports, "__esModule", { value: true });
 /**
  * Improved text function with halign and valign support
@@ -499,7 +543,7 @@ function default_1(text, x, y, styles, doc) {
     var k = doc.internal.scaleFactor;
     var fontSize = doc.internal.getFontSize() / k;
     var splitRegex = /\r\n|\r|\n/g;
-    var splitText = null;
+    var splitText = '';
     var lineCount = 1;
     if (styles.valign === 'middle' ||
         styles.valign === 'bottom' ||
@@ -542,13 +586,13 @@ exports.default = default_1;
 
 
 /***/ }),
-/* 4 */
+/* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var cssParser_1 = __webpack_require__(10);
+var cssParser_1 = __webpack_require__(9);
 var state_1 = __webpack_require__(0);
 function parseHtml(input, includeHiddenHtml, useCss) {
     if (includeHiddenHtml === void 0) { includeHiddenHtml = false; }
@@ -560,11 +604,11 @@ function parseHtml(input, includeHiddenHtml, useCss) {
     else {
         tableElement = input;
     }
+    var head = [], body = [], foot = [];
     if (!tableElement) {
         console.error('Html table could not be found with input: ', input);
-        return;
+        return { head: head, body: body, foot: foot };
     }
-    var head = [], body = [], foot = [];
     for (var _i = 0, _a = tableElement.rows; _i < _a.length; _i++) {
         var rowNode = _a[_i];
         var tagName = rowNode.parentNode.tagName.toLowerCase();
@@ -631,45 +675,6 @@ function parseCellContent(orgCell) {
 
 
 /***/ }),
-/* 5 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-/*
- * Include common small polyfills instead of requiring the user to to do it
- */
-Object.defineProperty(exports, "__esModule", { value: true });
-// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/assign
-function assign(target) {
-    'use strict';
-    var varArgs = [];
-    for (var _i = 1; _i < arguments.length; _i++) {
-        varArgs[_i - 1] = arguments[_i];
-    }
-    if (target == null) {
-        // TypeError if undefined or null
-        throw new TypeError('Cannot convert undefined or null to object');
-    }
-    var to = Object(target);
-    for (var index = 1; index < arguments.length; index++) {
-        var nextSource = arguments[index];
-        if (nextSource != null) {
-            // Skip over if undefined or null
-            for (var nextKey in nextSource) {
-                // Avoid bugs when hasOwnProperty is shadowed
-                if (Object.prototype.hasOwnProperty.call(nextSource, nextKey)) {
-                    to[nextKey] = nextSource[nextKey];
-                }
-            }
-        }
-    }
-    return to;
-}
-exports.assign = assign;
-
-
-/***/ }),
 /* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -678,9 +683,9 @@ exports.assign = assign;
 Object.defineProperty(exports, "__esModule", { value: true });
 var config_1 = __webpack_require__(2);
 var state_1 = __webpack_require__(0);
-var HookData_1 = __webpack_require__(13);
+var HookData_1 = __webpack_require__(12);
 var common_1 = __webpack_require__(1);
-var assign = __webpack_require__(7);
+var polyfills_1 = __webpack_require__(3);
 var CellHooks = /** @class */ (function () {
     function CellHooks() {
         this.didParseCell = [];
@@ -795,7 +800,7 @@ var Cell = /** @class */ (function () {
         this.textPos = {};
         this.rowSpan = (raw && raw.rowSpan) || 1;
         this.colSpan = (raw && raw.colSpan) || 1;
-        this.styles = assign(themeStyles, (raw && raw.styles) || {});
+        this.styles = polyfills_1.assign(themeStyles, (raw && raw.styles) || {});
         this.section = section;
         var text;
         var content = raw && raw.content != null ? raw.content : raw;
@@ -857,106 +862,9 @@ exports.Column = Column;
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-/*
-object-assign
-(c) Sindre Sorhus
-@license MIT
-*/
-
-
-/* eslint-disable no-unused-vars */
-var getOwnPropertySymbols = Object.getOwnPropertySymbols;
-var hasOwnProperty = Object.prototype.hasOwnProperty;
-var propIsEnumerable = Object.prototype.propertyIsEnumerable;
-
-function toObject(val) {
-	if (val === null || val === undefined) {
-		throw new TypeError('Object.assign cannot be called with null or undefined');
-	}
-
-	return Object(val);
-}
-
-function shouldUseNative() {
-	try {
-		if (!Object.assign) {
-			return false;
-		}
-
-		// Detect buggy property enumeration order in older V8 versions.
-
-		// https://bugs.chromium.org/p/v8/issues/detail?id=4118
-		var test1 = new String('abc');  // eslint-disable-line no-new-wrappers
-		test1[5] = 'de';
-		if (Object.getOwnPropertyNames(test1)[0] === '5') {
-			return false;
-		}
-
-		// https://bugs.chromium.org/p/v8/issues/detail?id=3056
-		var test2 = {};
-		for (var i = 0; i < 10; i++) {
-			test2['_' + String.fromCharCode(i)] = i;
-		}
-		var order2 = Object.getOwnPropertyNames(test2).map(function (n) {
-			return test2[n];
-		});
-		if (order2.join('') !== '0123456789') {
-			return false;
-		}
-
-		// https://bugs.chromium.org/p/v8/issues/detail?id=3056
-		var test3 = {};
-		'abcdefghijklmnopqrst'.split('').forEach(function (letter) {
-			test3[letter] = letter;
-		});
-		if (Object.keys(Object.assign({}, test3)).join('') !==
-				'abcdefghijklmnopqrst') {
-			return false;
-		}
-
-		return true;
-	} catch (err) {
-		// We don't expect any of the above to throw, but better to be safe.
-		return false;
-	}
-}
-
-module.exports = shouldUseNative() ? Object.assign : function (target, source) {
-	var from;
-	var to = toObject(target);
-	var symbols;
-
-	for (var s = 1; s < arguments.length; s++) {
-		from = Object(arguments[s]);
-
-		for (var key in from) {
-			if (hasOwnProperty.call(from, key)) {
-				to[key] = from[key];
-			}
-		}
-
-		if (getOwnPropertySymbols) {
-			symbols = getOwnPropertySymbols(from);
-			for (var i = 0; i < symbols.length; i++) {
-				if (propIsEnumerable.call(from, symbols[i])) {
-					to[symbols[i]] = from[symbols[i]];
-				}
-			}
-		}
-	}
-
-	return to;
-};
-
-
-/***/ }),
-/* 8 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var applyPlugin_1 = __webpack_require__(9);
+var applyPlugin_1 = __webpack_require__(8);
 // export { applyPlugin } didn't export applyPlugin
 // to index.d.ts for some reason
 function applyPlugin(jsPDF) {
@@ -964,7 +872,7 @@ function applyPlugin(jsPDF) {
 }
 exports.applyPlugin = applyPlugin;
 try {
-    var jsPDF = __webpack_require__(17);
+    var jsPDF = __webpack_require__(16);
     applyPlugin(jsPDF);
 }
 catch (error) {
@@ -975,17 +883,17 @@ catch (error) {
 
 
 /***/ }),
-/* 9 */
+/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
 var state_1 = __webpack_require__(0);
-__webpack_require__(3);
-var htmlParser_1 = __webpack_require__(4);
-var autoTableText_1 = __webpack_require__(3);
-var autoTable_1 = __webpack_require__(11);
+__webpack_require__(4);
+var htmlParser_1 = __webpack_require__(5);
+var autoTableText_1 = __webpack_require__(4);
+var autoTable_1 = __webpack_require__(10);
 function default_1(jsPDF) {
     jsPDF.API.autoTable = autoTable_1.default;
     // Assign false to enable `doc.lastAutoTable.finalY || 40` sugar
@@ -1050,7 +958,7 @@ exports.default = default_1;
 
 
 /***/ }),
-/* 10 */
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1158,16 +1066,16 @@ function parsePadding(val, fontSize, lineHeight, scaleFactor) {
 
 
 /***/ }),
-/* 11 */
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
 var state_1 = __webpack_require__(0);
-var inputParser_1 = __webpack_require__(12);
-var widthCalculator_1 = __webpack_require__(15);
-var tableDrawer_1 = __webpack_require__(16);
+var inputParser_1 = __webpack_require__(11);
+var widthCalculator_1 = __webpack_require__(14);
+var tableDrawer_1 = __webpack_require__(15);
 var common_1 = __webpack_require__(1);
 function autoTable() {
     var args = [];
@@ -1193,7 +1101,7 @@ exports.default = autoTable;
 
 
 /***/ }),
-/* 12 */
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1208,11 +1116,11 @@ var __spreadArrays = (this && this.__spreadArrays) || function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 var models_1 = __webpack_require__(6);
 var config_1 = __webpack_require__(2);
-var htmlParser_1 = __webpack_require__(4);
-var polyfills_1 = __webpack_require__(5);
+var htmlParser_1 = __webpack_require__(5);
+var polyfills_1 = __webpack_require__(3);
 var common_1 = __webpack_require__(1);
 var state_1 = __webpack_require__(0);
-var inputValidator_1 = __webpack_require__(14);
+var inputValidator_1 = __webpack_require__(13);
 /**
  * Create models from the user input
  */
@@ -1459,11 +1367,10 @@ function generateSectionRowFromColumnData(table, sectionName) {
 }
 function getTableColumns(settings) {
     if (settings.columns) {
-        var cols = settings.columns.map(function (input, index) {
+        return settings.columns.map(function (input, index) {
             var key = input.dataKey || input.key || index;
             return new models_1.Column(key, input, index);
         });
-        return cols;
     }
     else {
         var firstRow_1 = settings.head[0] || settings.body[0] || settings.foot[0] || [];
@@ -1507,7 +1414,7 @@ function cellStyles(sectionName, column, rowIndex) {
 
 
 /***/ }),
-/* 13 */
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1556,7 +1463,7 @@ exports.CellHookData = CellHookData;
 
 
 /***/ }),
-/* 14 */
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1681,7 +1588,7 @@ function checkStyles(styles) {
 
 
 /***/ }),
-/* 15 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1822,21 +1729,20 @@ function applyColSpans(table) {
         var colSpansLeft = 0;
         for (var columnIndex = 0; columnIndex < table.columns.length; columnIndex++) {
             var column = table.columns[columnIndex];
-            var cell = null;
             // Width and colspan
             colSpansLeft -= 1;
             if (colSpansLeft > 1 && table.columns[columnIndex + 1]) {
                 combinedColSpanWidth += column.width;
                 delete row.cells[column.index];
-                continue;
             }
             else if (colSpanCell) {
-                cell = colSpanCell;
+                var cell = colSpanCell;
                 delete row.cells[column.index];
                 colSpanCell = null;
+                cell.width = column.width + combinedColSpanWidth;
             }
             else {
-                cell = row.cells[column.index];
+                var cell = row.cells[column.index];
                 if (!cell)
                     continue;
                 colSpansLeft = cell.colSpan;
@@ -1846,8 +1752,8 @@ function applyColSpans(table) {
                     combinedColSpanWidth += column.width;
                     continue;
                 }
+                cell.width = column.width + combinedColSpanWidth;
             }
-            cell.width = column.width + combinedColSpanWidth;
         }
     }
 }
@@ -1860,7 +1766,7 @@ function fitContent(table) {
             var cell = row.cells[column.index];
             if (!cell)
                 continue;
-            common_1.applyStyles(cell.styles);
+            common_1.applyStyles(cell.styles, true);
             var textSpace = cell.width - cell.padding('horizontal');
             if (cell.styles.overflow === 'linebreak') {
                 // Add one pt to textSpace to fix rounding error
@@ -1901,7 +1807,7 @@ function fitContent(table) {
 
 
 /***/ }),
-/* 16 */
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1911,7 +1817,7 @@ var config_1 = __webpack_require__(2);
 var common_1 = __webpack_require__(1);
 var models_1 = __webpack_require__(6);
 var state_1 = __webpack_require__(0);
-var assign = __webpack_require__(7);
+var polyfills_1 = __webpack_require__(3);
 function drawTable(table) {
     var settings = table.settings;
     table.cursor = {
@@ -1977,8 +1883,8 @@ function modifyRowToFit(row, remainingPageSpace, table) {
             cell.text = [cell.text];
         }
         var remainderCell = new models_1.Cell(cell.raw, {}, cell.section);
-        remainderCell = assign(remainderCell, cell);
-        remainderCell.textPos = assign({}, cell.textPos);
+        remainderCell = polyfills_1.assign(remainderCell, cell);
+        remainderCell.textPos = polyfills_1.assign({}, cell.textPos);
         remainderCell.text = [];
         var remainingLineCount = getRemainingLineCount(cell, remainingPageSpace);
         if (cell.text.length > remainingLineCount) {
@@ -2161,11 +2067,11 @@ function nextPage(doc) {
 
 
 /***/ }),
-/* 17 */
+/* 16 */
 /***/ (function(module, exports) {
 
-if(typeof __WEBPACK_EXTERNAL_MODULE__17__ === 'undefined') {var e = new Error("Cannot find module 'undefined'"); e.code = 'MODULE_NOT_FOUND'; throw e;}
-module.exports = __WEBPACK_EXTERNAL_MODULE__17__;
+if(typeof __WEBPACK_EXTERNAL_MODULE__16__ === 'undefined') {var e = new Error("Cannot find module 'undefined'"); e.code = 'MODULE_NOT_FOUND'; throw e;}
+module.exports = __WEBPACK_EXTERNAL_MODULE__16__;
 
 /***/ })
 /******/ ]);
