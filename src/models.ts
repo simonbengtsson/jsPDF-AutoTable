@@ -2,10 +2,9 @@ import { defaultConfig, FONT_ROW_RATIO } from './config'
 import state from './state'
 import { CellHookData, HookData } from './HookData'
 import { applyUserStyles, marginOrPadding, styles } from './common'
+import { assign } from './polyfills'
 
 declare function require(path: string): any
-
-var assign = require('object-assign')
 
 type HookHandler = (data: HookData) => void | boolean
 type CellHookHandler = (data: CellHookData) => void | boolean

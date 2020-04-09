@@ -7,8 +7,7 @@ import {
 } from './common'
 import { Cell, Row, Table } from './models'
 import state from './state'
-
-let assign = require('object-assign')
+import { assign } from './polyfills'
 
 export function drawTable(table: Table) {
   let settings = table.settings
