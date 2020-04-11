@@ -1,6 +1,6 @@
 /*!
  * 
- *             jsPDF AutoTable plugin v3.4.1
+ *             jsPDF AutoTable plugin v3.4.2
  *             
  *             Copyright (c) 2020 Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable
  *             Licensed under the MIT License.
@@ -1991,13 +1991,15 @@ function printRow(row) {
             cell.textPos.y = table.cursor.y + cell.height - cell.padding('bottom');
         }
         else {
-            cell.textPos.y = table.cursor.y + cell.height / 2;
+            var netHeight = cell.height - cell.padding('vertical');
+            cell.textPos.y = table.cursor.y + netHeight / 2 + cell.padding('top');
         }
         if (cell.styles.halign === 'right') {
             cell.textPos.x = cell.x + cell.width - cell.padding('right');
         }
         else if (cell.styles.halign === 'center') {
-            cell.textPos.x = cell.x + cell.width / 2;
+            var netWidth = cell.width - cell.padding('horizontal');
+            cell.textPos.x = cell.x + netWidth / 2 + cell.padding('left');
         }
         else {
             cell.textPos.x = cell.x + cell.padding('left');
