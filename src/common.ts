@@ -84,9 +84,9 @@ export function applyStyles(styles, fontOnly = false) {
     lineWidth: doc.setLineWidth,
   }
   const styleModifiers = {
+    fontStyle: doc.setFontStyle,
     font: doc.setFont,
     fontSize: doc.setFontSize,
-    fontStyle: doc.setFontStyle,
     ...(fontOnly ? {} : nonFontModifiers),
   }
 
