@@ -84,6 +84,8 @@ export function applyStyles(styles, fontOnly = false) {
     lineWidth: doc.setLineWidth,
   }
   const styleModifiers = {
+    // Font style needs to be applied before font
+    // https://github.com/simonbengtsson/jsPDF-AutoTable/issues/632
     fontStyle: doc.setFontStyle,
     font: doc.setFont,
     fontSize: doc.setFontSize,
