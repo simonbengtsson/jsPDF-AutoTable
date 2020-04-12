@@ -1,6 +1,6 @@
 /*!
  * 
- *             jsPDF AutoTable plugin v3.4.2
+ *             jsPDF AutoTable plugin v3.4.3
  *             
  *             Copyright (c) 2020 Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable
  *             Licensed under the MIT License.
@@ -291,7 +291,10 @@ function applyStyles(styles, fontOnly) {
         lineColor: doc.setDrawColor,
         lineWidth: doc.setLineWidth,
     };
-    var styleModifiers = __assign({ font: doc.setFont, fontSize: doc.setFontSize, fontStyle: doc.setFontStyle }, (fontOnly ? {} : nonFontModifiers));
+    var styleModifiers = __assign({ 
+        // Font style needs to be applied before font
+        // https://github.com/simonbengtsson/jsPDF-AutoTable/issues/632
+        fontStyle: doc.setFontStyle, font: doc.setFont, fontSize: doc.setFontSize }, (fontOnly ? {} : nonFontModifiers));
     Object.keys(styleModifiers).forEach(function (name) {
         var style = styles[name];
         var modifier = styleModifiers[name];
