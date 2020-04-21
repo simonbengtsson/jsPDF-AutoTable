@@ -2,7 +2,7 @@
   "private": true,
   "dependencies": {
     "jspdf": "^1.5.3",
-    "jspdf-autotable": "^3.3.2"
+    "jspdf-autotable": "^3.4.3"
   },
   "devDependencies": {
     "browserify": "^16.5.1"

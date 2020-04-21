@@ -2,11 +2,11 @@
   "private": true,
   "dependencies": {
     "jspdf": "^1.5.3",
-    "jspdf-autotable": "^3.3.2"
+    "jspdf-autotable": "^3.4.3"
   },
   "devDependencies": {
     "@types/jspdf": "^1.3.3",
-    "@types/node": "^13.11.1",
+    "@types/node": "^13.13.1",
     "browserify": "^16.5.1",
     "tsify": "^4.0.1",
     "typescript": "^3.8.3"
