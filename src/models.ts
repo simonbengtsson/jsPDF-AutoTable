@@ -4,8 +4,6 @@ import { CellHookData, HookData } from './HookData'
 import { applyUserStyles, marginOrPadding, styles } from './common'
 import { assign } from './polyfills'
 
-declare function require(path: string): any
-
 type HookHandler = (data: HookData) => void | boolean
 type CellHookHandler = (data: CellHookData) => void | boolean
 
@@ -18,9 +16,9 @@ class CellHooks {
 
 export class Table {
   id?: any
-  cursor: { x: number; y: number }
+  cursor = { x: 0, y: 0 }
   doc: any
-  userStyles: {}
+  userStyles: any
   settings: any
 
   columns: Column[] = []
@@ -44,9 +42,9 @@ export class Table {
   // https://github.com/simonbengtsson/jsPDF-AutoTable/issues/596
   pageCount = 1
 
-  pageStartX: number
-  pageStartY: number
-  finalY: number
+  pageStartX = 0
+  pageStartY = 0
+  finalY = 0
 
   styles = {
     styles: {},
@@ -64,7 +62,7 @@ export class Table {
   }
 
   callCellHooks(
-    handlers: HookHandler[],
+    handlers: HookHandler[]|CellHookHandler[],
     cell: Cell,
     row: Row,
     column: Column
@@ -97,8 +95,8 @@ export class Row {
 
   height = 0
   maxCellHeight = 0
-  x: number
-  y: number
+  x = 0
+  y = 0
 
   spansMultiplePages = false
 
@@ -152,8 +150,8 @@ export class Cell {
   width = 0
   height = 0
   textPos = {}
-  x: number
-  y: number
+  x = 0
+  y = 0
 
   colSpan: number
   rowSpan: number

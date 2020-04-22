@@ -20,7 +20,7 @@ export function getDocumentOptions(): any {
 }
 
 class TableState {
-  table: Table
+  table: Table|any
   doc: any
 
   constructor(doc) {
