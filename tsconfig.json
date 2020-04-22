@@ -5,7 +5,7 @@
     "strictFunctionTypes": true,
     "strictBindCallApply": true,
     "alwaysStrict": true,
-    //"noImplicitThis": true,
+    "noImplicitThis": true,
     //"noImplicitAny": true,
     "target": "ES5"
   },

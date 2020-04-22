@@ -92,12 +92,12 @@ export function applyStyles(styles, fontOnly = false) {
     ...(fontOnly ? {} : nonFontModifiers),
   }
 
-  Object.keys(styleModifiers).forEach(function (name) {
+  Object.keys(styleModifiers).forEach((name) => {
     const style = styles[name]
     const modifier = styleModifiers[name]
     if (typeof style !== 'undefined') {
       if (Array.isArray(style)) {
-        modifier.apply(this, style)
+        modifier(...style)
       } else {
         modifier(style)
       }

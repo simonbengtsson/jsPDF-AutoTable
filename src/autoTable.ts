@@ -6,7 +6,7 @@ import { drawTable } from './tableDrawer'
 import { applyUserStyles } from './common'
 
 export default function autoTable(options: UserOptions)
-export default function autoTable(...args) {
+export default function autoTable(this: any, ...args) {
   setupState(this)
 
   // 1. Parse and unify user input
