@@ -1,6 +1,6 @@
 import { CellHookData } from './HookData'
 
-interface ColumnOption {
+export interface ColumnOption {
   header?: string
   title?: string // deprecated (same as header)
   footer?: string
@@ -38,13 +38,13 @@ interface CellDefinition {
 }
 
 type CellType = null | string | number | boolean | CellDefinition
-type MultipleRowType = CellType[][] | { string: CellType }[]
+export type MultipleRowType = CellType[][] | { string: CellType }[]
 type SingleRowType = CellType[] | { string: CellType }
 
 export interface BaseConfig {
   head?: SingleRowType | MultipleRowType
   foot?: SingleRowType | MultipleRowType
-  body?: MultipleRowType|object[]
+  body?: MultipleRowType
 
   html?: string | HTMLElement,
   includeHiddenHtml: boolean,

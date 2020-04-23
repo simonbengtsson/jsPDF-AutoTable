@@ -1,14 +1,14 @@
-import { UserOptions } from './interfaces'
+import { ColumnOption, MultipleRowType, UserOptions } from './interfaces'
 import { resetState, setupState } from './state'
 import { parseInput } from './inputParser'
 import { calculateWidths } from './widthCalculator'
 import { drawTable } from './tableDrawer'
 import { applyUserStyles } from './common'
 
-// Deprecated
-export default function autoTable(columns: any, body: any, options: any): any
-
-export default function autoTable(this: any, options: UserOptions) {
+// First definition is deprecated
+export function autoTable(columns: ColumnOption[], data: MultipleRowType, options: Partial<UserOptions>): any
+export function autoTable(options: Partial<UserOptions>): any
+export function autoTable(this: any) {
   setupState(this)
 
   // 1. Parse and unify user input

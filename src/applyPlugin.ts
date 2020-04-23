@@ -2,7 +2,7 @@ import { setDefaults } from './state'
 import './autoTableText'
 import { parseHtml } from './htmlParser'
 import autoTableText, { TextStyles } from './autoTableText'
-import autoTable from './autoTable'
+import { autoTable } from './autoTable'
 import { UserOptions } from './interfaces'
 
 export default function (jsPDF: any) {
