@@ -90,7 +90,7 @@ export class Table {
 export class Row {
   raw: HTMLTableRowElement | any
   index: number
-  cells: { [key: string]: any } = {}
+  cells: { [key: string]: Cell } = {}
   section: Section
 
   height = 0
@@ -150,7 +150,7 @@ export class Cell {
   minWidth = 0
   width = 0
   height = 0
-  textPos = {}
+  textPos = {y: 0, x: 0}
   x = 0
   y = 0
 
