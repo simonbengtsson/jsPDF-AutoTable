@@ -1,12 +1,12 @@
 'use strict'
 
-import { default as applyApi } from './applyPlugin'
+import _applyPlugin from './applyPlugin'
 import { UserOptions } from './interfaces'
 
 // export { applyPlugin } didn't export applyPlugin
 // to index.d.ts for some reason
 export function applyPlugin(jsPDF: any) {
-  applyApi(jsPDF)
+  _applyPlugin(jsPDF)
 }
 export type autoTable = (options: Partial<UserOptions>) => void
 
