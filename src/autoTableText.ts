@@ -6,7 +6,7 @@ export default function (
   text: string | string[],
   x: number,
   y: number,
-  styles: any,
+  styles: TextStyles,
   doc: any
 ) {
   styles = styles || {}
@@ -64,4 +64,10 @@ export default function (
   }
 
   return doc
+}
+
+export interface TextStyles {
+  valign?: 'middle'|'bottom'|'top',
+  halign?: 'justify'|'center'|'right'|'left',
+  maxWidth?: number
 }

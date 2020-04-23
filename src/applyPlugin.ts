@@ -1,8 +1,9 @@
 import { setDefaults } from './state'
 import './autoTableText'
 import { parseHtml } from './htmlParser'
-import autoTableText from './autoTableText'
+import autoTableText, { TextStyles } from './autoTableText'
 import autoTable from './autoTable'
+import { UserOptions } from './interfaces'
 
 export default function (jsPDF: any) {
   jsPDF.API.autoTable = autoTable
@@ -16,17 +17,17 @@ export default function (jsPDF: any) {
     text: string | string[],
     x: number,
     y: number,
-    styles: any
+    styles: TextStyles
   ) {
     autoTableText(text, x, y, styles, this)
   }
 
-  jsPDF.API.autoTableSetDefaults = function (defaults: any) {
+  jsPDF.API.autoTableSetDefaults = function (defaults: Partial<UserOptions>) {
     setDefaults(defaults, this)
     return this
   }
 
-  jsPDF.autoTableSetDefaults = function (defaults: any, doc: any) {
+  jsPDF.autoTableSetDefaults = function (defaults: Partial<UserOptions>, doc: any) {
     setDefaults(defaults, doc)
     return this
   }
@@ -70,7 +71,7 @@ export default function (jsPDF: any) {
   /**
    * @deprecated
    */
-  jsPDF.API.autoTableAddPageContent = function (hook: any) {
+  jsPDF.API.autoTableAddPageContent = function (hook: Function) {
     console.error(
       'Use of deprecated function: autoTableAddPageContent. Use jsPDF.autoTableSetDefaults({didDrawPage: () => {}}) instead.'
     )
