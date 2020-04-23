@@ -4,7 +4,7 @@ import { UserOptions } from './interfaces'
 let defaultsDocument: any = null
 let previousTableState: any
 
-let tableState: any = null
+let tableState: TableState | any = null
 export let globalDefaults: Partial<UserOptions> = {}
 export let documentDefaults: Partial<UserOptions> = {}
 
@@ -78,7 +78,7 @@ export function resetState() {
   tableState = previousTableState
 }
 
-export function setDefaults(defaults: any, doc = null) {
+export function setDefaults(defaults: Partial<UserOptions>, doc = null) {
   if (doc) {
     documentDefaults = defaults || {}
     defaultsDocument = doc

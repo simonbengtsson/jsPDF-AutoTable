@@ -5,6 +5,7 @@ export interface ColumnOption {
   title?: string // deprecated (same as header)
   footer?: string
   dataKey?: string | number
+  key?: string | number // deprecated (same as dataKey)
 }
 
 export type UserOptions = BaseConfig
@@ -39,7 +40,7 @@ interface CellDefinition {
 
 type CellType = null | string | number | boolean | CellDefinition
 export type MultipleRowType = CellType[][] | { string: CellType }[]
-type SingleRowType = CellType[] | { string: CellType }
+type SingleRowType = CellType[] | { [key: string]: CellType }
 
 export interface BaseConfig {
   head?: SingleRowType | MultipleRowType

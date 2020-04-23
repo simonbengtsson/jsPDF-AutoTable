@@ -5,7 +5,7 @@ import { assign } from './polyfills'
 import { getStringWidth, marginOrPadding } from './common'
 import state, { getGlobalOptions, getDocumentOptions } from './state'
 import validateInput from './inputValidator'
-import { UserOptions } from './interfaces'
+import { ColumnOption, UserOptions } from './interfaces'
 
 /**
  * Create models from the user input
@@ -111,7 +111,7 @@ function parseUserArguments(args: any): UserOptions {
     opts.body = args[1]
     opts.columns = args[0]
 
-    opts.columns.forEach((col: any) => {
+    opts.columns.forEach((col: ColumnOption) => {
       // Support v2 title prop in v3
       if (typeof col === 'object' && col.header == null) {
         col.header = col.title
