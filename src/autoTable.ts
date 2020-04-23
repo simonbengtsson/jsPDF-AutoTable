@@ -5,12 +5,14 @@ import { calculateWidths } from './widthCalculator'
 import { drawTable } from './tableDrawer'
 import { applyUserStyles } from './common'
 
-export default function autoTable(options: UserOptions): any
-export default function autoTable(this: any, ...args: any[]) {
+// Deprecated
+export default function autoTable(columns: any, body: any, options: any): any
+
+export default function autoTable(this: any, options: UserOptions) {
   setupState(this)
 
   // 1. Parse and unify user input
-  let table = parseInput(args)
+  let table = parseInput(arguments)
 
   // 2. Calculate preliminary table, column, row and cell dimensions
   calculateWidths(table)

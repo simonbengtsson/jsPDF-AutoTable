@@ -5,6 +5,7 @@ import { assign } from './polyfills'
 import { getStringWidth, marginOrPadding } from './common'
 import state, { getGlobalOptions, getDocumentOptions } from './state'
 import validateInput from './inputValidator'
+import { UserOptions } from './interfaces'
 
 /**
  * Create models from the user input
@@ -31,12 +32,12 @@ export function parseInput(args: any) {
 
   // Merge styles one level deeper
   for (let styleProp of Object.keys(table.styles)) {
-    let styles = allOptions.map((opts) => opts[styleProp] || {})
+    let styles = allOptions.map((opts: any) => opts[styleProp] || {})
     table.styles[styleProp] = assign({}, ...styles)
   }
 
   // Append hooks
-  for (let opts of allOptions) {
+  for (let opts of allOptions as any) {
     for (let hookName of Object.keys(table.cellHooks)) {
       if (opts && typeof opts[hookName] === 'function') {
         table.cellHooks[hookName].push(opts[hookName])
@@ -99,7 +100,7 @@ export function parseInput(args: any) {
   return table
 }
 
-function parseUserArguments(args: any) {
+function parseUserArguments(args: any): UserOptions {
   // Normal initialization on format doc.autoTable(options)
   if (args.length === 1) {
     return args[0]

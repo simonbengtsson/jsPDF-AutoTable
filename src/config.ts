@@ -1,24 +1,14 @@
 import state from './state'
 import { CellHookData, HookData } from './HookData'
+import { BaseConfig } from './interfaces'
 
 /**
  * Ratio between font size and font height. The number comes from jspdf's source code
  */
 export let FONT_ROW_RATIO = 1.15
 
-export function defaultConfig() {
+export function defaultConfig(): BaseConfig {
   return {
-    // Html content
-    html: null, // HTML table element or a CSS selector pointing towards one
-
-    // Custom content
-    head: null,
-    body: null,
-    foot: null,
-
-    // Properties
-    includeHiddenHtml: false,
-    startY: null, // Defaults to margin top value if not set
     margin: 40 / state().scaleFactor(),
     pageBreak: 'auto',
     rowPageBreak: 'auto',
@@ -31,7 +21,6 @@ export function defaultConfig() {
 
     // Styling
     theme: 'striped', // 'striped', 'grid', 'plain', 'css'
-    useCss: false,
     styles: {},
     headStyles: {},
     bodyStyles: {},

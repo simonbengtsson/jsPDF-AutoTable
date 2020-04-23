@@ -1,21 +1,22 @@
 import { Table } from './models'
+import { UserOptions } from './interfaces'
 
 let defaultsDocument: any = null
 let previousTableState: any
 
 let tableState: any = null
-export let globalDefaults = {}
-export let documentDefaults = {}
+export let globalDefaults: Partial<UserOptions> = {}
+export let documentDefaults: Partial<UserOptions> = {}
 
 export default function (): TableState {
   return tableState
 }
 
-export function getGlobalOptions(): any {
+export function getGlobalOptions(): Partial<UserOptions> {
   return globalDefaults
 }
 
-export function getDocumentOptions(): any {
+export function getDocumentOptions(): Partial<UserOptions> {
   return documentDefaults
 }
 

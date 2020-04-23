@@ -3,6 +3,7 @@ import state from './state'
 import { CellHookData, HookData } from './HookData'
 import { applyUserStyles, marginOrPadding, styles } from './common'
 import { assign } from './polyfills'
+import { UserOptions } from './interfaces'
 
 type HookHandler = (data: HookData) => void | boolean
 type CellHookHandler = (data: CellHookData) => void | boolean
@@ -19,7 +20,7 @@ export class Table {
   cursor = { x: 0, y: 0 }
   doc: any
   userStyles: any
-  settings: any
+  settings: UserOptions|any
 
   columns: Column[] = []
 

@@ -41,7 +41,7 @@ type CellType = null | string | number | boolean | CellDefinition
 type MultipleRowType = CellType[][] | { string: CellType }[]
 type SingleRowType = CellType[] | { string: CellType }
 
-interface BaseConfig {
+export interface BaseConfig {
   // Properties
   theme?: 'striped' | 'grid' | 'plain'
   startY?: number
@@ -84,5 +84,7 @@ interface ColumnDataConfig extends BaseConfig {
 }
 
 interface HTMLConfig extends BaseConfig {
-  html: string | HTMLElement
+  html: string | HTMLElement,
+  includeHiddenHtml: boolean,
+  useCss: boolean
 }

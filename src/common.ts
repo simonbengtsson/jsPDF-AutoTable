@@ -112,8 +112,7 @@ export function applyStyles(styles: any, fontOnly = false) {
   })
 }
 
-// This is messy, only keep array and number format the next major version
-export function marginOrPadding(value: any, defaultValue: number): any {
+export function marginOrPadding(value: any, defaultValue: any): any {
   let newValue: any = {}
   if (Array.isArray(value)) {
     if (value.length >= 4) {
