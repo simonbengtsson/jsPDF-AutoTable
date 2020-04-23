@@ -2,21 +2,21 @@
  * Improved text function with halign and valign support
  * Inspiration from: http://stackoverflow.com/questions/28327510/align-text-right-using-jspdf/28433113#28433113
  */
-export default function (text, x, y, styles, doc) {
+export default function (
+  text: string | string[],
+  x: number,
+  y: number,
+  styles: any,
+  doc: any
+) {
   styles = styles || {}
   let FONT_ROW_RATIO = 1.15
 
-  if (typeof x !== 'number' || typeof y !== 'number') {
-    console.error(
-      'The x and y parameters are required. Missing for text: ',
-      text
-    )
-  }
   let k = doc.internal.scaleFactor
   let fontSize = doc.internal.getFontSize() / k
 
   let splitRegex = /\r\n|\r|\n/g
-  let splitText = ''
+  let splitText: string | string[] = ''
   let lineCount = 1
   if (
     styles.valign === 'middle' ||

@@ -1,7 +1,7 @@
 import { Table } from './models'
 
-let defaultsDocument = null
-let previousTableState
+let defaultsDocument: any = null
+let previousTableState: any
 
 let tableState: any = null
 export let globalDefaults = {}
@@ -20,10 +20,10 @@ export function getDocumentOptions(): any {
 }
 
 class TableState {
-  table: Table|any
+  table: Table | any
   doc: any
 
-  constructor(doc) {
+  constructor(doc: any) {
     this.doc = doc
   }
 
@@ -63,7 +63,7 @@ class TableState {
   }
 }
 
-export function setupState(doc) {
+export function setupState(doc: any) {
   previousTableState = tableState
   tableState = new TableState(doc)
 
@@ -77,7 +77,7 @@ export function resetState() {
   tableState = previousTableState
 }
 
-export function setDefaults(defaults, doc = null) {
+export function setDefaults(defaults: any, doc = null) {
   if (doc) {
     documentDefaults = defaults || {}
     defaultsDocument = doc

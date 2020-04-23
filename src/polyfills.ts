@@ -3,7 +3,7 @@
  */
 
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/assign
-export function assign(target: any, ...varArgs) {
+export function assign(target: any, ...varArgs: any[]) {
   'use strict'
   if (target == null) {
     // TypeError if undefined or null

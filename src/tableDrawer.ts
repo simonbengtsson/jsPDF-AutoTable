@@ -65,7 +65,7 @@ export function drawTable(table: Table) {
   table.callEndPageHooks()
 }
 
-function getRemainingLineCount(cell, remainingPageSpace) {
+function getRemainingLineCount(cell: Cell, remainingPageSpace: number) {
   let fontHeight =
     (cell.styles.fontSize / state().scaleFactor()) * FONT_ROW_RATIO
   let vPadding = cell.padding('vertical')
@@ -73,7 +73,7 @@ function getRemainingLineCount(cell, remainingPageSpace) {
   return Math.max(0, remainingLines)
 }
 
-function modifyRowToFit(row, remainingPageSpace, table) {
+function modifyRowToFit(row: Row, remainingPageSpace: number, table: Table) {
   let remainderRow = new Row(row.raw, -1, row.section)
   remainderRow.spansMultiplePages = true
   row.spansMultiplePages = true
@@ -130,7 +130,11 @@ function modifyRowToFit(row, remainingPageSpace, table) {
   return remainderRow
 }
 
-function shouldPrintOnCurrentPage(row, remainingPageSpace, table) {
+function shouldPrintOnCurrentPage(
+  row: Row,
+  remainingPageSpace: number,
+  table: Table
+) {
   let pageHeight = state().pageHeight()
   let marginHeight = table.margin('top') + table.margin('bottom')
   let maxRowHeight = pageHeight - marginHeight
@@ -197,7 +201,7 @@ function printFullRow(row: Row, isLastRow: boolean) {
   }
 }
 
-function printRow(row) {
+function printRow(row: Row) {
   let table: Table = state().table
 
   table.cursor.x = table.margin('left')
@@ -232,10 +236,13 @@ function printRow(row) {
       cell.textPos.x = cell.x + cell.padding('left')
     }
 
-    if (
-      table.callCellHooks(table.cellHooks.willDrawCell, cell, row, column) ===
-      false
-    ) {
+    const result = table.callCellHooks(
+      table.cellHooks.willDrawCell,
+      cell,
+      row,
+      column
+    )
+    if (result === false) {
       table.cursor.x += column.width
       continue
     }
@@ -266,7 +273,7 @@ function printRow(row) {
   table.cursor.y += row.height
 }
 
-function getRemainingPageSpace(isLastRow) {
+function getRemainingPageSpace(isLastRow: boolean) {
   let table = state().table
   let bottomContentHeight = table.margin('bottom')
   let showFoot = table.settings.showFoot
@@ -288,7 +295,7 @@ export function addPage() {
     table.settings.showFoot === true ||
     table.settings.showFoot === 'everyPage'
   ) {
-    table.foot.forEach((row) => printRow(row))
+    table.foot.forEach((row: Row) => printRow(row))
   }
 
   table.finalY = table.cursor.y
@@ -309,11 +316,11 @@ export function addPage() {
     table.settings.showHead === true ||
     table.settings.showHead === 'everyPage'
   ) {
-    table.head.forEach((row) => printRow(row))
+    table.head.forEach((row: Row) => printRow(row))
   }
 }
 
-function nextPage(doc) {
+function nextPage(doc: any) {
   let current = state().pageNumber()
   doc.setPage(current + 1)
   let newCurrent = state().pageNumber()

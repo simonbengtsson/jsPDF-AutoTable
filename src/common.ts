@@ -2,9 +2,9 @@ import { defaultStyles } from './config'
 import state from './state'
 import { assign } from './polyfills'
 
-export function getStringWidth(text, styles) {
+export function getStringWidth(text: string | string[], styles: any) {
   applyStyles(styles, true)
-  const textArr: any = Array.isArray(text) ? text : [text]
+  const textArr: string[] = Array.isArray(text) ? text : [text]
 
   const widestLineWidth = textArr
     .map((text) => state().doc.getTextWidth(text))
@@ -18,9 +18,16 @@ export function getStringWidth(text, styles) {
 /**
  * Ellipsize the text to fit in the width
  */
-export function ellipsize(text, width, styles, ellipsizeStr = '...') {
+export function ellipsize(
+  text: string | string[],
+  width: number,
+  styles: any,
+  ellipsizeStr = '...'
+): string | string[] {
   if (Array.isArray(text)) {
-    return text.map(str => ellipsize(str, width, styles, ellipsizeStr))
+    return text.map((str) =>
+      ellipsize(str, width, styles, ellipsizeStr)
+    ) as string[]
   }
 
   let precision = 10000 * state().scaleFactor()
@@ -57,7 +64,7 @@ export function addTableBorder() {
   }
 }
 
-export function getFillStyle(styles) {
+export function getFillStyle(styles: any) {
   let drawLine = styles.lineWidth > 0
   let drawBackground = styles.fillColor || styles.fillColor === 0
   if (drawLine && drawBackground) {
@@ -75,7 +82,7 @@ export function applyUserStyles() {
   applyStyles(state().table.userStyles)
 }
 
-export function applyStyles(styles, fontOnly = false) {
+export function applyStyles(styles: any, fontOnly = false) {
   const doc = state().doc
   const nonFontModifiers = {
     fillColor: doc.setFillColor,
@@ -83,7 +90,7 @@ export function applyStyles(styles, fontOnly = false) {
     lineColor: doc.setDrawColor,
     lineWidth: doc.setLineWidth,
   }
-  const styleModifiers = {
+  const styleModifiers: { [key: string]: any } = {
     // Font style needs to be applied before font
     // https://github.com/simonbengtsson/jsPDF-AutoTable/issues/632
     fontStyle: doc.setFontStyle,
@@ -106,8 +113,8 @@ export function applyStyles(styles, fontOnly = false) {
 }
 
 // This is messy, only keep array and number format the next major version
-export function marginOrPadding(value, defaultValue: number): any {
-  let newValue = {}
+export function marginOrPadding(value: any, defaultValue: number): any {
+  let newValue: any = {}
   if (Array.isArray(value)) {
     if (value.length >= 4) {
       newValue = {
@@ -158,7 +165,7 @@ export function marginOrPadding(value, defaultValue: number): any {
   return newValue
 }
 
-export function styles(styles) {
+export function styles(styles: any) {
   styles = Array.isArray(styles) ? styles : [styles]
   return assign(defaultStyles(), ...styles)
 }

@@ -4,7 +4,7 @@ import { parseHtml } from './htmlParser'
 import autoTableText from './autoTableText'
 import autoTable from './autoTable'
 
-export default function (jsPDF) {
+export default function (jsPDF: any) {
   jsPDF.API.autoTable = autoTable
 
   // Assign false to enable `doc.lastAutoTable.finalY || 40` sugar
@@ -12,21 +12,29 @@ export default function (jsPDF) {
   jsPDF.API.previousAutoTable = false // deprecated in v3
   jsPDF.API.autoTable.previous = false // deprecated in v3
 
-  jsPDF.API.autoTableText = function (text, x, y, styles) {
+  jsPDF.API.autoTableText = function (
+    text: string | string[],
+    x: number,
+    y: number,
+    styles: any
+  ) {
     autoTableText(text, x, y, styles, this)
   }
 
-  jsPDF.API.autoTableSetDefaults = function (defaults) {
+  jsPDF.API.autoTableSetDefaults = function (defaults: any) {
     setDefaults(defaults, this)
     return this
   }
 
-  jsPDF.autoTableSetDefaults = function (defaults, doc) {
+  jsPDF.autoTableSetDefaults = function (defaults: any, doc: any) {
     setDefaults(defaults, doc)
     return this
   }
 
-  jsPDF.API.autoTableHtmlToJson = function (tableElem, includeHiddenElements) {
+  jsPDF.API.autoTableHtmlToJson = function (
+    tableElem: HTMLTableElement,
+    includeHiddenElements: boolean
+  ) {
     includeHiddenElements = includeHiddenElements || false
 
     if (!tableElem || !(tableElem instanceof HTMLTableElement)) {
@@ -62,7 +70,7 @@ export default function (jsPDF) {
   /**
    * @deprecated
    */
-  jsPDF.API.autoTableAddPageContent = function (hook) {
+  jsPDF.API.autoTableAddPageContent = function (hook: any) {
     console.error(
       'Use of deprecated function: autoTableAddPageContent. Use jsPDF.autoTableSetDefaults({didDrawPage: () => {}}) instead.'
     )

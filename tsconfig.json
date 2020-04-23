@@ -1,12 +1,6 @@
 {
   "compilerOptions": {
-    "strictNullChecks": true,
-    "strictPropertyInitialization": true,
-    "strictFunctionTypes": true,
-    "strictBindCallApply": true,
-    "alwaysStrict": true,
-    "noImplicitThis": true,
-    //"noImplicitAny": true,
+    "strict": true,
     "target": "ES5"
   },
   "include": ["src/**/*"]

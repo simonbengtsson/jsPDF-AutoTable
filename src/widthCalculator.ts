@@ -105,8 +105,8 @@ export function resizeColumns(
   return resizeWidth
 }
 
-function applyRowSpans(table) {
-  let rowSpanCells = {}
+function applyRowSpans(table: Table) {
+  let rowSpanCells: { [key: string]: any } = {}
   let colRowSpansLeft = 1
   let all = table.allRows()
   for (let rowIndex = 0; rowIndex < all.length; rowIndex++) {
@@ -152,7 +152,7 @@ function applyRowSpans(table) {
   }
 }
 
-function applyColSpans(table) {
+function applyColSpans(table: Table) {
   let all = table.allRows()
   for (let rowIndex = 0; rowIndex < all.length; rowIndex++) {
     let row = all[rowIndex]
@@ -193,7 +193,7 @@ function applyColSpans(table) {
   }
 }
 
-function fitContent(table) {
+function fitContent(table: Table) {
   let rowSpanHeight = { count: 0, height: 0 }
   for (let row of table.allRows()) {
     for (let column of table.columns) {

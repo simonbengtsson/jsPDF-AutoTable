@@ -46,7 +46,7 @@ export class Table {
   pageStartY = 0
   finalY = 0
 
-  styles = {
+  styles: any = {
     styles: {},
     headStyles: {},
     bodyStyles: {},
@@ -55,14 +55,14 @@ export class Table {
     columnStyles: {},
   }
 
-  cellHooks: CellHooks = new CellHooks()
+  cellHooks: any = new CellHooks()
 
   allRows() {
     return this.head.concat(this.body).concat(this.foot)
   }
 
   callCellHooks(
-    handlers: HookHandler[]|CellHookHandler[],
+    handlers: HookHandler[] | CellHookHandler[],
     cell: Cell,
     row: Row,
     column: Column
@@ -82,7 +82,7 @@ export class Table {
     }
   }
 
-  margin(side) {
+  margin(side: string) {
     return marginOrPadding(this.settings.margin, defaultConfig().margin)[side]
   }
 }
@@ -90,8 +90,8 @@ export class Table {
 export class Row {
   raw: HTMLTableRowElement | any
   index: number
-  cells = {}
-  section: 'head' | 'body' | 'foot'
+  cells: { [key: string]: any } = {}
+  section: Section
 
   height = 0
   maxCellHeight = 0
@@ -100,7 +100,7 @@ export class Row {
 
   spansMultiplePages = false
 
-  constructor(raw, index, section) {
+  constructor(raw: any, index: number, section: Section) {
     this.raw = raw
     if (raw._element) {
       this.raw = raw._element
@@ -111,7 +111,7 @@ export class Row {
 
   hasRowSpan() {
     return (
-      state().table.columns.filter((column) => {
+      state().table.columns.filter((column: Column) => {
         let cell = this.cells[column.index]
         if (!cell) return false
         return cell.rowSpan > 1
@@ -119,12 +119,12 @@ export class Row {
     )
   }
 
-  canEntireRowFit(height) {
+  canEntireRowFit(height: number) {
     return this.maxCellHeight <= height
   }
 
   getMinimumRowHeight() {
-    return state().table.columns.reduce((acc, column) => {
+    return state().table.columns.reduce((acc: number, column: Column) => {
       let cell = this.cells[column.index]
       if (!cell) return 0
       let fontHeight =
@@ -136,11 +136,12 @@ export class Row {
   }
 }
 
+export type Section = 'head' | 'body' | 'foot'
 export class Cell {
   raw: HTMLTableCellElement | any
   styles: any
-  text: string[]
-  section: 'head' | 'body' | 'foot'
+  text: string | string[]
+  section: Section
 
   contentHeight = 0
   contentWidth = 0
@@ -156,7 +157,7 @@ export class Cell {
   colSpan: number
   rowSpan: number
 
-  constructor(raw, themeStyles, section) {
+  constructor(raw: any, themeStyles: any, section: Section) {
     this.rowSpan = (raw && raw.rowSpan) || 1
     this.colSpan = (raw && raw.colSpan) || 1
     this.styles = assign(themeStyles, (raw && raw.styles) || {})
@@ -182,7 +183,9 @@ export class Cell {
     return lineCount * fontHeight + this.padding('vertical')
   }
 
-  padding(name) {
+  padding(
+    name: 'vertical' | 'horizontal' | 'top' | 'bottom' | 'left' | 'right'
+  ) {
     let padding = marginOrPadding(
       this.styles.cellPadding,
       styles([]).cellPadding
@@ -207,7 +210,7 @@ export class Column {
   minWidth = 0
   width = 0
 
-  constructor(dataKey, raw, index) {
+  constructor(dataKey: string | number, raw: any, index: number) {
     this.dataKey = dataKey
     this.raw = raw
     this.index = index

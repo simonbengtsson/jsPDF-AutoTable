@@ -1,6 +1,6 @@
 import { applyUserStyles } from './common'
 
-export default function (allOptions) {
+export default function (allOptions: any) {
   for (let settings of allOptions) {
     if (settings && typeof settings !== 'object') {
       console.error(
@@ -32,7 +32,7 @@ export default function (allOptions) {
       console.error(
         'The afterPageContent, beforePageContent and afterPageAdd hooks are deprecated. Use didDrawPage instead'
       )
-      settings.didDrawPage = function (data) {
+      settings.didDrawPage = function (data: any) {
         applyUserStyles()
         if (settings.beforePageContent) settings.beforePageContent(data)
         applyUserStyles()
@@ -110,7 +110,7 @@ export default function (allOptions) {
   }
 }
 
-function checkStyles(styles) {
+function checkStyles(styles: any) {
   if (styles.rowHeight) {
     console.error(
       'Use of deprecated style rowHeight. It is renamed to minCellHeight.'

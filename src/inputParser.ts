@@ -1,4 +1,4 @@
-import { Row, Cell, Column, Table } from './models'
+import { Row, Cell, Column, Table, Section } from './models'
 import { getTheme, defaultConfig, defaultStyles } from './config'
 import { parseHtml } from './htmlParser'
 import { assign } from './polyfills'
@@ -9,7 +9,7 @@ import validateInput from './inputValidator'
 /**
  * Create models from the user input
  */
-export function parseInput(args) {
+export function parseInput(args: any) {
   let tableOptions = parseUserArguments(args)
   let globalOptions = getGlobalOptions()
   let documentOptions = getDocumentOptions()
@@ -99,7 +99,7 @@ export function parseInput(args) {
   return table
 }
 
-function parseUserArguments(args) {
+function parseUserArguments(args: any) {
   // Normal initialization on format doc.autoTable(options)
   if (args.length === 1) {
     return args[0]
@@ -110,7 +110,7 @@ function parseUserArguments(args) {
     opts.body = args[1]
     opts.columns = args[0]
 
-    opts.columns.forEach((col) => {
+    opts.columns.forEach((col: any) => {
       // Support v2 title prop in v3
       if (typeof col === 'object' && col.header == null) {
         col.header = col.title
@@ -121,13 +121,15 @@ function parseUserArguments(args) {
   }
 }
 
-function parseContent(table) {
+function parseContent(table: Table) {
   let settings = table.settings
 
   table.columns = getTableColumns(settings)
 
-  for (let sectionName of ['head', 'body', 'foot']) {
-    let rowSpansLeftForColumn = {}
+  for (let sectionName of ['head', 'body', 'foot'] as Section[]) {
+    let rowSpansLeftForColumn: {
+      [key: string]: { left: number; times: number }
+    } = {}
     let sectionRows = settings[sectionName]
     if (
       sectionRows.length === 0 &&
@@ -140,7 +142,7 @@ function parseContent(table) {
         sectionRows.push(sectionRow)
       }
     }
-    sectionRows.forEach((rawRow, rowIndex) => {
+    sectionRows.forEach((rawRow: any, rowIndex: number) => {
       let skippedRowForRowSpans = 0
       let row = new Row(rawRow, rowIndex, sectionName)
       table[sectionName].push(row)
@@ -264,8 +266,8 @@ function parseContent(table) {
   })
 }
 
-function generateSectionRowFromColumnData(table, sectionName) {
-  let sectionRow = {}
+function generateSectionRowFromColumnData(table: Table, sectionName: Section) {
+  let sectionRow: { [key: string]: any } = {}
   table.columns.forEach((col) => {
     let columnData = col.raw
     if (sectionName === 'head') {
@@ -281,9 +283,9 @@ function generateSectionRowFromColumnData(table, sectionName) {
   return Object.keys(sectionRow).length > 0 ? sectionRow : null
 }
 
-function getTableColumns(settings) {
+function getTableColumns(settings: any) {
   if (settings.columns) {
-    return settings.columns.map((input, index) => {
+    return settings.columns.map((input: any, index: number) => {
       const key = input.dataKey || input.key || index
       return new Column(key, input, index)
     })
@@ -310,7 +312,7 @@ function getTableColumns(settings) {
   }
 }
 
-function cellStyles(sectionName, column, rowIndex) {
+function cellStyles(sectionName: Section, column: Column, rowIndex: number) {
   let table = state().table
   let theme = getTheme(table.settings.theme)
   let otherStyles = [

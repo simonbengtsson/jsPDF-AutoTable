@@ -5,7 +5,7 @@ import { UserOptions } from './interfaces'
 
 // export { applyPlugin } didn't export applyPlugin
 // to index.d.ts for some reason
-export function applyPlugin(jsPDF) {
+export function applyPlugin(jsPDF: any) {
   applyApi(jsPDF)
 }
 export type autoTable = (options: UserOptions) => void

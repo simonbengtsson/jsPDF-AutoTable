@@ -4,11 +4,15 @@
 import { marginOrPadding } from './common'
 import state from './state'
 
-export function parseCss(element, scaleFactor, ignored: string[] = []) {
+export function parseCss(
+  element: Element,
+  scaleFactor: number,
+  ignored: string[] = []
+) {
   let result: any = {}
   let style = window.getComputedStyle(element)
 
-  function assign(name, value, accepted: string[] = []) {
+  function assign(name: string, value: any, accepted: string[] = []) {
     if (
       (accepted.length === 0 || accepted.indexOf(value) !== -1) &&
       ignored.indexOf(name) === -1
@@ -56,7 +60,7 @@ export function parseCss(element, scaleFactor, ignored: string[] = []) {
   return result
 }
 
-function parseFontStyle(style) {
+function parseFontStyle(style: any) {
   let res = ''
   if (
     style.fontWeight === 'bold' ||
@@ -71,7 +75,7 @@ function parseFontStyle(style) {
   return res
 }
 
-function parseColor(element, colorProp) {
+function parseColor(element: Element, colorProp: any) {
   let cssColor = realColor(element, colorProp)
 
   if (!cssColor) return null
@@ -93,7 +97,7 @@ function parseColor(element, colorProp) {
   return color
 }
 
-function realColor(elem, colorProp) {
+function realColor(elem: Element | null, colorProp: any): any {
   if (!elem) return null
 
   var bg = window.getComputedStyle(elem)[colorProp]
@@ -109,16 +113,21 @@ function realColor(elem, colorProp) {
   }
 }
 
-function parsePadding(val, fontSize, lineHeight, scaleFactor) {
+function parsePadding(
+  val: null | string[],
+  fontSize: string,
+  lineHeight: string,
+  scaleFactor: number
+) {
   if (!val) return null
-  let pxScaleFactor = 96 / (72 / scaleFactor)
-  let linePadding =
+  const pxScaleFactor = 96 / (72 / scaleFactor)
+  const linePadding =
     (parseInt(lineHeight) - parseInt(fontSize)) / scaleFactor / 2
 
-  let padding = val.map((n) => {
+  const inputPadding = val.map((n) => {
     return parseInt(n) / pxScaleFactor
   })
-  padding = marginOrPadding(padding, 0)
+  const padding = marginOrPadding(inputPadding, 0)
   if (linePadding > padding.top) {
     padding.top = linePadding
   }

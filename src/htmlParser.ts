@@ -5,8 +5,8 @@ export function parseHtml(
   input: HTMLTableElement | string,
   includeHiddenHtml = false,
   useCss = false
-): { head: any[][], body: any[][], foot: any[][] } {
-  let tableElement
+): { head: any[][]; body: any[][]; foot: any[][] } {
+  let tableElement: HTMLTableElement
   if (typeof input === 'string') {
     tableElement = <HTMLTableElement>window.document.querySelector(input)
   } else {
@@ -22,7 +22,7 @@ export function parseHtml(
     return { head, body, foot }
   }
 
-  for (const rowNode of tableElement.rows) {
+  for (const rowNode of tableElement.rows as any) {
     const tagName = rowNode.parentNode.tagName.toLowerCase()
     let row = parseRowContent(window, rowNode, includeHiddenHtml, useCss)
     if (!row) continue
@@ -40,7 +40,12 @@ export function parseHtml(
   return { head, body, foot }
 }
 
-function parseRowContent(window, row, includeHidden, useCss) {
+function parseRowContent(
+  window: Window,
+  row: HTMLTableRowElement,
+  includeHidden: boolean,
+  useCss: boolean
+) {
   let resultRow: any = []
   let rowStyles = useCss
     ? parseCss(row, state().scaleFactor(), [
@@ -69,7 +74,7 @@ function parseRowContent(window, row, includeHidden, useCss) {
   }
 }
 
-function parseCellContent(orgCell) {
+function parseCellContent(orgCell: any) {
   // Work on cloned node to make sure no changes are applied to html table
   const cell = orgCell.cloneNode(true)
 
@@ -80,7 +85,7 @@ function parseCellContent(orgCell) {
   // Preserve <br> tags as line breaks in the pdf
   cell.innerHTML = cell.innerHTML
     .split('<br>')
-    .map((part) => part.trim())
+    .map((part: string) => part.trim())
     .join('\n')
 
   // innerText for ie

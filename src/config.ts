@@ -1,8 +1,10 @@
+import state from './state'
+import { CellHookData, HookData } from './HookData'
+
 /**
  * Ratio between font size and font height. The number comes from jspdf's source code
  */
 export let FONT_ROW_RATIO = 1.15
-import state from './state'
 
 export function defaultConfig() {
   return {
@@ -39,12 +41,12 @@ export function defaultConfig() {
 
     // Hooks
     // Use to change the content of the cell before width calculations etc are performed
-    didParseCell: function (data) {},
-    willDrawCell: function (data) {},
+    didParseCell: function (data: CellHookData) {},
+    willDrawCell: function (data: CellHookData) {},
     // Use to draw additional content such as images in table cells
-    didDrawCell: function (data) {},
+    didDrawCell: function (data: CellHookData) {},
     // Use to draw additional content to each page such as headers and footers
-    didDrawPage: function (data) {},
+    didDrawPage: function (data: HookData) {},
   }
 }
 
@@ -70,7 +72,7 @@ export function defaultStyles() {
 /**
  * Styles for the themes (overriding the default styles)
  */
-export function getTheme(name) {
+export function getTheme(name: 'striped' | 'grid' | 'plain'): any {
   let themes = {
     striped: {
       table: { fillColor: 255, textColor: 80, fontStyle: 'normal' },
