@@ -7,14 +7,14 @@ interface ColumnOption {
   dataKey?: string | number
 }
 
-export type UserOptions = HTMLConfig | ContentConfig | ColumnDataConfig
+export type UserOptions = BaseConfig
 
 type Color = [number, number, number] | number | 'transparent' | false
 type MarginPadding =
   | number
   | { top?: number; right?: number; bottom?: number; left?: number }
 
-interface Styles {
+export interface Styles {
   font?: 'helvetica' | 'times' | 'courier' | string
   fontStyle?: 'normal' | 'bold' | 'italic' | 'bolditalic'
   overflow?: 'linebreak' | 'ellipsize' | 'visible' | 'hidden'
@@ -42,49 +42,42 @@ type MultipleRowType = CellType[][] | { string: CellType }[]
 type SingleRowType = CellType[] | { string: CellType }
 
 export interface BaseConfig {
+  head?: SingleRowType | MultipleRowType
+  foot?: SingleRowType | MultipleRowType
+  body?: MultipleRowType|object[]
+
+  html?: string | HTMLElement,
+  includeHiddenHtml: boolean,
+  useCss: boolean
+
+  columns?: ColumnOption[]
+
   // Properties
-  theme?: 'striped' | 'grid' | 'plain'
+  theme: 'striped' | 'grid' | 'plain'
   startY?: number
-  margin?: MarginPadding
-  pageBreak?: 'auto' | 'avoid' | 'always'
-  rowPageBreak?: 'auto' | 'avoid'
-  tableWidth?: 'auto' | 'wrap' | number
-  showHead?: 'everyPage' | 'firstPage' | 'never'
-  showFoot?: 'everyPage' | 'lastPage' | 'never'
-  tableLineWidth?: number
-  tableLineColor?: Color
-  tableId?: any
+  margin: MarginPadding
+  pageBreak: 'auto' | 'avoid' | 'always'
+  rowPageBreak: 'auto' | 'avoid'
+  tableWidth: 'auto' | 'wrap' | number
+  showHead: 'everyPage' | 'firstPage' | 'never'
+  showFoot: 'everyPage' | 'lastPage' | 'never'
+  tableLineWidth: number
+  tableLineColor: Color
+  tableId: any
 
   // Styles
-  styles?: Styles
-  bodyStyles?: Styles
-  headStyles?: Styles
-  footStyles?: Styles
-  alternateRowStyles?: Styles
-  columnStyles?: {
+  styles: Styles
+  bodyStyles: Styles
+  headStyles: Styles
+  footStyles: Styles
+  alternateRowStyles: Styles
+  columnStyles: {
     [key: string]: Styles
   }
 
   // Hooks
-  didParseCell?: (data: CellHookData) => void
-  willDrawCell?: (data: CellHookData) => void
-  didDrawCell?: (data: CellHookData) => void
-  didDrawPage?: (data: CellHookData) => void
-}
-
-interface ContentConfig extends BaseConfig {
-  head?: SingleRowType | MultipleRowType
-  foot?: SingleRowType | MultipleRowType
-  body: MultipleRowType
-}
-
-interface ColumnDataConfig extends BaseConfig {
-  columns?: ColumnOption[]
-  body: object[]
-}
-
-interface HTMLConfig extends BaseConfig {
-  html: string | HTMLElement,
-  includeHiddenHtml: boolean,
-  useCss: boolean
+  didParseCell: (data: CellHookData) => void
+  willDrawCell: (data: CellHookData) => void
+  didDrawCell: (data: CellHookData) => void
+  didDrawPage: (data: CellHookData) => void
 }

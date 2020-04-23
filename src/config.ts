@@ -1,6 +1,6 @@
 import state from './state'
 import { CellHookData, HookData } from './HookData'
-import { BaseConfig } from './interfaces'
+import { BaseConfig, Styles } from './interfaces'
 
 /**
  * Ratio between font size and font height. The number comes from jspdf's source code
@@ -9,6 +9,8 @@ export let FONT_ROW_RATIO = 1.15
 
 export function defaultConfig(): BaseConfig {
   return {
+    useCss: false,
+    includeHiddenHtml: false,
     margin: 40 / state().scaleFactor(),
     pageBreak: 'auto',
     rowPageBreak: 'auto',
@@ -40,7 +42,7 @@ export function defaultConfig(): BaseConfig {
 }
 
 // Base style for all themes
-export function defaultStyles() {
+export function defaultStyles(): Styles {
   return {
     font: 'helvetica', // helvetica, times, courier
     fontStyle: 'normal', // normal, bold, italic, bolditalic
@@ -61,8 +63,9 @@ export function defaultStyles() {
 /**
  * Styles for the themes (overriding the default styles)
  */
-export function getTheme(name: 'striped' | 'grid' | 'plain'): any {
-  let themes = {
+type Theme = 'striped' | 'grid' | 'plain'
+export function getTheme(name: Theme): {[key: string]: Partial<Styles>} {
+  let themes: {[key in Theme]: {[key: string]: Partial<Styles>}} = {
     striped: {
       table: { fillColor: 255, textColor: 80, fontStyle: 'normal' },
       head: { textColor: 255, fillColor: [41, 128, 185], fontStyle: 'bold' },

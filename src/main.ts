@@ -8,7 +8,7 @@ import { UserOptions } from './interfaces'
 export function applyPlugin(jsPDF: any) {
   applyApi(jsPDF)
 }
-export type autoTable = (options: UserOptions) => void
+export type autoTable = (options: Partial<UserOptions>) => void
 
 try {
   const jsPDF = require('jspdf')
