@@ -1,6 +1,6 @@
 /*!
  * 
- *             jsPDF AutoTable plugin v3.4.3
+ *             jsPDF AutoTable plugin v3.4.4
  *             
  *             Copyright (c) 2020 Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable
  *             Licensed under the MIT License.
@@ -232,7 +232,9 @@ exports.getStringWidth = getStringWidth;
 function ellipsize(text, width, styles, ellipsizeStr) {
     if (ellipsizeStr === void 0) { ellipsizeStr = '...'; }
     if (Array.isArray(text)) {
-        return text.map(function (str) { return ellipsize(str, width, styles, ellipsizeStr); });
+        return text.map(function (str) {
+            return ellipsize(str, width, styles, ellipsizeStr);
+        });
     }
     var precision = 10000 * state_1.default().scaleFactor();
     width = Math.ceil(width * precision) / precision;
@@ -300,7 +302,7 @@ function applyStyles(styles, fontOnly) {
         var modifier = styleModifiers[name];
         if (typeof style !== 'undefined') {
             if (Array.isArray(style)) {
-                modifier.apply(this, style);
+                modifier.apply(void 0, style);
             }
             else {
                 modifier(style);
@@ -379,11 +381,11 @@ exports.styles = styles;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+var state_1 = __webpack_require__(0);
 /**
  * Ratio between font size and font height. The number comes from jspdf's source code
  */
 exports.FONT_ROW_RATIO = 1.15;
-var state_1 = __webpack_require__(0);
 function defaultConfig() {
     return {
         // Html content
@@ -540,9 +542,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 function default_1(text, x, y, styles, doc) {
     styles = styles || {};
     var FONT_ROW_RATIO = 1.15;
-    if (typeof x !== 'number' || typeof y !== 'number') {
-        console.error('The x and y parameters are required. Missing for text: ', text);
-    }
     var k = doc.internal.scaleFactor;
     var fontSize = doc.internal.getFontSize() / k;
     var splitRegex = /\r\n|\r|\n/g;
@@ -700,6 +699,7 @@ var CellHooks = /** @class */ (function () {
 }());
 var Table = /** @class */ (function () {
     function Table() {
+        this.cursor = { x: 0, y: 0 };
         this.columns = [];
         this.head = [];
         this.body = [];
@@ -716,6 +716,9 @@ var Table = /** @class */ (function () {
         // Not using getter since:
         // https://github.com/simonbengtsson/jsPDF-AutoTable/issues/596
         this.pageCount = 1;
+        this.pageStartX = 0;
+        this.pageStartY = 0;
+        this.finalY = 0;
         this.styles = {
             styles: {},
             headStyles: {},
@@ -756,6 +759,8 @@ var Row = /** @class */ (function () {
         this.cells = {};
         this.height = 0;
         this.maxCellHeight = 0;
+        this.x = 0;
+        this.y = 0;
         this.spansMultiplePages = false;
         this.raw = raw;
         if (raw._element) {
@@ -800,7 +805,9 @@ var Cell = /** @class */ (function () {
         this.minWidth = 0;
         this.width = 0;
         this.height = 0;
-        this.textPos = {};
+        this.textPos = { y: 0, x: 0 };
+        this.x = 0;
+        this.y = 0;
         this.rowSpan = (raw && raw.rowSpan) || 1;
         this.colSpan = (raw && raw.colSpan) || 1;
         this.styles = polyfills_1.assign(themeStyles, (raw && raw.styles) || {});
@@ -1054,10 +1061,10 @@ function parsePadding(val, fontSize, lineHeight, scaleFactor) {
         return null;
     var pxScaleFactor = 96 / (72 / scaleFactor);
     var linePadding = (parseInt(lineHeight) - parseInt(fontSize)) / scaleFactor / 2;
-    var padding = val.map(function (n) {
+    var inputPadding = val.map(function (n) {
         return parseInt(n) / pxScaleFactor;
     });
-    padding = common_1.marginOrPadding(padding, 0);
+    var padding = common_1.marginOrPadding(inputPadding, 0);
     if (linePadding > padding.top) {
         padding.top = linePadding;
     }
@@ -2007,8 +2014,8 @@ function printRow(row) {
         else {
             cell.textPos.x = cell.x + cell.padding('left');
         }
-        if (table.callCellHooks(table.cellHooks.willDrawCell, cell, row, column) ===
-            false) {
+        var result = table.callCellHooks(table.cellHooks.willDrawCell, cell, row, column);
+        if (result === false) {
             table.cursor.x += column.width;
             continue;
         }
