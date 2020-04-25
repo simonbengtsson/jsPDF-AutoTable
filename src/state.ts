@@ -20,12 +20,18 @@ export function getDocumentOptions(): Partial<UserOptions> {
   return documentDefaults
 }
 
-class TableState {
-  table: Table | any
+interface ITableState {
+  table: Table
+  doc: any
+}
+
+class TableState implements ITableState {
+  table: Table
   doc: any
 
-  constructor(doc: any) {
+  constructor(doc: any, table: Table) {
     this.doc = doc
+    this.table = table
   }
 
   pageHeight() {
@@ -66,10 +72,14 @@ class TableState {
 
 export function setupState(doc: any) {
   previousTableState = tableState
-  tableState = new TableState(doc)
+
+  // Hack for lazy init of table property
+  const table = {} as Table
+  tableState = new TableState(doc, table)
 
   if (doc !== defaultsDocument) {
     defaultsDocument = doc
+    documentDefaults = {}
     documentDefaults = {}
   }
 }

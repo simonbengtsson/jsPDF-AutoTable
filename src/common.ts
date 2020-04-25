@@ -1,6 +1,7 @@
 import { defaultStyles } from './config'
 import state from './state'
 import { assign } from './polyfills'
+import { MarginPaddingInput } from './interfaces'
 
 export function getStringWidth(text: string | string[], styles: any) {
   applyStyles(styles, true)
@@ -113,25 +114,24 @@ export function applyStyles(styles: any, fontOnly = false) {
 }
 
 export type MarginPadding = { top: number, right: number, bottom: number, left: number }
-export function marginOrPadding(value: any, defaultValue: any): MarginPadding {
-  let newValue: any = {}
+export function marginOrPadding(value: MarginPaddingInput, defaultValue: number): MarginPadding {
   if (Array.isArray(value)) {
     if (value.length >= 4) {
-      newValue = {
+      return {
         top: value[0],
         right: value[1],
         bottom: value[2],
         left: value[3],
       }
     } else if (value.length === 3) {
-      newValue = {
+      return {
         top: value[0],
         right: value[1],
         bottom: value[2],
         left: value[1],
       }
     } else if (value.length === 2) {
-      newValue = {
+      return {
         top: value[0],
         right: value[1],
         bottom: value[0],
@@ -142,27 +142,30 @@ export function marginOrPadding(value: any, defaultValue: any): MarginPadding {
     } else {
       value = defaultValue
     }
-  } else if (typeof value === 'object') {
-    if (value['vertical']) {
-      value['top'] = value['vertical']
-      value['bottom'] = value['vertical']
-    }
-    if (value['horizontal']) {
-      value['right'] = value['horizontal']
-      value['left'] = value['horizontal']
-    }
+  }
 
-    for (let side of ['top', 'right', 'bottom', 'left']) {
-      newValue[side] =
-        value[side] || value[side] === 0 ? value[side] : defaultValue
+  if (typeof value === 'object') {
+    if (typeof value.vertical === 'number') {
+      value.top = value.vertical
+      value.bottom = value.vertical
+    }
+    if (typeof value.horizontal === 'number') {
+      value.right = value.horizontal
+      value.left = value.horizontal
+    }
+    return {
+      left: value.left ?? defaultValue,
+      top: value.top ?? defaultValue,
+      right: value.right ?? defaultValue,
+      bottom: value.bottom ?? defaultValue
     }
   }
 
-  if (typeof value === 'number') {
-    newValue = { top: value, right: value, bottom: value, left: value }
+  if (typeof value !== 'number') {
+    value = defaultValue
   }
 
-  return newValue
+  return { top: value, right: value, bottom: value, left: value }
 }
 
 export function styles(styles: any) {

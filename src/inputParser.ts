@@ -1,3 +1,17 @@
+import { getTheme, defaultConfig, defaultStyles } from './config'
+import { parseHtml } from './htmlParser'
+import { assign } from './polyfills'
+import { getStringWidth, marginOrPadding } from './common'
+import state, { getGlobalOptions, getDocumentOptions } from './state'
+import validateInput from './inputValidator'
+import {
+  CellDefinition,
+  CellType,
+  ColumnOption,
+  RowInput,
+  Settings,
+  UserOptions,
+} from './interfaces'
 import {
   Row,
   Cell,
@@ -11,19 +25,6 @@ import {
   CellHook,
   PageHook,
 } from './models'
-import { getTheme, defaultConfig, defaultStyles } from './config'
-import { parseHtml } from './htmlParser'
-import { assign } from './polyfills'
-import { getStringWidth, marginOrPadding } from './common'
-import state, { getGlobalOptions, getDocumentOptions } from './state'
-import validateInput from './inputValidator'
-import {
-  CellType,
-  ColumnOption,
-  MultipleRowType,
-  SingleRowType,
-  UserOptions,
-} from './interfaces'
 
 /**
  * Create models from the user input
@@ -35,16 +36,8 @@ export function parseInput(args: any) {
   let allOptions = [globalOptions, documentOptions, tableOptions]
   validateInput(allOptions)
 
-  let defaultConf = defaultConfig()
-  let settings = assign({}, defaultConf, ...allOptions)
-  if (settings.theme === 'auto') {
-    settings.theme = settings.useCss ? 'plain' : 'striped'
-  }
+  let settings = unifyInput(allOptions)
 
-  let margin = marginOrPadding(settings.margin, defaultConf.margin)
-  let startY = getStartY(settings, margin.top)
-
-  // Merge styles one level deeper
   let styleOptions: StylesProps = {
     styles: {},
     headStyles: {},
@@ -77,26 +70,14 @@ export function parseInput(args: any) {
   }
   let table = new Table(
     tableOptions.tableId,
-    startY,
     settings,
     styleOptions,
     userStyles,
     hooks,
-    margin
   )
   state().table = table
 
-  let htmlContent: any = {}
-  if (settings.html) {
-    htmlContent =
-      parseHtml(settings.html, settings.includeHiddenHtml, settings.useCss) ||
-      {}
-  }
-  settings.head = htmlContent.head || settings.head || []
-  settings.body = htmlContent.body || settings.body || []
-  settings.foot = htmlContent.foot || settings.foot || []
-
-  parseContent(table, settings)
+  parseContent(table, settings as UserOptions)
 
   table.minWidth = table.columns.reduce((total, col) => total + col.minWidth, 0)
   table.wrappedWidth = table.columns.reduce(
@@ -104,22 +85,48 @@ export function parseInput(args: any) {
     0
   )
 
+  let margin = table.settings.margin
   if (typeof table.settings.tableWidth === 'number') {
     table.width = table.settings.tableWidth
   } else if (table.settings.tableWidth === 'wrap') {
     table.width = table.wrappedWidth
   } else {
-    table.width =
-      state().pageWidth() - table.margin.left - table.margin.right
+    table.width = state().pageWidth() - margin.left - margin.right
   }
 
   return table
 }
 
-function getStartY(settings: UserOptions, marginTop: number) {
+function unifyInput(allOptions: Partial<UserOptions>[]): Settings {
+  let defaultConf = defaultConfig()
+  let options = assign({}, defaultConf, ...allOptions)
+
+  let settings = options as Settings
+
+  settings.margin = marginOrPadding(options.margin, 40 / state().scaleFactor())
+  settings.startY = getStartY(state().doc, options, settings.margin.top)
+
+  if (options.showFoot === true) {
+    settings.showFoot = 'everyPage'
+  } else if (options.showFoot === false) {
+    settings.showFoot = 'never'
+  }
+  if (options.showHead === true) {
+    settings.showHead = 'everyPage'
+  } else if (options.showHead === false) {
+    settings.showHead = 'never'
+  }
+
+  if (options.theme == null) {
+    settings.theme = options.useCss ? 'plain' : 'striped'
+  }
+  return settings
+}
+
+function getStartY(doc: any, settings: UserOptions, marginTop: number) {
   let startY = settings.startY
   if (startY == null || startY === false) {
-    const previous = state().doc.previousAutoTable
+    const previous = doc.previousAutoTable
     if (isSamePageAsPreviousTable(previous)) {
       // Many users had issues with overlapping tables when they used multiple
       // tables without setting startY so setting it here to a sensible default.
@@ -158,68 +165,22 @@ function parseUserArguments(args: any): UserOptions {
 }
 
 function parseContent(table: Table, settings: UserOptions) {
-  table.columns = getTableColumns(settings)
-
-  for (let sectionName of ['head', 'body', 'foot'] as Section[]) {
-    let rowSpansLeftForColumn: {
-      [key: string]: { left: number; times: number }
-    } = {}
-    let sectionRows = settings[sectionName] as MultipleRowType
-    if (
-      sectionRows.length === 0 &&
-      settings.columns &&
-      sectionName !== 'body'
-    ) {
-      // If no head or foot is set, try generating one with content in columns
-      let sectionRow = generateSectionRowFromColumnData(table, sectionName)
-      if (sectionRow) {
-        sectionRows.push(sectionRow)
-      }
-    }
-    sectionRows.forEach((rawRow: any, rowIndex: number) => {
-      let skippedRowForRowSpans = 0
-      let row = new Row(rawRow, rowIndex, sectionName)
-      table[sectionName].push(row)
-
-      let colSpansAdded = 0
-      let columnSpansLeft = 0
-      for (let column of table.columns) {
-        if (
-          rowSpansLeftForColumn[column.index] == null ||
-          rowSpansLeftForColumn[column.index].left === 0
-        ) {
-          if (columnSpansLeft === 0) {
-            let rawCell
-            if (Array.isArray(rawRow)) {
-              rawCell =
-                rawRow[column.index - colSpansAdded - skippedRowForRowSpans]
-            } else {
-              rawCell = rawRow[column.dataKey]
-            }
-
-            let styles = cellStyles(sectionName, column, rowIndex)
-            let cell = new Cell(rawCell, styles, sectionName)
-            // dataKey is not used internally anymore but keep for backwards compat in hooks
-            row.cells[column.dataKey] = cell
-            row.cells[column.index] = cell
-
-            columnSpansLeft = cell.colSpan - 1
-            rowSpansLeftForColumn[column.index] = {
-              left: cell.rowSpan - 1,
-              times: columnSpansLeft,
-            }
-          } else {
-            columnSpansLeft--
-            colSpansAdded++
-          }
-        } else {
-          rowSpansLeftForColumn[column.index].left--
-          columnSpansLeft = rowSpansLeftForColumn[column.index].times
-          skippedRowForRowSpans++
-        }
-      }
-    })
+  let head = settings.head || []
+  let body = settings.body || []
+  let foot = settings.foot || []
+  if (settings.html) {
+    const hidden = settings.includeHiddenHtml
+    const htmlContent = parseHtml(settings.html, hidden, settings.useCss) || {}
+    head = htmlContent.head || head
+    body = htmlContent.body || head
+    foot = htmlContent.foot || head
   }
+
+  table.columns = createColumns(settings, head, body, foot)
+
+  parseSection('head', head, settings, table)
+  parseSection('body', body, settings, table)
+  parseSection('foot', foot, settings, table)
 
   table.allRows().forEach((row) => {
     for (let column of table.columns) {
@@ -300,12 +261,76 @@ function parseContent(table: Table, settings: UserOptions) {
   })
 }
 
+function parseSection(
+  sectionName: Section,
+  sectionRows: RowInput[],
+  settings: UserOptions,
+  table: Table
+) {
+  let rowSpansLeftForColumn: {
+    [key: string]: { left: number; times: number }
+  } = {}
+  if (sectionRows.length === 0 && settings.columns && sectionName !== 'body') {
+    // If no head or foot is set, try generating one with content in columns
+    let sectionRow = generateSectionRowFromColumnData(
+      table.columns,
+      sectionName
+    )
+    if (sectionRow) {
+      sectionRows.push(sectionRow)
+    }
+  }
+  sectionRows.forEach((rawRow: any, rowIndex: number) => {
+    let skippedRowForRowSpans = 0
+    let row = new Row(rawRow, rowIndex, sectionName)
+    table[sectionName].push(row)
+
+    let colSpansAdded = 0
+    let columnSpansLeft = 0
+    for (let column of table.columns) {
+      if (
+        rowSpansLeftForColumn[column.index] == null ||
+        rowSpansLeftForColumn[column.index].left === 0
+      ) {
+        if (columnSpansLeft === 0) {
+          let rawCell
+          if (Array.isArray(rawRow)) {
+            rawCell =
+              rawRow[column.index - colSpansAdded - skippedRowForRowSpans]
+          } else {
+            rawCell = rawRow[column.dataKey]
+          }
+
+          let styles = cellStyles(sectionName, column, rowIndex)
+          let cell = new Cell(rawCell, styles, sectionName)
+          // dataKey is not used internally anymore but keep for backwards compat in hooks
+          row.cells[column.dataKey] = cell
+          row.cells[column.index] = cell
+
+          columnSpansLeft = cell.colSpan - 1
+          rowSpansLeftForColumn[column.index] = {
+            left: cell.rowSpan - 1,
+            times: columnSpansLeft,
+          }
+        } else {
+          columnSpansLeft--
+          colSpansAdded++
+        }
+      } else {
+        rowSpansLeftForColumn[column.index].left--
+        columnSpansLeft = rowSpansLeftForColumn[column.index].times
+        skippedRowForRowSpans++
+      }
+    }
+  })
+}
+
 function generateSectionRowFromColumnData(
-  table: Table,
+  columns: Column[],
   sectionName: Section
-): SingleRowType | null {
+): RowInput | null {
   let sectionRow: { [key: string]: CellType } = {}
-  table.columns.forEach((col) => {
+  columns.forEach((col) => {
     let columnData = col.raw
     if (sectionName === 'head') {
       let val = columnData && columnData.header ? columnData.header : columnData
@@ -320,21 +345,28 @@ function generateSectionRowFromColumnData(
   return Object.keys(sectionRow).length > 0 ? sectionRow : null
 }
 
-function getTableColumns(settings: any) {
+function createColumns(
+  settings: UserOptions,
+  head: RowInput[],
+  body: RowInput[],
+  foot: RowInput[]
+) {
   if (settings.columns) {
     return settings.columns.map((input: any, index: number) => {
       const key = input.dataKey || input.key || index
       return new Column(key, input, index)
     })
   } else {
-    let firstRow =
-      settings.head[0] || settings.body[0] || settings.foot[0] || []
+    let firstRow = head[0] || body[0] || foot[0] || []
     let columns: Column[] = []
     Object.keys(firstRow)
       .filter((key) => key !== '_element')
       .forEach((key) => {
-        let colSpan =
-          firstRow[key] && firstRow[key].colSpan ? firstRow[key].colSpan : 1
+        let colSpan = 1
+        if (typeof firstRow[key] === 'object') {
+          let def = firstRow[key] as CellDefinition
+          colSpan = def.colSpan || 1
+        }
         for (let i = 0; i < colSpan; i++) {
           let id
           if (Array.isArray(firstRow)) {
@@ -352,11 +384,19 @@ function getTableColumns(settings: any) {
 function cellStyles(sectionName: Section, column: Column, rowIndex: number) {
   let table = state().table
   let theme = getTheme(table.settings.theme)
+  let sectionStyles
+  if (sectionName === 'head') {
+    sectionStyles = table.styles.headStyles
+  } else if (sectionName === 'body') {
+    sectionStyles = table.styles.bodyStyles
+  } else if (sectionName === 'foot') {
+    sectionStyles = table.styles.footStyles
+  }
   let otherStyles = [
     theme.table,
     theme[sectionName],
     table.styles.styles,
-    table.styles[`${sectionName}Styles`],
+    sectionStyles,
   ]
   let columnStyles =
     table.styles.columnStyles[column.dataKey] ||

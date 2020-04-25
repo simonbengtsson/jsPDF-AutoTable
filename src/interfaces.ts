@@ -1,4 +1,5 @@
 import { CellHookData } from './HookData'
+import { MarginPadding } from './common'
 
 export interface ColumnOption {
   header?: string
@@ -11,9 +12,17 @@ export interface ColumnOption {
 export type UserOptions = BaseConfig & Options
 
 type Color = [number, number, number] | number | 'transparent' | false
-type MarginPadding =
+export type MarginPaddingInput =
   | number
-  | { top?: number; right?: number; bottom?: number; left?: number }
+  | number[]
+  | {
+      top?: number
+      right?: number
+      bottom?: number
+      left?: number
+      horizontal?: number
+      vertical?: number
+    }
 
 export interface Styles {
   font: 'helvetica' | 'times' | 'courier' | string
@@ -28,11 +37,11 @@ export interface Styles {
   lineColor: Color
   lineWidth: number
   cellWidth: 'auto' | 'wrap' | number
-  minCellHeight: number,
+  minCellHeight: number
   minCellWidth: number
 }
 
-interface CellDefinition {
+export interface CellDefinition {
   rowSpan?: number
   colSpan?: number
   styles?: Styles
@@ -40,15 +49,30 @@ interface CellDefinition {
 }
 
 export type CellType = null | string | number | boolean | CellDefinition
-export type MultipleRowType = SingleRowType[]
-export type SingleRowType = CellType[] | { [key: string]: CellType }
+export type RowInput = { [key: string]: CellType }
+
+export interface Settings {
+  includeHiddenHtml: boolean
+  useCss: boolean
+  theme: 'striped' | 'grid' | 'plain'
+  startY: number
+  margin: MarginPadding
+  pageBreak: 'auto' | 'avoid' | 'always'
+  rowPageBreak: 'auto' | 'avoid'
+  tableWidth: 'auto' | 'wrap' | number
+  showHead: 'everyPage' | 'firstPage' | 'never'
+  showFoot: 'everyPage' | 'lastPage' | 'never'
+  tableLineWidth: number
+  tableLineColor: Color
+  tableId: string | number | null
+}
 
 export interface BaseConfig {
-  includeHiddenHtml: boolean,
+  includeHiddenHtml: boolean
   useCss: boolean
-  theme: 'striped' | 'grid' | 'plain' | 'auto'
-  startY?: number|false
-  margin: MarginPadding
+  theme: 'striped' | 'grid' | 'plain' | null
+  startY?: number | false
+  margin: MarginPaddingInput
   pageBreak: 'auto' | 'avoid' | 'always'
   rowPageBreak: 'auto' | 'avoid'
   tableWidth: 'auto' | 'wrap' | number
@@ -56,14 +80,14 @@ export interface BaseConfig {
   showFoot: 'everyPage' | 'lastPage' | 'never' | boolean
   tableLineWidth: number
   tableLineColor: Color
-  tableId: string|number|null
+  tableId: string | number | null
 }
 
 interface Options {
-  head?: SingleRowType | MultipleRowType
-  foot?: SingleRowType | MultipleRowType
-  body?: MultipleRowType
-  html?: string | HTMLElement,
+  head?: RowInput[]
+  body?: RowInput[]
+  foot?: RowInput[]
+  html?: string | HTMLTableElement
   columns?: ColumnOption[]
 
   // Styles
@@ -81,8 +105,4 @@ interface Options {
   willDrawCell: (data: CellHookData) => void
   didDrawCell: (data: CellHookData) => void
   didDrawPage: (data: CellHookData) => void
-}
-
-export interface OptionStyles {
-
 }

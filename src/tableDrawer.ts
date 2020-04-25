@@ -11,27 +11,26 @@ import { assign } from './polyfills'
 
 export function drawTable(table: Table) {
   let settings = table.settings
+  let startY = settings.startY
+  let margin = settings.margin
+
   table.cursor = {
-    x: table.margin.left,
-    y: table.startY,
+    x: margin.left,
+    y: startY,
   }
 
   let minTableBottomPos =
-    table.startY +
-    table.margin.bottom +
-    table.headHeight +
-    table.footHeight
+    startY + margin.bottom + table.headHeight + table.footHeight
   if (settings.pageBreak === 'avoid') {
     minTableBottomPos += table.height
   }
   if (
     settings.pageBreak === 'always' ||
     (settings.startY != null &&
-      settings.startY !== false &&
       minTableBottomPos > state().pageHeight())
   ) {
     nextPage(state().doc)
-    table.cursor.y = table.margin.top
+    table.cursor.y = margin.top
   }
   table.pageStartX = table.cursor.x
   table.pageStartY = table.cursor.y
@@ -40,11 +39,7 @@ export function drawTable(table: Table) {
 
   // An empty row used to cached cells those break through page
   applyUserStyles()
-  if (
-    settings.showHead === true ||
-    settings.showHead === 'firstPage' ||
-    settings.showHead === 'everyPage'
-  ) {
+  if (settings.showHead === 'firstPage' || settings.showHead === 'everyPage') {
     table.head.forEach((row) => printRow(row))
   }
   applyUserStyles()
@@ -52,11 +47,7 @@ export function drawTable(table: Table) {
     printFullRow(row, index === table.body.length - 1)
   })
   applyUserStyles()
-  if (
-    settings.showFoot === true ||
-    settings.showFoot === 'lastPage' ||
-    settings.showFoot === 'everyPage'
-  ) {
+  if (settings.showFoot === 'lastPage' || settings.showFoot === 'everyPage') {
     table.foot.forEach((row) => printRow(row))
   }
 
@@ -136,7 +127,8 @@ function shouldPrintOnCurrentPage(
   table: Table
 ) {
   let pageHeight = state().pageHeight()
-  let marginHeight = table.margin.top + table.margin.bottom
+  let margin = table.settings.margin
+  let marginHeight = margin.top + margin.bottom
   let maxRowHeight = pageHeight - marginHeight
   if (row.section === 'body') {
     // Should also take into account that head and foot is not
@@ -204,7 +196,7 @@ function printFullRow(row: Row, isLastRow: boolean) {
 function printRow(row: Row) {
   let table: Table = state().table
 
-  table.cursor.x = table.margin.left
+  table.cursor.x = table.settings.margin.left
   row.y = table.cursor.y
   row.x = table.cursor.x
 
@@ -275,13 +267,9 @@ function printRow(row: Row) {
 
 function getRemainingPageSpace(isLastRow: boolean) {
   let table = state().table
-  let bottomContentHeight = table.margin('bottom')
+  let bottomContentHeight = table.settings.margin.bottom
   let showFoot = table.settings.showFoot
-  if (
-    showFoot === true ||
-    showFoot === 'everyPage' ||
-    (showFoot === 'lastPage' && isLastRow)
-  ) {
+  if (showFoot === 'everyPage' || (showFoot === 'lastPage' && isLastRow)) {
     bottomContentHeight += table.footHeight
   }
   return state().pageHeight() - table.cursor.y - bottomContentHeight
@@ -291,10 +279,7 @@ export function addPage() {
   let table = state().table
 
   applyUserStyles()
-  if (
-    table.settings.showFoot === true ||
-    table.settings.showFoot === 'everyPage'
-  ) {
+  if (table.settings.showFoot === 'everyPage') {
     table.foot.forEach((row: Row) => printRow(row))
   }
 
@@ -304,18 +289,16 @@ export function addPage() {
   // be drawn above other things on the page
   table.callEndPageHooks()
 
+  let margin = table.settings.margin
   addTableBorder()
   nextPage(state().doc)
   table.pageNumber++
   table.pageCount++
-  table.cursor = { x: table.margin('left'), y: table.margin('top') }
+  table.cursor = { x: margin.left, y: margin.top }
   table.pageStartX = table.cursor.x
   table.pageStartY = table.cursor.y
 
-  if (
-    table.settings.showHead === true ||
-    table.settings.showHead === 'everyPage'
-  ) {
+  if (table.settings.showHead === 'everyPage') {
     table.head.forEach((row: Row) => printRow(row))
   }
 }

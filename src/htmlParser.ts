@@ -1,11 +1,12 @@
 import { parseCss } from './cssParser'
 import state from './state'
+import { RowInput } from './interfaces'
 
 export function parseHtml(
   input: HTMLTableElement | string,
   includeHiddenHtml = false,
   useCss = false
-): { head: any[][]; body: any[][]; foot: any[][] } {
+): { head: RowInput[]; body: RowInput[]; foot: RowInput[] } {
   let tableElement: HTMLTableElement
   if (typeof input === 'string') {
     tableElement = <HTMLTableElement>window.document.querySelector(input)

@@ -19,7 +19,7 @@ export function defaultConfig(): BaseConfig {
     tableLineWidth: 0,
     tableLineColor: 200,
     tableId: null,
-    theme: 'striped', // 'striped', 'grid', 'plain', 'css'
+    theme: null,
   }
 }
 

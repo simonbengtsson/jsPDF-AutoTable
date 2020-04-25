@@ -1,9 +1,9 @@
-import { defaultConfig, FONT_ROW_RATIO } from './config'
+import { FONT_ROW_RATIO } from './config'
 import state from './state'
 import { CellHookData, HookData } from './HookData'
 import { applyUserStyles, marginOrPadding, MarginPadding, styles } from './common'
 import { assign } from './polyfills'
-import { BaseConfig, Styles } from './interfaces'
+import { BaseConfig, Settings, Styles } from './interfaces'
 
 export type PageHook = (data: HookData) => void | boolean
 export type CellHook = (data: CellHookData) => void | boolean
@@ -35,12 +35,10 @@ export interface StylesProps {
 
 export class Table {
   id: string | number | null
-  startY: number
   cursor = { x: 0, y: 0 }
   userStyles: Partial<Styles>
-  settings: BaseConfig
+  settings: Settings
   styles: StylesProps
-  margin: MarginPadding
 
   columns: Column[] = []
 
@@ -71,20 +69,16 @@ export class Table {
 
   constructor(
     id: string | number | null,
-    startY: number,
-    settings: BaseConfig,
+    settings: Settings,
     styles: StylesProps,
     userStyles: Partial<Styles>,
     hooks: HookProps,
-    margin: MarginPadding
   ) {
     this.id = id
-    this.startY = startY
     this.settings = settings
     this.styles = styles
     this.userStyles = userStyles
     this.hooks = hooks
-    this.margin = margin
   }
 
   allRows() {
