@@ -20,18 +20,11 @@ export function getDocumentOptions(): UserInput {
   return documentDefaults
 }
 
-interface ITableState {
-  table: Table
-  doc: any
-}
-
-class TableState implements ITableState {
-  table: Table
+class TableState {
   doc: any
 
   constructor(doc: any, table: Table) {
     this.doc = doc
-    this.table = table
   }
 
   pageHeight() {

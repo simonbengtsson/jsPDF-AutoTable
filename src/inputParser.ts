@@ -30,24 +30,28 @@ export function parseInput(args: any) {
   let globalOptions = getGlobalOptions()
   let documentOptions = getDocumentOptions()
   let allOptions = [globalOptions, documentOptions, currentInput]
-  validateOptions(allOptions)
+
+  const userStyles = getUserStyles(state().doc)
+
+  validateOptions(allOptions, userStyles)
   let options: UserInput = assign({}, ...allOptions)
 
   let previous = state().doc.previousAutoTable
   const sf = state().scaleFactor()
+
   const margin = marginOrPadding(options.margin, 40 / sf)
   const startY = getStartY(previous, sf, state().pageNumber(), options, margin.top)
   const settings = parseSettings(options, sf, startY, margin)
   const styles = parseStyles(allOptions)
+
   let table = new Table(
     currentInput.tableId,
     settings,
     styles,
-    getUserStyles(state().doc),
+    userStyles,
     parseHooks(allOptions),
     parseContent(options, styles, settings.theme, sf),
   )
-  state().table = table
 
   calculate(table, sf)
 

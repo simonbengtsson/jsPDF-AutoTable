@@ -1,9 +1,9 @@
 import { ColumnOption, RowInput, UserInput } from './interfaces'
-import { resetState, setupState } from './state'
+import state, { resetState, setupState } from './state'
 import { parseInput } from './inputParser'
 import { calculateWidths } from './widthCalculator'
 import { drawTable } from './tableDrawer'
-import { applyUserStyles } from './common'
+import { applyStyles } from './common'
 
 // First definition is deprecated
 export function autoTable(columns: ColumnOption[], data: RowInput[], options: UserInput): any
@@ -25,7 +25,7 @@ export function autoTable(this: any) {
   this.lastAutoTable = table
   this.autoTable.previous = table // Deprecated
 
-  applyUserStyles()
+  applyStyles(table.userStyles)
   resetState()
   return this
 }

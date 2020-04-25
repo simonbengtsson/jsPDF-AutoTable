@@ -10,7 +10,7 @@ export function calculateWidths(table: Table) {
   let initialTableWidth = 0
 
   table.columns.forEach((column) => {
-    const customWidth = column.getMaxCustomCellWidth()
+    const customWidth = column.getMaxCustomCellWidth(table)
     if (customWidth) {
       // final column width
       column.width = customWidth

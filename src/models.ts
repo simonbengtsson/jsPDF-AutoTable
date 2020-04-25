@@ -1,7 +1,7 @@
 import { defaultStyles, FONT_ROW_RATIO } from './config'
 import state from './state'
 import { CellHookData, HookData } from './HookData'
-import { applyUserStyles, marginOrPadding } from './common'
+import { applyStyles, marginOrPadding } from './common'
 import { assign } from './polyfills'
 import { Settings, Styles } from './interfaces'
 
@@ -97,7 +97,7 @@ export class Table {
     column: Column
   ): boolean {
     for (let handler of handlers) {
-      if (handler(new CellHookData(cell, row, column)) === false) {
+      if (handler(new CellHookData(this, cell, row, column)) === false) {
         return false
       }
     }
@@ -105,9 +105,9 @@ export class Table {
   }
 
   callEndPageHooks() {
-    applyUserStyles()
+    applyStyles(this.userStyles)
     for (let handler of this.hooks.didDrawPage) {
-      handler(new HookData())
+      handler(new HookData(this))
     }
   }
 }
@@ -134,9 +134,9 @@ export class Row {
     this.section = section
   }
 
-  hasRowSpan() {
+  hasRowSpan(columns: Column[]) {
     return (
-      state().table.columns.filter((column: Column) => {
+      columns.filter((column: Column) => {
         let cell = this.cells[column.index]
         if (!cell) return false
         return cell.rowSpan > 1
@@ -148,8 +148,8 @@ export class Row {
     return this.maxCellHeight <= height
   }
 
-  getMinimumRowHeight() {
-    return state().table.columns.reduce((acc: number, column: Column) => {
+  getMinimumRowHeight(columns: Column[]) {
+    return columns.reduce((acc: number, column: Column) => {
       let cell = this.cells[column.index]
       if (!cell) return 0
       let fontHeight =
@@ -242,9 +242,9 @@ export class Column {
     this.index = index
   }
 
-  getMaxCustomCellWidth() {
+  getMaxCustomCellWidth(table: Table) {
     let max = 0
-    for (const row of state().table.allRows()) {
+    for (const row of table.allRows()) {
       const cell: Cell = row.cells[this.index]
       if (cell && typeof cell.styles.cellWidth === 'number') {
         max = Math.max(max, cell.styles.cellWidth)

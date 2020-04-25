@@ -2,6 +2,7 @@ import { defaultStyles } from './config'
 import state from './state'
 import { assign } from './polyfills'
 import { MarginPaddingInput } from './interfaces'
+import { Table } from './models'
 
 export function getStringWidth(text: string | string[], styles: any) {
   applyStyles(styles, true)
@@ -46,8 +47,7 @@ export function ellipsize(
   return text.trim() + ellipsizeStr
 }
 
-export function addTableBorder() {
-  let table = state().table
+export function addTableBorder(table: Table) {
   let styles = {
     lineWidth: table.settings.tableLineWidth,
     lineColor: table.settings.tableLineColor,
@@ -77,10 +77,6 @@ export function getFillStyle(styles: any) {
   } else {
     return false
   }
-}
-
-export function applyUserStyles() {
-  applyStyles(state().table.userStyles)
 }
 
 export function applyStyles(styles: any, fontOnly = false) {

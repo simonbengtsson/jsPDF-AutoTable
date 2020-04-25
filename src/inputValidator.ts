@@ -1,6 +1,7 @@
-import { applyUserStyles } from './common'
+import { applyStyles } from './common'
+import { Styles } from './interfaces'
 
-export default function (allOptions: any) {
+export default function (allOptions: any, userStyles: Partial<Styles>) {
   for (let options of allOptions) {
     if (options && typeof options !== 'object') {
       console.error(
@@ -33,16 +34,16 @@ export default function (allOptions: any) {
         'The afterPageContent, beforePageContent and afterPageAdd hooks are deprecated. Use didDrawPage instead'
       )
       options.didDrawPage = function (data: any) {
-        applyUserStyles()
+        applyStyles(userStyles)
         if (options.beforePageContent) options.beforePageContent(data)
-        applyUserStyles()
+        applyStyles(userStyles)
         if (options.afterPageContent) options.afterPageContent(data)
-        applyUserStyles()
+        applyStyles(userStyles)
 
         if (options.afterPageAdd && data.pageNumber > 1) {
           data.afterPageAdd(data)
         }
-        applyUserStyles()
+        applyStyles(userStyles)
       }
     }
 

@@ -9,8 +9,7 @@ export class HookData {
   doc: any
   cursor: { x: number; y: number }
 
-  constructor() {
-    let table = state().table
+  constructor(table: Table) {
     this.table = table
     this.pageNumber = table.pageNumber
     this.pageCount = this.pageNumber
@@ -26,8 +25,8 @@ export class CellHookData extends HookData {
   column: Column
   section: 'head' | 'body' | 'foot'
 
-  constructor(cell: Cell, row: Row, column: Column) {
-    super()
+  constructor(table: Table, cell: Cell, row: Row, column: Column) {
+    super(table)
 
     this.cell = cell
     this.row = row
