@@ -1,24 +1,32 @@
 'use strict'
 
-const describe = global.describe
-const it = global.it
-const before = global.before
-const after = global.after
-
+const { before, it, describe } = global
 const assert = require('assert')
-const parseHtml = require('../src/htmlParser').parseHtml
+const { parseHtml } = require('../src/htmlParser')
+const { DocHandler } = require('../src/documentHandler')
 
-describe('html parser', function () {
+describe('html parser', () => {
+  let doc
+
   before(function () {
     global.window = {
-      getComputedStyle: function () {
+      document: {
+        createElementNS: function () {
+          return {}
+        },
+      },
+      getComputedStyle: () => {
         return { display: 'visible' }
       },
     }
+    global.navigator = {}
+    let jsPDF = require('jspdf')
+    doc = new DocHandler(new jsPDF())
   })
 
   after(function () {
     delete global.window
+    delete global.navigator
   })
 
   it('full table', function () {
@@ -41,7 +49,7 @@ describe('html parser', function () {
         },
       ],
     }
-    let res = parseHtml(table)
+    let res = parseHtml(doc, table)
     assert(res, 'Should have result')
     assert(res.head[0].length, 'Should have head cell')
     assert.equal(res.body[0].length, 2, 'Should have two body cells')
@@ -61,7 +69,7 @@ describe('html parser', function () {
         return { display: 'none' }
       },
     }
-    let res = parseHtml(table)
+    let res = parseHtml(doc, table)
     assert(res, 'Should have result')
     assert(res.head.length === 0, 'Should have no head cells')
     assert(res.body.length === 0, 'Should have no body cell')
@@ -77,7 +85,7 @@ describe('html parser', function () {
       ],
     }
 
-    const res = parseHtml(table)
+    const res = parseHtml(doc, table)
     assert(res, 'Should have result')
     assert(res.head.length === 0, 'Should have no head cells')
     assert(res.body.length === 0, 'Should have no body cells')

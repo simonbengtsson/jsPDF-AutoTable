@@ -1,7 +1,7 @@
-import { applyStyles } from './common'
 import { Styles } from './interfaces'
+import { DocHandler } from './documentHandler'
 
-export default function (allOptions: { [key: string]: any}[], userStyles: Partial<Styles>) {
+export default function (allOptions: { [key: string]: any}[], userStyles: Partial<Styles>, doc: DocHandler) {
   for (let options of allOptions) {
     if (options && typeof options !== 'object') {
       console.error(
@@ -34,16 +34,16 @@ export default function (allOptions: { [key: string]: any}[], userStyles: Partia
         'The afterPageContent, beforePageContent and afterPageAdd hooks are deprecated. Use didDrawPage instead'
       )
       options.didDrawPage = function (data: any) {
-        applyStyles(userStyles)
+        doc.applyStyles(userStyles)
         if (options.beforePageContent) options.beforePageContent(data)
-        applyStyles(userStyles)
+        doc.applyStyles(userStyles)
         if (options.afterPageContent) options.afterPageContent(data)
-        applyStyles(userStyles)
+        doc.applyStyles(userStyles)
 
         if (options.afterPageAdd && data.pageNumber > 1) {
           data.afterPageAdd(data)
         }
-        applyStyles(userStyles)
+        doc.applyStyles(userStyles)
       }
     }
 

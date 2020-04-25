@@ -1,11 +1,11 @@
-import { ellipsize, applyStyles } from './common'
+import { ellipsize } from './common'
 import { Table, Cell, Column, Row } from './models'
-import state from './state'
+import { DocHandler } from './documentHandler'
 
 /**
  * Calculate the column widths
  */
-export function calculateWidths(table: Table) {
+export function calculateWidths(table: Table, doc: DocHandler) {
   let resizableColumns: Column[] = []
   let initialTableWidth = 0
 
@@ -54,7 +54,7 @@ export function calculateWidths(table: Table) {
   }
 
   applyColSpans(table)
-  fitContent(table)
+  fitContent(table, doc)
   applyRowSpans(table)
 }
 
@@ -195,31 +195,31 @@ function applyColSpans(table: Table) {
   }
 }
 
-function fitContent(table: Table) {
+function fitContent(table: Table, doc: DocHandler) {
   let rowSpanHeight = { count: 0, height: 0 }
   for (let row of table.allRows()) {
     for (let column of table.columns) {
       let cell: Cell = row.cells[column.index]
       if (!cell) continue
 
-      applyStyles(cell.styles, true)
-      let textSpace = cell.width - cell.padding('horizontal')
+      doc.applyStyles(cell.styles,true)
+      let textSpace = cell.width - cell.padding('horizontal', doc)
       if (cell.styles.overflow === 'linebreak') {
         // Add one pt to textSpace to fix rounding error
-        cell.text = state().doc.splitTextToSize(
+        cell.text = doc.splitTextToSize(
           cell.text,
-          textSpace + 1 / (state().scaleFactor() || 1),
+          textSpace + 1 / (doc.scaleFactor() || 1),
           { fontSize: cell.styles.fontSize }
         )
       } else if (cell.styles.overflow === 'ellipsize') {
-        cell.text = ellipsize(cell.text, textSpace, cell.styles)
+        cell.text = ellipsize(cell.text, textSpace, cell.styles, doc, '...')
       } else if (cell.styles.overflow === 'hidden') {
-        cell.text = ellipsize(cell.text, textSpace, cell.styles, '')
+        cell.text = ellipsize(cell.text, textSpace, cell.styles, doc, '')
       } else if (typeof cell.styles.overflow === 'function') {
         cell.text = cell.styles.overflow(cell.text, textSpace)
       }
 
-      cell.contentHeight = cell.getContentHeight()
+      cell.contentHeight = cell.getContentHeight(doc)
 
       if (cell.styles.minCellHeight > cell.contentHeight) {
         cell.contentHeight = cell.styles.minCellHeight

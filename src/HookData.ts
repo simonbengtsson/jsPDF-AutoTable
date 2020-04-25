@@ -1,4 +1,4 @@
-import state from './state'
+import { DocHandler } from './documentHandler'
 import { Table, Cell, Row, Column } from './models'
 
 export class HookData {
@@ -9,13 +9,13 @@ export class HookData {
   doc: any
   cursor: { x: number; y: number }
 
-  constructor(table: Table) {
+  constructor(table: Table, doc: DocHandler) {
     this.table = table
     this.pageNumber = table.pageNumber
     this.pageCount = this.pageNumber
     this.settings = table.settings
     this.cursor = table.cursor
-    this.doc = state().doc
+    this.doc = doc.getDocument()
   }
 }
 
@@ -25,8 +25,8 @@ export class CellHookData extends HookData {
   column: Column
   section: 'head' | 'body' | 'foot'
 
-  constructor(table: Table, cell: Cell, row: Row, column: Column) {
-    super(table)
+  constructor(table: Table, doc: DocHandler, cell: Cell, row: Row, column: Column) {
+    super(table, doc)
 
     this.cell = cell
     this.row = row

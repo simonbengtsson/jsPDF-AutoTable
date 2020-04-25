@@ -2,7 +2,6 @@
 
 
 const assert = require('assert')
-const state = require('../src/state')
 const { resizeColumns } = require('../src/widthCalculator')
 const { Column } = require('../src/models')
 
@@ -19,11 +18,6 @@ describe('column resizer', () => {
     global.navigator = {}
     let jsPDF = require('jspdf')
     require('../src/main')
-    state.setupState(new jsPDF())
-  })
-
-  after(function () {
-    state.resetState()
   })
 
   describe('columns resizer', () => {

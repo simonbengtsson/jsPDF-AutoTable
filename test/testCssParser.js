@@ -1,11 +1,9 @@
 'use strict'
 
-let describe = global.describe
-let it = global.it
-
-var assert = require('assert')
-let parseCss = require('../src/cssParser').parseCss
-var state = require('../src/state')
+const { it, describe } = global
+const assert = require('assert')
+const { parseCss } = require('../src/cssParser')
+const { DocHandler } = require('../src/documentHandler')
 
 describe('css parser', function () {
   before(function () {
@@ -18,13 +16,12 @@ describe('css parser', function () {
       },
     }
     global.navigator = {}
-    let jsPDF = require('jspdf')
     require('../src/main')
-    state.setupState(new jsPDF())
   })
 
-  after(function () {
-    state.resetState()
+  after(() => {
+    delete global.window
+    delete global.navigator
   })
 
   it('normal styles', function () {
@@ -49,8 +46,10 @@ describe('css parser', function () {
       },
     }
 
+    let jsPDF = require('jspdf')
+    let doc = new DocHandler(new jsPDF())
     let pxScaleFactor = 96 / 72
-    let styles = parseCss({}, 1)
+    let styles = parseCss(doc, {}, 1)
     assert(styles, 'Should have result')
     assert(!styles.lineColor, 'Transparent color')
     assert(styles.fillColor, 'Parse color')
@@ -82,7 +81,9 @@ describe('css parser', function () {
       },
     }
 
-    let styles = parseCss({}, 1)
+    let jsPDF = require('jspdf')
+    let doc = new DocHandler(new jsPDF())
+    let styles = parseCss(doc, {}, 1)
     assert(styles, 'Should have result')
     assert(!styles.fillColor, 'Transparent')
     assert(!styles.halign, 'Empty string halign')

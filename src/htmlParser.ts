@@ -1,8 +1,9 @@
 import { parseCss } from './cssParser'
-import state from './state'
+import { DocHandler } from './documentHandler'
 import { RowInput } from './interfaces'
 
 export function parseHtml(
+  doc: DocHandler,
   input: HTMLTableElement | string,
   includeHiddenHtml = false,
   useCss = false
@@ -25,7 +26,7 @@ export function parseHtml(
 
   for (const rowNode of tableElement.rows as any) {
     const tagName = rowNode.parentNode.tagName.toLowerCase()
-    let row = parseRowContent(window, rowNode, includeHiddenHtml, useCss)
+    let row = parseRowContent(doc, window, rowNode, includeHiddenHtml, useCss)
     if (!row) continue
 
     if (tagName === 'thead') {
@@ -42,6 +43,7 @@ export function parseHtml(
 }
 
 function parseRowContent(
+  doc: DocHandler,
   window: Window,
   row: HTMLTableRowElement,
   includeHidden: boolean,
@@ -49,7 +51,7 @@ function parseRowContent(
 ) {
   let resultRow: any = []
   let rowStyles = useCss
-    ? parseCss(row, state().scaleFactor(), [
+    ? parseCss(doc, row, doc.scaleFactor(), [
         'cellPadding',
         'lineWidth',
         'lineColor',
@@ -59,7 +61,7 @@ function parseRowContent(
     let cell = row.cells[i]
     let style = window.getComputedStyle(cell)
     if (includeHidden || style.display !== 'none') {
-      let cellStyles = useCss ? parseCss(cell, state().scaleFactor()) : {}
+      let cellStyles = useCss ? parseCss(doc, cell, doc.scaleFactor()) : {}
       resultRow.push({
         rowSpan: cell.rowSpan,
         colSpan: cell.colSpan,

@@ -1,13 +1,14 @@
-import state from './state'
-import { Color, MarginPaddingInput } from './interfaces'
+import { DocHandler } from './documentHandler'
+import { Color, MarginPaddingInput, Styles } from './interfaces'
 import { Table } from './models'
 
-export function getStringWidth(text: string | string[], styles: any) {
-  applyStyles(styles, true)
+type Text = string | string[]
+export function getStringWidth(text: Text, styles: Styles, doc: DocHandler) {
+  doc.applyStyles(styles, true)
   const textArr: string[] = Array.isArray(text) ? text : [text]
 
   const widestLineWidth = textArr
-    .map((text) => state().doc.getTextWidth(text))
+    .map((text) => doc.getTextWidth(text))
     // Shave off a few digits for potential improvement in width calculation
     .map((val) => Math.floor(val * 10000) / 10000)
     .reduce((a, b) => Math.max(a, b), 0)
@@ -19,24 +20,25 @@ export function getStringWidth(text: string | string[], styles: any) {
  * Ellipsize the text to fit in the width
  */
 export function ellipsize(
-  text: string | string[],
+  text: Text,
   width: number,
-  styles: any,
-  ellipsizeStr = '...'
+  styles: Styles,
+  doc: DocHandler,
+  ellipsizeStr: string,
 ): string | string[] {
   if (Array.isArray(text)) {
     return text.map((str) =>
-      ellipsize(str, width, styles, ellipsizeStr)
+      ellipsize(str, width, styles, doc, ellipsizeStr)
     ) as string[]
   }
 
-  let precision = 10000 * state().scaleFactor()
+  let precision = 10000 * doc.scaleFactor()
   width = Math.ceil(width * precision) / precision
 
-  if (width >= getStringWidth(text, styles)) {
+  if (width >= getStringWidth(text, styles, doc)) {
     return text
   }
-  while (width < getStringWidth(text + ellipsizeStr, styles)) {
+  while (width < getStringWidth(text + ellipsizeStr, styles, doc)) {
     if (text.length <= 1) {
       break
     }
@@ -45,13 +47,13 @@ export function ellipsize(
   return text.trim() + ellipsizeStr
 }
 
-export function addTableBorder(table: Table) {
+export function addTableBorder(table: Table, doc: DocHandler) {
   let lineWidth = table.settings.tableLineWidth
   let lineColor = table.settings.tableLineColor
-  applyStyles({ lineWidth, lineColor })
+  doc.applyStyles({ lineWidth, lineColor })
   let fs = getFillStyle(lineWidth, false)
   if (fs) {
-    state().doc.rect(
+    doc.rect(
       table.pageStartX,
       table.pageStartY,
       table.width,
@@ -73,36 +75,6 @@ export function getFillStyle(lineWidth: number, fillColor: Color) {
   } else {
     return null
   }
-}
-
-export function applyStyles(styles: any, fontOnly = false) {
-  const doc = state().doc
-  const nonFontModifiers = {
-    fillColor: doc.setFillColor,
-    textColor: doc.setTextColor,
-    lineColor: doc.setDrawColor,
-    lineWidth: doc.setLineWidth,
-  }
-  const styleModifiers: { [key: string]: any } = {
-    // Font style needs to be applied before font
-    // https://github.com/simonbengtsson/jsPDF-AutoTable/issues/632
-    fontStyle: doc.setFontStyle,
-    font: doc.setFont,
-    fontSize: doc.setFontSize,
-    ...(fontOnly ? {} : nonFontModifiers),
-  }
-
-  Object.keys(styleModifiers).forEach((name) => {
-    const style = styles[name]
-    const modifier = styleModifiers[name]
-    if (typeof style !== 'undefined') {
-      if (Array.isArray(style)) {
-        modifier(...style)
-      } else {
-        modifier(style)
-      }
-    }
-  })
 }
 
 export type MarginPadding = { top: number, right: number, bottom: number, left: number }

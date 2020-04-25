@@ -1,8 +1,8 @@
 'use strict'
 
-var assert = require('assert')
-var parseInput = require('../src/inputParser').parseInput
-var state = require('../src/state')
+const assert = require('assert')
+const { DocHandler } = require('../src/documentHandler')
+const { parseInput } = require('../src/inputParser')
 
 describe('input parser', function () {
   before(function () {
@@ -17,14 +17,16 @@ describe('input parser', function () {
     global.navigator = {}
     let jsPDF = require('jspdf')
     require('../src/main')
-    state.setupState(new jsPDF())
   })
 
-  after(function () {
-    state.resetState()
+  after(() => {
+    delete global.window
+    delete global.navigator
   })
 
   it('array input', function () {
+    let jsPDF = require('jspdf')
+    let doc = new DocHandler(new jsPDF())
     let table = parseInput([
       {
         head: [['test', 'test']],
@@ -33,7 +35,7 @@ describe('input parser', function () {
           ['test', 'test'],
         ],
       },
-    ])
+    ], doc)
     assert(table, 'Has table')
     assert.equal(table.head.length, 1)
     assert.equal(table.body.length, 2)
@@ -44,12 +46,14 @@ describe('input parser', function () {
   })
 
   it('minReadableWidth', function () {
+    let jsPDF = require('jspdf')
+    let doc = new DocHandler(new jsPDF())
     let table = parseInput([
       {
         head: [['aaaa', 'aa', 'aaa']],
         body: [['a', 'a', 'a']],
       },
-    ])
+    ], doc)
     const cols = table.columns
     assert(table.body[0].cells[0].minReadableWidth > 0)
     assert(cols[0].minReadableWidth > cols[1].minReadableWidth)
@@ -57,6 +61,8 @@ describe('input parser', function () {
   })
 
   it('object input', function () {
+    let jsPDF = require('jspdf')
+    let doc = new DocHandler(new jsPDF())
     let table = parseInput([
       {
         head: [
@@ -69,12 +75,14 @@ describe('input parser', function () {
           },
         ],
       },
-    ])
+    ], doc)
     assert.equal(table.head[0].cells['id'].text, 'ID')
     assert.equal(table.head[0].cells[0].text, 'ID')
   })
 
   it('object input', function () {
+    let jsPDF = require('jspdf')
+    let doc = new DocHandler(new jsPDF())
     let table = parseInput([
       {
         head: [[{ content: 'test' }, 'test 2']],
@@ -83,16 +91,18 @@ describe('input parser', function () {
           ['test', 'test'],
         ],
       },
-    ])
+    ], doc)
     assert.equal(table.head[0].cells[0].text, 'test')
     assert.equal(table.head[0].cells[1].text, 'test 2')
     assert.equal(table.body[0].cells[0].text, 'body')
   })
 
   it('rowspan input', function () {
+    let jsPDF = require('jspdf')
+    let doc = new DocHandler(new jsPDF())
     let table = parseInput([
       { body: [[{ content: 'test', rowSpan: 2 }, 'one'], ['two']] },
-    ])
+    ], doc)
     assert.equal(table.body[0].cells[0].text, 'test')
     assert.equal(table.body[1].cells[0], null)
     assert.equal(table.body[0].cells[1].text, 'one')

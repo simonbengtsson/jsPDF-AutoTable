@@ -1,9 +1,8 @@
-import { setDefaults } from './state'
-import './autoTableText'
 import { parseHtml } from './htmlParser'
 import autoTableText, { TextStyles } from './autoTableText'
 import { autoTable } from './autoTable'
 import { UserInput } from './interfaces'
+import { DocHandler } from './documentHandler'
 
 export default function (jsPDF: any) {
   jsPDF.API.autoTable = autoTable
@@ -23,12 +22,12 @@ export default function (jsPDF: any) {
   }
 
   jsPDF.API.autoTableSetDefaults = function (defaults: UserInput) {
-    setDefaults(defaults, this)
+    DocHandler.setDefaults(defaults, this)
     return this
   }
 
   jsPDF.autoTableSetDefaults = function (defaults: UserInput, doc: any) {
-    setDefaults(defaults, doc)
+    DocHandler.setDefaults(defaults, doc)
     return this
   }
 
@@ -44,6 +43,7 @@ export default function (jsPDF: any) {
     }
 
     let { head, body, foot } = parseHtml(
+      this,
       tableElem,
       includeHiddenElements,
       false

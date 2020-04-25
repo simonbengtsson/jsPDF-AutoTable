@@ -2,7 +2,7 @@ import { getTheme, defaultStyles, ThemeName } from './config'
 import { parseHtml } from './htmlParser'
 import { assign } from './polyfills'
 import { getStringWidth, marginOrPadding, MarginPadding } from './common'
-import state from './state'
+import { DocHandler } from './documentHandler'
 import validateOptions from './inputValidator'
 import {
   CellDefinition,
@@ -25,22 +25,21 @@ import {
   PageHook,
 } from './models'
 
-export function parseInput(args: any) {
+export function parseInput(args: any, doc: DocHandler) {
   let currentInput = parseUserArguments(args)
-  let globalOptions = state().getGlobalOptions()
-  let documentOptions = state().getDocumentOptions()
+  let globalOptions = doc.getGlobalOptions()
+  let documentOptions = doc.getDocumentOptions()
   let allOptions = [globalOptions, documentOptions, currentInput]
 
-  const userStyles = getUserStyles(state().doc)
-
-  validateOptions(allOptions, userStyles)
+  const userStyles = doc.getUserStyles()
+  validateOptions(allOptions, userStyles, doc)
   let options: UserInput = assign({}, ...allOptions)
 
-  let previous = state().doc.previousAutoTable
-  const sf = state().scaleFactor()
+  let previous = doc.getPreviousAutoTable()
+  const sf = doc.scaleFactor()
 
   const margin = marginOrPadding(options.margin, 40 / sf)
-  const startY = getStartY(previous, sf, state().pageNumber(), options, margin.top)
+  const startY = getStartY(previous, sf, doc.pageNumber(), options, margin.top)
   const settings = parseSettings(options, sf, startY, margin)
   const styles = parseStyles(allOptions)
 
@@ -50,10 +49,10 @@ export function parseInput(args: any) {
     styles,
     userStyles,
     parseHooks(allOptions),
-    parseContent(options, styles, settings.theme, sf),
+    parseContent(doc, options, styles, settings.theme, sf),
   )
 
-  calculate(table, sf)
+  calculate(table, sf, doc)
 
   table.minWidth = table.columns.reduce((total, col) => total + col.minWidth, 0)
   table.wrappedWidth = table.columns.reduce(
@@ -66,28 +65,30 @@ export function parseInput(args: any) {
   } else if (table.settings.tableWidth === 'wrap') {
     table.width = table.wrappedWidth
   } else {
-    table.width = state().pageSize().width - margin.left - margin.right
+    table.width = doc.pageSize().width - margin.left - margin.right
   }
 
   return table
 }
 
-function calculate(table: Table, sf: number) {
+function calculate(table: Table, sf: number, doc: DocHandler) {
   table.allRows().forEach((row) => {
     for (let column of table.columns) {
       const cell = row.cells[column.index]
       if (!cell) continue
-      table.callCellHooks(table.hooks.didParseCell, cell, row, column)
+      table.callCellHooks(doc, table.hooks.didParseCell, cell, row, column)
       cell.text = Array.isArray(cell.text) ? cell.text : [cell.text]
 
+      let padding = cell.padding('horizontal', doc)
       cell.contentWidth =
-        getStringWidth(cell.text, cell.styles) + cell.padding('horizontal')
+        getStringWidth(cell.text, cell.styles, doc) + padding
 
       const longestWordWidth = getStringWidth(
         cell.text.join(' ').split(/\s+/),
-        cell.styles
+        cell.styles,
+        doc
       )
-      cell.minReadableWidth = longestWordWidth + cell.padding('horizontal')
+      cell.minReadableWidth = longestWordWidth + cell.padding('horizontal', doc)
 
       if (typeof cell.styles.cellWidth === 'number') {
         cell.minWidth = cell.styles.cellWidth
@@ -166,16 +167,6 @@ function parseStyles(allOptions: UserInput[]) {
     styleOptions[prop] = assign({}, ...styles)
   }
   return styleOptions
-}
-
-function getUserStyles(doc: any): Partial<Styles> {
-  return {
-    // Setting to black for versions of jspdf without getTextColor
-    textColor: doc.getTextColor ? doc.getTextColor() : 0,
-    fontSize: doc.internal.getFontSize(),
-    fontStyle: doc.internal.getFont().fontStyle,
-    font: doc.internal.getFont().fontName,
-  }
 }
 
 function parseHooks(allOptions: UserInput[]) {
@@ -268,13 +259,13 @@ function parseUserArguments(args: any): UserInput {
   }
 }
 
-function parseContent(options: UserInput, styles: StylesProps, theme: ThemeName, sf: number) {
+function parseContent(doc: DocHandler, options: UserInput, styles: StylesProps, theme: ThemeName, sf: number) {
   let head = options.head || []
   let body = options.body || []
   let foot = options.foot || []
   if (options.html) {
     const hidden = options.includeHiddenHtml
-    const htmlContent = parseHtml(options.html, hidden, options.useCss) || {}
+    const htmlContent = parseHtml(doc, options.html, hidden, options.useCss) || {}
     head = htmlContent.head || head
     body = htmlContent.body || head
     foot = htmlContent.foot || head

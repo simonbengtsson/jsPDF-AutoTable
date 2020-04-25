@@ -1,8 +1,7 @@
 import { defaultStyles, FONT_ROW_RATIO } from './config'
-import state from './state'
+import { DocHandler } from './documentHandler'
 import { CellHookData, HookData } from './HookData'
-import { applyStyles, marginOrPadding } from './common'
-import { assign } from './polyfills'
+import { marginOrPadding } from './common'
 import { Settings, Styles } from './interfaces'
 
 export type PageHook = (data: HookData) => void | boolean
@@ -91,23 +90,24 @@ export class Table {
   }
 
   callCellHooks(
+    doc: DocHandler,
     handlers: CellHook[],
     cell: Cell,
     row: Row,
     column: Column
   ): boolean {
     for (let handler of handlers) {
-      if (handler(new CellHookData(this, cell, row, column)) === false) {
+      if (handler(new CellHookData(this, doc, cell, row, column)) === false) {
         return false
       }
     }
     return true
   }
 
-  callEndPageHooks() {
-    applyStyles(this.userStyles)
+  callEndPageHooks(doc: DocHandler) {
+    doc.applyStyles(this.userStyles)
     for (let handler of this.hooks.didDrawPage) {
-      handler(new HookData(this))
+      handler(new HookData(this, doc))
     }
   }
 }
@@ -148,13 +148,13 @@ export class Row {
     return this.maxCellHeight <= height
   }
 
-  getMinimumRowHeight(columns: Column[]) {
+  getMinimumRowHeight(columns: Column[], doc: DocHandler) {
     return columns.reduce((acc: number, column: Column) => {
       let cell = this.cells[column.index]
       if (!cell) return 0
       let fontHeight =
-        (cell.styles.fontSize / state().scaleFactor()) * FONT_ROW_RATIO
-      let vPadding = cell.padding('vertical')
+        (cell.styles.fontSize / doc.scaleFactor()) * FONT_ROW_RATIO
+      let vPadding = cell.padding('vertical', doc)
       let oneRowHeight = vPadding + fontHeight
       return oneRowHeight > acc ? oneRowHeight : acc
     }, 0)
@@ -201,17 +201,17 @@ export class Cell {
     this.text = text.split(splitRegex)
   }
 
-  getContentHeight() {
+  getContentHeight(doc: DocHandler) {
     let lineCount = Array.isArray(this.text) ? this.text.length : 1
-    let fontHeight =
-      (this.styles.fontSize / state().scaleFactor()) * FONT_ROW_RATIO
-    return lineCount * fontHeight + this.padding('vertical')
+    let fontHeight = (this.styles.fontSize / doc.scaleFactor()) * FONT_ROW_RATIO
+    return lineCount * fontHeight + this.padding('vertical', doc)
   }
 
   padding(
-    name: 'vertical' | 'horizontal' | 'top' | 'bottom' | 'left' | 'right'
+    name: 'vertical' | 'horizontal' | 'top' | 'bottom' | 'left' | 'right',
+    doc: DocHandler
   ) {
-    let sf = state().scaleFactor()
+    let sf = doc.scaleFactor()
     let padding = marginOrPadding(
       this.styles.cellPadding,
       defaultStyles(sf).cellPadding

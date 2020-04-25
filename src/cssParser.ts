@@ -2,9 +2,10 @@
 // - No support for border spacing
 // - No support for transparency
 import { marginOrPadding } from './common'
-import state from './state'
+import { DocHandler } from './documentHandler'
 
 export function parseCss(
+  doc: DocHandler,
   element: Element,
   scaleFactor: number,
   ignored: string[] = []
@@ -53,7 +54,7 @@ export function parseCss(
   assign('lineColor', parseColor(element, 'borderTopColor'))
 
   const font = (style.fontFamily || '').toLowerCase()
-  if (state().doc.getFontList()[font]) {
+  if (doc.getFontList()[font]) {
     assign('font', font)
   }
 
