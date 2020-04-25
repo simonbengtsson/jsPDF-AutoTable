@@ -114,7 +114,8 @@ export function applyStyles(styles: any, fontOnly = false) {
 }
 
 export type MarginPadding = { top: number, right: number, bottom: number, left: number }
-export function marginOrPadding(value: MarginPaddingInput, defaultValue: number): MarginPadding {
+export function marginOrPadding(value: MarginPaddingInput|undefined, defaultValue: number): MarginPadding {
+  value = value || defaultValue
   if (Array.isArray(value)) {
     if (value.length >= 4) {
       return {

@@ -1,22 +1,22 @@
 import { Table } from './models'
-import { UserOptions } from './interfaces'
+import { UserInput } from './interfaces'
 
 let defaultsDocument: any = null
 let previousTableState: any
 
 let tableState: TableState | any = null
-export let globalDefaults: Partial<UserOptions> = {}
-export let documentDefaults: Partial<UserOptions> = {}
+export let globalDefaults: UserInput = {}
+export let documentDefaults: UserInput = {}
 
 export default function (): TableState {
   return tableState
 }
 
-export function getGlobalOptions(): Partial<UserOptions> {
+export function getGlobalOptions(): UserInput {
   return globalDefaults
 }
 
-export function getDocumentOptions(): Partial<UserOptions> {
+export function getDocumentOptions(): UserInput {
   return documentDefaults
 }
 
@@ -88,7 +88,7 @@ export function resetState() {
   tableState = previousTableState
 }
 
-export function setDefaults(defaults: Partial<UserOptions>, doc = null) {
+export function setDefaults(defaults: UserInput, doc = null) {
   if (doc) {
     documentDefaults = defaults || {}
     defaultsDocument = doc

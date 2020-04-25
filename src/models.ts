@@ -3,7 +3,7 @@ import state from './state'
 import { CellHookData, HookData } from './HookData'
 import { applyUserStyles, marginOrPadding, MarginPadding, styles } from './common'
 import { assign } from './polyfills'
-import { BaseConfig, Settings, Styles } from './interfaces'
+import { UserInput, Settings, Styles } from './interfaces'
 
 export type PageHook = (data: HookData) => void | boolean
 export type CellHook = (data: CellHookData) => void | boolean
@@ -34,7 +34,7 @@ export interface StylesProps {
 }
 
 export class Table {
-  id: string | number | null
+  id?: string | number
   cursor = { x: 0, y: 0 }
   userStyles: Partial<Styles>
   settings: Settings
@@ -68,17 +68,22 @@ export class Table {
   hooks: HookProps
 
   constructor(
-    id: string | number | null,
+    id: string | number | undefined,
     settings: Settings,
     styles: StylesProps,
     userStyles: Partial<Styles>,
     hooks: HookProps,
+    content: { body: Row[], head: Row[], foot: Row[], columns: Column[] },
   ) {
     this.id = id
     this.settings = settings
     this.styles = styles
     this.userStyles = userStyles
     this.hooks = hooks
+    this.columns = content.columns
+    this.head = content.head
+    this.body = content.body
+    this.foot = content.foot
   }
 
   allRows() {

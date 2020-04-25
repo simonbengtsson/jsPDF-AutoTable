@@ -3,7 +3,7 @@ import './autoTableText'
 import { parseHtml } from './htmlParser'
 import autoTableText, { TextStyles } from './autoTableText'
 import { autoTable } from './autoTable'
-import { UserOptions } from './interfaces'
+import { UserInput } from './interfaces'
 
 export default function (jsPDF: any) {
   jsPDF.API.autoTable = autoTable
@@ -22,12 +22,12 @@ export default function (jsPDF: any) {
     autoTableText(text, x, y, styles, this)
   }
 
-  jsPDF.API.autoTableSetDefaults = function (defaults: Partial<UserOptions>) {
+  jsPDF.API.autoTableSetDefaults = function (defaults: UserInput) {
     setDefaults(defaults, this)
     return this
   }
 
-  jsPDF.autoTableSetDefaults = function (defaults: Partial<UserOptions>, doc: any) {
+  jsPDF.autoTableSetDefaults = function (defaults: UserInput, doc: any) {
     setDefaults(defaults, doc)
     return this
   }

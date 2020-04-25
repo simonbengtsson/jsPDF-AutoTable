@@ -9,8 +9,6 @@ export interface ColumnOption {
   key?: string | number // deprecated (same as dataKey)
 }
 
-export type UserOptions = BaseConfig & Options
-
 type Color = [number, number, number] | number | 'transparent' | false
 export type MarginPaddingInput =
   | number
@@ -64,26 +62,23 @@ export interface Settings {
   showFoot: 'everyPage' | 'lastPage' | 'never'
   tableLineWidth: number
   tableLineColor: Color
-  tableId: string | number | null
 }
 
-export interface BaseConfig {
-  includeHiddenHtml: boolean
-  useCss: boolean
-  theme: 'striped' | 'grid' | 'plain' | null
+export interface UserInput {
+  includeHiddenHtml?: boolean
+  useCss?: boolean
+  theme?: 'striped' | 'grid' | 'plain' | null
   startY?: number | false
-  margin: MarginPaddingInput
-  pageBreak: 'auto' | 'avoid' | 'always'
-  rowPageBreak: 'auto' | 'avoid'
-  tableWidth: 'auto' | 'wrap' | number
-  showHead: 'everyPage' | 'firstPage' | 'never' | boolean
-  showFoot: 'everyPage' | 'lastPage' | 'never' | boolean
-  tableLineWidth: number
-  tableLineColor: Color
-  tableId: string | number | null
-}
+  margin?: MarginPaddingInput
+  pageBreak?: 'auto' | 'avoid' | 'always'
+  rowPageBreak?: 'auto' | 'avoid'
+  tableWidth?: 'auto' | 'wrap' | number
+  showHead?: 'everyPage' | 'firstPage' | 'never' | boolean
+  showFoot?: 'everyPage' | 'lastPage' | 'never' | boolean
+  tableLineWidth?: number
+  tableLineColor?: Color
+  tableId?: string | number
 
-interface Options {
   head?: RowInput[]
   body?: RowInput[]
   foot?: RowInput[]
@@ -91,18 +86,18 @@ interface Options {
   columns?: ColumnOption[]
 
   // Styles
-  styles: Styles
-  bodyStyles: Styles
-  headStyles: Styles
-  footStyles: Styles
-  alternateRowStyles: Styles
-  columnStyles: {
+  styles?: Styles
+  bodyStyles?: Styles
+  headStyles?: Styles
+  footStyles?: Styles
+  alternateRowStyles?: Styles
+  columnStyles?: {
     [key: string]: Styles
   }
 
   // Hooks
-  didParseCell: (data: CellHookData) => void
-  willDrawCell: (data: CellHookData) => void
-  didDrawCell: (data: CellHookData) => void
-  didDrawPage: (data: CellHookData) => void
+  didParseCell?: (data: CellHookData) => void
+  willDrawCell?: (data: CellHookData) => void
+  didDrawCell?: (data: CellHookData) => void
+  didDrawPage?: (data: CellHookData) => void
 }

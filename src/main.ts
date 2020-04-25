@@ -1,14 +1,14 @@
 'use strict'
 
 import _applyPlugin from './applyPlugin'
-import { UserOptions } from './interfaces'
+import { UserInput } from './interfaces'
 
 // export { applyPlugin } didn't export applyPlugin
 // to index.d.ts for some reason
 export function applyPlugin(jsPDF: any) {
   _applyPlugin(jsPDF)
 }
-export type autoTable = (options: Partial<UserOptions>) => void
+export type autoTable = (options: UserInput) => void
 
 try {
   const jsPDF = require('jspdf')

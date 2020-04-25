@@ -1,27 +1,10 @@
 import state from './state'
-import { BaseConfig, Styles } from './interfaces'
+import { UserInput, Settings, Styles } from './interfaces'
 
 /**
  * Ratio between font size and font height. The number comes from jspdf's source code
  */
 export let FONT_ROW_RATIO = 1.15
-
-export function defaultConfig(): BaseConfig {
-  return {
-    useCss: false,
-    includeHiddenHtml: false,
-    margin: 40 / state().scaleFactor(),
-    pageBreak: 'auto',
-    rowPageBreak: 'auto',
-    tableWidth: 'auto', // 'auto'|'wrap'|number
-    showHead: 'everyPage', // 'everyPage', 'firstPage', 'never',
-    showFoot: 'everyPage', // 'everyPage', 'lastPage', 'never',
-    tableLineWidth: 0,
-    tableLineColor: 200,
-    tableId: null,
-    theme: null,
-  }
-}
 
 // Base style for all themes
 export function defaultStyles(): Styles {
