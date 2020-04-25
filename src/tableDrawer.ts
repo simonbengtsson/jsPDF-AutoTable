@@ -237,7 +237,7 @@ function printRow(row: Row) {
     }
 
     const result = table.callCellHooks(
-      table.cellHooks.willDrawCell,
+      table.hooks.willDrawCell,
       cell,
       row,
       column
@@ -265,7 +265,7 @@ function printRow(row: Row) {
       ),
     })
 
-    table.callCellHooks(table.cellHooks.didDrawCell, cell, row, column)
+    table.callCellHooks(table.hooks.didDrawCell, cell, row, column)
 
     table.cursor.x += column.width
   }

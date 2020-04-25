@@ -5,14 +5,15 @@ import { applyUserStyles, marginOrPadding, styles } from './common'
 import { assign } from './polyfills'
 import { BaseConfig, Styles } from './interfaces'
 
-type HookHandler = (data: HookData) => void | boolean
-type CellHookHandler = (data: CellHookData) => void | boolean
+export type PageHook = (data: HookData) => void | boolean
+export type CellHook = (data: CellHookData) => void | boolean
 
-class CellHooks {
-  didParseCell: CellHookHandler[] = []
-  willDrawCell: CellHookHandler[] = []
-  didDrawCell: CellHookHandler[] = []
-  didDrawPage: HookHandler[] = []
+export type HookProp = 'didParseCell' | 'willDrawCell' | 'didDrawCell' | 'didDrawPage'
+export interface HookProps {
+  didParseCell: CellHook[]
+  willDrawCell: CellHook[]
+  didDrawCell: CellHook[]
+  didDrawPage: PageHook[]
 }
 
 export type StyleProp =
@@ -64,18 +65,20 @@ export class Table {
   pageStartY = 0
   finalY = 0
 
-  cellHooks: any = new CellHooks()
+  hooks: HookProps
 
   constructor(
     id: string | number | null,
     settings: BaseConfig,
     styles: StylesProps,
-    userStyles: Partial<Styles>
+    userStyles: Partial<Styles>,
+    hooks: HookProps
   ) {
     this.id = id
     this.settings = settings
     this.styles = styles
     this.userStyles = userStyles
+    this.hooks = hooks
   }
 
   allRows() {
@@ -83,7 +86,7 @@ export class Table {
   }
 
   callCellHooks(
-    handlers: HookHandler[] | CellHookHandler[],
+    handlers: CellHook[],
     cell: Cell,
     row: Row,
     column: Column
@@ -98,7 +101,7 @@ export class Table {
 
   callEndPageHooks() {
     applyUserStyles()
-    for (let handler of this.cellHooks.didDrawPage) {
+    for (let handler of this.hooks.didDrawPage) {
       handler(new HookData())
     }
   }

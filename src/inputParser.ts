@@ -5,7 +5,7 @@ import {
   Table,
   Section,
   StyleProp,
-  StylesProps,
+  StylesProps, HookProps, HookProp, CellHook, PageHook
 } from './models'
 import { getTheme, defaultConfig, defaultStyles } from './config'
 import { parseHtml } from './htmlParser'
@@ -31,7 +31,18 @@ export function parseInput(args: any) {
   let allOptions = [globalOptions, documentOptions, tableOptions]
   validateInput(allOptions)
 
-  let settings = assign({}, defaultConfig(), ...allOptions)
+  let defaultConf = defaultConfig()
+  let settings = assign({}, defaultConf, ...allOptions)
+  settings.margin = marginOrPadding(
+    settings.margin,
+    defaultConf.margin
+  )
+  if (settings.theme === 'auto') {
+    settings.theme = settings.useCss ? 'plain' : 'striped'
+  }
+  if ((typeof settings.startY as any) === false) {
+    delete settings.startY
+  }
 
   // Merge styles one level deeper
   let styleOptions: StylesProps = {
@@ -56,35 +67,23 @@ export function parseInput(args: any) {
     font: doc.internal.getFont().fontName,
   }
 
+  let getHooks = (hookName: HookProp) => allOptions
+    .map(opts => opts[hookName])
+    .filter(hook => !!hook)
+  let hooks: HookProps = {
+    didParseCell: getHooks('didParseCell') as CellHook[],
+    willDrawCell: getHooks('willDrawCell') as CellHook[],
+    didDrawCell: getHooks('didDrawCell') as CellHook[],
+    didDrawPage: getHooks('didDrawPage') as PageHook[]
+  }
   let table = new Table(
     tableOptions.tableId,
     settings,
     styleOptions,
-    userStyles
+    userStyles,
+    hooks
   )
   state().table = table
-
-  // Append hooks
-  for (let opts of allOptions as any) {
-    for (let hookName of Object.keys(table.cellHooks)) {
-      if (opts && typeof opts[hookName] === 'function') {
-        table.cellHooks[hookName].push(opts[hookName])
-      }
-    }
-  }
-
-  table.settings.margin = marginOrPadding(
-    table.settings.margin,
-    defaultConfig().margin
-  )
-
-  if (table.settings.theme === 'auto') {
-    table.settings.theme = table.settings.useCss ? 'plain' : 'striped'
-  }
-
-  if ((typeof table.settings.startY as any) === false) {
-    delete table.settings.startY
-  }
 
   const previous = state().doc.previousAutoTable
   const isSamePageAsPrevious =
@@ -214,7 +213,7 @@ function parseContent(table: Table, settings: UserOptions) {
     for (let column of table.columns) {
       const cell = row.cells[column.index]
       if (!cell) continue
-      table.callCellHooks(table.cellHooks.didParseCell, cell, row, column)
+      table.callCellHooks(table.hooks.didParseCell, cell, row, column)
       cell.text = Array.isArray(cell.text) ? cell.text : [cell.text]
 
       cell.contentWidth =

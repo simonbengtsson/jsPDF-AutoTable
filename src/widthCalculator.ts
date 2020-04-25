@@ -106,7 +106,9 @@ export function resizeColumns(
 }
 
 function applyRowSpans(table: Table) {
-  let rowSpanCells: { [key: string]: { cell: Cell, left: number, row: Row } } = {}
+  let rowSpanCells: {
+    [key: string]: { cell: Cell; left: number; row: Row }
+  } = {}
   let colRowSpansLeft = 1
   let all = table.allRows()
   for (let rowIndex = 0; rowIndex < all.length; rowIndex++) {
