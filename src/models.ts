@@ -1,7 +1,7 @@
 import { defaultConfig, FONT_ROW_RATIO } from './config'
 import state from './state'
 import { CellHookData, HookData } from './HookData'
-import { applyUserStyles, marginOrPadding, styles } from './common'
+import { applyUserStyles, marginOrPadding, MarginPadding, styles } from './common'
 import { assign } from './polyfills'
 import { BaseConfig, Styles } from './interfaces'
 
@@ -35,10 +35,12 @@ export interface StylesProps {
 
 export class Table {
   id: string | number | null
+  startY: number
   cursor = { x: 0, y: 0 }
   userStyles: Partial<Styles>
   settings: BaseConfig
   styles: StylesProps
+  margin: MarginPadding
 
   columns: Column[] = []
 
@@ -69,16 +71,20 @@ export class Table {
 
   constructor(
     id: string | number | null,
+    startY: number,
     settings: BaseConfig,
     styles: StylesProps,
     userStyles: Partial<Styles>,
-    hooks: HookProps
+    hooks: HookProps,
+    margin: MarginPadding
   ) {
     this.id = id
+    this.startY = startY
     this.settings = settings
     this.styles = styles
     this.userStyles = userStyles
     this.hooks = hooks
+    this.margin = margin
   }
 
   allRows() {
@@ -104,10 +110,6 @@ export class Table {
     for (let handler of this.hooks.didDrawPage) {
       handler(new HookData())
     }
-  }
-
-  margin(side: string) {
-    return marginOrPadding(this.settings.margin, defaultConfig().margin)[side]
   }
 }
 

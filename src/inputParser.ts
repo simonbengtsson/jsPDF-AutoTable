@@ -5,7 +5,11 @@ import {
   Table,
   Section,
   StyleProp,
-  StylesProps, HookProps, HookProp, CellHook, PageHook
+  StylesProps,
+  HookProps,
+  HookProp,
+  CellHook,
+  PageHook,
 } from './models'
 import { getTheme, defaultConfig, defaultStyles } from './config'
 import { parseHtml } from './htmlParser'
@@ -33,16 +37,12 @@ export function parseInput(args: any) {
 
   let defaultConf = defaultConfig()
   let settings = assign({}, defaultConf, ...allOptions)
-  settings.margin = marginOrPadding(
-    settings.margin,
-    defaultConf.margin
-  )
   if (settings.theme === 'auto') {
     settings.theme = settings.useCss ? 'plain' : 'striped'
   }
-  if ((typeof settings.startY as any) === false) {
-    delete settings.startY
-  }
+
+  let margin = marginOrPadding(settings.margin, defaultConf.margin)
+  let startY = getStartY(settings, margin.top)
 
   // Merge styles one level deeper
   let styleOptions: StylesProps = {
@@ -67,31 +67,24 @@ export function parseInput(args: any) {
     font: doc.internal.getFont().fontName,
   }
 
-  let getHooks = (hookName: HookProp) => allOptions
-    .map(opts => opts[hookName])
-    .filter(hook => !!hook)
+  let getHooks = (hookName: HookProp) =>
+    allOptions.map((opts) => opts[hookName]).filter((hook) => !!hook)
   let hooks: HookProps = {
     didParseCell: getHooks('didParseCell') as CellHook[],
     willDrawCell: getHooks('willDrawCell') as CellHook[],
     didDrawCell: getHooks('didDrawCell') as CellHook[],
-    didDrawPage: getHooks('didDrawPage') as PageHook[]
+    didDrawPage: getHooks('didDrawPage') as PageHook[],
   }
   let table = new Table(
     tableOptions.tableId,
+    startY,
     settings,
     styleOptions,
     userStyles,
-    hooks
+    hooks,
+    margin
   )
   state().table = table
-
-  const previous = state().doc.previousAutoTable
-  const isSamePageAsPrevious =
-    previous &&
-    previous.startPageNumber + previous.pageNumber - 1 === state().pageNumber()
-  if (table.settings.startY == null && isSamePageAsPrevious) {
-    table.settings.startY = previous.finalY + 20 / state().scaleFactor()
-  }
 
   let htmlContent: any = {}
   if (settings.html) {
@@ -117,10 +110,29 @@ export function parseInput(args: any) {
     table.width = table.wrappedWidth
   } else {
     table.width =
-      state().pageWidth() - table.margin('left') - table.margin('right')
+      state().pageWidth() - table.margin.left - table.margin.right
   }
 
   return table
+}
+
+function getStartY(settings: UserOptions, marginTop: number) {
+  let startY = settings.startY
+  if (startY == null || startY === false) {
+    const previous = state().doc.previousAutoTable
+    if (isSamePageAsPreviousTable(previous)) {
+      // Many users had issues with overlapping tables when they used multiple
+      // tables without setting startY so setting it here to a sensible default.
+      startY = previous.finalY + 20 / state().scaleFactor()
+    }
+  }
+  return startY || marginTop
+}
+
+function isSamePageAsPreviousTable(previous: Table | null) {
+  if (previous == null) return false
+  let endingPage = previous.startPageNumber + previous.pageNumber - 1
+  return endingPage === state().pageNumber()
 }
 
 function parseUserArguments(args: any): UserOptions {

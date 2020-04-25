@@ -12,13 +12,13 @@ import { assign } from './polyfills'
 export function drawTable(table: Table) {
   let settings = table.settings
   table.cursor = {
-    x: table.margin('left'),
-    y: settings.startY == null ? table.margin('top') : settings.startY,
+    x: table.margin.left,
+    y: table.startY,
   }
 
   let minTableBottomPos =
-    settings.startY +
-    table.margin('bottom') +
+    table.startY +
+    table.margin.bottom +
     table.headHeight +
     table.footHeight
   if (settings.pageBreak === 'avoid') {
@@ -31,7 +31,7 @@ export function drawTable(table: Table) {
       minTableBottomPos > state().pageHeight())
   ) {
     nextPage(state().doc)
-    table.cursor.y = table.margin('top')
+    table.cursor.y = table.margin.top
   }
   table.pageStartX = table.cursor.x
   table.pageStartY = table.cursor.y
@@ -136,7 +136,7 @@ function shouldPrintOnCurrentPage(
   table: Table
 ) {
   let pageHeight = state().pageHeight()
-  let marginHeight = table.margin('top') + table.margin('bottom')
+  let marginHeight = table.margin.top + table.margin.bottom
   let maxRowHeight = pageHeight - marginHeight
   if (row.section === 'body') {
     // Should also take into account that head and foot is not
@@ -204,7 +204,7 @@ function printFullRow(row: Row, isLastRow: boolean) {
 function printRow(row: Row) {
   let table: Table = state().table
 
-  table.cursor.x = table.margin('left')
+  table.cursor.x = table.margin.left
   row.y = table.cursor.y
   row.x = table.cursor.x
 
