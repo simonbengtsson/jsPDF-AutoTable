@@ -1,5 +1,4 @@
 import state from './state'
-import { CellHookData, HookData } from './HookData'
 import { BaseConfig, Styles } from './interfaces'
 
 /**
@@ -20,24 +19,7 @@ export function defaultConfig(): BaseConfig {
     tableLineWidth: 0,
     tableLineColor: 200,
     tableId: null,
-
-    // Styling
     theme: 'striped', // 'striped', 'grid', 'plain', 'css'
-    styles: {},
-    headStyles: {},
-    bodyStyles: {},
-    footStyles: {},
-    alternateRowStyles: {},
-    columnStyles: {},
-
-    // Hooks
-    // Use to change the content of the cell before width calculations etc are performed
-    didParseCell: function (data: CellHookData) {},
-    willDrawCell: function (data: CellHookData) {},
-    // Use to draw additional content such as images in table cells
-    didDrawCell: function (data: CellHookData) {},
-    // Use to draw additional content to each page such as headers and footers
-    didDrawPage: function (data: HookData) {},
   }
 }
 
@@ -57,6 +39,7 @@ export function defaultStyles(): Styles {
     lineWidth: 0 / state().scaleFactor(),
     cellWidth: 'auto', // 'auto'|'wrap'|number
     minCellHeight: 0,
+    minCellWidth: 0,
   }
 }
 

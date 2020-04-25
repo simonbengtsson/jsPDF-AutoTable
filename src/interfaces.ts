@@ -8,7 +8,7 @@ export interface ColumnOption {
   key?: string | number // deprecated (same as dataKey)
 }
 
-export type UserOptions = BaseConfig
+export type UserOptions = BaseConfig & Options
 
 type Color = [number, number, number] | number | 'transparent' | false
 type MarginPadding =
@@ -16,19 +16,20 @@ type MarginPadding =
   | { top?: number; right?: number; bottom?: number; left?: number }
 
 export interface Styles {
-  font?: 'helvetica' | 'times' | 'courier' | string
-  fontStyle?: 'normal' | 'bold' | 'italic' | 'bolditalic'
-  overflow?: 'linebreak' | 'ellipsize' | 'visible' | 'hidden'
-  fillColor?: Color
-  textColor?: Color
-  halign?: 'left' | 'center' | 'right' | 'justify'
-  valign?: 'top' | 'middle' | 'bottom'
-  fontSize?: number
-  cellPadding?: number
-  lineColor?: Color
-  lineWidth?: number
-  cellWidth?: 'auto' | 'wrap' | number
-  minCellHeight?: number
+  font: 'helvetica' | 'times' | 'courier' | string
+  fontStyle: 'normal' | 'bold' | 'italic' | 'bolditalic'
+  overflow: 'linebreak' | 'ellipsize' | 'visible' | 'hidden' | Function
+  fillColor: Color
+  textColor: Color
+  halign: 'left' | 'center' | 'right' | 'justify'
+  valign: 'top' | 'middle' | 'bottom'
+  fontSize: number
+  cellPadding: number
+  lineColor: Color
+  lineWidth: number
+  cellWidth: 'auto' | 'wrap' | number
+  minCellHeight: number,
+  minCellWidth: number
 }
 
 interface CellDefinition {
@@ -38,33 +39,32 @@ interface CellDefinition {
   content?: string | string[] | number
 }
 
-type CellType = null | string | number | boolean | CellDefinition
-export type MultipleRowType = CellType[][] | { string: CellType }[]
-type SingleRowType = CellType[] | { [key: string]: CellType }
+export type CellType = null | string | number | boolean | CellDefinition
+export type MultipleRowType = SingleRowType[]
+export type SingleRowType = CellType[] | { [key: string]: CellType }
 
 export interface BaseConfig {
-  head?: SingleRowType | MultipleRowType
-  foot?: SingleRowType | MultipleRowType
-  body?: MultipleRowType
-
-  html?: string | HTMLElement,
   includeHiddenHtml: boolean,
   useCss: boolean
-
-  columns?: ColumnOption[]
-
-  // Properties
-  theme: 'striped' | 'grid' | 'plain'
-  startY?: number
+  theme: 'striped' | 'grid' | 'plain' | 'auto'
+  startY?: number|false
   margin: MarginPadding
   pageBreak: 'auto' | 'avoid' | 'always'
   rowPageBreak: 'auto' | 'avoid'
   tableWidth: 'auto' | 'wrap' | number
-  showHead: 'everyPage' | 'firstPage' | 'never'
-  showFoot: 'everyPage' | 'lastPage' | 'never'
+  showHead: 'everyPage' | 'firstPage' | 'never' | boolean
+  showFoot: 'everyPage' | 'lastPage' | 'never' | boolean
   tableLineWidth: number
   tableLineColor: Color
-  tableId: any
+  tableId: string|number|null
+}
+
+interface Options {
+  head?: SingleRowType | MultipleRowType
+  foot?: SingleRowType | MultipleRowType
+  body?: MultipleRowType
+  html?: string | HTMLElement,
+  columns?: ColumnOption[]
 
   // Styles
   styles: Styles
@@ -81,4 +81,8 @@ export interface BaseConfig {
   willDrawCell: (data: CellHookData) => void
   didDrawCell: (data: CellHookData) => void
   didDrawPage: (data: CellHookData) => void
+}
+
+export interface OptionStyles {
+
 }

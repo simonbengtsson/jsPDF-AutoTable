@@ -3,7 +3,7 @@ import state from './state'
 import { CellHookData, HookData } from './HookData'
 import { applyUserStyles, marginOrPadding, styles } from './common'
 import { assign } from './polyfills'
-import { UserOptions } from './interfaces'
+import { BaseConfig, Styles } from './interfaces'
 
 type HookHandler = (data: HookData) => void | boolean
 type CellHookHandler = (data: CellHookData) => void | boolean
@@ -15,12 +15,29 @@ class CellHooks {
   didDrawPage: HookHandler[] = []
 }
 
+export type StyleProp =
+  | 'styles'
+  | 'headStyles'
+  | 'bodyStyles'
+  | 'footStyles'
+  | 'alternateRowStyles'
+  | 'columnStyles'
+
+export interface StylesProps {
+  styles: Partial<Styles>
+  headStyles: Partial<Styles>
+  bodyStyles: Partial<Styles>
+  footStyles: Partial<Styles>
+  alternateRowStyles: Partial<Styles>
+  columnStyles: { [key: string]: Partial<Styles> }
+}
+
 export class Table {
-  id?: any
+  id: string | number | null
   cursor = { x: 0, y: 0 }
-  doc: any
-  userStyles: any
-  settings: UserOptions|any
+  userStyles: Partial<Styles>
+  settings: BaseConfig
+  styles: StylesProps
 
   columns: Column[] = []
 
@@ -47,16 +64,19 @@ export class Table {
   pageStartY = 0
   finalY = 0
 
-  styles: any = {
-    styles: {},
-    headStyles: {},
-    bodyStyles: {},
-    footStyles: {},
-    alternateRowStyles: {},
-    columnStyles: {},
-  }
-
   cellHooks: any = new CellHooks()
+
+  constructor(
+    id: string | number | null,
+    settings: BaseConfig,
+    styles: StylesProps,
+    userStyles: Partial<Styles>
+  ) {
+    this.id = id
+    this.settings = settings
+    this.styles = styles
+    this.userStyles = userStyles
+  }
 
   allRows() {
     return this.head.concat(this.body).concat(this.foot)
@@ -140,7 +160,7 @@ export class Row {
 export type Section = 'head' | 'body' | 'foot'
 export class Cell {
   raw: HTMLTableCellElement | any
-  styles: any
+  styles: Styles
   text: string | string[]
   section: Section
 
@@ -151,14 +171,14 @@ export class Cell {
   minWidth = 0
   width = 0
   height = 0
-  textPos = {y: 0, x: 0}
+  textPos = { y: 0, x: 0 }
   x = 0
   y = 0
 
   colSpan: number
   rowSpan: number
 
-  constructor(raw: any, themeStyles: any, section: Section) {
+  constructor(raw: any, themeStyles: Partial<Styles>, section: Section) {
     this.rowSpan = (raw && raw.rowSpan) || 1
     this.colSpan = (raw && raw.colSpan) || 1
     this.styles = assign(themeStyles, (raw && raw.styles) || {})

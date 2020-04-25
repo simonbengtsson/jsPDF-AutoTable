@@ -1,11 +1,25 @@
-import { Row, Cell, Column, Table, Section } from './models'
+import {
+  Row,
+  Cell,
+  Column,
+  Table,
+  Section,
+  StyleProp,
+  StylesProps,
+} from './models'
 import { getTheme, defaultConfig, defaultStyles } from './config'
 import { parseHtml } from './htmlParser'
 import { assign } from './polyfills'
 import { getStringWidth, marginOrPadding } from './common'
 import state, { getGlobalOptions, getDocumentOptions } from './state'
 import validateInput from './inputValidator'
-import { ColumnOption, UserOptions } from './interfaces'
+import {
+  CellType,
+  ColumnOption,
+  MultipleRowType,
+  SingleRowType,
+  UserOptions,
+} from './interfaces'
 
 /**
  * Create models from the user input
@@ -17,12 +31,24 @@ export function parseInput(args: any) {
   let allOptions = [globalOptions, documentOptions, tableOptions]
   validateInput(allOptions)
 
-  let table = new Table()
-  state().table = table
-  table.id = tableOptions.tableId
+  let settings = assign({}, defaultConfig(), ...allOptions)
+
+  // Merge styles one level deeper
+  let styleOptions: StylesProps = {
+    styles: {},
+    headStyles: {},
+    bodyStyles: {},
+    footStyles: {},
+    alternateRowStyles: {},
+    columnStyles: {},
+  }
+  for (let prop of Object.keys(styleOptions) as StyleProp[]) {
+    let styles = allOptions.map((opts) => opts[prop] || {})
+    styleOptions[prop] = assign({}, ...styles)
+  }
 
   let doc = state().doc
-  table.userStyles = {
+  let userStyles = {
     // Setting to black for versions of jspdf without getTextColor
     textColor: doc.getTextColor ? doc.getTextColor() : 0,
     fontSize: doc.internal.getFontSize(),
@@ -30,11 +56,13 @@ export function parseInput(args: any) {
     font: doc.internal.getFont().fontName,
   }
 
-  // Merge styles one level deeper
-  for (let styleProp of Object.keys(table.styles)) {
-    let styles = allOptions.map((opts: any) => opts[styleProp] || {})
-    table.styles[styleProp] = assign({}, ...styles)
-  }
+  let table = new Table(
+    tableOptions.tableId,
+    settings,
+    styleOptions,
+    userStyles
+  )
+  state().table = table
 
   // Append hooks
   for (let opts of allOptions as any) {
@@ -45,7 +73,6 @@ export function parseInput(args: any) {
     }
   }
 
-  table.settings = assign({}, defaultConfig(), ...allOptions)
   table.settings.margin = marginOrPadding(
     table.settings.margin,
     defaultConfig().margin
@@ -55,7 +82,7 @@ export function parseInput(args: any) {
     table.settings.theme = table.settings.useCss ? 'plain' : 'striped'
   }
 
-  if (table.settings.startY === false) {
+  if ((typeof table.settings.startY as any) === false) {
     delete table.settings.startY
   }
 
@@ -68,19 +95,16 @@ export function parseInput(args: any) {
   }
 
   let htmlContent: any = {}
-  if (table.settings.html) {
+  if (settings.html) {
     htmlContent =
-      parseHtml(
-        table.settings.html,
-        table.settings.includeHiddenHtml,
-        table.settings.useCss
-      ) || {}
+      parseHtml(settings.html, settings.includeHiddenHtml, settings.useCss) ||
+      {}
   }
-  table.settings.head = htmlContent.head || table.settings.head || []
-  table.settings.body = htmlContent.body || table.settings.body || []
-  table.settings.foot = htmlContent.foot || table.settings.foot || []
+  settings.head = htmlContent.head || settings.head || []
+  settings.body = htmlContent.body || settings.body || []
+  settings.foot = htmlContent.foot || settings.foot || []
 
-  parseContent(table)
+  parseContent(table, settings)
 
   table.minWidth = table.columns.reduce((total, col) => total + col.minWidth, 0)
   table.wrappedWidth = table.columns.reduce(
@@ -122,16 +146,14 @@ function parseUserArguments(args: any): UserOptions {
   }
 }
 
-function parseContent(table: Table) {
-  let settings = table.settings
-
+function parseContent(table: Table, settings: UserOptions) {
   table.columns = getTableColumns(settings)
 
   for (let sectionName of ['head', 'body', 'foot'] as Section[]) {
     let rowSpansLeftForColumn: {
       [key: string]: { left: number; times: number }
     } = {}
-    let sectionRows = settings[sectionName]
+    let sectionRows = settings[sectionName] as MultipleRowType
     if (
       sectionRows.length === 0 &&
       settings.columns &&
@@ -267,8 +289,11 @@ function parseContent(table: Table) {
   })
 }
 
-function generateSectionRowFromColumnData(table: Table, sectionName: Section) {
-  let sectionRow: { [key: string]: any } = {}
+function generateSectionRowFromColumnData(
+  table: Table,
+  sectionName: Section
+): SingleRowType | null {
+  let sectionRow: { [key: string]: CellType } = {}
   table.columns.forEach((col) => {
     let columnData = col.raw
     if (sectionName === 'head') {
