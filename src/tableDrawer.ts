@@ -79,7 +79,7 @@ function modifyRowToFit(row: Row, remainingPageSpace: number, table: Table) {
       cell.text = [cell.text]
     }
 
-    let remainderCell = new Cell(cell.raw, {}, cell.section)
+    let remainderCell = new Cell(cell.raw, cell.styles, cell.section)
     remainderCell = assign(remainderCell, cell)
     remainderCell.textPos = assign({}, cell.textPos)
     remainderCell.text = []

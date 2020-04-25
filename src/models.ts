@@ -182,10 +182,10 @@ export class Cell {
   colSpan: number
   rowSpan: number
 
-  constructor(raw: any, themeStyles: Partial<Styles>, section: Section) {
+  constructor(raw: any, styles: Styles, section: Section) {
     this.rowSpan = (raw && raw.rowSpan) || 1
     this.colSpan = (raw && raw.colSpan) || 1
-    this.styles = assign(themeStyles, (raw && raw.styles) || {})
+    this.styles = styles
     this.section = section
 
     let text

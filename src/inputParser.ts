@@ -331,7 +331,8 @@ function parseSection(
             rawCell = rawRow[column.dataKey]
           }
 
-          let styles = cellStyles(sectionName, column, rowIndex, theme, styleProps, scaleFactor)
+          let cellInputStyles = (rawCell && rawCell.styles) || {}
+          let styles = cellStyles(sectionName, column, rowIndex, theme, styleProps, scaleFactor, cellInputStyles)
           let cell = new Cell(rawCell, styles, sectionName)
           // dataKey is not used internally anymore but keep for backwards compat in hooks
           row.cells[column.dataKey] = cell
@@ -412,7 +413,7 @@ function createColumns(
   }
 }
 
-function cellStyles(sectionName: Section, column: Column, rowIndex: number, themeName: 'striped'|'plain'|'grid', styles: StylesProps, scaleFactor: number) {
+function cellStyles(sectionName: Section, column: Column, rowIndex: number, themeName: ThemeName, styles: StylesProps, scaleFactor: number, cellInputStyles: Partial<Styles>) {
   let theme = getTheme(themeName)
   let sectionStyles
   if (sectionName === 'head') {
@@ -438,5 +439,6 @@ function cellStyles(sectionName: Section, column: Column, rowIndex: number, them
       ? assign({}, theme.alternateRow, styles.alternateRowStyles)
       : {}
   const defaultStyle = defaultStyles(scaleFactor)
-  return assign(defaultStyle, ...otherStyles, rowStyles, colStyles)
+  let themeStyles = assign({}, defaultStyle, ...otherStyles, rowStyles, colStyles)
+  return assign(themeStyles, cellInputStyles)
 }

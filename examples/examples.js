@@ -239,14 +239,17 @@ examples.defaults = function () {
   doc.autoTable({ head: headRows(), body: bodyRows(5), startY: 25 })
 
   // Document defaults
-  jsPDF.autoTableSetDefaults({
-    headStyles: { fillColor: [155, 89, 182] }, // Purple
-    didDrawPage: function (data) {
-      var finalY = doc.previousAutoTable.finalY + 15
-      var leftMargin = data.settings.margin.left
-      doc.text('Default options (purple header)', leftMargin, finalY)
+  jsPDF.autoTableSetDefaults(
+    {
+      headStyles: { fillColor: [155, 89, 182] }, // Purple
+      didDrawPage: function (data) {
+        var finalY = doc.previousAutoTable.finalY + 15
+        var leftMargin = data.settings.margin.left
+        doc.text('Default options (purple header)', leftMargin, finalY)
+      },
     },
-  }, doc)
+    doc
+  )
 
   let startY = doc.previousAutoTable.finalY + 20
   doc.autoTable({ head: headRows(), body: bodyRows(5), startY: startY })
@@ -345,6 +348,47 @@ examples.themes = function () {
     body: bodyRows(5),
     startY: doc.autoTable.previous.finalY + 14,
     theme: 'plain',
+  })
+
+  return doc
+}
+
+// Nested tables
+examples.nested = function () {
+  var doc = new jsPDF()
+  doc.text('Nested tables', 14, 16)
+
+  var nestedTableHeight = 100
+  var nestedTableCell = {
+    content: '',
+    // Dynamic height of nested tables are not supported right now
+    // so we need to define height of the parent cell
+    styles: { minCellHeight: 100 },
+  }
+  doc.autoTable({
+    theme: 'grid',
+    head: [['2019', '2020']],
+    body: [[nestedTableCell]],
+    foot: [['2019', '2020']],
+    startY: 20,
+    didDrawCell: (data) => {
+      if (data.row.index === 0 && data.row.section === 'body') {
+        doc.autoTable({
+          startY: data.cell.y + 2,
+          margin: { left: data.cell.x + 2 },
+          tableWidth: data.cell.width - 4,
+          styles: {
+            maxCellHeight: 4,
+          },
+          columns: [
+            { dataKey: 'id', header: 'ID' },
+            { dataKey: 'name', header: 'Name' },
+            { dataKey: 'expenses', header: 'Sum' },
+          ],
+          body: bodyRows(),
+        })
+      }
+    },
   })
 
   return doc
