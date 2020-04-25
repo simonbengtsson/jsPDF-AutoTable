@@ -168,8 +168,3 @@ export function marginOrPadding(value: MarginPaddingInput|undefined, defaultValu
 
   return { top: value, right: value, bottom: value, left: value }
 }
-
-export function styles(styles: any) {
-  styles = Array.isArray(styles) ? styles : [styles]
-  return assign(defaultStyles(), ...styles)
-}

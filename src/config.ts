@@ -1,5 +1,4 @@
-import state from './state'
-import { UserInput, Settings, Styles } from './interfaces'
+import { Styles } from './interfaces'
 
 /**
  * Ratio between font size and font height. The number comes from jspdf's source code
@@ -7,7 +6,7 @@ import { UserInput, Settings, Styles } from './interfaces'
 export let FONT_ROW_RATIO = 1.15
 
 // Base style for all themes
-export function defaultStyles(): Styles {
+export function defaultStyles(scaleFactor: number): Styles {
   return {
     font: 'helvetica', // helvetica, times, courier
     fontStyle: 'normal', // normal, bold, italic, bolditalic
@@ -17,9 +16,9 @@ export function defaultStyles(): Styles {
     halign: 'left', // left, center, right, justify
     valign: 'top', // top, middle, bottom
     fontSize: 10,
-    cellPadding: 5 / state().scaleFactor(), // number or {top,left,right,left,vertical,horizontal}
+    cellPadding: 5 / scaleFactor, // number or {top,left,right,left,vertical,horizontal}
     lineColor: 200,
-    lineWidth: 0 / state().scaleFactor(),
+    lineWidth: 0,
     cellWidth: 'auto', // 'auto'|'wrap'|number
     minCellHeight: 0,
     minCellWidth: 0,
@@ -29,9 +28,9 @@ export function defaultStyles(): Styles {
 /**
  * Styles for the themes (overriding the default styles)
  */
-type Theme = 'striped' | 'grid' | 'plain'
-export function getTheme(name: Theme): {[key: string]: Partial<Styles>} {
-  let themes: {[key in Theme]: {[key: string]: Partial<Styles>}} = {
+export type ThemeName = 'striped' | 'grid' | 'plain'
+export function getTheme(name: ThemeName): {[key: string]: Partial<Styles>} {
+  let themes: {[key in ThemeName]: {[key: string]: Partial<Styles>}} = {
     striped: {
       table: { fillColor: 255, textColor: 80, fontStyle: 'normal' },
       head: { textColor: 255, fillColor: [41, 128, 185], fontStyle: 'bold' },

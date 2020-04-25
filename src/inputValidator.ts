@@ -1,45 +1,45 @@
 import { applyUserStyles } from './common'
 
 export default function (allOptions: any) {
-  for (let settings of allOptions) {
-    if (settings && typeof settings !== 'object') {
+  for (let options of allOptions) {
+    if (options && typeof options !== 'object') {
       console.error(
-        'The options parameter should be of type object, is: ' + typeof settings
+        'The options parameter should be of type object, is: ' + typeof options
       )
     }
-    if (typeof settings.extendWidth !== 'undefined') {
-      settings.tableWidth = settings.extendWidth ? 'auto' : 'wrap'
+    if (typeof options.extendWidth !== 'undefined') {
+      options.tableWidth = options.extendWidth ? 'auto' : 'wrap'
       console.error(
         'Use of deprecated option: extendWidth, use tableWidth instead.'
       )
     }
-    if (typeof settings.margins !== 'undefined') {
-      if (typeof settings.margin === 'undefined')
-        settings.margin = settings.margins
+    if (typeof options.margins !== 'undefined') {
+      if (typeof options.margin === 'undefined')
+        options.margin = options.margins
       console.error('Use of deprecated option: margins, use margin instead.')
     }
-    if (settings.startY && typeof settings.startY !== 'number') {
-      console.error('Invalid value for startY option', settings.startY)
-      delete settings.startY
+    if (options.startY && typeof options.startY !== 'number') {
+      console.error('Invalid value for startY option', options.startY)
+      delete options.startY
     }
 
     if (
-      !settings.didDrawPage &&
-      (settings.afterPageContent ||
-        settings.beforePageContent ||
-        settings.afterPageAdd)
+      !options.didDrawPage &&
+      (options.afterPageContent ||
+        options.beforePageContent ||
+        options.afterPageAdd)
     ) {
       console.error(
         'The afterPageContent, beforePageContent and afterPageAdd hooks are deprecated. Use didDrawPage instead'
       )
-      settings.didDrawPage = function (data: any) {
+      options.didDrawPage = function (data: any) {
         applyUserStyles()
-        if (settings.beforePageContent) settings.beforePageContent(data)
+        if (options.beforePageContent) options.beforePageContent(data)
         applyUserStyles()
-        if (settings.afterPageContent) settings.afterPageContent(data)
+        if (options.afterPageContent) options.afterPageContent(data)
         applyUserStyles()
 
-        if (settings.afterPageAdd && data.pageNumber > 1) {
+        if (options.afterPageAdd && data.pageNumber > 1) {
           data.afterPageAdd(data)
         }
         applyUserStyles()
@@ -52,7 +52,7 @@ export default function (allOptions: any) {
       'drawRow',
       'drawHeaderCell',
     ].forEach((name) => {
-      if (settings[name]) {
+      if (options[name]) {
         console.error(
           `The "${name}" hook has changed in version 3.0, check the changelog for how to migrate.`
         )
@@ -65,11 +65,11 @@ export default function (allOptions: any) {
       ['didParseCell', 'createdCell'],
       ['headStyles', 'headerStyles'],
     ].forEach(([current, deprecated]) => {
-      if (settings[deprecated]) {
+      if (options[deprecated]) {
         console.error(
           `Use of deprecated option ${deprecated}. Use ${current} instead`
         )
-        settings[current] = settings[deprecated]
+        options[current] = options[deprecated]
       }
     })
     ;[
@@ -80,9 +80,9 @@ export default function (allOptions: any) {
     ].forEach(function (o) {
       let deprecatedOption = typeof o === 'string' ? o : o[0]
       let style = typeof o === 'string' ? o : o[1]
-      if (typeof settings[deprecatedOption] !== 'undefined') {
-        if (typeof settings.styles[style] === 'undefined') {
-          settings.styles[style] = settings[deprecatedOption]
+      if (typeof options[deprecatedOption] !== 'undefined') {
+        if (typeof options.styles[style] === 'undefined') {
+          options.styles[style] = options[deprecatedOption]
         }
         console.error(
           'Use of deprecated option: ' +
@@ -100,10 +100,10 @@ export default function (allOptions: any) {
       'headStyles',
       'footStyles',
     ]) {
-      checkStyles(settings[styleProp] || {})
+      checkStyles(options[styleProp] || {})
     }
 
-    let columnStyles = settings['columnStyles'] || {}
+    let columnStyles = options['columnStyles'] || {}
     for (let key of Object.keys(columnStyles)) {
       checkStyles(columnStyles[key] || {})
     }

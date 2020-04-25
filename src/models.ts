@@ -1,9 +1,9 @@
-import { FONT_ROW_RATIO } from './config'
+import { defaultStyles, FONT_ROW_RATIO } from './config'
 import state from './state'
 import { CellHookData, HookData } from './HookData'
-import { applyUserStyles, marginOrPadding, MarginPadding, styles } from './common'
+import { applyUserStyles, marginOrPadding } from './common'
 import { assign } from './polyfills'
-import { UserInput, Settings, Styles } from './interfaces'
+import { Settings, Styles } from './interfaces'
 
 export type PageHook = (data: HookData) => void | boolean
 export type CellHook = (data: CellHookData) => void | boolean
@@ -211,9 +211,10 @@ export class Cell {
   padding(
     name: 'vertical' | 'horizontal' | 'top' | 'bottom' | 'left' | 'right'
   ) {
+    let sf = state().scaleFactor()
     let padding = marginOrPadding(
       this.styles.cellPadding,
-      styles([]).cellPadding
+      defaultStyles(sf).cellPadding
     )
     if (name === 'vertical') {
       return padding.top + padding.bottom

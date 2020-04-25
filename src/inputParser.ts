@@ -1,9 +1,9 @@
-import { getTheme, defaultStyles } from './config'
+import { getTheme, defaultStyles, ThemeName } from './config'
 import { parseHtml } from './htmlParser'
 import { assign } from './polyfills'
-import { getStringWidth, marginOrPadding } from './common'
+import { getStringWidth, marginOrPadding, MarginPadding } from './common'
 import state, { getGlobalOptions, getDocumentOptions } from './state'
-import validateInput from './inputValidator'
+import validateOptions from './inputValidator'
 import {
   CellDefinition,
   CellType,
@@ -26,26 +26,30 @@ import {
 } from './models'
 
 export function parseInput(args: any) {
-  let tableOptions = parseUserArguments(args)
+  let currentInput = parseUserArguments(args)
   let globalOptions = getGlobalOptions()
   let documentOptions = getDocumentOptions()
-  let allOptions = [globalOptions, documentOptions, tableOptions]
-  validateInput(allOptions)
+  let allOptions = [globalOptions, documentOptions, currentInput]
+  validateOptions(allOptions)
   let options: UserInput = assign({}, ...allOptions)
 
-  const settings = parseSettings(options)
+  let previous = state().doc.previousAutoTable
+  const sf = state().scaleFactor()
+  const margin = marginOrPadding(options.margin, 40 / sf)
+  const startY = getStartY(previous, sf, state().pageNumber(), options, margin.top)
+  const settings = parseSettings(options, sf, startY, margin)
   const styles = parseStyles(allOptions)
   let table = new Table(
-    tableOptions.tableId,
+    currentInput.tableId,
     settings,
     styles,
-    getUserStyles(),
+    getUserStyles(state().doc),
     parseHooks(allOptions),
-    parseContent(options, styles, settings.theme),
+    parseContent(options, styles, settings.theme, sf),
   )
   state().table = table
 
-  calculate(table)
+  calculate(table, sf)
 
   table.minWidth = table.columns.reduce((total, col) => total + col.minWidth, 0)
   table.wrappedWidth = table.columns.reduce(
@@ -53,7 +57,6 @@ export function parseInput(args: any) {
     0
   )
 
-  let margin = table.settings.margin
   if (typeof table.settings.tableWidth === 'number') {
     table.width = table.settings.tableWidth
   } else if (table.settings.tableWidth === 'wrap') {
@@ -65,7 +68,7 @@ export function parseInput(args: any) {
   return table
 }
 
-function calculate(table: Table) {
+function calculate(table: Table, sf: number) {
   table.allRows().forEach((row) => {
     for (let column of table.columns) {
       const cell = row.cells[column.index]
@@ -90,7 +93,7 @@ function calculate(table: Table) {
         cell.wrappedWidth = cell.contentWidth
       } else {
         // auto
-        const defaultMinWidth = 10 / state().scaleFactor()
+        const defaultMinWidth = 10 / sf
         cell.minWidth = cell.styles.minCellWidth || defaultMinWidth
         cell.wrappedWidth = cell.contentWidth
         if (cell.minWidth > cell.wrappedWidth) {
@@ -161,8 +164,7 @@ function parseStyles(allOptions: UserInput[]) {
   return styleOptions
 }
 
-function getUserStyles(): Partial<Styles> {
-  let doc = state().doc
+function getUserStyles(doc: any): Partial<Styles> {
   return {
     // Setting to black for versions of jspdf without getTextColor
     textColor: doc.getTextColor ? doc.getTextColor() : 0,
@@ -183,11 +185,7 @@ function parseHooks(allOptions: UserInput[]) {
   }
 }
 
-function parseSettings(options: UserInput): Settings {
-  const defaultMargin = 40 / state().scaleFactor()
-  const margin = marginOrPadding(options.margin, defaultMargin)
-  const startY = getStartY(state().doc, options, margin.top)
-
+function parseSettings(options: UserInput, sf: number, startY: number, margin: MarginPadding): Settings {
   let showFoot: 'everyPage' | 'lastPage' | 'never'
   if (options.showFoot === true) {
     showFoot = 'everyPage'
@@ -226,23 +224,22 @@ function parseSettings(options: UserInput): Settings {
   return settings
 }
 
-function getStartY(doc: any, options: UserInput, marginTop: number) {
+function getStartY(previous: Table, sf: number, currentPage: number, options: UserInput, marginTop: number) {
+  let isSamePageAsPreviousTable = false
+  if (previous) {
+    let endingPage = previous.startPageNumber + previous.pageNumber - 1
+    isSamePageAsPreviousTable = endingPage === currentPage
+  }
+
   let startY = options.startY
   if (startY == null || startY === false) {
-    const previous = doc.previousAutoTable
-    if (isSamePageAsPreviousTable(previous)) {
+    if (isSamePageAsPreviousTable) {
       // Many users had issues with overlapping tables when they used multiple
       // tables without setting startY so setting it here to a sensible default.
-      startY = previous.finalY + 20 / state().scaleFactor()
+      startY = previous.finalY + 20 / sf
     }
   }
   return startY || marginTop
-}
-
-function isSamePageAsPreviousTable(previous: Table | null) {
-  if (previous == null) return false
-  let endingPage = previous.startPageNumber + previous.pageNumber - 1
-  return endingPage === state().pageNumber()
 }
 
 function parseUserArguments(args: any): UserInput {
@@ -267,7 +264,7 @@ function parseUserArguments(args: any): UserInput {
   }
 }
 
-function parseContent(options: UserInput, styles: StylesProps, theme: 'plain'|'striped'|'grid') {
+function parseContent(options: UserInput, styles: StylesProps, theme: ThemeName, sf: number) {
   let head = options.head || []
   let body = options.body || []
   let foot = options.foot || []
@@ -282,9 +279,9 @@ function parseContent(options: UserInput, styles: StylesProps, theme: 'plain'|'s
   const columns = createColumns(options, head, body, foot)
   return  {
     columns,
-    head: parseSection('head', head, options, columns, styles, theme),
-    body: parseSection('body', body, options, columns, styles, theme),
-    foot: parseSection('foot', foot, options, columns, styles, theme)
+    head: parseSection('head', head, options, columns, styles, theme, sf),
+    body: parseSection('body', body, options, columns, styles, theme, sf),
+    foot: parseSection('foot', foot, options, columns, styles, theme, sf)
   }
 }
 
@@ -294,7 +291,8 @@ function parseSection(
   settings: UserInput,
   columns: Column[],
   styleProps: StylesProps,
-  theme: 'striped'|'plain'|'grid'
+  theme: ThemeName,
+  scaleFactor: number,
 ): Row[] {
   let rowSpansLeftForColumn: {
     [key: string]: { left: number; times: number }
@@ -329,7 +327,7 @@ function parseSection(
             rawCell = rawRow[column.dataKey]
           }
 
-          let styles = cellStyles(sectionName, column, rowIndex, theme, styleProps)
+          let styles = cellStyles(sectionName, column, rowIndex, theme, styleProps, scaleFactor)
           let cell = new Cell(rawCell, styles, sectionName)
           // dataKey is not used internally anymore but keep for backwards compat in hooks
           row.cells[column.dataKey] = cell
@@ -410,7 +408,7 @@ function createColumns(
   }
 }
 
-function cellStyles(sectionName: Section, column: Column, rowIndex: number, themeName: 'striped'|'plain'|'grid', styles: StylesProps) {
+function cellStyles(sectionName: Section, column: Column, rowIndex: number, themeName: 'striped'|'plain'|'grid', styles: StylesProps, scaleFactor: number) {
   let theme = getTheme(themeName)
   let sectionStyles
   if (sectionName === 'head') {
@@ -435,5 +433,6 @@ function cellStyles(sectionName: Section, column: Column, rowIndex: number, them
     sectionName === 'body' && rowIndex % 2 === 0
       ? assign({}, theme.alternateRow, styles.alternateRowStyles)
       : {}
-  return assign(defaultStyles(), ...[...otherStyles, rowStyles, colStyles])
+  const defaultStyle = defaultStyles(scaleFactor)
+  return assign(defaultStyle, ...otherStyles, rowStyles, colStyles)
 }
