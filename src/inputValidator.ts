@@ -1,7 +1,7 @@
 import { applyStyles } from './common'
 import { Styles } from './interfaces'
 
-export default function (allOptions: any, userStyles: Partial<Styles>) {
+export default function (allOptions: { [key: string]: any}[], userStyles: Partial<Styles>) {
   for (let options of allOptions) {
     if (options && typeof options !== 'object') {
       console.error(

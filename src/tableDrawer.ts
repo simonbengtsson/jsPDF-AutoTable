@@ -27,7 +27,7 @@ export function drawTable(table: Table) {
   if (
     settings.pageBreak === 'always' ||
     (settings.startY != null &&
-      minTableBottomPos > state().pageHeight())
+      minTableBottomPos > state().pageSize().height)
   ) {
     nextPage(state().doc)
     table.cursor.y = margin.top
@@ -126,7 +126,7 @@ function shouldPrintOnCurrentPage(
   remainingPageSpace: number,
   table: Table
 ) {
-  let pageHeight = state().pageHeight()
+  let pageHeight = state().pageSize().height
   let margin = table.settings.margin
   let marginHeight = margin.top + margin.bottom
   let maxRowHeight = pageHeight - marginHeight
@@ -234,7 +234,8 @@ function printRow(table: Table, row: Row) {
       continue
     }
 
-    let fillStyle = getFillStyle(cell.styles)
+    let cellStyles = cell.styles
+    let fillStyle = getFillStyle(cellStyles.lineWidth, cellStyles.fillColor)
     if (fillStyle) {
       state().doc.rect(
         cell.x,
@@ -266,7 +267,7 @@ function getRemainingPageSpace(table: Table, isLastRow: boolean) {
   if (showFoot === 'everyPage' || (showFoot === 'lastPage' && isLastRow)) {
     bottomContentHeight += table.footHeight
   }
-  return state().pageHeight() - table.cursor.y - bottomContentHeight
+  return state().pageSize().height - table.cursor.y - bottomContentHeight
 }
 
 export function addPage(table: Table) {

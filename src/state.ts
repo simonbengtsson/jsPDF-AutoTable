@@ -1,38 +1,26 @@
-import { Table } from './models'
 import { UserInput } from './interfaces'
 
-let defaultsDocument: any = null
-let previousTableState: any
+let previousDocumentHandler: any
+let documentHandler: DocumentHandler | any = null
+let globalDefaults: UserInput = {}
 
-let tableState: TableState | any = null
-export let globalDefaults: UserInput = {}
-export let documentDefaults: UserInput = {}
-
-export default function (): TableState {
-  return tableState
+export default function (): DocumentHandler {
+  return documentHandler
 }
 
-export function getGlobalOptions(): UserInput {
-  return globalDefaults
-}
-
-export function getDocumentOptions(): UserInput {
-  return documentDefaults
-}
-
-class TableState {
+class DocumentHandler {
   doc: any
 
-  constructor(doc: any, table: Table) {
+  constructor(doc: any) {
     this.doc = doc
   }
 
-  pageHeight() {
-    return this.pageSize().height
+  getGlobalOptions(): UserInput {
+    return globalDefaults || {}
   }
 
-  pageWidth() {
-    return this.pageSize().width
+  getDocumentOptions(): UserInput {
+    return this.doc.__autoTableDocumentDefaults || {}
   }
 
   pageSize() {
@@ -64,28 +52,18 @@ class TableState {
 }
 
 export function setupState(doc: any) {
-  previousTableState = tableState
-
-  // Hack for lazy init of table property
-  const table = {} as Table
-  tableState = new TableState(doc, table)
-
-  if (doc !== defaultsDocument) {
-    defaultsDocument = doc
-    documentDefaults = {}
-    documentDefaults = {}
-  }
+  previousDocumentHandler = documentHandler
+  documentHandler = new DocumentHandler(doc)
 }
 
 export function resetState() {
-  tableState = previousTableState
+  documentHandler = previousDocumentHandler
 }
 
-export function setDefaults(defaults: UserInput, doc = null) {
+export function setDefaults(defaults: UserInput, doc: any = null) {
   if (doc) {
-    documentDefaults = defaults || {}
-    defaultsDocument = doc
+    doc.__autoTableDocumentDefaults = defaults
   } else {
-    globalDefaults = defaults || {}
+    globalDefaults = defaults
   }
 }

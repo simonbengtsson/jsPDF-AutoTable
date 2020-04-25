@@ -1,7 +1,5 @@
-import { defaultStyles } from './config'
 import state from './state'
-import { assign } from './polyfills'
-import { MarginPaddingInput } from './interfaces'
+import { Color, MarginPaddingInput } from './interfaces'
 import { Table } from './models'
 
 export function getStringWidth(text: string | string[], styles: any) {
@@ -48,12 +46,10 @@ export function ellipsize(
 }
 
 export function addTableBorder(table: Table) {
-  let styles = {
-    lineWidth: table.settings.tableLineWidth,
-    lineColor: table.settings.tableLineColor,
-  }
-  applyStyles(styles)
-  let fs = getFillStyle(styles)
+  let lineWidth = table.settings.tableLineWidth
+  let lineColor = table.settings.tableLineColor
+  applyStyles({ lineWidth, lineColor })
+  let fs = getFillStyle(lineWidth, false)
   if (fs) {
     state().doc.rect(
       table.pageStartX,
@@ -65,9 +61,9 @@ export function addTableBorder(table: Table) {
   }
 }
 
-export function getFillStyle(styles: any) {
-  let drawLine = styles.lineWidth > 0
-  let drawBackground = styles.fillColor || styles.fillColor === 0
+export function getFillStyle(lineWidth: number, fillColor: Color) {
+  let drawLine = lineWidth > 0
+  let drawBackground = fillColor || fillColor === 0
   if (drawLine && drawBackground) {
     return 'DF' // Fill then stroke
   } else if (drawLine) {
@@ -75,7 +71,7 @@ export function getFillStyle(styles: any) {
   } else if (drawBackground) {
     return 'F' // Only fill, no stroke
   } else {
-    return false
+    return null
   }
 }
 

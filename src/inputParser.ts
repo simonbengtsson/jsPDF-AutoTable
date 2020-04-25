@@ -2,7 +2,7 @@ import { getTheme, defaultStyles, ThemeName } from './config'
 import { parseHtml } from './htmlParser'
 import { assign } from './polyfills'
 import { getStringWidth, marginOrPadding, MarginPadding } from './common'
-import state, { getGlobalOptions, getDocumentOptions } from './state'
+import state from './state'
 import validateOptions from './inputValidator'
 import {
   CellDefinition,
@@ -27,8 +27,8 @@ import {
 
 export function parseInput(args: any) {
   let currentInput = parseUserArguments(args)
-  let globalOptions = getGlobalOptions()
-  let documentOptions = getDocumentOptions()
+  let globalOptions = state().getGlobalOptions()
+  let documentOptions = state().getDocumentOptions()
   let allOptions = [globalOptions, documentOptions, currentInput]
 
   const userStyles = getUserStyles(state().doc)
@@ -66,7 +66,7 @@ export function parseInput(args: any) {
   } else if (table.settings.tableWidth === 'wrap') {
     table.width = table.wrappedWidth
   } else {
-    table.width = state().pageWidth() - margin.left - margin.right
+    table.width = state().pageSize().width - margin.left - margin.right
   }
 
   return table

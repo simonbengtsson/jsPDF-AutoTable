@@ -230,36 +230,34 @@ examples.defaults = function () {
   // Global defaults
   // (would apply to all documents if more than one were created)
   jsPDF.autoTableSetDefaults({
-    columnStyles: { id: { fontStyle: 'bold' } },
     headStyles: { fillColor: 0 },
   })
 
   var doc = new jsPDF()
 
+  doc.text('Global options (black header)', 15, 20)
+  doc.autoTable({ head: headRows(), body: bodyRows(5), startY: 25 })
+
   // Document defaults
-  doc.autoTableSetDefaults({
+  jsPDF.autoTableSetDefaults({
     headStyles: { fillColor: [155, 89, 182] }, // Purple
-    margin: { top: 25 },
     didDrawPage: function (data) {
-      doc.setFontSize(20)
-      doc.text('Default options', data.settings.margin.left, 20)
+      var finalY = doc.previousAutoTable.finalY + 15
+      var leftMargin = data.settings.margin.left
+      doc.text('Default options (purple header)', leftMargin, finalY)
     },
-  })
+  }, doc)
 
-  doc.autoTable({ head: headRows(), body: bodyRows() })
-
-  doc.addPage()
-
-  doc.autoTable({
-    head: headRows(),
-    body: bodyRows(),
-    // Will override document and global head tyles
-    headStyles: { fillColor: [231, 76, 60] }, // Red
-  })
+  let startY = doc.previousAutoTable.finalY + 20
+  doc.autoTable({ head: headRows(), body: bodyRows(5), startY: startY })
 
   // Reset defaults
   doc.autoTableSetDefaults(null)
   jsPDF.autoTableSetDefaults(null)
+
+  let finalY = doc.previousAutoTable.finalY
+  doc.text('After reset (blue header)', 15, finalY + 15)
+  doc.autoTable({ head: headRows(), body: bodyRows(5), startY: finalY + 20 })
 
   return doc
 }

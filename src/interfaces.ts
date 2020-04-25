@@ -9,7 +9,7 @@ export interface ColumnOption {
   key?: string | number // deprecated (same as dataKey)
 }
 
-type Color = [number, number, number] | number | 'transparent' | false
+export type Color = [number, number, number] | number | false
 export type MarginPaddingInput =
   | number
   | number[]
