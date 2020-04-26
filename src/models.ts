@@ -2,7 +2,7 @@ import { defaultStyles, FONT_ROW_RATIO } from './config'
 import { DocHandler } from './documentHandler'
 import { CellHookData, HookData } from './HookData'
 import { marginOrPadding } from './common'
-import { Settings, Styles } from './interfaces'
+import { CellType, RowInput, Settings, Styles } from './interfaces'
 
 export type PageHook = (data: HookData) => void | boolean
 export type CellHook = (data: CellHookData) => void | boolean
@@ -94,7 +94,11 @@ export class Table {
     column: Column
   ): boolean {
     for (let handler of handlers) {
-      if (handler(new CellHookData(this, doc, cell, row, column)) === false) {
+      const data = new CellHookData(this, doc, cell, row, column)
+      const result = handler(data) === false
+      // Make sure text is always string[] since user can assign string
+      cell.text = Array.isArray(cell.text) ? cell.text : [cell.text]
+      if (result) {
         return false
       }
     }
@@ -110,7 +114,7 @@ export class Table {
 }
 
 export class Row {
-  raw: HTMLTableRowElement | any
+  raw: HTMLTableRowElement | RowInput
   index: number
   cells: { [key: string]: Cell } = {}
   section: Section
@@ -160,9 +164,9 @@ export class Row {
 
 export type Section = 'head' | 'body' | 'foot'
 export class Cell {
-  raw: HTMLTableCellElement | any
+  raw: HTMLTableCellElement | CellType
   styles: Styles
-  text: string | string[]
+  text: string[]
   section: Section
 
   contentHeight = 0
@@ -176,24 +180,27 @@ export class Cell {
   x = 0
   y = 0
 
-  colSpan: number
-  rowSpan: number
+  colSpan = 1
+  rowSpan = 1
 
-  constructor(raw: any, styles: Styles, section: Section) {
-    this.rowSpan = (raw && raw.rowSpan) || 1
-    this.colSpan = (raw && raw.colSpan) || 1
+  constructor(raw: CellType, styles: Styles, section: Section) {
     this.styles = styles
     this.section = section
+    this.raw = raw
 
-    let text
-    let content = raw && raw.content != null ? raw.content : raw
-    content = content && content.title != null ? content.title : content
+    let content = raw
+    if (raw != null && typeof raw === 'object') {
+      this.rowSpan = raw.rowSpan || 1
+      this.colSpan = raw.colSpan || 1
+      content = raw.content ?? (raw as any).title ?? raw
+      if (raw._element) {
+        this.raw = raw._element
+      }
+    }
 
-    this.raw = raw && raw._element ? raw._element : raw
 
     // Stringify 0 and false, but not undefined or null
-    text = content != null ? '' + content : ''
-
+    let text = content != null ? '' + content : ''
     let splitRegex = /\r\n|\r|\n/g
     this.text = text.split(splitRegex)
   }

@@ -20,31 +20,37 @@ export function getStringWidth(text: Text, styles: Styles, doc: DocHandler) {
  * Ellipsize the text to fit in the width
  */
 export function ellipsize(
-  text: Text,
+  text: string[],
   width: number,
   styles: Styles,
   doc: DocHandler,
-  ellipsizeStr: string,
-): string | string[] {
-  if (Array.isArray(text)) {
-    return text.map((str) =>
-      ellipsize(str, width, styles, doc, ellipsizeStr)
-    ) as string[]
-  }
+  str: string
+): string[] {
+  return text.map((str) =>
+    ellipsizeStr(str, width, styles, doc, str)
+  )
+}
 
+function ellipsizeStr(
+  text: string,
+  width: number,
+  styles: Styles,
+  doc: DocHandler,
+  str: string
+): string {
   let precision = 10000 * doc.scaleFactor()
   width = Math.ceil(width * precision) / precision
 
   if (width >= getStringWidth(text, styles, doc)) {
     return text
   }
-  while (width < getStringWidth(text + ellipsizeStr, styles, doc)) {
+  while (width < getStringWidth(text + str, styles, doc)) {
     if (text.length <= 1) {
       break
     }
     text = text.substring(0, text.length - 1)
   }
-  return text.trim() + ellipsizeStr
+  return text.trim() + str
 }
 
 export function addTableBorder(table: Table, doc: DocHandler) {
@@ -77,8 +83,16 @@ export function getFillStyle(lineWidth: number, fillColor: Color) {
   }
 }
 
-export type MarginPadding = { top: number, right: number, bottom: number, left: number }
-export function marginOrPadding(value: MarginPaddingInput|undefined, defaultValue: number): MarginPadding {
+export type MarginPadding = {
+  top: number
+  right: number
+  bottom: number
+  left: number
+}
+export function marginOrPadding(
+  value: MarginPaddingInput | undefined,
+  defaultValue: number
+): MarginPadding {
   value = value || defaultValue
   if (Array.isArray(value)) {
     if (value.length >= 4) {
@@ -122,7 +136,7 @@ export function marginOrPadding(value: MarginPaddingInput|undefined, defaultValu
       left: value.left ?? defaultValue,
       top: value.top ?? defaultValue,
       right: value.right ?? defaultValue,
-      bottom: value.bottom ?? defaultValue
+      bottom: value.bottom ?? defaultValue,
     }
   }
 

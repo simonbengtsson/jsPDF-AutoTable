@@ -43,11 +43,12 @@ export interface CellDefinition {
   rowSpan?: number
   colSpan?: number
   styles?: Styles
-  content?: string | string[] | number
+  content?: string | string[] | number,
+  _element?: HTMLTableCellElement
 }
 
 export type CellType = null | string | number | boolean | CellDefinition
-export type RowInput = { [key: string]: CellType }
+export type RowInput = { [key: string]: CellType | HTMLTableCellElement }
 
 export interface Settings {
   includeHiddenHtml: boolean

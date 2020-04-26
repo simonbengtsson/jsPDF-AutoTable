@@ -75,7 +75,6 @@ function calculate(table: Table, sf: number, doc: DocHandler) {
       const cell = row.cells[column.index]
       if (!cell) continue
       table.callCellHooks(doc, table.hooks.didParseCell, cell, row, column)
-      cell.text = Array.isArray(cell.text) ? cell.text : [cell.text]
 
       let padding = cell.padding('horizontal', doc)
       cell.contentWidth =
@@ -300,7 +299,7 @@ function parseSection(
       sectionRows.push(sectionRow)
     }
   }
-  return sectionRows.map((rawRow: any, rowIndex: number) => {
+  return sectionRows.map((rawRow, rowIndex) => {
     let skippedRowForRowSpans = 0
     let row = new Row(rawRow, rowIndex, sectionName)
 
@@ -350,7 +349,7 @@ function generateSectionRowFromColumnData(
   columns: Column[],
   sectionName: Section
 ): RowInput | null {
-  let sectionRow: { [key: string]: CellType } = {}
+  let sectionRow: RowInput = {}
   columns.forEach((col) => {
     let columnData = col.raw
     if (sectionName === 'head') {
@@ -373,7 +372,7 @@ function createColumns(
   foot: RowInput[]
 ) {
   if (settings.columns) {
-    return settings.columns.map((input: any, index: number) => {
+    return settings.columns.map((input, index) => {
       const key = input.dataKey || input.key || index
       return new Column(key, input, index)
     })
