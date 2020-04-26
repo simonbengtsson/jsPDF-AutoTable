@@ -29,12 +29,12 @@ describe('common', function () {
   })
 
   it('ellipsize string', () => {
-    const text = 'lorem ipsum'
-    let str = ellipsize(text, 0, {}, doc,'...')
+    const text = ['lorem ipsum']
+    let str = ellipsize(text, 0, {}, doc,'...')[0]
     assert(str.length < 5, `Should be reduced in length`)
     assert(str.endsWith('...'), `Should end with ...`)
 
-    str = ellipsize(text, 100, {}, doc, '...')
+    str = ellipsize(text, 100, {}, doc, '...')[0]
     assert.equal(str.length, 11, `Should not be reduced`)
   })
 

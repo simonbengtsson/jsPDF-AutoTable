@@ -218,7 +218,7 @@ export class Cell {
     let sf = doc.scaleFactor()
     let padding = marginOrPadding(
       this.styles.cellPadding,
-      defaultStyles(sf).cellPadding
+      5 / sf
     )
     if (name === 'vertical') {
       return padding.top + padding.bottom

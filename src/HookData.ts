@@ -1,11 +1,12 @@
 import { DocHandler } from './documentHandler'
 import { Table, Cell, Row, Column } from './models'
+import { Settings } from './interfaces'
 
 export class HookData {
   table: Table
   pageNumber: number
   pageCount: number // Deprecated, use pageNumber instead
-  settings: any
+  settings: Settings
   doc: any
   cursor: { x: number; y: number }
 

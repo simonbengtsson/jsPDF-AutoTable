@@ -1,82 +1,73 @@
 // Limitations
 // - No support for border spacing
 // - No support for transparency
-import { marginOrPadding } from './common'
+import { marginOrPadding, MarginPadding } from './common'
 import { DocHandler } from './documentHandler'
+import { Styles } from './interfaces'
 
 export function parseCss(
   doc: DocHandler,
   element: Element,
-  scaleFactor: number,
-  ignored: string[] = []
-) {
-  let result: any = {}
+  scaleFactor: number
+): Partial<Styles> {
+  let result: Partial<Styles> = {}
   let style = window.getComputedStyle(element)
 
-  function assign(name: string, value: any, accepted: string[] = []) {
-    if (
-      (accepted.length === 0 || accepted.indexOf(value) !== -1) &&
-      ignored.indexOf(name) === -1
-    ) {
-      if (value === 0 || value) {
-        result[name] = value
-      }
-    }
-  }
-
   let pxScaleFactor = 96 / 72
-  assign('fillColor', parseColor(element, 'backgroundColor'))
-  assign('fontStyle', parseFontStyle(style))
-  assign('textColor', parseColor(element, 'color'))
-  assign('halign', style.textAlign, ['left', 'right', 'center', 'justify'])
-  assign('valign', style.verticalAlign, ['middle', 'bottom', 'top'])
-  assign('fontSize', parseInt(style.fontSize || '') / pxScaleFactor)
-  assign(
-    'cellPadding',
-    parsePadding(
-      [
-        style.paddingTop,
-        style.paddingRight,
-        style.paddingBottom,
-        style.paddingLeft,
-      ],
-      style.fontSize,
-      style.lineHeight,
-      scaleFactor
-    )
-  )
+
+  let color = parseColor(element, 'backgroundColor')
+  if (color != null) result.fillColor = color
+  color = parseColor(element, 'color')
+  if (color != null) result.textColor = color
+  color = parseColor(element, 'borderTopColor')
+  if (color != null) result.lineColor = color
+
+  let padding = parsePadding(style, scaleFactor)
+  if (padding) result.cellPadding = padding
 
   // style.borderWidth only works in chrome (borderTopWidth etc works in firefox and ie as well)
-  assign(
-    'lineWidth',
-    parseInt(style.borderTopWidth || '') / pxScaleFactor / scaleFactor
-  )
-  assign('lineColor', parseColor(element, 'borderTopColor'))
+  let bw = parseInt(style.borderTopWidth || '')
+  bw = bw / pxScaleFactor / scaleFactor
+  if (bw) result.lineWidth = bw
 
-  const font = (style.fontFamily || '').toLowerCase() as string
+  let accepted = ['left', 'right', 'center', 'justify']
+  if (accepted.indexOf(style.textAlign) !== -1) {
+    result.halign = style.textAlign as 'left' | 'right' | 'center' | 'justify'
+  }
+  accepted = ['middle', 'bottom', 'top']
+  if (accepted.indexOf(style.verticalAlign) !== -1) {
+    result.valign = style.verticalAlign as 'middle' | 'bottom' | 'top'
+  }
+  let res = parseInt(style.fontSize || '')
+  if (!isNaN(res)) result.fontSize = res / pxScaleFactor
+  let fontStyle = parseFontStyle(style)
+  if (fontStyle) result.fontStyle = fontStyle
+
+  const font = (style.fontFamily || '').toLowerCase()
   if (doc.getFontList()[font]) {
-    assign('font', font)
+    result.font = font
   }
 
   return result
 }
 
-function parseFontStyle(style: any) {
+function parseFontStyle(style: any): '' | 'bold' | 'italic' | 'bolditalic' {
   let res = ''
   if (
     style.fontWeight === 'bold' ||
     style.fontWeight === 'bolder' ||
     parseInt(style.fontWeight) >= 700
   ) {
-    res += 'bold'
+    res = 'bold'
   }
   if (style.fontStyle === 'italic' || style.fontStyle === 'oblique') {
     res += 'italic'
   }
-  return res
+  return res as '' | 'bold' | 'italic' | 'bolditalic'
 }
 
-function parseColor(element: Element, colorProp: any) {
+type RgbColor = [number, number, number]
+function parseColor(element: Element, colorProp: any): RgbColor | null {
   let cssColor = realColor(element, colorProp)
 
   if (!cssColor) return null
@@ -88,7 +79,11 @@ function parseColor(element: Element, colorProp: any) {
     return null
   }
 
-  var color = [parseInt(rgba[1]), parseInt(rgba[2]), parseInt(rgba[3])]
+  var color: RgbColor = [
+    parseInt(rgba[1]),
+    parseInt(rgba[2]),
+    parseInt(rgba[3]),
+  ]
   var alpha = parseInt(rgba[4])
 
   if (alpha === 0 || isNaN(color[0]) || isNaN(color[1]) || isNaN(color[2])) {
@@ -114,16 +109,17 @@ function realColor(elem: Element | null, colorProp: any): any {
   }
 }
 
-function parsePadding(
-  val: null | string[],
-  fontSize: string,
-  lineHeight: string,
-  scaleFactor: number
-) {
-  if (!val) return null
+function parsePadding(style: any, scaleFactor: number): null | MarginPadding {
+  let val = [
+    style.paddingTop,
+    style.paddingRight,
+    style.paddingBottom,
+    style.paddingLeft,
+  ]
+
   const pxScaleFactor = 96 / (72 / scaleFactor)
   const linePadding =
-    (parseInt(lineHeight) - parseInt(fontSize)) / scaleFactor / 2
+    (parseInt(style.lineHeight) - parseInt(style.fontSize)) / scaleFactor / 2
 
   const inputPadding = val.map((n) => {
     return parseInt(n) / pxScaleFactor

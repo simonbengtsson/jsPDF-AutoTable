@@ -24,10 +24,10 @@ export function ellipsize(
   width: number,
   styles: Styles,
   doc: DocHandler,
-  str: string
+  stre: string
 ): string[] {
   return text.map((str) =>
-    ellipsizeStr(str, width, styles, doc, str)
+    ellipsizeStr(str, width, styles, doc, stre)
   )
 }
 

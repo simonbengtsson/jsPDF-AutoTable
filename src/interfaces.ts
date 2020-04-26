@@ -31,7 +31,7 @@ export interface Styles {
   halign: 'left' | 'center' | 'right' | 'justify'
   valign: 'top' | 'middle' | 'bottom'
   fontSize: number
-  cellPadding: number
+  cellPadding: MarginPaddingInput
   lineColor: Color
   lineWidth: number
   cellWidth: 'auto' | 'wrap' | number

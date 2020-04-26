@@ -50,13 +50,6 @@ function parseRowContent(
   useCss: boolean
 ) {
   let resultRow: any = []
-  let rowStyles = useCss
-    ? parseCss(doc, row, doc.scaleFactor(), [
-        'cellPadding',
-        'lineWidth',
-        'lineColor',
-      ])
-    : {}
   for (let i = 0; i < row.cells.length; i++) {
     let cell = row.cells[i]
     let style = window.getComputedStyle(cell)
@@ -71,7 +64,8 @@ function parseRowContent(
       })
     }
   }
-  if (resultRow.length > 0 && (includeHidden || rowStyles.display !== 'none')) {
+  let style = window.getComputedStyle(row)
+  if (resultRow.length > 0 && (includeHidden || style.display !== 'none')) {
     resultRow._element = row
     return resultRow
   }
