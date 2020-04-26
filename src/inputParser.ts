@@ -169,9 +169,9 @@ function parseStyles(
   }
   for (const prop of Object.keys(styleOptions) as StyleProp[]) {
     if (prop === 'columnStyles') {
-      const global = dInput.columnStyles
-      const document = dInput.columnStyles
-      const current = dInput.columnStyles
+      const global = gInput[prop]
+      const document = dInput[prop]
+      const current = cInput[prop]
       styleOptions.columnStyles = assign({}, global, document, current)
     } else {
       const allOptions = [gInput, dInput, cInput]
@@ -195,7 +195,7 @@ function parseHooks(
     didDrawPage: [] as PageHook[],
   }
   for (const options of allOptions) {
-    if (options.didDrawCell) result.didDrawCell.push(options.didDrawCell)
+    if (options.didParseCell) result.didParseCell.push(options.didParseCell)
     if (options.willDrawCell) result.willDrawCell.push(options.willDrawCell)
     if (options.didDrawCell) result.didDrawCell.push(options.didDrawCell)
     if (options.didDrawPage) result.didDrawPage.push(options.didDrawPage)
