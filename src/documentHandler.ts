@@ -102,7 +102,7 @@ export class DocHandler {
     return this.doc.__autoTableDocumentDefaults || {}
   }
 
-  pageSize() {
+  pageSize(): {width: number, height: number} {
     let pageSize = this.doc.internal.pageSize
 
     // JSPDF 1.4 uses get functions instead of properties on pageSize
@@ -116,11 +116,11 @@ export class DocHandler {
     return pageSize
   }
 
-  scaleFactor() {
+  scaleFactor(): number {
     return this.doc.internal.scaleFactor
   }
 
-  pageNumber() {
+  pageNumber(): number {
     const pageInfo = this.doc.internal.getCurrentPageInfo()
     if (!pageInfo) {
       // Only recent versions of jspdf has pageInfo
