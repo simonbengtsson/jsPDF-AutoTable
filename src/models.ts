@@ -35,7 +35,6 @@ export interface StylesProps {
 export class Table {
   id?: string | number
   cursor = { x: 0, y: 0 }
-  userStyles: Partial<Styles>
   settings: Settings
   styles: StylesProps
 
@@ -70,14 +69,12 @@ export class Table {
     id: string | number | undefined,
     settings: Settings,
     styles: StylesProps,
-    userStyles: Partial<Styles>,
     hooks: HookProps,
     content: { body: Row[], head: Row[], foot: Row[], columns: Column[] },
   ) {
     this.id = id
     this.settings = settings
     this.styles = styles
-    this.userStyles = userStyles
     this.hooks = hooks
     this.columns = content.columns
     this.head = content.head
@@ -105,7 +102,7 @@ export class Table {
   }
 
   callEndPageHooks(doc: DocHandler) {
-    doc.applyStyles(this.userStyles)
+    doc.applyStyles(doc.userStyles)
     for (let handler of this.hooks.didDrawPage) {
       handler(new HookData(this, doc))
     }

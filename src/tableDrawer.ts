@@ -12,7 +12,6 @@ export function drawTable(table: Table, doc: DocHandler) {
   let settings = table.settings
   let startY = settings.startY
   let margin = settings.margin
-  let userStyles = table.userStyles
 
   table.cursor = {
     x: margin.left,
@@ -38,15 +37,15 @@ export function drawTable(table: Table, doc: DocHandler) {
   table.startPageNumber = doc.pageNumber()
 
   // An empty row used to cached cells those break through page
-  doc.applyStyles(userStyles)
+  doc.applyStyles(doc.userStyles)
   if (settings.showHead === 'firstPage' || settings.showHead === 'everyPage') {
     table.head.forEach((row) => printRow(table, row, doc))
   }
-  doc.applyStyles(userStyles)
+  doc.applyStyles(doc.userStyles)
   table.body.forEach(function (row, index) {
     printFullRow(table, row, index === table.body.length - 1, doc)
   })
-  doc.applyStyles(userStyles)
+  doc.applyStyles(doc.userStyles)
   if (settings.showFoot === 'lastPage' || settings.showFoot === 'everyPage') {
     table.foot.forEach((row) => printRow(table, row, doc))
   }
@@ -273,7 +272,7 @@ function getRemainingPageSpace(table: Table, isLastRow: boolean, doc: DocHandler
 }
 
 export function addPage(table: Table, doc: DocHandler) {
-  doc.applyStyles(table.userStyles)
+  doc.applyStyles(doc.userStyles)
   if (table.settings.showFoot === 'everyPage') {
     table.foot.forEach((row: Row) => printRow(table, row, doc))
   }

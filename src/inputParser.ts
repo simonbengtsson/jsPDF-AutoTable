@@ -31,8 +31,7 @@ export function parseInput(args: any, doc: DocHandler) {
   let documentOptions = doc.getDocumentOptions()
   let allOptions = [globalOptions, documentOptions, currentInput]
 
-  const userStyles = doc.getUserStyles()
-  validateOptions(allOptions, userStyles, doc)
+  validateOptions(allOptions, doc.userStyles, doc)
   let options: UserInput = assign({}, ...allOptions)
 
   let previous = doc.getPreviousAutoTable()
@@ -47,7 +46,6 @@ export function parseInput(args: any, doc: DocHandler) {
     currentInput.tableId,
     settings,
     styles,
-    userStyles,
     parseHooks(allOptions),
     parseContent(doc, options, styles, settings.theme, sf),
   )

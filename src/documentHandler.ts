@@ -5,9 +5,17 @@ let globalDefaults: UserInput = {}
 
 export class DocHandler {
   private readonly doc: any
+  readonly userStyles: Partial<Styles>
 
   constructor(doc: any) {
     this.doc = doc
+    this.userStyles = {
+      // Black for versions of jspdf without getTextColor
+      textColor: doc.getTextColor ? this.doc.getTextColor() : 0,
+      fontSize: doc.internal.getFontSize(),
+      fontStyle: doc.internal.getFont().fontStyle,
+      font: doc.internal.getFont().fontName,
+    }
   }
 
   static setDefaults(defaults: UserInput, doc: any = null) {
@@ -15,16 +23,6 @@ export class DocHandler {
       doc.__autoTableDocumentDefaults = defaults
     } else {
       globalDefaults = defaults
-    }
-  }
-
-  getUserStyles(): Partial<Styles> {
-    return {
-      // Black for versions of jspdf without getTextColor
-      textColor: this.doc.getTextColor ? this.doc.getTextColor() : 0,
-      fontSize: this.doc.internal.getFontSize(),
-      fontStyle: this.doc.internal.getFont().fontStyle,
-      font: this.doc.internal.getFont().fontName,
     }
   }
 

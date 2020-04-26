@@ -15,14 +15,15 @@ export function autoTable(this: any) {
 
   // 2. Calculate preliminary table, column, row and cell dimensions
   calculateWidths(table, doc)
+
   // 3. Output table to pdf
   drawTable(table, doc)
 
   table.finalY = table.cursor.y
   this.previousAutoTable = table
-  this.lastAutoTable = table
+  this.lastAutoTable = table // Deprecated
   this.autoTable.previous = table // Deprecated
 
-  doc.applyStyles(table.userStyles)
+  doc.applyStyles(doc.userStyles)
   return this
 }
