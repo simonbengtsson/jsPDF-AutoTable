@@ -1,8 +1,8 @@
-// Here is an example for using jspdf with nodejs by mocking out browser globals
+// Below is an example using the jspdf nodejs dist files. But you can
+// also use the default jsPDF by mocking out browser apis like in this example.
 // https://stackoverflow.com/questions/30694428/jspdf-server-side-node-js-usage-using-node-jspdf
-// Below is an example using the jspdf nodejs dist files
 
-// Build issue defines a tmp window object at top level in jspdf 1.5.3
+// Build issue requires a dummy window object at top level in jspdf 1.5.3
 global.window = {}
 
 const fs = require('fs')
@@ -28,5 +28,4 @@ doc.autoTable({
 })
 
 const data = doc.output()
-
 fs.writeFileSync('./document.pdf', data, 'binary')
