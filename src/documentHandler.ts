@@ -26,26 +26,27 @@ export class DocHandler {
     }
   }
 
-  private static unifyColor(
-    c: Color | undefined
-  ): [number, number, number] | null {
+  private static unifyColor(c: Color | undefined): number[] | string[] | null {
     if (Array.isArray(c)) {
       return c
     } else if (typeof c === 'number') {
       return [c, c, c]
+    } else if (typeof c === 'string') {
+      return [c]
     } else {
       return null
     }
   }
 
   applyStyles(styles: Partial<Styles>, fontOnly = false) {
+    // Font style needs to be applied before font
+    // https://github.com/simonbengtsson/jsPDF-AutoTable/issues/632
+    if (styles.fontStyle) this.doc.setFontStyle(styles.fontStyle)
+    if (styles.font) this.doc.setFont(styles.font)
+    if (styles.fontSize) this.doc.setFontSize(styles.fontSize)
+
     if (fontOnly) {
-      // Font style needs to be applied before font
-      // https://github.com/simonbengtsson/jsPDF-AutoTable/issues/632
-      if (styles.fontStyle) this.doc.setFontStyle(styles.fontStyle)
-      if (styles.font) this.doc.setFont(styles.font)
-      if (styles.fontSize) this.doc.setFontSize(styles.fontSize)
-      return
+      return // Performance improvement
     }
 
     let color = DocHandler.unifyColor(styles.fillColor)
@@ -102,7 +103,7 @@ export class DocHandler {
     return this.doc.__autoTableDocumentDefaults || {}
   }
 
-  pageSize(): {width: number, height: number} {
+  pageSize(): { width: number; height: number } {
     let pageSize = this.doc.internal.pageSize
 
     // JSPDF 1.4 uses get functions instead of properties on pageSize

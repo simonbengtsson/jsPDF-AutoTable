@@ -19,13 +19,13 @@ window.examples = examples
 
 // Basic - shows what a default table looks like
 examples.basic = function () {
-  let doc = new jsPDF()
+  var doc = new jsPDF()
 
   // From HTML
   doc.autoTable({ html: '.table' })
 
   // From Javascript
-  let finalY = doc.previousAutoTable.finalY
+  var finalY = doc.previousAutoTable.finalY
   doc.text('From javascript arrays', 14, finalY + 15)
   doc.autoTable({
     startY: finalY + 20,
@@ -72,9 +72,9 @@ examples.minimal = function () {
 examples.long = function () {
   var doc = new jsPDF('l')
 
-  let head = headRows()
+  var head = headRows()
   head[0]['text'] = 'Text'
-  let body = bodyRows(4)
+  var body = bodyRows(4)
   body.forEach(function (row) {
     row['text'] = faker.lorem.sentence(100)
   })
@@ -135,13 +135,11 @@ examples.content = function () {
 // Multiple - shows how multiple tables can be drawn both horizontally and vertically
 examples.multiple = function () {
   var doc = new jsPDF()
-  doc.setFontSize(22)
   doc.text('Multiple tables', 14, 20)
-  doc.setFontSize(12)
 
   doc.autoTable({ startY: 30, head: headRows(), body: bodyRows(25) })
 
-  let pageNumber = doc.internal.getNumberOfPages()
+  var pageNumber = doc.internal.getNumberOfPages()
 
   doc.autoTable({
     columns: [
@@ -251,14 +249,14 @@ examples.defaults = function () {
     doc
   )
 
-  let startY = doc.previousAutoTable.finalY + 20
+  var startY = doc.previousAutoTable.finalY + 20
   doc.autoTable({ head: headRows(), body: bodyRows(5), startY: startY })
 
   // Reset defaults
   doc.autoTableSetDefaults(null)
   jsPDF.autoTableSetDefaults(null)
 
-  let finalY = doc.previousAutoTable.finalY
+  var finalY = doc.previousAutoTable.finalY
   doc.text('After reset (blue header)', 15, finalY + 15)
   doc.autoTable({ head: headRows(), body: bodyRows(5), startY: finalY + 20 })
 
@@ -285,9 +283,6 @@ examples.colstyles = function () {
 // Col spans and row spans
 examples.spans = function () {
   var doc = new jsPDF('p', 'pt')
-  doc.setFontSize(12)
-  doc.setTextColor(0)
-  doc.setFontStyle('bold')
   doc.text('Rowspan and colspan', 40, 50)
 
   var raw = bodyRows(40)
@@ -328,8 +323,6 @@ examples.spans = function () {
 // Themes - shows how the different themes looks
 examples.themes = function () {
   var doc = new jsPDF()
-  doc.setFontSize(12)
-  doc.setFontStyle('bold')
 
   doc.text('Theme "striped"', 14, 16)
   doc.autoTable({ head: headRows(), body: bodyRows(5), startY: 20 })
@@ -538,7 +531,7 @@ function columns() {
 
 function data(rowCount) {
   rowCount = rowCount || 10
-  let body = []
+  var body = []
   for (var j = 1; j <= rowCount; j++) {
     body.push({
       id: j,
@@ -553,7 +546,7 @@ function data(rowCount) {
 
 function bodyRows(rowCount) {
   rowCount = rowCount || 10
-  let body = []
+  var body = []
   for (var j = 1; j <= rowCount; j++) {
     body.push({
       id: j,

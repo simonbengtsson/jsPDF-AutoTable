@@ -68,7 +68,7 @@ export interface ColumnOption {
   key?: string | number // deprecated (same as dataKey)
 }
 
-export type Color = [number, number, number] | number | false
+export type Color = [number, number, number] | number | string | false
 export type MarginPaddingInput =
   | number
   | number[]
