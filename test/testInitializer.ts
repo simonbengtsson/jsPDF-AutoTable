@@ -1,3 +1,5 @@
+import { autoTable } from '../src/main'
+
 const assert = require('assert')
 import { loadJspdf } from './common'
 
@@ -8,8 +10,17 @@ describe('execution', () => {
     require('../src/main')
   })
 
+  it('types', () => {
+    const doc = new jsPDF()
+    ;((doc as any).autoTable as autoTable)({
+      body: [['test']],
+    })
+    assert(true)
+  })
+
   it('init', () => {
     const autoTable = new jsPDF().autoTable
+    new jsPDF().autoTable({})
     assert.equal(typeof autoTable, 'function')
   })
 

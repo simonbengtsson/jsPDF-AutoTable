@@ -1,6 +1,4 @@
-/*
- * Include common small polyfills instead of requiring the user to to do it
- */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/assign
 export function assign<T, U, V, W, X>(
@@ -15,6 +13,7 @@ export function assign<T, U, V, W, X>(
   }
   const to = Object(target)
   for (let index = 1; index < arguments.length; index++) {
+    // eslint-disable-next-line prefer-rest-params
     const nextSource = arguments[index]
 
     if (nextSource != null) {

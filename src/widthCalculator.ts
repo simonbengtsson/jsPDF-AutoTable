@@ -247,7 +247,7 @@ function fitContent(table: Table, doc: DocHandler) {
   }
 }
 
-function ellipsize(
+export function ellipsize(
   text: string[],
   width: number,
   styles: Styles,

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { DocHandler } from './documentHandler'
 import { HookData } from './HookData'
 import { UserOptions } from './config'

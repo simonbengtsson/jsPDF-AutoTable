@@ -3,8 +3,11 @@ import { Color, Styles, UserOptions } from './config'
 
 let globalDefaults: UserOptions = {}
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type jsPDFConstructor = any
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type jsPDFDocument = any
+
 type Opts = { [key: string]: string | number }
 
 export class DocHandler {

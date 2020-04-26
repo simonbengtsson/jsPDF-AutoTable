@@ -2,16 +2,11 @@ import { DocHandler, jsPDFDocument } from './documentHandler'
 import { parseInput } from './inputParser'
 import { calculateWidths } from './widthCalculator'
 import { drawTable } from './tableDrawer'
-import { ColumnOption, RowInput, UserOptions } from './config'
+import { UserOptions } from './config'
 
-// First definition is deprecated
-export function autoTable(
-  columns: ColumnOption[],
-  data: RowInput[],
-  options: UserOptions
-): jsPDFDocument
 export function autoTable(options: UserOptions): jsPDFDocument
-export function autoTable(this: jsPDFDocument) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function autoTable(this: jsPDFDocument, ...args: any) {
   const doc = new DocHandler(this)
 
   let win: Window | undefined
@@ -20,7 +15,7 @@ export function autoTable(this: jsPDFDocument) {
   }
 
   // 1. Parse and unify user input
-  const table = parseInput(arguments, doc, win)
+  const table = parseInput(args, doc, win)
 
   // 2. Calculate preliminary table, column, row and cell dimensions
   calculateWidths(table, doc)

@@ -11,7 +11,7 @@ export function parseHtml(
 ): { head: RowInput[]; body: RowInput[]; foot: RowInput[] } {
   let tableElement: HTMLTableElement
   if (typeof input === 'string') {
-    tableElement = <HTMLTableElement>window.document.querySelector(input)
+    tableElement = window.document.querySelector(input) as HTMLTableElement
   } else {
     tableElement = input
   }

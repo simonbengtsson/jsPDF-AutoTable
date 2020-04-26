@@ -5,7 +5,7 @@ import { DocHandler } from './documentHandler'
 import { assign } from './polyfills'
 import autoTableText from './autoTableText'
 
-export function drawTable(table: Table, doc: DocHandler) {
+export function drawTable(table: Table, doc: DocHandler): void {
   const settings = table.settings
   const startY = settings.startY
   const margin = settings.margin

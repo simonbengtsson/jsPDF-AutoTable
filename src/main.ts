@@ -12,6 +12,7 @@ export function applyPlugin(jsPDF: jsPDFConstructor) {
 export type autoTable = (options: UserOptions) => void
 
 try {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
   const jsPDF = require('jspdf')
   applyPlugin(jsPDF)
 } catch (error) {

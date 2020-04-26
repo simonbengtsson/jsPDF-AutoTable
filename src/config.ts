@@ -1,4 +1,3 @@
-import { CellHookData } from './HookData'
 import { CellHook, PageHook } from './models'
 
 /**

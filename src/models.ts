@@ -14,12 +14,6 @@ import { marginOrPadding, MarginPadding } from './common'
 export type PageHook = (data: HookData) => void | boolean
 export type CellHook = (data: CellHookData) => void | boolean
 
-export type HookProp =
-  | 'didParseCell'
-  | 'willDrawCell'
-  | 'didDrawCell'
-  | 'didDrawPage'
-
 export interface HookProps {
   didParseCell: CellHook[]
   willDrawCell: CellHook[]
