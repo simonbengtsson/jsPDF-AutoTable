@@ -18,6 +18,7 @@
     "singleQuote": true
   },
   "devDependencies": {
+    "@types/mocha": "^7.0.2",
     "dts-bundle-generator": "^4.3.0",
     "jspdf": "^1.5.3",
     "mocha": "^7.1.1",
