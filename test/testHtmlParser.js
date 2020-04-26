@@ -13,18 +13,18 @@ describe('html parser', () => {
     const table = {
       rows: [
         {
-          parentNode: { tagName: 'THEAD' },
+          parentElement: { tagName: 'THEAD' },
           cells: [{ cloneNode: () => ({ innerText: 'test', innerHTML: '' }) }],
         },
         {
-          parentNode: { tagName: 'TBODY' },
+          parentElement: { tagName: 'TBODY' },
           cells: [
             { cloneNode: () => ({ innerText: 'test', innerHTML: '' }) },
             { cloneNode: () => ({ innerText: 'test', innerHTML: '' }) },
           ],
         },
         {
-          parentNode: { tagName: 'TFOOT' },
+          parentElement: { tagName: 'TFOOT' },
           cells: [{ cloneNode: () => ({ innerText: 'test', innerHTML: '' }) }],
         },
       ],
@@ -43,9 +43,9 @@ describe('html parser', () => {
   it('hidden content', () => {
     const table = {
       rows: [
-        { parentNode: { tagName: 'THEAD' }, cells: [{ innerText: 'test' }] },
-        { parentNode: { tagName: 'TBODY' }, cells: [{ innerText: 'test' }] },
-        { parentNode: { tagName: 'TFOOT' }, cells: [{ innerText: 'test' }] },
+        { parentElement: { tagName: 'THEAD' }, cells: [{ innerText: 'test' }] },
+        { parentElement: { tagName: 'TBODY' }, cells: [{ innerText: 'test' }] },
+        { parentElement: { tagName: 'TFOOT' }, cells: [{ innerText: 'test' }] },
       ],
     }
     const res = parseHtml(doc, table, {
@@ -62,9 +62,9 @@ describe('html parser', () => {
   it('empty table', () => {
     const table = {
       rows: [
-        { parentNode: { tagName: 'THEAD' }, cells: [] },
-        { parentNode: { tagName: 'TBODY' }, cells: [] },
-        { parentNode: { tagName: 'TFOOT' }, cells: [] },
+        { parentElement: { tagName: 'THEAD' }, cells: [] },
+        { parentElement: { tagName: 'TBODY' }, cells: [] },
+        { parentElement: { tagName: 'TFOOT' }, cells: [] },
       ],
     }
 
