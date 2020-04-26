@@ -1,31 +1,12 @@
-'use strict'
-
-const { before, it, describe } = global
 const assert = require('assert')
 const { ellipsize } = require('../src/common')
 const { DocHandler } = require('../src/documentHandler')
 
-describe('common', function () {
-  let doc
-
+describe('common', () => {
+  let doc, jsPDF
   before(() => {
-    this.timeout(5000)
-    global.window = {
-      document: {
-        createElementNS: function () {
-          return {}
-        },
-      },
-    }
-    global.navigator = {}
-    let jsPDF = require('jspdf')
+    jsPDF = require('./common').loadJspdf()
     doc = new DocHandler(new jsPDF())
-    require('../src/main')
-  })
-
-  after(() => {
-    delete global.window
-    delete global.navigator
   })
 
   it('ellipsize string', () => {

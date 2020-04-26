@@ -1,35 +1,15 @@
-'use strict'
-
-const { before, it, describe } = global
 const assert = require('assert')
 const { parseHtml } = require('../src/htmlParser')
 const { DocHandler } = require('../src/documentHandler')
 
 describe('html parser', () => {
-  let doc
-
-  before(function () {
-    global.window = {
-      document: {
-        createElementNS: function () {
-          return {}
-        },
-      },
-      getComputedStyle: () => {
-        return { display: 'visible' }
-      },
-    }
-    global.navigator = {}
-    let jsPDF = require('jspdf')
+  let doc, jsPDF;
+  before(() => {
+    jsPDF = require('./common').loadJspdf()
     doc = new DocHandler(new jsPDF())
   })
 
-  after(function () {
-    delete global.window
-    delete global.navigator
-  })
-
-  it('full table', function () {
+  it('full table', () => {
     const table = {
       rows: [
         {
@@ -49,14 +29,18 @@ describe('html parser', () => {
         },
       ],
     }
-    let res = parseHtml(doc, table)
+    const res = parseHtml(doc, table, {
+      getComputedStyle: () => {
+        return { display: 'visible' }
+      },
+    })
     assert(res, 'Should have result')
     assert(res.head[0].length, 'Should have head cell')
     assert.equal(res.body[0].length, 2, 'Should have two body cells')
     assert(res.foot[0].length, 'Should have foot cell')
   })
 
-  it('hidden content', function () {
+  it('hidden content', () => {
     const table = {
       rows: [
         { parentNode: { tagName: 'THEAD' }, cells: [{ innerText: 'test' }] },
@@ -64,19 +48,18 @@ describe('html parser', () => {
         { parentNode: { tagName: 'TFOOT' }, cells: [{ innerText: 'test' }] },
       ],
     }
-    global.window = {
-      getComputedStyle: function () {
+    const res = parseHtml(doc, table, {
+      getComputedStyle: () => {
         return { display: 'none' }
       },
-    }
-    let res = parseHtml(doc, table)
+    })
     assert(res, 'Should have result')
     assert(res.head.length === 0, 'Should have no head cells')
     assert(res.body.length === 0, 'Should have no body cell')
     assert(res.foot.length === 0, 'Should have no foot cells')
   })
 
-  it('empty table', function () {
+  it('empty table', () => {
     const table = {
       rows: [
         { parentNode: { tagName: 'THEAD' }, cells: [] },
@@ -85,7 +68,11 @@ describe('html parser', () => {
       ],
     }
 
-    const res = parseHtml(doc, table)
+    const res = parseHtml(doc, table, {
+      getComputedStyle: () => {
+        return { display: 'visible' }
+      },
+    })
     assert(res, 'Should have result')
     assert(res.head.length === 0, 'Should have no head cells')
     assert(res.body.length === 0, 'Should have no body cells')

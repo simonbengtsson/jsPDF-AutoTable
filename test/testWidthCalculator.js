@@ -1,25 +1,8 @@
-'use strict'
-
-
 const assert = require('assert')
 const { resizeColumns } = require('../src/widthCalculator')
 const { Column } = require('../src/models')
 
 describe('column resizer', () => {
-  before(function () {
-    this.timeout(5000)
-    global.window = {
-      document: {
-        createElementNS: function () {
-          return {}
-        },
-      },
-    }
-    global.navigator = {}
-    let jsPDF = require('jspdf')
-    require('../src/main')
-  })
-
   describe('columns resizer', () => {
     it('shrink: one column - no min', () => {
       const col1 = new Column('col1', 'col1', 0)
