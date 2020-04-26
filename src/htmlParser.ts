@@ -1,6 +1,6 @@
 import { parseCss } from './cssParser'
 import { DocHandler } from './documentHandler'
-import { RowInput } from './config'
+import { HtmlRowInput, RowInput } from './config'
 
 export function parseHtml(
   doc: DocHandler,
@@ -19,18 +19,19 @@ export function parseHtml(
   let supportedFonts =  Object.keys(doc.getFontList())
   let scaleFactor = doc.scaleFactor()
 
-  const head: any[] = [],
-    body: any[] = [],
-    foot: any[] = []
+  const head: RowInput[] = [],
+    body: RowInput[] = [],
+    foot: RowInput[] = []
 
   if (!tableElement) {
     console.error('Html table could not be found with input: ', input)
     return { head, body, foot }
   }
 
-  for (const rowNode of tableElement.rows as any) {
-    const tagName = rowNode.parentNode.tagName.toLowerCase()
-    let row = parseRowContent(supportedFonts, scaleFactor, window, rowNode, includeHiddenHtml, useCss)
+  for (let i = 0; i < tableElement.rows.length; i++) {
+    const element = tableElement.rows[i]
+    const tagName = element?.parentElement?.tagName?.toLowerCase()
+    let row = parseRowContent(supportedFonts, scaleFactor, window, element, includeHiddenHtml, useCss)
     if (!row) continue
 
     if (tagName === 'thead') {
@@ -39,7 +40,6 @@ export function parseHtml(
       foot.push(row)
     } else {
       // Add to body both if parent is tbody or table
-      // (not contained in any section)
       body.push(row)
     }
   }
@@ -54,7 +54,7 @@ function parseRowContent(
   includeHidden: boolean,
   useCss: boolean
 ) {
-  let resultRow: any = []
+  let resultRow = new HtmlRowInput(row)
   for (let i = 0; i < row.cells.length; i++) {
     let cell = row.cells[i]
     let style = window.getComputedStyle(cell)
@@ -67,21 +67,20 @@ function parseRowContent(
         rowSpan: cell.rowSpan,
         colSpan: cell.colSpan,
         styles: cellStyles,
-        _element: cell, // For hooks
+        _element: cell,
         content: parseCellContent(cell),
       })
     }
   }
   let style = window.getComputedStyle(row)
   if (resultRow.length > 0 && (includeHidden || style.display !== 'none')) {
-    resultRow._element = row
     return resultRow
   }
 }
 
-function parseCellContent(orgCell: any) {
+function parseCellContent(orgCell: HTMLTableCellElement) {
   // Work on cloned node to make sure no changes are applied to html table
-  const cell = orgCell.cloneNode(true)
+  const cell = orgCell.cloneNode(true) as HTMLTableCellElement
 
   // Remove extra space and line breaks in markup to make it more similar to
   // what would be shown in html

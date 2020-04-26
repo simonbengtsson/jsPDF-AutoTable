@@ -1,4 +1,13 @@
-import { getTheme, defaultStyles, ThemeName, UserInput, ColumnOption, RowInput, CellDef, Styles } from './config'
+import {
+  getTheme,
+  defaultStyles,
+  ThemeName,
+  UserOptions,
+  ColumnOption,
+  RowInput,
+  Styles,
+  CellInput,
+} from './config'
 import { parseHtml } from './htmlParser'
 import { assign } from './polyfills'
 import { getStringWidth, marginOrPadding, MarginPadding } from './common'
@@ -12,19 +21,22 @@ import {
   Section,
   StyleProp,
   StylesProps,
-  HookProp,
   CellHook,
-  PageHook, Settings
+  PageHook,
+  Settings,
 } from './models'
 
-export function parseInput(args: any, doc: DocHandler, window?: Window) {
-  let currentInput = parseUserArguments(args)
-  let globalOptions = doc.getGlobalOptions()
-  let documentOptions = doc.getDocumentOptions()
-  let allOptions = [globalOptions, documentOptions, currentInput]
+export function parseInput(
+  userInput: IArguments,
+  doc: DocHandler,
+  window?: Window
+) {
+  let current = parseUserInput(userInput)
+  let document = doc.getDocumentOptions()
+  let global = doc.getGlobalOptions()
 
-  validateOptions(allOptions, doc)
-  let options: UserInput = assign({}, ...allOptions)
+  validateOptions(global, document, current, doc)
+  let options = assign({}, global, document, current)
 
   let previous = doc.getPreviousAutoTable()
   const sf = doc.scaleFactor()
@@ -32,15 +44,15 @@ export function parseInput(args: any, doc: DocHandler, window?: Window) {
   const margin = marginOrPadding(options.margin, 40 / sf)
   const startY = getStartY(previous, sf, doc.pageNumber(), options, margin.top)
   const settings = parseSettings(options, sf, startY, margin)
-  const styles = parseStyles(allOptions)
+  const styles = parseStyles(global, document, current)
   const content = parseContent(doc, options, styles, settings.theme, sf, window)
 
   let table = new Table(
-    currentInput.tableId,
+    current.tableId,
     settings,
     styles,
-    parseHooks(allOptions),
-    content,
+    parseHooks(global, document, current),
+    content
   )
 
   calculate(table, sf, doc)
@@ -70,8 +82,7 @@ function calculate(table: Table, sf: number, doc: DocHandler) {
       table.callCellHooks(doc, table.hooks.didParseCell, cell, row, column)
 
       let padding = cell.padding('horizontal')
-      cell.contentWidth =
-        getStringWidth(cell.text, cell.styles, doc) + padding
+      cell.contentWidth = getStringWidth(cell.text, cell.styles, doc) + padding
 
       const longestWordWidth = getStringWidth(
         cell.text.join(' ').split(/\s+/),
@@ -143,7 +154,11 @@ function calculate(table: Table, sf: number, doc: DocHandler) {
   })
 }
 
-function parseStyles(allOptions: UserInput[]) {
+function parseStyles(
+  gInput: UserOptions,
+  dInput: UserOptions,
+  cInput: UserOptions
+) {
   let styleOptions: StylesProps = {
     styles: {},
     headStyles: {},
@@ -153,24 +168,48 @@ function parseStyles(allOptions: UserInput[]) {
     columnStyles: {},
   }
   for (let prop of Object.keys(styleOptions) as StyleProp[]) {
-    let styles = allOptions.map((opts) => opts[prop] || {})
-    styleOptions[prop] = assign({}, ...styles)
+    if (prop === 'columnStyles') {
+      let global = dInput.columnStyles
+      let document = dInput.columnStyles
+      let current = dInput.columnStyles
+      styleOptions.columnStyles = assign({}, global, document, current)
+    } else {
+      let allOptions = [gInput, dInput, cInput]
+      let styles = allOptions.map((opts) => opts[prop] || {})
+      styleOptions[prop] = assign({}, styles[0], styles[1], styles[2])
+    }
   }
   return styleOptions
 }
 
-function parseHooks(allOptions: UserInput[]) {
-  let getHooks = (hookName: HookProp) =>
-    allOptions.map((opts) => opts[hookName]).filter((hook) => !!hook)
-  return {
-    didParseCell: getHooks('didParseCell') as CellHook[],
-    willDrawCell: getHooks('willDrawCell') as CellHook[],
-    didDrawCell: getHooks('didDrawCell') as CellHook[],
-    didDrawPage: getHooks('didDrawPage') as PageHook[],
+function parseHooks(
+  global: UserOptions,
+  document: UserOptions,
+  current: UserOptions
+) {
+  let allOptions = [global, document, current]
+  const result = {
+    didParseCell: [] as CellHook[],
+    willDrawCell: [] as CellHook[],
+    didDrawCell: [] as CellHook[],
+    didDrawPage: [] as PageHook[],
   }
+  for (const options of allOptions) {
+    if (options.didDrawCell) result.didDrawCell.push(options.didDrawCell)
+    if (options.willDrawCell) result.willDrawCell.push(options.willDrawCell)
+    if (options.didDrawCell) result.didDrawCell.push(options.didDrawCell)
+    if (options.didDrawPage) result.didDrawPage.push(options.didDrawPage)
+  }
+
+  return result
 }
 
-function parseSettings(options: UserInput, sf: number, startY: number, margin: MarginPadding): Settings {
+function parseSettings(
+  options: UserOptions,
+  sf: number,
+  startY: number,
+  margin: MarginPadding
+): Settings {
   let showFoot: 'everyPage' | 'lastPage' | 'never'
   if (options.showFoot === true) {
     showFoot = 'everyPage'
@@ -185,9 +224,7 @@ function parseSettings(options: UserInput, sf: number, startY: number, margin: M
     showHead = 'everyPage'
   } else if (options.showHead === false) {
     showHead = 'never'
-  } else (
-    showHead = options.showHead ?? 'everyPage'
-  )
+  } else showHead = options.showHead ?? 'everyPage'
 
   const useCss = options.useCss ?? false
   const theme = options.theme || (useCss ? 'plain' : 'striped')
@@ -209,7 +246,13 @@ function parseSettings(options: UserInput, sf: number, startY: number, margin: M
   return settings
 }
 
-function getStartY(previous: Table, sf: number, currentPage: number, options: UserInput, marginTop: number) {
+function getStartY(
+  previous: Table,
+  sf: number,
+  currentPage: number,
+  options: UserOptions,
+  marginTop: number
+) {
   let isSamePageAsPreviousTable = false
   if (previous) {
     let endingPage = previous.startPageNumber + previous.pageNumber - 1
@@ -219,7 +262,7 @@ function getStartY(previous: Table, sf: number, currentPage: number, options: Us
   let startY = options.startY
   if (startY == null || startY === false) {
     if (isSamePageAsPreviousTable) {
-      // Many users had issues with overlapping tables when they used multiple
+      // Some users had issues with overlapping tables when they used multiple
       // tables without setting startY so setting it here to a sensible default.
       startY = previous.finalY + 20 / sf
     }
@@ -227,7 +270,7 @@ function getStartY(previous: Table, sf: number, currentPage: number, options: Us
   return startY || marginTop
 }
 
-function parseUserArguments(args: any): UserInput {
+function parseUserInput(args: IArguments): UserOptions {
   // Normal initialization on format doc.autoTable(options)
   if (args.length === 1) {
     return args[0]
@@ -249,14 +292,22 @@ function parseUserArguments(args: any): UserInput {
   }
 }
 
-function parseContent(doc: DocHandler, options: UserInput, styles: StylesProps, theme: ThemeName, sf: number, window?: Window) {
+function parseContent(
+  doc: DocHandler,
+  options: UserOptions,
+  styles: StylesProps,
+  theme: ThemeName,
+  sf: number,
+  window?: Window
+) {
   let head = options.head || []
   let body = options.body || []
   let foot = options.foot || []
   if (options.html) {
     const hidden = options.includeHiddenHtml
     if (window) {
-      const htmlContent = parseHtml(doc, options.html, window, hidden, options.useCss) || {}
+      const htmlContent =
+        parseHtml(doc, options.html, window, hidden, options.useCss) || {}
       head = htmlContent.head || head
       body = htmlContent.body || head
       foot = htmlContent.foot || head
@@ -266,32 +317,29 @@ function parseContent(doc: DocHandler, options: UserInput, styles: StylesProps, 
   }
 
   const columns = createColumns(options, head, body, foot)
-  return  {
+  return {
     columns,
     head: parseSection('head', head, options, columns, styles, theme, sf),
     body: parseSection('body', body, options, columns, styles, theme, sf),
-    foot: parseSection('foot', foot, options, columns, styles, theme, sf)
+    foot: parseSection('foot', foot, options, columns, styles, theme, sf),
   }
 }
 
 function parseSection(
   sectionName: Section,
   sectionRows: RowInput[],
-  settings: UserInput,
+  settings: UserOptions,
   columns: Column[],
   styleProps: StylesProps,
   theme: ThemeName,
-  scaleFactor: number,
+  scaleFactor: number
 ): Row[] {
   let rowSpansLeftForColumn: {
     [key: string]: { left: number; times: number }
   } = {}
   if (sectionRows.length === 0 && settings.columns && sectionName !== 'body') {
     // If no head or foot is set, try generating one with content in columns
-    let sectionRow = generateSectionRowFromColumnData(
-      columns,
-      sectionName
-    )
+    let sectionRow = generateSectionRowFromColumnData(columns, sectionName)
     if (sectionRow) {
       sectionRows.push(sectionRow)
     }
@@ -316,10 +364,22 @@ function parseSection(
             rawCell = rawRow[column.dataKey]
           }
 
-          let cellInputStyles = (rawCell && rawCell.styles) || {}
-          let styles = cellStyles(sectionName, column, rowIndex, theme, styleProps, scaleFactor, cellInputStyles)
+          let cellInputStyles = {}
+          if (typeof rawCell === 'object' && !Array.isArray(rawCell)) {
+            cellInputStyles = rawCell?.styles || {}
+          }
+          let styles = cellStyles(
+            sectionName,
+            column,
+            rowIndex,
+            theme,
+            styleProps,
+            scaleFactor,
+            cellInputStyles
+          )
           let cell = new Cell(rawCell, styles, sectionName)
-          // dataKey is not used internally anymore but keep for backwards compat in hooks
+          // dataKey is not used internally no more but keep for
+          // backwards compat in hooks
           row.cells[column.dataKey] = cell
           row.cells[column.index] = cell
 
@@ -346,15 +406,12 @@ function generateSectionRowFromColumnData(
   columns: Column[],
   sectionName: Section
 ): RowInput | null {
-  let sectionRow: RowInput = {}
+  let sectionRow: { [key: string]: CellInput } = {}
   columns.forEach((col) => {
     let columnData = col.raw
-    if (sectionName === 'head') {
-      let val = columnData && columnData.header ? columnData.header : columnData
-      if (val) {
-        sectionRow[col.dataKey] = val
-      }
-    } else if (sectionName === 'foot' && columnData.footer) {
+    if (sectionName === 'head' && columnData?.header) {
+      sectionRow[col.dataKey] = columnData.header
+    } else if (sectionName === 'foot' && columnData?.footer) {
       sectionRow[col.dataKey] = columnData.footer
     }
   })
@@ -363,7 +420,7 @@ function generateSectionRowFromColumnData(
 }
 
 function createColumns(
-  settings: UserInput,
+  settings: UserOptions,
   head: RowInput[],
   body: RowInput[],
   foot: RowInput[]
@@ -374,15 +431,20 @@ function createColumns(
       return new Column(key, input, index)
     })
   } else {
-    let firstRow = head[0] || body[0] || foot[0] || []
+    let firstRow: RowInput = head[0] || body[0] || foot[0] || []
     let columns: Column[] = []
     Object.keys(firstRow)
       .filter((key) => key !== '_element')
       .forEach((key) => {
         let colSpan = 1
-        if (typeof firstRow[key] === 'object') {
-          let def = firstRow[key] as CellDef
-          colSpan = def.colSpan || 1
+        let input: CellInput
+        if (Array.isArray(firstRow)) {
+          input = firstRow[parseInt(key)]
+        } else {
+          input = firstRow[key]
+        }
+        if (typeof input === 'object' && !Array.isArray(input)) {
+          colSpan = input?.colSpan || 1
         }
         for (let i = 0; i < colSpan; i++) {
           let id
@@ -391,14 +453,22 @@ function createColumns(
           } else {
             id = key + (i > 0 ? `_${i}` : '')
           }
-          columns.push(new Column(id, id, columns.length))
+          columns.push(new Column(id, null, columns.length))
         }
       })
     return columns
   }
 }
 
-function cellStyles(sectionName: Section, column: Column, rowIndex: number, themeName: ThemeName, styles: StylesProps, scaleFactor: number, cellInputStyles: Partial<Styles>) {
+function cellStyles(
+  sectionName: Section,
+  column: Column,
+  rowIndex: number,
+  themeName: ThemeName,
+  styles: StylesProps,
+  scaleFactor: number,
+  cellInputStyles: Partial<Styles>
+) {
   let theme = getTheme(themeName)
   let sectionStyles
   if (sectionName === 'head') {
@@ -408,12 +478,13 @@ function cellStyles(sectionName: Section, column: Column, rowIndex: number, them
   } else if (sectionName === 'foot') {
     sectionStyles = styles.footStyles
   }
-  let otherStyles = [
+  let otherStyles = assign(
+    {},
     theme.table,
     theme[sectionName],
     styles.styles,
-    sectionStyles,
-  ]
+    sectionStyles
+  )
   let columnStyles =
     styles.columnStyles[column.dataKey] ||
     styles.columnStyles[column.index] ||
@@ -424,6 +495,6 @@ function cellStyles(sectionName: Section, column: Column, rowIndex: number, them
       ? assign({}, theme.alternateRow, styles.alternateRowStyles)
       : {}
   const defaultStyle = defaultStyles(scaleFactor)
-  let themeStyles = assign({}, defaultStyle, ...otherStyles, rowStyles, colStyles)
+  let themeStyles = assign({}, defaultStyle, otherStyles, rowStyles, colStyles)
   return assign(themeStyles, cellInputStyles)
 }

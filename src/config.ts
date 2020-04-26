@@ -1,4 +1,5 @@
 import { CellHookData } from './HookData'
+import { CellHook, PageHook } from './models'
 
 /**
  * Ratio between font size and font height. The number comes from jspdf's source code
@@ -22,7 +23,7 @@ export interface Styles {
   minCellWidth: number
 }
 
-export interface UserInput {
+export interface UserOptions {
   includeHiddenHtml?: boolean
   useCss?: boolean
   theme?: 'striped' | 'grid' | 'plain' | null
@@ -54,10 +55,10 @@ export interface UserInput {
   }
 
   // Hooks
-  didParseCell?: (data: CellHookData) => void
-  willDrawCell?: (data: CellHookData) => void
-  didDrawCell?: (data: CellHookData) => void
-  didDrawPage?: (data: CellHookData) => void
+  didParseCell?: CellHook
+  willDrawCell?: CellHook
+  didDrawCell?: CellHook
+  didDrawPage?: PageHook
 }
 
 export interface ColumnOption {
@@ -84,13 +85,23 @@ export type MarginPaddingInput =
 export interface CellDef {
   rowSpan?: number
   colSpan?: number
-  styles?: Styles
+  styles?: Partial<Styles>
   content?: string | string[] | number,
+  title?: string, // Deprecated, same as content
   _element?: HTMLTableCellElement
 }
 
-export type CellInput = null | string | number | boolean | CellDef
-export type RowInput = { [key: string]: CellInput | HTMLTableCellElement }
+export class HtmlRowInput extends Array<CellInput> {
+  _element: HTMLTableRowElement
+
+  constructor(element: HTMLTableRowElement) {
+    super();
+    this._element = element
+  }
+}
+
+export type CellInput = null | string | string[] | number | boolean | CellDef
+export type RowInput = { [key: string]: CellInput } | HtmlRowInput | CellInput[]
 
 // Base style for all themes
 export function defaultStyles(scaleFactor: number): Styles {

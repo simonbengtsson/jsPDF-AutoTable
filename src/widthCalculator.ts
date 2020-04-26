@@ -43,8 +43,8 @@ export function calculateWidths(table: Table, doc: DocHandler) {
 
   resizeWidth = Math.abs(resizeWidth)
   if (resizeWidth > 1e-10) {
-    // Table can't get any smaller due to custom-width or minWidth restrictions
-    // We can't really do anything here. Up to user to for example
+    // Table can't get smaller due to custom-width or minWidth restrictions
+    // We can't really do much here. Up to user to for example
     // reduce font size, increase page size or remove custom cell widths
     // to allow more columns to be reduced in size
     resizeWidth = resizeWidth < 1 ? resizeWidth : Math.round(resizeWidth)

@@ -1,4 +1,4 @@
-import { CellInput, Color, FONT_ROW_RATIO, RowInput, Styles } from './config'
+import { CellInput, Color, ColumnOption, FONT_ROW_RATIO, HtmlRowInput, RowInput, Styles } from './config'
 import { DocHandler } from './documentHandler'
 import { CellHookData, HookData } from './HookData'
 import { marginOrPadding, MarginPadding } from './common'
@@ -134,6 +134,7 @@ export class Table {
 
 export class Row {
   raw: HTMLTableRowElement | RowInput
+  element?: HTMLTableRowElement
   index: number
   cells: { [key: string]: Cell } = {}
   section: Section
@@ -145,10 +146,11 @@ export class Row {
 
   spansMultiplePages = false
 
-  constructor(raw: any, index: number, section: Section) {
+  constructor(raw: RowInput|HTMLTableRowElement, index: number, section: Section) {
     this.raw = raw
-    if (raw._element) {
+    if (raw instanceof HtmlRowInput) {
       this.raw = raw._element
+      this.element = raw._element
     }
     this.index = index
     this.section = section
@@ -208,10 +210,10 @@ export class Cell {
     this.raw = raw
 
     let content = raw
-    if (raw != null && typeof raw === 'object') {
+    if (raw != null && typeof raw === 'object' && !Array.isArray(raw)) {
       this.rowSpan = raw.rowSpan || 1
       this.colSpan = raw.colSpan || 1
-      content = raw.content ?? (raw as any).title ?? raw
+      content = raw.content ?? raw.title ?? raw
       if (raw._element) {
         this.raw = raw._element
       }
@@ -244,7 +246,7 @@ export class Cell {
 }
 
 export class Column {
-  raw: any
+  raw: ColumnOption|null
   dataKey: string | number
   index: number
 
@@ -253,7 +255,7 @@ export class Column {
   minWidth = 0
   width = 0
 
-  constructor(dataKey: string | number, raw: any, index: number) {
+  constructor(dataKey: string | number, raw: ColumnOption|null, index: number) {
     this.dataKey = dataKey
     this.raw = raw
     this.index = index

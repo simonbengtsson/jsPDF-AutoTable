@@ -1,13 +1,17 @@
 import { Table } from './models'
-import { Color, Styles, UserInput } from './config'
+import { Color, Styles, UserOptions } from './config'
 
-let globalDefaults: UserInput = {}
+let globalDefaults: UserOptions = {}
+
+export type jsPDFConstructor = any
+export type jsPDFDocument = any
+type Opts = { [key: string]: string|number }
 
 export class DocHandler {
-  private readonly jsPDFDocument: any
+  private readonly jsPDFDocument: jsPDFDocument
   readonly userStyles: Partial<Styles>
 
-  constructor(jsPDFDocument: any) {
+  constructor(jsPDFDocument: jsPDFDocument) {
     this.jsPDFDocument = jsPDFDocument
     this.userStyles = {
       // Black for versions of jspdf without getTextColor
@@ -20,7 +24,7 @@ export class DocHandler {
     }
   }
 
-  static setDefaults(defaults: UserInput, doc: any = null) {
+  static setDefaults(defaults: UserOptions, doc: jsPDFDocument | null = null) {
     if (doc) {
       doc.__autoTableDocumentDefaults = defaults
     } else {
@@ -65,7 +69,7 @@ export class DocHandler {
     }
   }
 
-  splitTextToSize(text: string | string[], size: number, opts: any): string[] {
+  splitTextToSize(text: string | string[], size: number, opts: Opts): string[] {
     return this.jsPDFDocument.splitTextToSize(text, size, opts)
   }
 
@@ -97,11 +101,11 @@ export class DocHandler {
     return this.jsPDFDocument.getFontList()
   }
 
-  getGlobalOptions(): UserInput {
+  getGlobalOptions(): UserOptions {
     return globalDefaults || {}
   }
 
-  getDocumentOptions(): UserInput {
+  getDocumentOptions(): UserOptions {
     return this.jsPDFDocument.__autoTableDocumentDefaults || {}
   }
 

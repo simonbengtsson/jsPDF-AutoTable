@@ -1,13 +1,13 @@
-import { DocHandler } from './documentHandler'
+import { DocHandler, jsPDFDocument } from './documentHandler'
 import { parseInput } from './inputParser'
 import { calculateWidths } from './widthCalculator'
 import { drawTable } from './tableDrawer'
-import { ColumnOption, RowInput, UserInput } from './config'
+import { ColumnOption, RowInput, UserOptions } from './config'
 
 // First definition is deprecated
-export function autoTable(columns: ColumnOption[], data: RowInput[], options: UserInput): any
-export function autoTable(options: UserInput): any
-export function autoTable(this: any) {
+export function autoTable(columns: ColumnOption[], data: RowInput[], options: UserOptions): jsPDFDocument
+export function autoTable(options: UserOptions): jsPDFDocument
+export function autoTable(this: jsPDFDocument) {
   const doc = new DocHandler(this)
 
   let win: Window|undefined

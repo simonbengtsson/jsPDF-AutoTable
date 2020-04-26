@@ -1,7 +1,9 @@
 import { DocHandler } from './documentHandler'
+import { HookData } from './HookData'
+import { UserOptions } from './config'
 
-export default function (allOptions: { [key: string]: any}[], doc: DocHandler) {
-  for (let options of allOptions) {
+export default function (global: UserOptions, document: UserOptions, current: UserOptions, doc: DocHandler) {
+  for (let options of [global, document, current] as any) {
     if (options && typeof options !== 'object') {
       console.error(
         'The options parameter should be of type object, is: ' + typeof options
@@ -32,7 +34,7 @@ export default function (allOptions: { [key: string]: any}[], doc: DocHandler) {
       console.error(
         'The afterPageContent, beforePageContent and afterPageAdd hooks are deprecated. Use didDrawPage instead'
       )
-      options.didDrawPage = function (data: any) {
+      options.didDrawPage = function (data: HookData) {
         doc.applyStyles(doc.userStyles)
         if (options.beforePageContent) options.beforePageContent(data)
         doc.applyStyles(doc.userStyles)
@@ -40,7 +42,7 @@ export default function (allOptions: { [key: string]: any}[], doc: DocHandler) {
         doc.applyStyles(doc.userStyles)
 
         if (options.afterPageAdd && data.pageNumber > 1) {
-          data.afterPageAdd(data)
+          (data as any).afterPageAdd(data)
         }
         doc.applyStyles(doc.userStyles)
       }

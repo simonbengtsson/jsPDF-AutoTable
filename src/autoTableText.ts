@@ -1,3 +1,5 @@
+import { jsPDFDocument } from './documentHandler'
+
 /**
  * Improved text function with halign and valign support
  * Inspiration from: http://stackoverflow.com/questions/28327510/align-text-right-using-jspdf/28433113#28433113
@@ -7,7 +9,7 @@ export default function (
   x: number,
   y: number,
   styles: TextStyles,
-  doc: any
+  doc: jsPDFDocument
 ) {
   styles = styles || {}
   let FONT_ROW_RATIO = 1.15

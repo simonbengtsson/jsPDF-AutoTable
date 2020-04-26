@@ -1,10 +1,10 @@
 import { parseHtml } from './htmlParser'
 import autoTableText, { TextStyles } from './autoTableText'
 import { autoTable } from './autoTable'
-import { DocHandler } from './documentHandler'
-import { UserInput } from './config'
+import { DocHandler, jsPDFConstructor, jsPDFDocument } from './documentHandler'
+import { UserOptions } from './config'
 
-export default function (jsPDF: any) {
+export default function (jsPDF: jsPDFConstructor) {
   jsPDF.API.autoTable = autoTable
 
   // Assign false to enable `doc.lastAutoTable.finalY || 40` sugar
@@ -21,14 +21,13 @@ export default function (jsPDF: any) {
     autoTableText(text, x, y, styles, this)
   }
 
-  jsPDF.API.autoTableSetDefaults = function (defaults: UserInput) {
+  jsPDF.API.autoTableSetDefaults = function (defaults: UserOptions) {
     DocHandler.setDefaults(defaults, this)
     return this
   }
 
-  jsPDF.autoTableSetDefaults = function (defaults: UserInput, doc: any) {
+  jsPDF.autoTableSetDefaults = (defaults: UserOptions, doc?: jsPDFDocument) => {
     DocHandler.setDefaults(defaults, doc)
-    return this
   }
 
   jsPDF.API.autoTableHtmlToJson = function (
