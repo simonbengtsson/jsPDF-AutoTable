@@ -1,6 +1,5 @@
 import { DocHandler } from './documentHandler'
-import { Table, Cell, Row, Column } from './models'
-import { Settings } from './interfaces'
+import { Table, Cell, Row, Column, Settings } from './models'
 
 export class HookData {
   table: Table

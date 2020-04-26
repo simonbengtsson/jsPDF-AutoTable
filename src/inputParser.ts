@@ -1,17 +1,9 @@
-import { getTheme, defaultStyles, ThemeName } from './config'
+import { getTheme, defaultStyles, ThemeName, UserInput, ColumnOption, RowInput, CellDef, Styles } from './config'
 import { parseHtml } from './htmlParser'
 import { assign } from './polyfills'
 import { getStringWidth, marginOrPadding, MarginPadding } from './common'
 import { DocHandler } from './documentHandler'
 import validateOptions from './inputValidator'
-import {
-  CellDefinition,
-  CellType,
-  ColumnOption,
-  RowInput,
-  Settings, Styles,
-  UserInput
-} from './interfaces'
 import {
   Row,
   Cell,
@@ -22,7 +14,7 @@ import {
   StylesProps,
   HookProp,
   CellHook,
-  PageHook,
+  PageHook, Settings
 } from './models'
 
 export function parseInput(args: any, doc: DocHandler) {
@@ -384,7 +376,7 @@ function createColumns(
       .forEach((key) => {
         let colSpan = 1
         if (typeof firstRow[key] === 'object') {
-          let def = firstRow[key] as CellDefinition
+          let def = firstRow[key] as CellDef
           colSpan = def.colSpan || 1
         }
         for (let i = 0; i < colSpan; i++) {

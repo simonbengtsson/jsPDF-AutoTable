@@ -1,8 +1,7 @@
-import { defaultStyles, FONT_ROW_RATIO } from './config'
+import { CellInput, Color, FONT_ROW_RATIO, RowInput, Styles } from './config'
 import { DocHandler } from './documentHandler'
 import { CellHookData, HookData } from './HookData'
-import { marginOrPadding } from './common'
-import { CellType, RowInput, Settings, Styles } from './interfaces'
+import { marginOrPadding, MarginPadding } from './common'
 
 export type PageHook = (data: HookData) => void | boolean
 export type CellHook = (data: CellHookData) => void | boolean
@@ -12,11 +11,27 @@ export type HookProp =
   | 'willDrawCell'
   | 'didDrawCell'
   | 'didDrawPage'
+
 export interface HookProps {
   didParseCell: CellHook[]
   willDrawCell: CellHook[]
   didDrawCell: CellHook[]
   didDrawPage: PageHook[]
+}
+
+export interface Settings {
+  includeHiddenHtml: boolean
+  useCss: boolean
+  theme: 'striped' | 'grid' | 'plain'
+  startY: number
+  margin: MarginPadding
+  pageBreak: 'auto' | 'avoid' | 'always'
+  rowPageBreak: 'auto' | 'avoid'
+  tableWidth: 'auto' | 'wrap' | number
+  showHead: 'everyPage' | 'firstPage' | 'never'
+  showFoot: 'everyPage' | 'lastPage' | 'never'
+  tableLineWidth: number
+  tableLineColor: Color
 }
 
 export type StyleProp =
@@ -168,7 +183,7 @@ export class Row {
 
 export type Section = 'head' | 'body' | 'foot'
 export class Cell {
-  raw: HTMLTableCellElement | CellType
+  raw: HTMLTableCellElement | CellInput
   styles: Styles
   text: string[]
   section: Section
@@ -187,7 +202,7 @@ export class Cell {
   colSpan = 1
   rowSpan = 1
 
-  constructor(raw: CellType, styles: Styles, section: Section) {
+  constructor(raw: CellInput, styles: Styles, section: Section) {
     this.styles = styles
     this.section = section
     this.raw = raw

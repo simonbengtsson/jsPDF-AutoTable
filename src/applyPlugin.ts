@@ -1,8 +1,8 @@
 import { parseHtml } from './htmlParser'
 import autoTableText, { TextStyles } from './autoTableText'
 import { autoTable } from './autoTable'
-import { UserInput } from './interfaces'
 import { DocHandler } from './documentHandler'
+import { UserInput } from './config'
 
 export default function (jsPDF: any) {
   jsPDF.API.autoTable = autoTable

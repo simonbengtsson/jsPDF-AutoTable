@@ -1,8 +1,8 @@
-import { ColumnOption, RowInput, UserInput } from './interfaces'
 import { DocHandler } from './documentHandler'
 import { parseInput } from './inputParser'
 import { calculateWidths } from './widthCalculator'
 import { drawTable } from './tableDrawer'
+import { ColumnOption, RowInput, UserInput } from './config'
 
 // First definition is deprecated
 export function autoTable(columns: ColumnOption[], data: RowInput[], options: UserInput): any

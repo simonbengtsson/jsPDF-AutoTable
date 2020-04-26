@@ -3,7 +3,7 @@
 // - No support for transparency
 import { marginOrPadding, MarginPadding } from './common'
 import { DocHandler } from './documentHandler'
-import { Styles } from './interfaces'
+import { Styles } from './config'
 
 export function parseCss(
   doc: DocHandler,

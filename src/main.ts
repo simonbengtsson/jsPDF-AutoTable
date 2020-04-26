@@ -1,7 +1,7 @@
 'use strict'
 
 import _applyPlugin from './applyPlugin'
-import { UserInput } from './interfaces'
+import { UserInput } from './config'
 
 // export { applyPlugin } didn't export applyPlugin
 // to index.d.ts for some reason

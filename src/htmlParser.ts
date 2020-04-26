@@ -1,6 +1,6 @@
 import { parseCss } from './cssParser'
 import { DocHandler } from './documentHandler'
-import { RowInput } from './interfaces'
+import { RowInput } from './config'
 
 export function parseHtml(
   doc: DocHandler,

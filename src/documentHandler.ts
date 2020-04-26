@@ -1,5 +1,5 @@
-import { Color, Styles, UserInput } from './interfaces'
 import { Table } from './models'
+import { Color, Styles, UserInput } from './config'
 
 let globalDefaults: UserInput = {}
 

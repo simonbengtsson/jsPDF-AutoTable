@@ -1,4 +1,3 @@
-import { Styles } from './interfaces'
 import { DocHandler } from './documentHandler'
 
 export default function (allOptions: { [key: string]: any}[], doc: DocHandler) {
