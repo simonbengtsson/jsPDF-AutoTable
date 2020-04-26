@@ -4,17 +4,19 @@ import { Color, Styles, UserInput } from './config'
 let globalDefaults: UserInput = {}
 
 export class DocHandler {
-  private readonly doc: any
+  private readonly jsPDFDocument: any
   readonly userStyles: Partial<Styles>
 
-  constructor(doc: any) {
-    this.doc = doc
+  constructor(jsPDFDocument: any) {
+    this.jsPDFDocument = jsPDFDocument
     this.userStyles = {
       // Black for versions of jspdf without getTextColor
-      textColor: doc.getTextColor ? this.doc.getTextColor() : 0,
-      fontSize: doc.internal.getFontSize(),
-      fontStyle: doc.internal.getFont().fontStyle,
-      font: doc.internal.getFont().fontName,
+      textColor: jsPDFDocument.getTextColor
+        ? this.jsPDFDocument.getTextColor()
+        : 0,
+      fontSize: jsPDFDocument.internal.getFontSize(),
+      fontStyle: jsPDFDocument.internal.getFont().fontStyle,
+      font: jsPDFDocument.internal.getFont().fontName,
     }
   }
 
@@ -41,58 +43,58 @@ export class DocHandler {
   applyStyles(styles: Partial<Styles>, fontOnly = false) {
     // Font style needs to be applied before font
     // https://github.com/simonbengtsson/jsPDF-AutoTable/issues/632
-    if (styles.fontStyle) this.doc.setFontStyle(styles.fontStyle)
-    if (styles.font) this.doc.setFont(styles.font)
-    if (styles.fontSize) this.doc.setFontSize(styles.fontSize)
+    if (styles.fontStyle) this.jsPDFDocument.setFontStyle(styles.fontStyle)
+    if (styles.font) this.jsPDFDocument.setFont(styles.font)
+    if (styles.fontSize) this.jsPDFDocument.setFontSize(styles.fontSize)
 
     if (fontOnly) {
       return // Performance improvement
     }
 
     let color = DocHandler.unifyColor(styles.fillColor)
-    if (color) this.doc.setFillColor(...color)
+    if (color) this.jsPDFDocument.setFillColor(...color)
 
     color = DocHandler.unifyColor(styles.textColor)
-    if (color) this.doc.setTextColor(...color)
+    if (color) this.jsPDFDocument.setTextColor(...color)
 
     color = DocHandler.unifyColor(styles.lineColor)
-    if (color) this.doc.setDrawColor(...color)
+    if (color) this.jsPDFDocument.setDrawColor(...color)
 
     if (typeof styles.lineWidth === 'number') {
-      this.doc.setLineWidth(styles.lineWidth)
+      this.jsPDFDocument.setLineWidth(styles.lineWidth)
     }
   }
 
   splitTextToSize(text: string | string[], size: number, opts: any): string[] {
-    return this.doc.splitTextToSize(text, size, opts)
+    return this.jsPDFDocument.splitTextToSize(text, size, opts)
   }
 
   rect(x: number, y: number, width: number, height: number, fillStyle: string) {
-    return this.doc.rect(x, y, width, height, fillStyle)
+    return this.jsPDFDocument.rect(x, y, width, height, fillStyle)
   }
 
   getPreviousAutoTable(): Table {
-    return this.doc.previousAutoTable
+    return this.jsPDFDocument.previousAutoTable
   }
 
   getTextWidth(text: string | string[]): number {
-    return this.doc.getTextWidth(text)
+    return this.jsPDFDocument.getTextWidth(text)
   }
 
   getDocument() {
-    return this.doc
+    return this.jsPDFDocument
   }
 
   setPage(page: number) {
-    this.doc.setPage(page)
+    this.jsPDFDocument.setPage(page)
   }
 
   addPage() {
-    return this.doc.addPage()
+    return this.jsPDFDocument.addPage()
   }
 
   getFontList(): { [key: string]: string[] } {
-    return this.doc.getFontList()
+    return this.jsPDFDocument.getFontList()
   }
 
   getGlobalOptions(): UserInput {
@@ -100,11 +102,11 @@ export class DocHandler {
   }
 
   getDocumentOptions(): UserInput {
-    return this.doc.__autoTableDocumentDefaults || {}
+    return this.jsPDFDocument.__autoTableDocumentDefaults || {}
   }
 
   pageSize(): { width: number; height: number } {
-    let pageSize = this.doc.internal.pageSize
+    let pageSize = this.jsPDFDocument.internal.pageSize
 
     // JSPDF 1.4 uses get functions instead of properties on pageSize
     if (pageSize.width == null) {
@@ -118,14 +120,14 @@ export class DocHandler {
   }
 
   scaleFactor(): number {
-    return this.doc.internal.scaleFactor
+    return this.jsPDFDocument.internal.scaleFactor
   }
 
   pageNumber(): number {
-    const pageInfo = this.doc.internal.getCurrentPageInfo()
+    const pageInfo = this.jsPDFDocument.internal.getCurrentPageInfo()
     if (!pageInfo) {
       // Only recent versions of jspdf has pageInfo
-      return this.doc.internal.getNumberOfPages()
+      return this.jsPDFDocument.internal.getNumberOfPages()
     }
     return pageInfo.pageNumber
   }

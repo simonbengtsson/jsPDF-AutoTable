@@ -9,8 +9,6 @@ export function getStringWidth(text: Text, styles: Styles, doc: DocHandler) {
 
   const widestLineWidth = textArr
     .map((text) => doc.getTextWidth(text))
-    // Shave off a few digits for potential improvement in width calculation
-    .map((val) => Math.floor(val * 10000) / 10000)
     .reduce((a, b) => Math.max(a, b), 0)
 
   return widestLineWidth

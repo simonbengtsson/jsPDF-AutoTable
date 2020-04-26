@@ -5,6 +5,7 @@ import { RowInput } from './config'
 export function parseHtml(
   doc: DocHandler,
   input: HTMLTableElement | string,
+  window: Window,
   includeHiddenHtml = false,
   useCss = false
 ): { head: RowInput[]; body: RowInput[]; foot: RowInput[] } {
@@ -14,6 +15,9 @@ export function parseHtml(
   } else {
     tableElement = input
   }
+
+  let supportedFonts =  Object.keys(doc.getFontList())
+  let scaleFactor = doc.scaleFactor()
 
   const head: any[] = [],
     body: any[] = [],
@@ -26,7 +30,7 @@ export function parseHtml(
 
   for (const rowNode of tableElement.rows as any) {
     const tagName = rowNode.parentNode.tagName.toLowerCase()
-    let row = parseRowContent(doc, window, rowNode, includeHiddenHtml, useCss)
+    let row = parseRowContent(supportedFonts, scaleFactor, window, rowNode, includeHiddenHtml, useCss)
     if (!row) continue
 
     if (tagName === 'thead') {
@@ -43,7 +47,8 @@ export function parseHtml(
 }
 
 function parseRowContent(
-  doc: DocHandler,
+  supportedFonts: string[],
+  scaleFactor: number,
   window: Window,
   row: HTMLTableRowElement,
   includeHidden: boolean,
@@ -54,11 +59,14 @@ function parseRowContent(
     let cell = row.cells[i]
     let style = window.getComputedStyle(cell)
     if (includeHidden || style.display !== 'none') {
-      let cellStyles = useCss ? parseCss(doc, cell, doc.scaleFactor()) : {}
+      let cellStyles
+      if (useCss) {
+        cellStyles = parseCss(supportedFonts, cell, scaleFactor, style, window)
+      }
       resultRow.push({
         rowSpan: cell.rowSpan,
         colSpan: cell.colSpan,
-        styles: useCss ? cellStyles : null,
+        styles: cellStyles,
         _element: cell, // For hooks
         content: parseCellContent(cell),
       })

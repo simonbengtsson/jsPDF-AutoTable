@@ -2,24 +2,24 @@
 // - No support for border spacing
 // - No support for transparency
 import { marginOrPadding, MarginPadding } from './common'
-import { DocHandler } from './documentHandler'
 import { Styles } from './config'
 
 export function parseCss(
-  doc: DocHandler,
+  supportedFonts: string[],
   element: Element,
-  scaleFactor: number
+  scaleFactor: number,
+  style: any,
+  window: Window
 ): Partial<Styles> {
   let result: Partial<Styles> = {}
-  let style = window.getComputedStyle(element)
 
   let pxScaleFactor = 96 / 72
 
-  let color = parseColor(element, 'backgroundColor')
+  let color = parseColor(element, 'backgroundColor', window)
   if (color != null) result.fillColor = color
-  color = parseColor(element, 'color')
+  color = parseColor(element, 'color', window)
   if (color != null) result.textColor = color
-  color = parseColor(element, 'borderTopColor')
+  color = parseColor(element, 'borderTopColor', window)
   if (color != null) result.lineColor = color
 
   let padding = parsePadding(style, scaleFactor)
@@ -44,7 +44,7 @@ export function parseCss(
   if (fontStyle) result.fontStyle = fontStyle
 
   const font = (style.fontFamily || '').toLowerCase()
-  if (doc.getFontList()[font]) {
+  if (supportedFonts.indexOf(font) !== -1) {
     result.font = font
   }
 
@@ -67,8 +67,8 @@ function parseFontStyle(style: any): '' | 'bold' | 'italic' | 'bolditalic' {
 }
 
 type RgbColor = [number, number, number]
-function parseColor(element: Element, colorProp: any): RgbColor | null {
-  let cssColor = realColor(element, colorProp)
+function parseColor(element: Element, colorProp: any, window: Window): RgbColor | null {
+  let cssColor = realColor(element, colorProp, window)
 
   if (!cssColor) return null
 
@@ -93,17 +93,17 @@ function parseColor(element: Element, colorProp: any): RgbColor | null {
   return color
 }
 
-function realColor(elem: Element | null, colorProp: any): any {
+function realColor(elem: Element | null, colorProp: any, window: Window): any {
   if (!elem) return null
 
-  var bg = window.getComputedStyle(elem)[colorProp]
+  const bg = window.getComputedStyle(elem)[colorProp]
   if (
     bg === 'rgba(0, 0, 0, 0)' ||
     bg === 'transparent' ||
     bg === 'initial' ||
     bg === 'inherit'
   ) {
-    return realColor(elem.parentElement, colorProp)
+    return realColor(elem.parentElement, colorProp, window)
   } else {
     return bg
   }

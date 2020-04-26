@@ -17,7 +17,7 @@ import {
   PageHook, Settings
 } from './models'
 
-export function parseInput(args: any, doc: DocHandler) {
+export function parseInput(args: any, doc: DocHandler, window?: Window) {
   let currentInput = parseUserArguments(args)
   let globalOptions = doc.getGlobalOptions()
   let documentOptions = doc.getDocumentOptions()
@@ -33,13 +33,14 @@ export function parseInput(args: any, doc: DocHandler) {
   const startY = getStartY(previous, sf, doc.pageNumber(), options, margin.top)
   const settings = parseSettings(options, sf, startY, margin)
   const styles = parseStyles(allOptions)
+  const content = parseContent(doc, options, styles, settings.theme, sf, window)
 
   let table = new Table(
     currentInput.tableId,
     settings,
     styles,
     parseHooks(allOptions),
-    parseContent(doc, options, styles, settings.theme, sf),
+    content,
   )
 
   calculate(table, sf, doc)
@@ -248,16 +249,20 @@ function parseUserArguments(args: any): UserInput {
   }
 }
 
-function parseContent(doc: DocHandler, options: UserInput, styles: StylesProps, theme: ThemeName, sf: number) {
+function parseContent(doc: DocHandler, options: UserInput, styles: StylesProps, theme: ThemeName, sf: number, window?: Window) {
   let head = options.head || []
   let body = options.body || []
   let foot = options.foot || []
   if (options.html) {
     const hidden = options.includeHiddenHtml
-    const htmlContent = parseHtml(doc, options.html, hidden, options.useCss) || {}
-    head = htmlContent.head || head
-    body = htmlContent.body || head
-    foot = htmlContent.foot || head
+    if (window) {
+      const htmlContent = parseHtml(doc, options.html, window, hidden, options.useCss) || {}
+      head = htmlContent.head || head
+      body = htmlContent.body || head
+      foot = htmlContent.foot || head
+    } else {
+      console.error('Cannot parse html in non browser environment')
+    }
   }
 
   const columns = createColumns(options, head, body, foot)

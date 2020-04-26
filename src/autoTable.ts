@@ -10,8 +10,13 @@ export function autoTable(options: UserInput): any
 export function autoTable(this: any) {
   const doc = new DocHandler(this)
 
+  let win: Window|undefined
+  if (typeof window !== 'undefined') {
+    win = window
+  }
+
   // 1. Parse and unify user input
-  let table = parseInput(arguments, doc)
+  let table = parseInput(arguments, doc, win)
 
   // 2. Calculate preliminary table, column, row and cell dimensions
   calculateWidths(table, doc)

@@ -33,9 +33,12 @@ export default function (jsPDF: any) {
 
   jsPDF.API.autoTableHtmlToJson = function (
     tableElem: HTMLTableElement,
-    includeHiddenElements: boolean
+    includeHiddenElements: boolean = false
   ) {
-    includeHiddenElements = includeHiddenElements || false
+    if (typeof window === 'undefined') {
+      console.error('Cannot run autoTableHtmlToJson in non browser environment')
+      return null
+    }
 
     if (!tableElem || !(tableElem instanceof HTMLTableElement)) {
       console.error('An HTMLTableElement has to be sent to autoTableHtmlToJson')
@@ -45,6 +48,7 @@ export default function (jsPDF: any) {
     let { head, body, foot } = parseHtml(
       this,
       tableElem,
+      window,
       includeHiddenElements,
       false
     )
