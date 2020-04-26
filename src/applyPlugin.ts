@@ -32,7 +32,7 @@ export default function (jsPDF: jsPDFConstructor) {
 
   jsPDF.API.autoTableHtmlToJson = function (
     tableElem: HTMLTableElement,
-    includeHiddenElements: boolean = false
+    includeHiddenElements = false
   ) {
     if (typeof window === 'undefined') {
       console.error('Cannot run autoTableHtmlToJson in non browser environment')
@@ -44,14 +44,14 @@ export default function (jsPDF: jsPDFConstructor) {
       return null
     }
 
-    let { head, body, foot } = parseHtml(
+    const { head, body, foot } = parseHtml(
       this,
       tableElem,
       window,
       includeHiddenElements,
       false
     )
-    let firstRow = head[0] || body[0] || foot[0]
+    const firstRow = head[0] || body[0] || foot[0]
 
     return { columns: firstRow, rows: body, data: body }
   }
@@ -63,7 +63,7 @@ export default function (jsPDF: jsPDFConstructor) {
     console.error(
       'Use of deprecated function: autoTableEndPosY. Use doc.previousAutoTable.finalY instead.'
     )
-    let prev = this.previousAutoTable
+    const prev = this.previousAutoTable
     if (prev.cursor && typeof prev.cursor.y === 'number') {
       return prev.cursor.y
     } else {

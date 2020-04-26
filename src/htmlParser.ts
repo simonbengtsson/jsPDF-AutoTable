@@ -16,8 +16,8 @@ export function parseHtml(
     tableElement = input
   }
 
-  let supportedFonts = Object.keys(doc.getFontList())
-  let scaleFactor = doc.scaleFactor()
+  const supportedFonts = Object.keys(doc.getFontList())
+  const scaleFactor = doc.scaleFactor()
 
   const head: RowInput[] = [],
     body: RowInput[] = [],
@@ -31,7 +31,7 @@ export function parseHtml(
   for (let i = 0; i < tableElement.rows.length; i++) {
     const element = tableElement.rows[i]
     const tagName = element?.parentElement?.tagName?.toLowerCase()
-    let row = parseRowContent(
+    const row = parseRowContent(
       supportedFonts,
       scaleFactor,
       window,
@@ -61,10 +61,10 @@ function parseRowContent(
   includeHidden: boolean,
   useCss: boolean
 ) {
-  let resultRow = new HtmlRowInput(row)
+  const resultRow = new HtmlRowInput(row)
   for (let i = 0; i < row.cells.length; i++) {
-    let cell = row.cells[i]
-    let style = window.getComputedStyle(cell)
+    const cell = row.cells[i]
+    const style = window.getComputedStyle(cell)
     if (includeHidden || style.display !== 'none') {
       let cellStyles
       if (useCss) {
@@ -79,7 +79,7 @@ function parseRowContent(
       })
     }
   }
-  let style = window.getComputedStyle(row)
+  const style = window.getComputedStyle(row)
   if (resultRow.length > 0 && (includeHidden || style.display !== 'none')) {
     return resultRow
   }

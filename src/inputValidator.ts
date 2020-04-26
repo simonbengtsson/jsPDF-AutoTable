@@ -8,7 +8,7 @@ export default function (
   current: UserOptions,
   doc: DocHandler
 ) {
-  for (let options of [global, document, current] as any) {
+  for (const options of [global, document, current] as any) {
     if (options && typeof options !== 'object') {
       console.error(
         'The options parameter should be of type object, is: ' + typeof options
@@ -85,8 +85,8 @@ export default function (
       'fontSize',
       'overflow',
     ].forEach(function (o) {
-      let deprecatedOption = typeof o === 'string' ? o : o[0]
-      let style = typeof o === 'string' ? o : o[1]
+      const deprecatedOption = typeof o === 'string' ? o : o[0]
+      const style = typeof o === 'string' ? o : o[1]
       if (typeof options[deprecatedOption] !== 'undefined') {
         if (typeof options.styles[style] === 'undefined') {
           options.styles[style] = options[deprecatedOption]
@@ -101,7 +101,7 @@ export default function (
       }
     })
 
-    for (let styleProp of [
+    for (const styleProp of [
       'styles',
       'bodyStyles',
       'headStyles',
@@ -110,8 +110,8 @@ export default function (
       checkStyles(options[styleProp] || {})
     }
 
-    let columnStyles = options['columnStyles'] || {}
-    for (let key of Object.keys(columnStyles)) {
+    const columnStyles = options['columnStyles'] || {}
+    for (const key of Object.keys(columnStyles)) {
       checkStyles(columnStyles[key] || {})
     }
   }

@@ -15,10 +15,10 @@ export function getStringWidth(text: Text, styles: Styles, doc: DocHandler) {
 }
 
 export function addTableBorder(table: Table, doc: DocHandler) {
-  let lineWidth = table.settings.tableLineWidth
-  let lineColor = table.settings.tableLineColor
+  const lineWidth = table.settings.tableLineWidth
+  const lineColor = table.settings.tableLineColor
   doc.applyStyles({ lineWidth, lineColor })
-  let fillStyle = getFillStyle(lineWidth, false)
+  const fillStyle = getFillStyle(lineWidth, false)
   if (fillStyle) {
     doc.rect(
       table.pageStartX,
@@ -31,8 +31,8 @@ export function addTableBorder(table: Table, doc: DocHandler) {
 }
 
 export function getFillStyle(lineWidth: number, fillColor: Color) {
-  let drawLine = lineWidth > 0
-  let drawBackground = fillColor || fillColor === 0
+  const drawLine = lineWidth > 0
+  const drawBackground = fillColor || fillColor === 0
   if (drawLine && drawBackground) {
     return 'DF' // Fill then stroke
   } else if (drawLine) {

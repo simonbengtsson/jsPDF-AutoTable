@@ -120,7 +120,7 @@ export class Table {
     row: Row,
     column: Column
   ): boolean {
-    for (let handler of handlers) {
+    for (const handler of handlers) {
       const data = new CellHookData(this, doc, cell, row, column)
       const result = handler(data) === false
       // Make sure text is always string[] since user can assign string
@@ -134,7 +134,7 @@ export class Table {
 
   callEndPageHooks(doc: DocHandler) {
     doc.applyStyles(doc.userStyles)
-    for (let handler of this.hooks.didDrawPage) {
+    for (const handler of this.hooks.didDrawPage) {
       handler(new HookData(this, doc))
     }
   }
@@ -171,7 +171,7 @@ export class Row {
   hasRowSpan(columns: Column[]) {
     return (
       columns.filter((column: Column) => {
-        let cell = this.cells[column.index]
+        const cell = this.cells[column.index]
         if (!cell) return false
         return cell.rowSpan > 1
       }).length > 0
@@ -184,12 +184,12 @@ export class Row {
 
   getMinimumRowHeight(columns: Column[], doc: DocHandler) {
     return columns.reduce((acc: number, column: Column) => {
-      let cell = this.cells[column.index]
+      const cell = this.cells[column.index]
       if (!cell) return 0
-      let fontHeight =
+      const fontHeight =
         (cell.styles.fontSize / doc.scaleFactor()) * FONT_ROW_RATIO
-      let vPadding = cell.padding('vertical')
-      let oneRowHeight = vPadding + fontHeight
+      const vPadding = cell.padding('vertical')
+      const oneRowHeight = vPadding + fontHeight
       return oneRowHeight > acc ? oneRowHeight : acc
     }, 0)
   }
@@ -232,21 +232,22 @@ export class Cell {
     }
 
     // Stringify 0 and false, but not undefined or null
-    let text = content != null ? '' + content : ''
-    let splitRegex = /\r\n|\r|\n/g
+    const text = content != null ? '' + content : ''
+    const splitRegex = /\r\n|\r|\n/g
     this.text = text.split(splitRegex)
   }
 
   getContentHeight(doc: DocHandler) {
-    let lineCount = Array.isArray(this.text) ? this.text.length : 1
-    let fontHeight = (this.styles.fontSize / doc.scaleFactor()) * FONT_ROW_RATIO
+    const lineCount = Array.isArray(this.text) ? this.text.length : 1
+    const fontHeight =
+      (this.styles.fontSize / doc.scaleFactor()) * FONT_ROW_RATIO
     return lineCount * fontHeight + this.padding('vertical')
   }
 
   padding(
     name: 'vertical' | 'horizontal' | 'top' | 'bottom' | 'left' | 'right'
   ) {
-    let padding = marginOrPadding(this.styles.cellPadding, 0)
+    const padding = marginOrPadding(this.styles.cellPadding, 0)
     if (name === 'vertical') {
       return padding.top + padding.bottom
     } else if (name === 'horizontal') {

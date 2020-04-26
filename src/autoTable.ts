@@ -20,7 +20,7 @@ export function autoTable(this: jsPDFDocument) {
   }
 
   // 1. Parse and unify user input
-  let table = parseInput(arguments, doc, win)
+  const table = parseInput(arguments, doc, win)
 
   // 2. Calculate preliminary table, column, row and cell dimensions
   calculateWidths(table, doc)

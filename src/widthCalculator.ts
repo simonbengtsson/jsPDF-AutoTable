@@ -7,7 +7,7 @@ import { Styles } from './config'
  * Calculate the column widths
  */
 export function calculateWidths(table: Table, doc: DocHandler) {
-  let resizableColumns: Column[] = []
+  const resizableColumns: Column[] = []
   let initialTableWidth = 0
 
   table.columns.forEach((column) => {
@@ -107,15 +107,15 @@ export function resizeColumns(
 }
 
 function applyRowSpans(table: Table) {
-  let rowSpanCells: {
+  const rowSpanCells: {
     [key: string]: { cell: Cell; left: number; row: Row }
   } = {}
   let colRowSpansLeft = 1
-  let all = table.allRows()
+  const all = table.allRows()
   for (let rowIndex = 0; rowIndex < all.length; rowIndex++) {
-    let row = all[rowIndex]
-    for (let column of table.columns) {
-      let data = rowSpanCells[column.index]
+    const row = all[rowIndex]
+    for (const column of table.columns) {
+      const data = rowSpanCells[column.index]
       if (colRowSpansLeft > 1) {
         colRowSpansLeft--
         delete row.cells[column.index]
@@ -131,14 +131,14 @@ function applyRowSpans(table: Table) {
           delete rowSpanCells[column.index]
         }
       } else {
-        var cell = row.cells[column.index]
+        const cell = row.cells[column.index]
         if (!cell) {
           continue
         }
         cell.height = row.height
         if (cell.rowSpan > 1) {
-          let remaining = all.length - rowIndex
-          let left = cell.rowSpan > remaining ? remaining : cell.rowSpan
+          const remaining = all.length - rowIndex
+          const left = cell.rowSpan > remaining ? remaining : cell.rowSpan
           rowSpanCells[column.index] = { cell, left, row }
         }
       }
@@ -156,19 +156,19 @@ function applyRowSpans(table: Table) {
 }
 
 function applyColSpans(table: Table) {
-  let all = table.allRows()
+  const all = table.allRows()
   for (let rowIndex = 0; rowIndex < all.length; rowIndex++) {
-    let row = all[rowIndex]
+    const row = all[rowIndex]
 
     let colSpanCell = null
     let combinedColSpanWidth = 0
     let colSpansLeft = 0
     for (
-      var columnIndex = 0;
+      let columnIndex = 0;
       columnIndex < table.columns.length;
       columnIndex++
     ) {
-      let column = table.columns[columnIndex]
+      const column = table.columns[columnIndex]
 
       // Width and colspan
       colSpansLeft -= 1
@@ -176,12 +176,12 @@ function applyColSpans(table: Table) {
         combinedColSpanWidth += column.width
         delete row.cells[column.index]
       } else if (colSpanCell) {
-        let cell: Cell = colSpanCell
+        const cell: Cell = colSpanCell
         delete row.cells[column.index]
         colSpanCell = null
         cell.width = column.width + combinedColSpanWidth
       } else {
-        let cell = row.cells[column.index]
+        const cell = row.cells[column.index]
         if (!cell) continue
         colSpansLeft = cell.colSpan
         combinedColSpanWidth = 0
@@ -198,13 +198,13 @@ function applyColSpans(table: Table) {
 
 function fitContent(table: Table, doc: DocHandler) {
   let rowSpanHeight = { count: 0, height: 0 }
-  for (let row of table.allRows()) {
-    for (let column of table.columns) {
-      let cell: Cell = row.cells[column.index]
+  for (const row of table.allRows()) {
+    for (const column of table.columns) {
+      const cell: Cell = row.cells[column.index]
       if (!cell) continue
 
       doc.applyStyles(cell.styles, true)
-      let textSpace = cell.width - cell.padding('horizontal')
+      const textSpace = cell.width - cell.padding('horizontal')
       if (cell.styles.overflow === 'linebreak') {
         // Add one pt to textSpace to fix rounding error
         cell.text = doc.splitTextToSize(
@@ -264,7 +264,7 @@ function ellipsizeStr(
   doc: DocHandler,
   overflow: string
 ): string {
-  let precision = 10000 * doc.scaleFactor()
+  const precision = 10000 * doc.scaleFactor()
   width = Math.ceil(width * precision) / precision
 
   if (width >= getStringWidth(text, styles, doc)) {

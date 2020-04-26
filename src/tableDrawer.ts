@@ -6,9 +6,9 @@ import { assign } from './polyfills'
 import autoTableText from './autoTableText'
 
 export function drawTable(table: Table, doc: DocHandler) {
-  let settings = table.settings
-  let startY = settings.startY
-  let margin = settings.margin
+  const settings = table.settings
+  const startY = settings.startY
+  const margin = settings.margin
 
   table.cursor = {
     x: margin.left,
@@ -55,9 +55,11 @@ function getRemainingLineCount(
   remainingPageSpace: number,
   doc: DocHandler
 ) {
-  let fontHeight = (cell.styles.fontSize / doc.scaleFactor()) * FONT_ROW_RATIO
-  let vPadding = cell.padding('vertical')
-  let remainingLines = Math.floor((remainingPageSpace - vPadding) / fontHeight)
+  const fontHeight = (cell.styles.fontSize / doc.scaleFactor()) * FONT_ROW_RATIO
+  const vPadding = cell.padding('vertical')
+  const remainingLines = Math.floor(
+    (remainingPageSpace - vPadding) / fontHeight
+  )
   return Math.max(0, remainingLines)
 }
 
@@ -67,14 +69,14 @@ function modifyRowToFit(
   table: Table,
   doc: DocHandler
 ) {
-  let remainderRow = new Row(row.raw, -1, row.section)
+  const remainderRow = new Row(row.raw, -1, row.section)
   remainderRow.spansMultiplePages = true
   row.spansMultiplePages = true
   row.height = 0
   row.maxCellHeight = 0
 
-  for (let column of table.columns) {
-    let cell: Cell = row.cells[column.index]
+  for (const column of table.columns) {
+    const cell: Cell = row.cells[column.index]
     if (!cell) continue
 
     if (!Array.isArray(cell.text)) {
@@ -86,7 +88,7 @@ function modifyRowToFit(
     remainderCell.textPos = assign({}, cell.textPos)
     remainderCell.text = []
 
-    let remainingLineCount = getRemainingLineCount(
+    const remainingLineCount = getRemainingLineCount(
       cell,
       remainingPageSpace,
       doc
@@ -113,12 +115,12 @@ function modifyRowToFit(
     remainderRow.cells[column.index] = remainderCell
   }
 
-  for (let column of table.columns) {
-    let remainderCell = remainderRow.cells[column.index]
+  for (const column of table.columns) {
+    const remainderCell = remainderRow.cells[column.index]
     if (remainderCell) {
       remainderCell.height = remainderRow.height
     }
-    let cell = row.cells[column.index]
+    const cell = row.cells[column.index]
     if (cell) {
       cell.height = row.height
     }
@@ -133,9 +135,9 @@ function shouldPrintOnCurrentPage(
   remainingPageSpace: number,
   table: Table
 ) {
-  let pageHeight = doc.pageSize().height
-  let margin = table.settings.margin
-  let marginHeight = margin.top + margin.bottom
+  const pageHeight = doc.pageSize().height
+  const margin = table.settings.margin
+  const marginHeight = margin.top + margin.bottom
   let maxRowHeight = pageHeight - marginHeight
   if (row.section === 'body') {
     // Should also take into account that head and foot is not
@@ -144,7 +146,7 @@ function shouldPrintOnCurrentPage(
   }
 
   const minRowHeight = row.getMinimumRowHeight(table.columns, doc)
-  let minRowFits = minRowHeight < remainingPageSpace
+  const minRowFits = minRowHeight < remainingPageSpace
   if (minRowHeight > maxRowHeight) {
     console.error(
       `Will not be able to print row ${row.index} correctly since it's minimum height is larger than page height`
@@ -156,8 +158,8 @@ function shouldPrintOnCurrentPage(
     return false
   }
 
-  let rowHasRowSpanCell = row.hasRowSpan(table.columns)
-  let rowHigherThanPage = row.maxCellHeight > maxRowHeight
+  const rowHasRowSpanCell = row.hasRowSpan(table.columns)
+  const rowHigherThanPage = row.maxCellHeight > maxRowHeight
   if (rowHigherThanPage) {
     if (rowHasRowSpanCell) {
       console.error(
@@ -186,12 +188,12 @@ function printFullRow(
   isLastRow: boolean,
   doc: DocHandler
 ) {
-  let remainingPageSpace = getRemainingPageSpace(table, isLastRow, doc)
+  const remainingPageSpace = getRemainingPageSpace(table, isLastRow, doc)
   if (row.canEntireRowFit(remainingPageSpace)) {
     printRow(table, row, doc)
   } else {
     if (shouldPrintOnCurrentPage(doc, row, remainingPageSpace, table)) {
-      let remainderRow = modifyRowToFit(row, remainingPageSpace, table, doc)
+      const remainderRow = modifyRowToFit(row, remainingPageSpace, table, doc)
       printRow(table, row, doc)
       addPage(table, doc)
       printFullRow(table, remainderRow, isLastRow, doc)
@@ -207,8 +209,8 @@ function printRow(table: Table, row: Row, doc: DocHandler) {
   row.y = table.cursor.y
   row.x = table.cursor.x
 
-  for (let column of table.columns) {
-    let cell = row.cells[column.index]
+  for (const column of table.columns) {
+    const cell = row.cells[column.index]
     if (!cell) {
       table.cursor.x += column.width
       continue
@@ -247,8 +249,8 @@ function printRow(table: Table, row: Row, doc: DocHandler) {
       continue
     }
 
-    let cellStyles = cell.styles
-    let fillStyle = getFillStyle(cellStyles.lineWidth, cellStyles.fillColor)
+    const cellStyles = cell.styles
+    const fillStyle = getFillStyle(cellStyles.lineWidth, cellStyles.fillColor)
     if (fillStyle) {
       doc.rect(cell.x, table.cursor.y, cell.width, cell.height, fillStyle)
     }
@@ -280,7 +282,7 @@ function getRemainingPageSpace(
   doc: DocHandler
 ) {
   let bottomContentHeight = table.settings.margin.bottom
-  let showFoot = table.settings.showFoot
+  const showFoot = table.settings.showFoot
   if (showFoot === 'everyPage' || (showFoot === 'lastPage' && isLastRow)) {
     bottomContentHeight += table.footHeight
   }
@@ -299,7 +301,7 @@ export function addPage(table: Table, doc: DocHandler) {
   // be drawn above other things on the page
   table.callEndPageHooks(doc)
 
-  let margin = table.settings.margin
+  const margin = table.settings.margin
   addTableBorder(table, doc)
   nextPage(doc)
   table.pageNumber++
@@ -314,9 +316,9 @@ export function addPage(table: Table, doc: DocHandler) {
 }
 
 function nextPage(doc: DocHandler) {
-  let current = doc.pageNumber()
+  const current = doc.pageNumber()
   doc.setPage(current + 1)
-  let newCurrent = doc.pageNumber()
+  const newCurrent = doc.pageNumber()
 
   if (newCurrent === current) {
     doc.addPage()

@@ -4,7 +4,7 @@ import { CellHook, PageHook } from './models'
 /**
  * Ratio between font size and font height. The number comes from jspdf's source code
  */
-export let FONT_ROW_RATIO = 1.15
+export const FONT_ROW_RATIO = 1.15
 
 export interface Styles {
   font: 'helvetica' | 'times' | 'courier' | string
@@ -128,7 +128,7 @@ export function defaultStyles(scaleFactor: number): Styles {
  */
 export type ThemeName = 'striped' | 'grid' | 'plain'
 export function getTheme(name: ThemeName): { [key: string]: Partial<Styles> } {
-  let themes: { [key in ThemeName]: { [key: string]: Partial<Styles> } } = {
+  const themes: { [key in ThemeName]: { [key: string]: Partial<Styles> } } = {
     striped: {
       table: { fillColor: 255, textColor: 80, fontStyle: 'normal' },
       head: { textColor: 255, fillColor: [41, 128, 185], fontStyle: 'bold' },

@@ -12,12 +12,12 @@ export default function (
   doc: jsPDFDocument
 ) {
   styles = styles || {}
-  let FONT_ROW_RATIO = 1.15
+  const FONT_ROW_RATIO = 1.15
 
-  let k = doc.internal.scaleFactor
-  let fontSize = doc.internal.getFontSize() / k
+  const k = doc.internal.scaleFactor
+  const fontSize = doc.internal.getFontSize() / k
 
-  let splitRegex = /\r\n|\r|\n/g
+  const splitRegex = /\r\n|\r|\n/g
   let splitText: string | string[] = ''
   let lineCount = 1
   if (
