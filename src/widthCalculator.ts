@@ -203,7 +203,7 @@ function fitContent(table: Table, doc: DocHandler) {
       if (!cell) continue
 
       doc.applyStyles(cell.styles, true)
-      let textSpace = cell.width - cell.padding('horizontal', doc)
+      let textSpace = cell.width - cell.padding('horizontal')
       if (cell.styles.overflow === 'linebreak') {
         // Add one pt to textSpace to fix rounding error
         cell.text = doc.splitTextToSize(

@@ -58,7 +58,7 @@ export function drawTable(table: Table, doc: DocHandler) {
 function getRemainingLineCount(cell: Cell, remainingPageSpace: number, doc: DocHandler) {
   let fontHeight =
     (cell.styles.fontSize / doc.scaleFactor()) * FONT_ROW_RATIO
-  let vPadding = cell.padding('vertical', doc)
+  let vPadding = cell.padding('vertical')
   let remainingLines = Math.floor((remainingPageSpace - vPadding) / fontHeight)
   return Math.max(0, remainingLines)
 }
@@ -206,21 +206,21 @@ function printRow(table: Table, row: Row, doc: DocHandler) {
     cell.x = table.cursor.x
     cell.y = row.y
     if (cell.styles.valign === 'top') {
-      cell.textPos.y = table.cursor.y + cell.padding('top', doc)
+      cell.textPos.y = table.cursor.y + cell.padding('top')
     } else if (cell.styles.valign === 'bottom') {
-      cell.textPos.y = table.cursor.y + cell.height - cell.padding('bottom', doc)
+      cell.textPos.y = table.cursor.y + cell.height - cell.padding('bottom')
     } else {
-      const netHeight = cell.height - cell.padding('vertical', doc)
-      cell.textPos.y = table.cursor.y + netHeight / 2 + cell.padding('top', doc)
+      const netHeight = cell.height - cell.padding('vertical')
+      cell.textPos.y = table.cursor.y + netHeight / 2 + cell.padding('top')
     }
 
     if (cell.styles.halign === 'right') {
-      cell.textPos.x = cell.x + cell.width - cell.padding('right', doc)
+      cell.textPos.x = cell.x + cell.width - cell.padding('right')
     } else if (cell.styles.halign === 'center') {
-      const netWidth = cell.width - cell.padding('horizontal', doc)
-      cell.textPos.x = cell.x + netWidth / 2 + cell.padding('left', doc)
+      const netWidth = cell.width - cell.padding('horizontal')
+      cell.textPos.x = cell.x + netWidth / 2 + cell.padding('left')
     } else {
-      cell.textPos.x = cell.x + cell.padding('left', doc)
+      cell.textPos.x = cell.x + cell.padding('left')
     }
 
     const result = table.callCellHooks(
@@ -250,7 +250,7 @@ function printRow(table: Table, row: Row, doc: DocHandler) {
       halign: cell.styles.halign,
       valign: cell.styles.valign,
       maxWidth: Math.ceil(
-        cell.width - cell.padding('left', doc) - cell.padding('right', doc)
+        cell.width - cell.padding('left') - cell.padding('right')
       ),
     }, doc.getDocument())
 

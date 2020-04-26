@@ -7,7 +7,11 @@ import { CellType, RowInput, Settings, Styles } from './interfaces'
 export type PageHook = (data: HookData) => void | boolean
 export type CellHook = (data: CellHookData) => void | boolean
 
-export type HookProp = 'didParseCell' | 'willDrawCell' | 'didDrawCell' | 'didDrawPage'
+export type HookProp =
+  | 'didParseCell'
+  | 'willDrawCell'
+  | 'didDrawCell'
+  | 'didDrawPage'
 export interface HookProps {
   didParseCell: CellHook[]
   willDrawCell: CellHook[]
@@ -70,7 +74,7 @@ export class Table {
     settings: Settings,
     styles: StylesProps,
     hooks: HookProps,
-    content: { body: Row[], head: Row[], foot: Row[], columns: Column[] },
+    content: { body: Row[]; head: Row[]; foot: Row[]; columns: Column[] }
   ) {
     this.id = id
     this.settings = settings
@@ -155,7 +159,7 @@ export class Row {
       if (!cell) return 0
       let fontHeight =
         (cell.styles.fontSize / doc.scaleFactor()) * FONT_ROW_RATIO
-      let vPadding = cell.padding('vertical', doc)
+      let vPadding = cell.padding('vertical')
       let oneRowHeight = vPadding + fontHeight
       return oneRowHeight > acc ? oneRowHeight : acc
     }, 0)
@@ -198,7 +202,6 @@ export class Cell {
       }
     }
 
-
     // Stringify 0 and false, but not undefined or null
     let text = content != null ? '' + content : ''
     let splitRegex = /\r\n|\r|\n/g
@@ -208,18 +211,13 @@ export class Cell {
   getContentHeight(doc: DocHandler) {
     let lineCount = Array.isArray(this.text) ? this.text.length : 1
     let fontHeight = (this.styles.fontSize / doc.scaleFactor()) * FONT_ROW_RATIO
-    return lineCount * fontHeight + this.padding('vertical', doc)
+    return lineCount * fontHeight + this.padding('vertical')
   }
 
   padding(
-    name: 'vertical' | 'horizontal' | 'top' | 'bottom' | 'left' | 'right',
-    doc: DocHandler
+    name: 'vertical' | 'horizontal' | 'top' | 'bottom' | 'left' | 'right'
   ) {
-    let sf = doc.scaleFactor()
-    let padding = marginOrPadding(
-      this.styles.cellPadding,
-      5 / sf
-    )
+    let padding = marginOrPadding(this.styles.cellPadding, 0)
     if (name === 'vertical') {
       return padding.top + padding.bottom
     } else if (name === 'horizontal') {

@@ -76,7 +76,7 @@ function calculate(table: Table, sf: number, doc: DocHandler) {
       if (!cell) continue
       table.callCellHooks(doc, table.hooks.didParseCell, cell, row, column)
 
-      let padding = cell.padding('horizontal', doc)
+      let padding = cell.padding('horizontal')
       cell.contentWidth =
         getStringWidth(cell.text, cell.styles, doc) + padding
 
@@ -85,7 +85,7 @@ function calculate(table: Table, sf: number, doc: DocHandler) {
         cell.styles,
         doc
       )
-      cell.minReadableWidth = longestWordWidth + cell.padding('horizontal', doc)
+      cell.minReadableWidth = longestWordWidth + cell.padding('horizontal')
 
       if (typeof cell.styles.cellWidth === 'number') {
         cell.minWidth = cell.styles.cellWidth
