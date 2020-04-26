@@ -5,7 +5,7 @@ let globalDefaults: UserOptions = {}
 
 export type jsPDFConstructor = any
 export type jsPDFDocument = any
-type Opts = { [key: string]: string|number }
+type Opts = { [key: string]: string | number }
 
 export class DocHandler {
   private readonly jsPDFDocument: jsPDFDocument

@@ -14,43 +14,6 @@ export function getStringWidth(text: Text, styles: Styles, doc: DocHandler) {
   return widestLineWidth
 }
 
-/**
- * Ellipsize the text to fit in the width
- */
-export function ellipsize(
-  text: string[],
-  width: number,
-  styles: Styles,
-  doc: DocHandler,
-  stre: string
-): string[] {
-  return text.map((str) =>
-    ellipsizeStr(str, width, styles, doc, stre)
-  )
-}
-
-function ellipsizeStr(
-  text: string,
-  width: number,
-  styles: Styles,
-  doc: DocHandler,
-  str: string
-): string {
-  let precision = 10000 * doc.scaleFactor()
-  width = Math.ceil(width * precision) / precision
-
-  if (width >= getStringWidth(text, styles, doc)) {
-    return text
-  }
-  while (width < getStringWidth(text + str, styles, doc)) {
-    if (text.length <= 1) {
-      break
-    }
-    text = text.substring(0, text.length - 1)
-  }
-  return text.trim() + str
-}
-
 export function addTableBorder(table: Table, doc: DocHandler) {
   let lineWidth = table.settings.tableLineWidth
   let lineColor = table.settings.tableLineColor
@@ -87,6 +50,7 @@ export type MarginPadding = {
   bottom: number
   left: number
 }
+
 export function marginOrPadding(
   value: MarginPaddingInput | undefined,
   defaultValue: number

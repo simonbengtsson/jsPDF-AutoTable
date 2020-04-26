@@ -25,7 +25,13 @@ export class CellHookData extends HookData {
   column: Column
   section: 'head' | 'body' | 'foot'
 
-  constructor(table: Table, doc: DocHandler, cell: Cell, row: Row, column: Column) {
+  constructor(
+    table: Table,
+    doc: DocHandler,
+    cell: Cell,
+    row: Row,
+    column: Column
+  ) {
     super(table, doc)
 
     this.cell = cell

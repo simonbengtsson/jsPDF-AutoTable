@@ -74,20 +74,20 @@ export type MarginPaddingInput =
   | number
   | number[]
   | {
-  top?: number
-  right?: number
-  bottom?: number
-  left?: number
-  horizontal?: number
-  vertical?: number
-}
+      top?: number
+      right?: number
+      bottom?: number
+      left?: number
+      horizontal?: number
+      vertical?: number
+    }
 
 export interface CellDef {
   rowSpan?: number
   colSpan?: number
   styles?: Partial<Styles>
-  content?: string | string[] | number,
-  title?: string, // Deprecated, same as content
+  content?: string | string[] | number
+  title?: string // Deprecated, same as content
   _element?: HTMLTableCellElement
 }
 
@@ -95,7 +95,7 @@ export class HtmlRowInput extends Array<CellInput> {
   _element: HTMLTableRowElement
 
   constructor(element: HTMLTableRowElement) {
-    super();
+    super()
     this._element = element
   }
 }
@@ -127,8 +127,8 @@ export function defaultStyles(scaleFactor: number): Styles {
  * Styles for the themes (overriding the default styles)
  */
 export type ThemeName = 'striped' | 'grid' | 'plain'
-export function getTheme(name: ThemeName): {[key: string]: Partial<Styles>} {
-  let themes: {[key in ThemeName]: {[key: string]: Partial<Styles>}} = {
+export function getTheme(name: ThemeName): { [key: string]: Partial<Styles> } {
+  let themes: { [key in ThemeName]: { [key: string]: Partial<Styles> } } = {
     striped: {
       table: { fillColor: 255, textColor: 80, fontStyle: 'normal' },
       head: { textColor: 255, fillColor: [41, 128, 185], fontStyle: 'bold' },

@@ -1,6 +1,6 @@
 'use strict'
 
-import _applyPlugin  from './applyPlugin'
+import _applyPlugin from './applyPlugin'
 import { UserOptions } from './config'
 import { jsPDFConstructor } from './documentHandler'
 

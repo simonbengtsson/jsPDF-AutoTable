@@ -3,7 +3,13 @@
  */
 
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/assign
-export function assign<T, U, V, W, X>(target: T, s: U, s1?: V, s2?: W, s3?: X): T & U & V & W & X  {
+export function assign<T, U, V, W, X>(
+  target: T,
+  s: U,
+  s1?: V,
+  s2?: W,
+  s3?: X
+): T & U & V & W & X {
   if (target == null) {
     throw new TypeError('Cannot convert undefined or null to object')
   }

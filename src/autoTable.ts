@@ -5,12 +5,16 @@ import { drawTable } from './tableDrawer'
 import { ColumnOption, RowInput, UserOptions } from './config'
 
 // First definition is deprecated
-export function autoTable(columns: ColumnOption[], data: RowInput[], options: UserOptions): jsPDFDocument
+export function autoTable(
+  columns: ColumnOption[],
+  data: RowInput[],
+  options: UserOptions
+): jsPDFDocument
 export function autoTable(options: UserOptions): jsPDFDocument
 export function autoTable(this: jsPDFDocument) {
   const doc = new DocHandler(this)
 
-  let win: Window|undefined
+  let win: Window | undefined
   if (typeof window !== 'undefined') {
     win = window
   }

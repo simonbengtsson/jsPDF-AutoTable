@@ -1,8 +1,5 @@
 import { FONT_ROW_RATIO } from './config'
-import {
-  addTableBorder,
-  getFillStyle,
-} from './common'
+import { addTableBorder, getFillStyle } from './common'
 import { Cell, Row, Table } from './models'
 import { DocHandler } from './documentHandler'
 import { assign } from './polyfills'
@@ -25,8 +22,7 @@ export function drawTable(table: Table, doc: DocHandler) {
   }
   if (
     settings.pageBreak === 'always' ||
-    (settings.startY != null &&
-      minTableBottomPos > doc.pageSize().height)
+    (settings.startY != null && minTableBottomPos > doc.pageSize().height)
   ) {
     nextPage(doc)
     table.cursor.y = margin.top
@@ -36,13 +32,12 @@ export function drawTable(table: Table, doc: DocHandler) {
 
   table.startPageNumber = doc.pageNumber()
 
-  // An empty row used to cached cells those break through page
   doc.applyStyles(doc.userStyles)
   if (settings.showHead === 'firstPage' || settings.showHead === 'everyPage') {
     table.head.forEach((row) => printRow(table, row, doc))
   }
   doc.applyStyles(doc.userStyles)
-  table.body.forEach(function (row, index) {
+  table.body.forEach((row, index) => {
     printFullRow(table, row, index === table.body.length - 1, doc)
   })
   doc.applyStyles(doc.userStyles)
@@ -55,15 +50,23 @@ export function drawTable(table: Table, doc: DocHandler) {
   table.callEndPageHooks(doc)
 }
 
-function getRemainingLineCount(cell: Cell, remainingPageSpace: number, doc: DocHandler) {
-  let fontHeight =
-    (cell.styles.fontSize / doc.scaleFactor()) * FONT_ROW_RATIO
+function getRemainingLineCount(
+  cell: Cell,
+  remainingPageSpace: number,
+  doc: DocHandler
+) {
+  let fontHeight = (cell.styles.fontSize / doc.scaleFactor()) * FONT_ROW_RATIO
   let vPadding = cell.padding('vertical')
   let remainingLines = Math.floor((remainingPageSpace - vPadding) / fontHeight)
   return Math.max(0, remainingLines)
 }
 
-function modifyRowToFit(row: Row, remainingPageSpace: number, table: Table, doc: DocHandler) {
+function modifyRowToFit(
+  row: Row,
+  remainingPageSpace: number,
+  table: Table,
+  doc: DocHandler
+) {
   let remainderRow = new Row(row.raw, -1, row.section)
   remainderRow.spansMultiplePages = true
   row.spansMultiplePages = true
@@ -83,7 +86,11 @@ function modifyRowToFit(row: Row, remainingPageSpace: number, table: Table, doc:
     remainderCell.textPos = assign({}, cell.textPos)
     remainderCell.text = []
 
-    let remainingLineCount = getRemainingLineCount(cell, remainingPageSpace, doc)
+    let remainingLineCount = getRemainingLineCount(
+      cell,
+      remainingPageSpace,
+      doc
+    )
     if (cell.text.length > remainingLineCount) {
       remainderCell.text = cell.text.splice(
         remainingLineCount,
@@ -173,7 +180,12 @@ function shouldPrintOnCurrentPage(
   return true
 }
 
-function printFullRow(table: Table, row: Row, isLastRow: boolean, doc: DocHandler) {
+function printFullRow(
+  table: Table,
+  row: Row,
+  isLastRow: boolean,
+  doc: DocHandler
+) {
   let remainingPageSpace = getRemainingPageSpace(table, isLastRow, doc)
   if (row.canEntireRowFit(remainingPageSpace)) {
     printRow(table, row, doc)
@@ -238,21 +250,21 @@ function printRow(table: Table, row: Row, doc: DocHandler) {
     let cellStyles = cell.styles
     let fillStyle = getFillStyle(cellStyles.lineWidth, cellStyles.fillColor)
     if (fillStyle) {
-      doc.rect(
-        cell.x,
-        table.cursor.y,
-        cell.width,
-        cell.height,
-        fillStyle
-      )
+      doc.rect(cell.x, table.cursor.y, cell.width, cell.height, fillStyle)
     }
-    autoTableText(cell.text, cell.textPos.x, cell.textPos.y, {
-      halign: cell.styles.halign,
-      valign: cell.styles.valign,
-      maxWidth: Math.ceil(
-        cell.width - cell.padding('left') - cell.padding('right')
-      ),
-    }, doc.getDocument())
+    autoTableText(
+      cell.text,
+      cell.textPos.x,
+      cell.textPos.y,
+      {
+        halign: cell.styles.halign,
+        valign: cell.styles.valign,
+        maxWidth: Math.ceil(
+          cell.width - cell.padding('left') - cell.padding('right')
+        ),
+      },
+      doc.getDocument()
+    )
 
     table.callCellHooks(doc, table.hooks.didDrawCell, cell, row, column)
 
@@ -262,7 +274,11 @@ function printRow(table: Table, row: Row, doc: DocHandler) {
   table.cursor.y += row.height
 }
 
-function getRemainingPageSpace(table: Table, isLastRow: boolean, doc: DocHandler) {
+function getRemainingPageSpace(
+  table: Table,
+  isLastRow: boolean,
+  doc: DocHandler
+) {
   let bottomContentHeight = table.settings.margin.bottom
   let showFoot = table.settings.showFoot
   if (showFoot === 'everyPage' || (showFoot === 'lastPage' && isLastRow)) {

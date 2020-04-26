@@ -69,7 +69,7 @@ export default function (
 }
 
 export interface TextStyles {
-  valign?: 'middle'|'bottom'|'top',
-  halign?: 'justify'|'center'|'right'|'left',
+  valign?: 'middle' | 'bottom' | 'top'
+  halign?: 'justify' | 'center' | 'right' | 'left'
   maxWidth?: number
 }

@@ -1,6 +1,7 @@
-import { ellipsize } from './common'
+import { getStringWidth } from './common'
 import { Table, Cell, Column, Row } from './models'
 import { DocHandler } from './documentHandler'
+import { Styles } from './config'
 
 /**
  * Calculate the column widths
@@ -244,4 +245,36 @@ function fitContent(table: Table, doc: DocHandler) {
     }
     rowSpanHeight.count--
   }
+}
+
+function ellipsize(
+  text: string[],
+  width: number,
+  styles: Styles,
+  doc: DocHandler,
+  overflow: string
+): string[] {
+  return text.map((str) => ellipsizeStr(str, width, styles, doc, overflow))
+}
+
+function ellipsizeStr(
+  text: string,
+  width: number,
+  styles: Styles,
+  doc: DocHandler,
+  overflow: string
+): string {
+  let precision = 10000 * doc.scaleFactor()
+  width = Math.ceil(width * precision) / precision
+
+  if (width >= getStringWidth(text, styles, doc)) {
+    return text
+  }
+  while (width < getStringWidth(text + overflow, styles, doc)) {
+    if (text.length <= 1) {
+      break
+    }
+    text = text.substring(0, text.length - 1)
+  }
+  return text.trim() + overflow
 }

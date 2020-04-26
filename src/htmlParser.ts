@@ -16,7 +16,7 @@ export function parseHtml(
     tableElement = input
   }
 
-  let supportedFonts =  Object.keys(doc.getFontList())
+  let supportedFonts = Object.keys(doc.getFontList())
   let scaleFactor = doc.scaleFactor()
 
   const head: RowInput[] = [],
@@ -31,7 +31,14 @@ export function parseHtml(
   for (let i = 0; i < tableElement.rows.length; i++) {
     const element = tableElement.rows[i]
     const tagName = element?.parentElement?.tagName?.toLowerCase()
-    let row = parseRowContent(supportedFonts, scaleFactor, window, element, includeHiddenHtml, useCss)
+    let row = parseRowContent(
+      supportedFonts,
+      scaleFactor,
+      window,
+      element,
+      includeHiddenHtml,
+      useCss
+    )
     if (!row) continue
 
     if (tagName === 'thead') {

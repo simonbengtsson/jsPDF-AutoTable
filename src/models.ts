@@ -1,4 +1,12 @@
-import { CellInput, Color, ColumnOption, FONT_ROW_RATIO, HtmlRowInput, RowInput, Styles } from './config'
+import {
+  CellInput,
+  Color,
+  ColumnOption,
+  FONT_ROW_RATIO,
+  HtmlRowInput,
+  RowInput,
+  Styles,
+} from './config'
 import { DocHandler } from './documentHandler'
 import { CellHookData, HookData } from './HookData'
 import { marginOrPadding, MarginPadding } from './common'
@@ -146,7 +154,11 @@ export class Row {
 
   spansMultiplePages = false
 
-  constructor(raw: RowInput|HTMLTableRowElement, index: number, section: Section) {
+  constructor(
+    raw: RowInput | HTMLTableRowElement,
+    index: number,
+    section: Section
+  ) {
     this.raw = raw
     if (raw instanceof HtmlRowInput) {
       this.raw = raw._element
@@ -246,7 +258,7 @@ export class Cell {
 }
 
 export class Column {
-  raw: ColumnOption|null
+  raw: ColumnOption | null
   dataKey: string | number
   index: number
 
@@ -255,7 +267,11 @@ export class Column {
   minWidth = 0
   width = 0
 
-  constructor(dataKey: string | number, raw: ColumnOption|null, index: number) {
+  constructor(
+    dataKey: string | number,
+    raw: ColumnOption | null,
+    index: number
+  ) {
     this.dataKey = dataKey
     this.raw = raw
     this.index = index

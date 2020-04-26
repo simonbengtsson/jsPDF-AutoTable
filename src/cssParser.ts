@@ -57,7 +57,9 @@ export function parseCss(
   return result
 }
 
-function parseFontStyle(style: CSSStyleDeclaration): '' | 'bold' | 'italic' | 'bolditalic' {
+function parseFontStyle(
+  style: CSSStyleDeclaration
+): '' | 'bold' | 'italic' | 'bolditalic' {
   let res = ''
   if (
     style.fontWeight === 'bold' ||
@@ -73,7 +75,10 @@ function parseFontStyle(style: CSSStyleDeclaration): '' | 'bold' | 'italic' | 'b
 }
 
 type RgbColor = [number, number, number]
-function parseColor(element: Element, styleGetter: (elem: Element) => string): RgbColor | null {
+function parseColor(
+  element: Element,
+  styleGetter: (elem: Element) => string
+): RgbColor | null {
   const cssColor = realColor(element, styleGetter)
   if (!cssColor) return null
 
@@ -98,7 +103,10 @@ function parseColor(element: Element, styleGetter: (elem: Element) => string): R
   return color
 }
 
-function realColor(elem: Element, styleGetter: (elem: Element) => string): string|null {
+function realColor(
+  elem: Element,
+  styleGetter: (elem: Element) => string
+): string | null {
   const bg = styleGetter(elem)
   if (
     bg === 'rgba(0, 0, 0, 0)' ||
@@ -115,7 +123,10 @@ function realColor(elem: Element, styleGetter: (elem: Element) => string): strin
   }
 }
 
-function parsePadding(style: CSSStyleDeclaration, scaleFactor: number): null | MarginPadding {
+function parsePadding(
+  style: CSSStyleDeclaration,
+  scaleFactor: number
+): null | MarginPadding {
   const val = [
     style.paddingTop,
     style.paddingRight,

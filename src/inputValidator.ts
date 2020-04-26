@@ -2,7 +2,12 @@ import { DocHandler } from './documentHandler'
 import { HookData } from './HookData'
 import { UserOptions } from './config'
 
-export default function (global: UserOptions, document: UserOptions, current: UserOptions, doc: DocHandler) {
+export default function (
+  global: UserOptions,
+  document: UserOptions,
+  current: UserOptions,
+  doc: DocHandler
+) {
   for (let options of [global, document, current] as any) {
     if (options && typeof options !== 'object') {
       console.error(
@@ -42,7 +47,7 @@ export default function (global: UserOptions, document: UserOptions, current: Us
         doc.applyStyles(doc.userStyles)
 
         if (options.afterPageAdd && data.pageNumber > 1) {
-          (data as any).afterPageAdd(data)
+          ;(data as any).afterPageAdd(data)
         }
         doc.applyStyles(doc.userStyles)
       }
