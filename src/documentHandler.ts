@@ -1,4 +1,4 @@
-import { Styles, UserInput } from './interfaces'
+import { Color, Styles, UserInput } from './interfaces'
 import { Table } from './models'
 
 let globalDefaults: UserInput = {}
@@ -26,33 +26,38 @@ export class DocHandler {
     }
   }
 
-  applyStyles(styles: {[key: string]: any}, fontOnly = false) {
-    const nonFontModifiers = {
-      fillColor: this.doc.setFillColor,
-      textColor: this.doc.setTextColor,
-      lineColor: this.doc.setDrawColor,
-      lineWidth: this.doc.setLineWidth,
+  private static unifyColor(c: Color | undefined): [number, number, number] | null {
+    if (Array.isArray(c)) {
+      return c
+    } else if (typeof c === 'number') {
+      return [c, c, c]
+    } else {
+      return null
     }
-    const styleModifiers: { [key: string]: any } = {
+  }
+
+  applyStyles(styles: Partial<Styles>, fontOnly = false) {
+    if (fontOnly) {
       // Font style needs to be applied before font
       // https://github.com/simonbengtsson/jsPDF-AutoTable/issues/632
-      fontStyle: this.doc.setFontStyle,
-      font: this.doc.setFont,
-      fontSize: this.doc.setFontSize,
-      ...(fontOnly ? {} : nonFontModifiers),
+      if (styles.fontStyle) this.doc.setFontStyle(styles.fontStyle)
+      if (styles.font) this.doc.setFont(styles.font)
+      if (styles.fontSize) this.doc.setFontSize(styles.fontSize)
+      return
     }
 
-    Object.keys(styleModifiers).forEach((name) => {
-      const style = styles[name]
-      const modifier = styleModifiers[name]
-      if (typeof style !== 'undefined') {
-        if (Array.isArray(style)) {
-          modifier(...style)
-        } else {
-          modifier(style)
-        }
-      }
-    })
+    let color = DocHandler.unifyColor(styles.fillColor)
+    if (color) this.doc.setFillColor(...color)
+
+    color = DocHandler.unifyColor(styles.textColor)
+    if (color) this.doc.setTextColor(...color)
+
+    color = DocHandler.unifyColor(styles.lineColor)
+    if (color) this.doc.setDrawColor(...color)
+
+    if (typeof styles.lineWidth === 'number') {
+      this.doc.setLineWidth(styles.lineWidth)
+    }
   }
 
   splitTextToSize(...args: any[]): string[] {
@@ -67,7 +72,7 @@ export class DocHandler {
     return this.doc.previousAutoTable
   }
 
-  getTextWidth(text: string|string[]): number {
+  getTextWidth(text: string | string[]): number {
     return this.doc.getTextWidth(text)
   }
 
