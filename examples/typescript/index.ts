@@ -6,7 +6,7 @@ import 'jspdf-autotable'
 // defined and the way jspdf is exported makes it hard to implement
 // https://stackoverflow.com/q/55328516/827047
 
-import { autoTable as AutoTable } from 'jspdf-autotable'
+import { autoTable } from 'jspdf-autotable'
 
 // stats from https://en.wikipedia.org/wiki/World_Happiness_Report (2018)
 var head = [['ID', 'Country', 'Rank', 'Capital']]
@@ -21,7 +21,7 @@ var data = [
 ]
 
 const doc = new jsPDF()
-;((doc as any).autoTable as AutoTable)({
+;((doc as any).autoTable as autoTable)({
   head: head,
   body: data,
   didDrawCell: (data) => {
