@@ -51,14 +51,14 @@ export function addTableBorder(table: Table, doc: DocHandler) {
   let lineWidth = table.settings.tableLineWidth
   let lineColor = table.settings.tableLineColor
   doc.applyStyles({ lineWidth, lineColor })
-  let fs = getFillStyle(lineWidth, false)
-  if (fs) {
+  let fillStyle = getFillStyle(lineWidth, false)
+  if (fillStyle) {
     doc.rect(
       table.pageStartX,
       table.pageStartY,
       table.width,
       table.cursor.y - table.pageStartY,
-      fs
+      fillStyle
     )
   }
 }

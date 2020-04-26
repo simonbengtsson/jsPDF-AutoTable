@@ -26,7 +26,9 @@ export class DocHandler {
     }
   }
 
-  private static unifyColor(c: Color | undefined): [number, number, number] | null {
+  private static unifyColor(
+    c: Color | undefined
+  ): [number, number, number] | null {
     if (Array.isArray(c)) {
       return c
     } else if (typeof c === 'number') {
@@ -60,12 +62,12 @@ export class DocHandler {
     }
   }
 
-  splitTextToSize(...args: any[]): string[] {
-    return this.doc.splitTextToSize(...args)
+  splitTextToSize(text: string | string[], size: number, opts: any): string[] {
+    return this.doc.splitTextToSize(text, size, opts)
   }
 
-  rect(...args: any[]) {
-    return this.doc.rect(...args)
+  rect(x: number, y: number, width: number, height: number, fillStyle: string) {
+    return this.doc.rect(x, y, width, height, fillStyle)
   }
 
   getPreviousAutoTable(): Table {
@@ -88,8 +90,8 @@ export class DocHandler {
     return this.doc.addPage()
   }
 
-  getFontList(...args: any[]) {
-    return this.doc.getFontList(...args)
+  getFontList(): { [key: string]: string[] } {
+    return this.doc.getFontList()
   }
 
   getGlobalOptions(): UserInput {

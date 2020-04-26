@@ -208,7 +208,7 @@ function fitContent(table: Table, doc: DocHandler) {
         // Add one pt to textSpace to fix rounding error
         cell.text = doc.splitTextToSize(
           cell.text,
-          textSpace + 1 / (doc.scaleFactor() || 1),
+          textSpace + 1 / doc.scaleFactor(),
           { fontSize: cell.styles.fontSize }
         )
       } else if (cell.styles.overflow === 'ellipsize') {

@@ -53,7 +53,7 @@ export function parseCss(
   )
   assign('lineColor', parseColor(element, 'borderTopColor'))
 
-  const font = (style.fontFamily || '').toLowerCase()
+  const font = (style.fontFamily || '').toLowerCase() as string
   if (doc.getFontList()[font]) {
     assign('font', font)
   }
