@@ -1,9 +1,10 @@
 const assert = require('assert')
+import { loadJspdf } from './common'
 
 describe('execution', () => {
-  let jsPDF
+  let jsPDF: any
   before(() => {
-    jsPDF = require('./common').loadJspdf()
+    jsPDF = loadJspdf()
     require('../src/main')
   })
 
@@ -17,7 +18,7 @@ describe('execution', () => {
     doc.autoTable({
       head: [],
       body: [['test']],
-      willDrawCell: (data) => {
+      willDrawCell: () => {
         doc.addPage()
       },
     })

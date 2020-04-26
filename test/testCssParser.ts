@@ -1,5 +1,8 @@
+import { parseCss } from '../src/cssParser'
 const assert = require('assert')
-const { parseCss } = require('../src/cssParser')
+const jsdom = require('jsdom');
+const dom = new jsdom.JSDOM('');
+const table = dom.window.document.createElement('table')
 
 describe('css parser', () => {
   it('normal styles', () => {
@@ -20,45 +23,29 @@ describe('css parser', () => {
       borderTopWidth: '2px',
     }
     const pxScaleFactor = 96 / 72
-    const styles = parseCss([], {}, 1, style, {
-      getComputedStyle: () => {
-        return style
-      },
-    })
+    let element = table.insertRow()
+    for (const [prop, value] of Object.entries(style)) {
+      element.style[prop] = value
+    }
+    const styles = parseCss([], element, 1, element.style, dom.window)
     assert(styles, 'Should have result')
     assert(!styles.lineColor, 'Transparent color')
     assert(styles.fillColor, 'Parse color')
     assert(styles.halign === 'center', 'Horizontal align')
     assert(styles.valign === 'top', 'String value')
-    assert.equal(styles.cellPadding.top, 5 / pxScaleFactor, 'Cell padding')
+    assert.equal((styles as any).cellPadding.top, 5 / pxScaleFactor, 'Cell padding')
     assert.equal(styles.lineWidth, 2 / pxScaleFactor, 'Line width')
     assert(styles.fontSize === 16 / pxScaleFactor, 'No font size')
   })
 
   it('minimal styles', () => {
-    const style = {
-      backgroundColor: 'rgba(0, 0, 0, 0)',
-      textAlign: 'baseline',
-      verticalAlign: 'start',
-      paddingTop: '0px',
-      paddingLeft: '0px',
-      paddingRight: '0px',
-      paddingBottom: '0px',
-      fontStyle: 'normal',
-      fontWeight: 'normal',
-      borderWidth: '0px',
-      display: 'none',
-    }
-    const styles = parseCss([], {}, 1, style, {
-      getComputedStyle: () => {
-        return style
-      },
-    })
+    let element = table.insertRow()
+    const styles = parseCss([], element, 1, element.style, dom.window)
     assert(styles, 'Should have result')
     assert(!styles.fillColor, 'Transparent')
     assert(!styles.halign, 'Empty string halign')
     assert(!styles.valign, 'Empty tring valign')
-    assert(!styles.cellPadding.top, 'Empty string padding')
+    assert(!(styles as any).cellPadding?.top, 'Empty string padding')
     assert(!styles.fontStyle, 'No font style')
   })
 })

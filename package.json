@@ -20,6 +20,7 @@
   "devDependencies": {
     "@types/mocha": "^7.0.2",
     "dts-bundle-generator": "^4.3.0",
+    "jsdom": "^16.2.2",
     "jspdf": "^1.5.3",
     "mocha": "^7.1.1",
     "npm-check-updates": "^4.1.2",
@@ -35,7 +36,7 @@
     "start": "webpack-dev-server -d --open",
     "start-external": "webpack-dev-server -d --open --host 0.0.0.0",
     "build": "webpack --mode=production && webpack --mode=production --minified && npm run types",
-    "test": "mocha --require ts-node/register",
+    "test": "mocha -r ts-node/register test/test*.ts",
     "format-all": "prettier --write src",
     "version": "npm test && npm run build && git add -A dist",
     "hosting": "git push origin master:gh-pages -f",

@@ -1,16 +1,16 @@
 const assert = require('assert')
-const { DocHandler } = require('../src/documentHandler')
-const { parseInput } = require('../src/inputParser')
+import { DocHandler } from '../src/documentHandler'
+import { parseInput } from '../src/inputParser'
 
 describe('input parser', () => {
-  let doc, jsPDF
+  let doc: any, jsPDF
   before(() => {
     jsPDF = require('./common').loadJspdf()
     doc = new DocHandler(new jsPDF())
   })
 
   it('non browser', () => {
-    const res = parseInput([{html: '#table'}], doc)
+    const res = parseInput([{html: '#table'}] as any, doc)
     assert(res.body.length === 0, 'Should have empty result')
   })
 
@@ -23,7 +23,7 @@ describe('input parser', () => {
           ['test', 'test'],
         ],
       },
-    ], doc)
+    ] as any, doc)
     assert(table, 'Has table')
     assert.equal(table.head.length, 1)
     assert.equal(table.body.length, 2)
@@ -39,7 +39,7 @@ describe('input parser', () => {
         head: [['aaaa', 'aa', 'aaa']],
         body: [['a', 'a', 'a']],
       },
-    ], doc)
+    ] as any, doc)
     const cols = table.columns
     assert(table.body[0].cells[0].minReadableWidth > 0)
     assert(cols[0].minReadableWidth > cols[1].minReadableWidth)
@@ -59,7 +59,7 @@ describe('input parser', () => {
           },
         ],
       },
-    ], doc)
+    ] as any, doc)
     assert.equal(table.head[0].cells['id'].text, 'ID')
     assert.equal(table.head[0].cells[0].text, 'ID')
   })
@@ -73,7 +73,7 @@ describe('input parser', () => {
           ['test', 'test'],
         ],
       },
-    ], doc)
+    ] as any, doc)
     assert.equal(table.head[0].cells[0].text, 'test')
     assert.equal(table.head[0].cells[1].text, 'test 2')
     assert.equal(table.body[0].cells[0].text, 'body')
@@ -82,7 +82,7 @@ describe('input parser', () => {
   it('rowspan input', () => {
     const table = parseInput([
       { body: [[{ content: 'test', rowSpan: 2 }, 'one'], ['two']] },
-    ], doc)
+    ] as any, doc)
     assert.equal(table.body[0].cells[0].text, 'test')
     assert.equal(table.body[1].cells[0], null)
     assert.equal(table.body[0].cells[1].text, 'one')
