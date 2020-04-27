@@ -167,14 +167,14 @@ declare class Cell {
 	padding(name: 'vertical' | 'horizontal' | 'top' | 'bottom' | 'left' | 'right'): number;
 }
 declare class Column {
-	raw: ColumnOption | null;
+	raw: ColumnInput | null;
 	dataKey: string | number;
 	index: number;
 	wrappedWidth: number;
 	minReadableWidth: number;
 	minWidth: number;
 	width: number;
-	constructor(dataKey: string | number, raw: ColumnOption | null, index: number);
+	constructor(dataKey: string | number, raw: ColumnInput | null, index: number);
 	getMaxCustomCellWidth(table: Table): number;
 }
 export interface Styles {
@@ -211,7 +211,7 @@ export interface UserOptions {
 	body?: RowInput[];
 	foot?: RowInput[];
 	html?: string | HTMLTableElement;
-	columns?: ColumnOption[];
+	columns?: ColumnInput[];
 	styles?: Styles;
 	bodyStyles?: Styles;
 	headStyles?: Styles;
@@ -225,13 +225,13 @@ export interface UserOptions {
 	didDrawCell?: CellHook;
 	didDrawPage?: PageHook;
 }
-export interface ColumnOption {
+export declare type ColumnInput = string | number | {
 	header?: string;
 	title?: string;
 	footer?: string;
 	dataKey?: string | number;
 	key?: string | number;
-}
+};
 export declare type Color = [number, number, number] | number | string | false;
 export declare type MarginPaddingInput = number | number[] | {
 	top?: number;
@@ -259,5 +259,6 @@ export declare type RowInput = {
 } | HtmlRowInput | CellInput[];
 export declare function applyPlugin(jsPDF: jsPDFConstructor): void;
 export declare type autoTable = (options: UserOptions) => void;
+export declare function autoTable(jsPDF: jsPDFConstructor, options: UserOptions): void;
 
 export {};

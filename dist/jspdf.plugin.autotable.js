@@ -1,6 +1,6 @@
 /*!
  * 
- *             jsPDF AutoTable plugin v3.4.5
+ *             jsPDF AutoTable plugin v3.4.6
  *             
  *             Copyright (c) 2020 Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable
  *             Licensed under the MIT License.
@@ -100,7 +100,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 7);
+/******/ 	return __webpack_require__(__webpack_require__.s = 8);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -307,7 +307,7 @@ exports.getTheme = getTheme;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var cssParser_1 = __webpack_require__(9);
+var cssParser_1 = __webpack_require__(10);
 var config_1 = __webpack_require__(1);
 function parseHtml(doc, input, window, includeHiddenHtml, useCss) {
     if (includeHiddenHtml === void 0) { includeHiddenHtml = false; }
@@ -453,6 +453,58 @@ exports.default = default_1;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+var documentHandler_1 = __webpack_require__(5);
+var inputParser_1 = __webpack_require__(11);
+var widthCalculator_1 = __webpack_require__(14);
+var tableDrawer_1 = __webpack_require__(15);
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function autoTable() {
+    var args = [];
+    for (var _i = 0; _i < arguments.length; _i++) {
+        args[_i] = arguments[_i];
+    }
+    var doc = new documentHandler_1.DocHandler(this);
+    var win;
+    if (typeof window !== 'undefined') {
+        win = window;
+    }
+    // 1. Parse user input
+    var options = parseUserInput(args);
+    var table = inputParser_1.createTable(options, doc, win);
+    // 2. Calculate preliminary table, column, row and cell dimensions
+    widthCalculator_1.calculateWidths(table, doc);
+    // 3. Output table to pdf
+    tableDrawer_1.drawTable(table, doc);
+    table.finalY = table.cursor.y;
+    this.previousAutoTable = table;
+    this.lastAutoTable = table; // Deprecated
+    this.autoTable.previous = table; // Deprecated
+    doc.applyStyles(doc.userStyles);
+    return this;
+}
+exports.autoTable = autoTable;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function parseUserInput(args) {
+    if (args.length === 1) {
+        return args[0];
+    }
+    else {
+        console.error("Use of deprecated initiation format, use the new autoTable({/* options */}) instead");
+        var opts = args[2] || {};
+        opts.columns = args[0];
+        opts.body = args[1];
+        return opts;
+    }
+}
+
+
+/***/ }),
+/* 5 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
 var globalDefaults = {};
 var DocHandler = /** @class */ (function () {
     function DocHandler(jsPDFDocument) {
@@ -575,7 +627,7 @@ exports.DocHandler = DocHandler;
 
 
 /***/ }),
-/* 5 */
+/* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -607,7 +659,7 @@ exports.assign = assign;
 
 
 /***/ }),
-/* 6 */
+/* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -795,19 +847,25 @@ exports.Column = Column;
 
 
 /***/ }),
-/* 7 */
+/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var applyPlugin_1 = __webpack_require__(8);
+var applyPlugin_1 = __webpack_require__(9);
+var autoTable_1 = __webpack_require__(4);
 // export { applyPlugin } didn't export applyPlugin
 // to index.d.ts for some reason
 function applyPlugin(jsPDF) {
     applyPlugin_1.default(jsPDF);
 }
 exports.applyPlugin = applyPlugin;
+function autoTable(jsPDF, options) {
+    applyPlugin_1.default(jsPDF);
+    autoTable_1.autoTable(options);
+}
+exports.autoTable = autoTable;
 try {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     var jsPDF = __webpack_require__(16);
@@ -821,7 +879,7 @@ catch (error) {
 
 
 /***/ }),
-/* 8 */
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -829,8 +887,8 @@ catch (error) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var htmlParser_1 = __webpack_require__(2);
 var autoTableText_1 = __webpack_require__(3);
-var autoTable_1 = __webpack_require__(10);
-var documentHandler_1 = __webpack_require__(4);
+var autoTable_1 = __webpack_require__(4);
+var documentHandler_1 = __webpack_require__(5);
 function default_1(jsPDF) {
     jsPDF.API.autoTable = autoTable_1.autoTable;
     // Assign false to enable `doc.lastAutoTable.finalY || 40` sugar
@@ -898,7 +956,7 @@ exports.default = default_1;
 
 
 /***/ }),
-/* 9 */
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1025,44 +1083,6 @@ function parsePadding(style, scaleFactor) {
 
 
 /***/ }),
-/* 10 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var documentHandler_1 = __webpack_require__(4);
-var inputParser_1 = __webpack_require__(11);
-var widthCalculator_1 = __webpack_require__(14);
-var tableDrawer_1 = __webpack_require__(15);
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function autoTable() {
-    var args = [];
-    for (var _i = 0; _i < arguments.length; _i++) {
-        args[_i] = arguments[_i];
-    }
-    var doc = new documentHandler_1.DocHandler(this);
-    var win;
-    if (typeof window !== 'undefined') {
-        win = window;
-    }
-    // 1. Parse and unify user input
-    var table = inputParser_1.parseInput(args, doc, win);
-    // 2. Calculate preliminary table, column, row and cell dimensions
-    widthCalculator_1.calculateWidths(table, doc);
-    // 3. Output table to pdf
-    tableDrawer_1.drawTable(table, doc);
-    table.finalY = table.cursor.y;
-    this.previousAutoTable = table;
-    this.lastAutoTable = table; // Deprecated
-    this.autoTable.previous = table; // Deprecated
-    doc.applyStyles(doc.userStyles);
-    return this;
-}
-exports.autoTable = autoTable;
-
-
-/***/ }),
 /* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -1071,12 +1091,13 @@ exports.autoTable = autoTable;
 Object.defineProperty(exports, "__esModule", { value: true });
 var config_1 = __webpack_require__(1);
 var htmlParser_1 = __webpack_require__(2);
-var polyfills_1 = __webpack_require__(5);
+var polyfills_1 = __webpack_require__(6);
 var common_1 = __webpack_require__(0);
 var inputValidator_1 = __webpack_require__(12);
-var models_1 = __webpack_require__(6);
-function parseInput(userInput, doc, window) {
-    var current = parseUserInput(userInput);
+var models_1 = __webpack_require__(7);
+function createTable(
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+current, doc, window) {
     var document = doc.getDocumentOptions();
     var global = doc.getGlobalOptions();
     inputValidator_1.default(global, document, current, doc);
@@ -1103,7 +1124,7 @@ function parseInput(userInput, doc, window) {
     }
     return table;
 }
-exports.parseInput = parseInput;
+exports.createTable = createTable;
 function calculate(table, sf, doc) {
     table.allRows().forEach(function (row) {
         for (var _i = 0, _a = table.columns; _i < _a.length; _i++) {
@@ -1278,25 +1299,6 @@ function getStartY(previous, sf, currentPage, options, marginTop) {
     }
     return startY || marginTop;
 }
-function parseUserInput(args) {
-    // Normal initialization on format doc.autoTable(options)
-    if (args.length === 1) {
-        return args[0];
-    }
-    else {
-        // Deprecated initialization on format doc.autoTable(columns, body, [options])
-        var opts = args[2] || {};
-        opts.body = args[1];
-        opts.columns = args[0];
-        opts.columns.forEach(function (col) {
-            // Support v2 title prop in v3
-            if (typeof col === 'object' && col.header == null) {
-                col.header = col.title;
-            }
-        });
-        return opts;
-    }
-}
 function parseContent(doc, options, styles, theme, sf, window) {
     var head = options.head || [];
     var body = options.body || [];
@@ -1314,6 +1316,17 @@ function parseContent(doc, options, styles, theme, sf, window) {
         }
     }
     var columns = createColumns(options, head, body, foot);
+    // If no head or foot is set, try generating it with content from columns
+    if (head.length === 0 && options.columns) {
+        var sectionRow = generateTitleRow(columns, 'head');
+        if (sectionRow)
+            head.push(sectionRow);
+    }
+    if (foot.length === 0 && options.columns) {
+        var sectionRow = generateTitleRow(columns, 'foot');
+        if (sectionRow)
+            foot.push(sectionRow);
+    }
     return {
         columns: columns,
         head: parseSection('head', head, options, columns, styles, theme, sf),
@@ -1323,13 +1336,6 @@ function parseContent(doc, options, styles, theme, sf, window) {
 }
 function parseSection(sectionName, sectionRows, settings, columns, styleProps, theme, scaleFactor) {
     var rowSpansLeftForColumn = {};
-    if (sectionRows.length === 0 && settings.columns && sectionName !== 'body') {
-        // If no head or foot is set, try generating one with content in columns
-        var sectionRow = generateSectionRowFromColumnData(columns, sectionName);
-        if (sectionRow) {
-            sectionRows.push(sectionRow);
-        }
-    }
     return sectionRows.map(function (rawRow, rowIndex) {
         var skippedRowForRowSpans = 0;
         var row = new models_1.Row(rawRow, rowIndex, sectionName);
@@ -1378,23 +1384,42 @@ function parseSection(sectionName, sectionRows, settings, columns, styleProps, t
         return row;
     });
 }
-function generateSectionRowFromColumnData(columns, sectionName) {
+function generateTitleRow(columns, section) {
     var sectionRow = {};
     columns.forEach(function (col) {
-        var columnData = col.raw;
-        if (sectionName === 'head' && (columnData === null || columnData === void 0 ? void 0 : columnData.header)) {
-            sectionRow[col.dataKey] = columnData.header;
-        }
-        else if (sectionName === 'foot' && (columnData === null || columnData === void 0 ? void 0 : columnData.footer)) {
-            sectionRow[col.dataKey] = columnData.footer;
+        if (col.raw != null) {
+            var title = getSectionTitle(section, col.raw);
+            if (title != null)
+                sectionRow[col.dataKey] = title;
         }
     });
     return Object.keys(sectionRow).length > 0 ? sectionRow : null;
 }
+function getSectionTitle(section, column) {
+    if (section === 'head') {
+        if (typeof column === 'object') {
+            return column.header || column.title || null;
+        }
+        else if (typeof column === 'string' || typeof column === 'number') {
+            return column;
+        }
+    }
+    else if (section === 'foot' && typeof column === 'object') {
+        return column.footer;
+    }
+    return null;
+}
 function createColumns(settings, head, body, foot) {
     if (settings.columns) {
         return settings.columns.map(function (input, index) {
-            var key = input.dataKey || input.key || index;
+            var _a, _b;
+            var key;
+            if (typeof input === 'object') {
+                key = (_b = (_a = input.dataKey) !== null && _a !== void 0 ? _a : input.key) !== null && _b !== void 0 ? _b : index;
+            }
+            else {
+                key = index;
+            }
             return new models_1.Column(key, input, index);
         });
     }
@@ -1872,8 +1897,8 @@ function ellipsizeStr(text, width, styles, doc, overflow) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var config_1 = __webpack_require__(1);
 var common_1 = __webpack_require__(0);
-var models_1 = __webpack_require__(6);
-var polyfills_1 = __webpack_require__(5);
+var models_1 = __webpack_require__(7);
+var polyfills_1 = __webpack_require__(6);
 var autoTableText_1 = __webpack_require__(3);
 function drawTable(table, doc) {
     var settings = table.settings;
