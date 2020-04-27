@@ -27,7 +27,8 @@ import {
 } from './models'
 
 export function parseInput(
-  userInput: IArguments,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  userInput: any[],
   doc: DocHandler,
   window?: Window
 ) {
@@ -270,24 +271,16 @@ function getStartY(
   return startY || marginTop
 }
 
-function parseUserInput(args: IArguments): UserOptions {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function parseUserInput(args: any[]): UserOptions {
   // Normal initialization on format doc.autoTable(options)
   if (args.length === 1) {
-    return args[0]
+    return args[0] as UserOptions
   } else {
     // Deprecated initialization on format doc.autoTable(columns, body, [options])
-    const opts = args[2] || {}
-
-    opts.body = args[1]
-    opts.columns = args[0]
-
-    opts.columns.forEach((col: ColumnOption) => {
-      // Support v2 title prop in v3
-      if (typeof col === 'object' && col.header == null) {
-        col.header = col.title
-      }
-    })
-
+    const opts: UserOptions = args[2] || {}
+    opts.columns = args[0] as ColumnOption[]
+    opts.body = args[1] as RowInput[]
     return opts
   }
 }
@@ -317,6 +310,17 @@ function parseContent(
   }
 
   const columns = createColumns(options, head, body, foot)
+
+  // If no head or foot is set, try generating it with content from columns
+  if (head.length === 0 && options.columns) {
+    const sectionRow = generateTitleRow(columns, 'head')
+    if (sectionRow) head.push(sectionRow)
+  }
+  if (foot.length === 0 && options.columns) {
+    const sectionRow = generateTitleRow(columns, 'foot')
+    if (sectionRow) foot.push(sectionRow)
+  }
+
   return {
     columns,
     head: parseSection('head', head, options, columns, styles, theme, sf),
@@ -337,13 +341,6 @@ function parseSection(
   const rowSpansLeftForColumn: {
     [key: string]: { left: number; times: number }
   } = {}
-  if (sectionRows.length === 0 && settings.columns && sectionName !== 'body') {
-    // If no head or foot is set, try generating one with content in columns
-    const sectionRow = generateSectionRowFromColumnData(columns, sectionName)
-    if (sectionRow) {
-      sectionRows.push(sectionRow)
-    }
-  }
   return sectionRows.map((rawRow, rowIndex) => {
     let skippedRowForRowSpans = 0
     const row = new Row(rawRow, rowIndex, sectionName)
@@ -402,21 +399,31 @@ function parseSection(
   })
 }
 
-function generateSectionRowFromColumnData(
+function generateTitleRow(
   columns: Column[],
-  sectionName: Section
+  section: Section
 ): RowInput | null {
   const sectionRow: { [key: string]: CellInput } = {}
   columns.forEach((col) => {
-    const columnData = col.raw
-    if (sectionName === 'head' && columnData?.header) {
-      sectionRow[col.dataKey] = columnData.header
-    } else if (sectionName === 'foot' && columnData?.footer) {
-      sectionRow[col.dataKey] = columnData.footer
+    if (col.raw != null) {
+      const title = getSectionTitle(section, col.raw)
+      if (title != null) sectionRow[col.dataKey] = title
     }
   })
-
   return Object.keys(sectionRow).length > 0 ? sectionRow : null
+}
+
+function getSectionTitle(section: Section, column: ColumnOption) {
+  if (section === 'head') {
+    if (typeof column === 'object') {
+      return column.header || column.title || null
+    } else if (typeof column === 'string' || typeof column === 'number') {
+      return column
+    }
+  } else if (section === 'foot' && typeof column === 'object') {
+    return column.footer
+  }
+  return null
 }
 
 function createColumns(
@@ -427,7 +434,12 @@ function createColumns(
 ) {
   if (settings.columns) {
     return settings.columns.map((input, index) => {
-      const key = input.dataKey || input.key || index
+      let key
+      if (typeof input === 'object') {
+        key = input.dataKey ?? input.key ?? index
+      } else {
+        key = index
+      }
       return new Column(key, input, index)
     })
   } else {

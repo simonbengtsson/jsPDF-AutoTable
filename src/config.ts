@@ -60,13 +60,16 @@ export interface UserOptions {
   didDrawPage?: PageHook
 }
 
-export interface ColumnOption {
-  header?: string
-  title?: string // deprecated (same as header)
-  footer?: string
-  dataKey?: string | number
-  key?: string | number // deprecated (same as dataKey)
-}
+export type ColumnOption =
+  | string
+  | number
+  | {
+      header?: string
+      title?: string // deprecated (same as header)
+      footer?: string
+      dataKey?: string | number
+      key?: string | number // deprecated (same as dataKey)
+    }
 
 export type Color = [number, number, number] | number | string | false
 export type MarginPaddingInput =
