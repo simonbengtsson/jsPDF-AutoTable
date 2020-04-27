@@ -11,7 +11,7 @@ describe('ellipsize', () => {
 
   it('ellipsize string', () => {
     const text = ['lorem ipsum']
-    let str = ellipsize(text, 0, {} as any, doc,'...')[0]
+    let str = ellipsize(text, 0, {} as any, doc, '...')[0]
     assert(str.length < 5, `Should be reduced in length`)
     assert(str.endsWith('...'), `Should end with ...`)
 

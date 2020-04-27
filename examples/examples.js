@@ -364,7 +364,7 @@ examples.nested = function () {
     body: [[nestedTableCell]],
     foot: [['2019', '2020']],
     startY: 20,
-    didDrawCell: (data) => {
+    didDrawCell: function (data) {
       if (data.row.index === 0 && data.row.section === 'body') {
         doc.autoTable({
           startY: data.cell.y + 2,

@@ -1,4 +1,3 @@
-
 export function loadJspdf() {
   ;(global as any).window = {
     document: {

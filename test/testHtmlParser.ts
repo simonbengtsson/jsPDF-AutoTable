@@ -1,11 +1,11 @@
-import { parseHtml } from '../src/htmlParser'
+import { parseHtml } from '../src/htmlParser'
 import { DocHandler } from '../src/documentHandler'
 const assert = require('assert')
-const jsdom = require('jsdom');
-const dom = new jsdom.JSDOM('');
+const jsdom = require('jsdom')
+const dom = new jsdom.JSDOM('')
 
 describe('html parser', () => {
-  let doc: any, jsPDF: any;
+  let doc: any, jsPDF: any
   before(() => {
     jsPDF = require('./common').loadJspdf()
     doc = new DocHandler(new jsPDF())

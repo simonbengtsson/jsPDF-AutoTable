@@ -1,33 +1,34 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
     <title>Requirejs example</title>
-</head>
-<body>
-<button id="generate">Generate pdf</button>
-<br><svg id="circle"></svg>
+  </head>
+  <body>
+    <button id="generate">Generate pdf</button>
 
-<script src="../libs/require.js"></script>
-<script>
-    // Setting up paths for jspdf and jspdf-autotable so that the full path is not needed 
-    // each time they are used
-    require.config({paths: {
-        'jspdf': '../libs/jspdf.debug', 
-        'jspdf-autotable': '../../dist/jspdf.plugin.autotable'
-    }});
-    
-    require(['main'], function(main) {
-        document.getElementById("generate").onclick = function() {
-            main.generatePdf();
+    <script src="../libs/require.js"></script>
+    <script>
+      // Setting up paths for jspdf and jspdf-autotable so that the full path is not needed
+      // each time they are used
+      require.config({
+        paths: {
+          jspdf: '../libs/jspdf.debug',
+          'jspdf-autotable': '../../dist/jspdf.plugin.autotable',
+        },
+      })
+
+      require(['main'], function (main) {
+        document.getElementById('generate').onclick = function () {
+          main.generatePdf()
         }
-    });
-    
-    // There currently is an issue with jspdf and requirejs (jspdf version <=1.5.3, 2017-11-18)
-    // A workaround is to use a patched jspdf version found here: https://github.com/MrRio/jsPDF/pull/989
-    // Below is an example highlighting the issue.
-    
-    /*
+      })
+
+      // There currently is an issue with jspdf and requirejs (jspdf version <=1.5.3, 2017-11-18)
+      // A workaround is to use a patched jspdf version found here: https://github.com/MrRio/jsPDF/pull/989
+      // Below is an example highlighting the issue.
+
+      /*
     require.config({paths: {
         'd3': '../libs/d3',
         'jspdf': 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.3.5/jspdf.min',
@@ -50,11 +51,8 @@
         }
     });
      */
+    </script>
 
-</script>
-
-<script>
-    
-</script>
-</body>
+    <script></script>
+  </body>
 </html>

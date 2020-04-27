@@ -1,7 +1,7 @@
 import { parseCss } from '../src/cssParser'
 const assert = require('assert')
-const jsdom = require('jsdom');
-const dom = new jsdom.JSDOM('');
+const jsdom = require('jsdom')
+const dom = new jsdom.JSDOM('')
 const table = dom.window.document.createElement('table')
 
 describe('css parser', () => {
@@ -33,7 +33,11 @@ describe('css parser', () => {
     assert(styles.fillColor, 'Parse color')
     assert(styles.halign === 'center', 'Horizontal align')
     assert(styles.valign === 'top', 'String value')
-    assert.equal((styles as any).cellPadding.top, 5 / pxScaleFactor, 'Cell padding')
+    assert.equal(
+      (styles as any).cellPadding.top,
+      5 / pxScaleFactor,
+      'Cell padding'
+    )
     assert.equal(styles.lineWidth, 2 / pxScaleFactor, 'Line width')
     assert(styles.fontSize === 16 / pxScaleFactor, 'No font size')
   })

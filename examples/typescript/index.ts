@@ -9,8 +9,8 @@ import 'jspdf-autotable'
 import { autoTable } from 'jspdf-autotable'
 
 // stats from https://en.wikipedia.org/wiki/World_Happiness_Report (2018)
-var head = [['ID', 'Country', 'Rank', 'Capital']]
-var data = [
+const head = [['ID', 'Country', 'Rank', 'Capital']]
+const data = [
   [1, 'Finland', 7.632, 'Helsinki'],
   [2, 'Norway', 7.594, 'Oslo'],
   [3, 'Denmark', 7.555, 'Copenhagen'],
