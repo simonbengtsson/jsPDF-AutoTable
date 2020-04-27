@@ -41,7 +41,7 @@ export interface UserOptions {
   body?: RowInput[]
   foot?: RowInput[]
   html?: string | HTMLTableElement
-  columns?: ColumnOption[]
+  columns?: ColumnInput[]
 
   // Styles
   styles?: Styles
@@ -60,7 +60,7 @@ export interface UserOptions {
   didDrawPage?: PageHook
 }
 
-export type ColumnOption =
+export type ColumnInput =
   | string
   | number
   | {

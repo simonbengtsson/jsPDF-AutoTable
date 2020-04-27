@@ -1,30 +1,28 @@
 const assert = require('assert')
 import { DocHandler } from '../src/documentHandler'
-import { parseInput } from '../src/inputParser'
+import { createTable } from '../src/inputParser'
 
 describe('input parser', () => {
-  let doc: any, jsPDF
+  let doc: DocHandler, jsPDF
   before(() => {
     jsPDF = require('./common').loadJspdf()
     doc = new DocHandler(new jsPDF())
   })
 
   it('non browser', () => {
-    const res = parseInput([{ html: '#table' }] as any, doc)
+    const res = createTable({ html: '#table' }, doc)
     assert(res.body.length === 0, 'Should have empty result')
   })
 
   it('array input', () => {
-    const table = parseInput(
-      [
-        {
-          head: [['test', 'test']],
-          body: [
-            ['test', 'test'],
-            ['test', 'test'],
-          ],
-        },
-      ] as any,
+    const table = createTable(
+      {
+        head: [['test', 'test']],
+        body: [
+          ['test', 'test'],
+          ['test', 'test'],
+        ],
+      },
       doc
     )
     assert(table, 'Has table')
@@ -37,13 +35,11 @@ describe('input parser', () => {
   })
 
   it('minReadableWidth', () => {
-    const table = parseInput(
-      [
-        {
-          head: [['aaaa', 'aa', 'aaa']],
-          body: [['a', 'a', 'a']],
-        },
-      ] as any,
+    const table = createTable(
+      {
+        head: [['aaaa', 'aa', 'aaa']],
+        body: [['a', 'a', 'a']],
+      },
       doc
     )
     const cols = table.columns
@@ -53,20 +49,18 @@ describe('input parser', () => {
   })
 
   it('object input', () => {
-    const table = parseInput(
-      [
-        {
-          head: [
-            {
-              id: 'ID',
-              name: 'Name',
-              email: 'Email',
-              city: 'City',
-              expenses: 'Expenses',
-            },
-          ],
-        },
-      ] as any,
+    const table = createTable(
+      {
+        head: [
+          {
+            id: 'ID',
+            name: 'Name',
+            email: 'Email',
+            city: 'City',
+            expenses: 'Expenses',
+          },
+        ],
+      },
       doc
     )
     assert.equal(table.head[0].cells['id'].text, 'ID')
@@ -74,16 +68,14 @@ describe('input parser', () => {
   })
 
   it('object input', () => {
-    const table = parseInput(
-      [
-        {
-          head: [[{ content: 'test' }, 'test 2']],
-          body: [
-            ['body', 'test'],
-            ['test', 'test'],
-          ],
-        },
-      ] as any,
+    const table = createTable(
+      {
+        head: [[{ content: 'test' }, 'test 2']],
+        body: [
+          ['body', 'test'],
+          ['test', 'test'],
+        ],
+      },
       doc
     )
     assert.equal(table.head[0].cells[0].text, 'test')
@@ -92,8 +84,8 @@ describe('input parser', () => {
   })
 
   it('rowspan input', () => {
-    const table = parseInput(
-      [{ body: [[{ content: 'test', rowSpan: 2 }, 'one'], ['two']] }] as any,
+    const table = createTable(
+      { body: [[{ content: 'test', rowSpan: 2 }, 'one'], ['two']] },
       doc
     )
     assert.equal(table.body[0].cells[0].text, 'test')

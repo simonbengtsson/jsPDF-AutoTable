@@ -1,7 +1,7 @@
 import {
   CellInput,
   Color,
-  ColumnOption,
+  ColumnInput,
   FONT_ROW_RATIO,
   HtmlRowInput,
   RowInput,
@@ -253,7 +253,7 @@ export class Cell {
 }
 
 export class Column {
-  raw: ColumnOption | null
+  raw: ColumnInput | null
   dataKey: string | number
   index: number
 
@@ -264,7 +264,7 @@ export class Column {
 
   constructor(
     dataKey: string | number,
-    raw: ColumnOption | null,
+    raw: ColumnInput | null,
     index: number
   ) {
     this.dataKey = dataKey

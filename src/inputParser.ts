@@ -3,7 +3,7 @@ import {
   defaultStyles,
   ThemeName,
   UserOptions,
-  ColumnOption,
+  ColumnInput,
   RowInput,
   Styles,
   CellInput,
@@ -26,13 +26,12 @@ import {
   Settings,
 } from './models'
 
-export function parseInput(
+export function createTable(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  userInput: any[],
+  current: UserOptions,
   doc: DocHandler,
   window?: Window
 ) {
-  const current = parseUserInput(userInput)
   const document = doc.getDocumentOptions()
   const global = doc.getGlobalOptions()
 
@@ -271,21 +270,6 @@ function getStartY(
   return startY || marginTop
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function parseUserInput(args: any[]): UserOptions {
-  if (args.length === 1) {
-    return args[0] as UserOptions
-  } else {
-    console.error(
-      `Use of deprecated initiation format, use the new autoTable({/* options */}) instead`
-    )
-    const opts: UserOptions = args[2] || {}
-    opts.columns = args[0] as ColumnOption[]
-    opts.body = args[1] as RowInput[]
-    return opts
-  }
-}
-
 function parseContent(
   doc: DocHandler,
   options: UserOptions,
@@ -414,7 +398,7 @@ function generateTitleRow(
   return Object.keys(sectionRow).length > 0 ? sectionRow : null
 }
 
-function getSectionTitle(section: Section, column: ColumnOption) {
+function getSectionTitle(section: Section, column: ColumnInput) {
   if (section === 'head') {
     if (typeof column === 'object') {
       return column.header || column.title || null
