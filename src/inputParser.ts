@@ -273,11 +273,12 @@ function getStartY(
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function parseUserInput(args: any[]): UserOptions {
-  // Normal initialization on format doc.autoTable(options)
   if (args.length === 1) {
     return args[0] as UserOptions
   } else {
-    // Deprecated initialization on format doc.autoTable(columns, body, [options])
+    console.error(
+      `Use of deprecated initiation format, use the new autoTable({/* options */}) instead`
+    )
     const opts: UserOptions = args[2] || {}
     opts.columns = args[0] as ColumnOption[]
     opts.body = args[1] as RowInput[]
