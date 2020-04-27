@@ -1,16 +1,16 @@
 Take the [developer survey](https://forms.gle/PRTF4byf39HtatBu9)! 
 
-# AutoTable - Table plugin for jsPDF
+# jsPDF-AutoTable - Table plugin for jsPDF
 
 **Generate PDF tables with Javascript**
 
-This jsPDF plugin aims at making it easy to generate pdf tables either from HTML or directly from Javascript. Check out the [demo](https://simonbengtsson.github.io/jsPDF-AutoTable/) or [examples](https://github.com/simonbengtsson/jsPDF-AutoTable/tree/master/examples).
+This jsPDF plugin adds the ability to generate PDF tables either by parsing HTML tables or by using Javascript data directly. Check out the [demo](https://simonbengtsson.github.io/jsPDF-AutoTable/) or [examples](https://github.com/simonbengtsson/jsPDF-AutoTable/tree/master/examples).
 
 ![sample javascript table pdf](samples.png)
 
 ## Installation
 
-Get the library by doing one of these things:
+Get jsPDF and this plugin by doing one of these things:
 
 - `npm install jspdf jspdf-autotable`
 - Download [jspdf](https://raw.githubusercontent.com/MrRio/jsPDF/master/dist/jspdf.min.js) and [jspdf-autotable](https://raw.githubusercontent.com/simonbengtsson/jsPDF-AutoTable/master/dist/jspdf.plugin.autotable.js) from github
@@ -20,7 +20,14 @@ Get the library by doing one of these things:
 
 ```html
 <table id="my-table">
-  <!-- ... -->
+  <thead>
+    <tr><td>Name</td><td>Email</td><td>Country</td></tr>
+  </thead>
+  <tbody>
+    <tr><td>David</td><td>david@example.com</td><td>Sweden</td></tr>
+    <tr><td>Castille</td><td>castille@example.com</td><td>Spain</td></tr>
+    <!-- ... -->
+  </tbody>
 </table>
 
 <script src="jspdf.min.js"></script>
@@ -36,7 +43,7 @@ Get the library by doing one of these things:
     head: [['Name', 'Email', 'Country']],
     body: [
       ['David', 'david@example.com', 'Sweden'],
-      ['Castille', 'castille@example.com', 'Norway'],
+      ['Castille', 'castille@example.com', 'Spain'],
       // ...
     ],
   })
@@ -62,9 +69,8 @@ Checkout more examples in [examples.js](examples) which is also the source code 
 
 ## API
 
-- `doc.autoTable({ /* options */ })`
-- `doc.autoTableSetDefaults({ /* ... */ })` Use for setting default options for all tables in the specific document. Settings and styles will be overridden in the following order `global` < `document` < `table`. Hooks will be added and not overridden.
-- `jsPDF.autoTableSetDefaults({ /* ... */ })` Use for setting global defaults which will be applied for all document and tabels.
+- `doc.autoTable({ /* options */ })` 
+- `jsPDF.autoTableSetDefaults({ /* ... */ })` Use for setting global defaults which will be applied for all tables
 
 If you want to know something about the last table that was drawn you can use `doc.lastAutoTable`. It has a `doc.lastAutoTable.finalY` property among other things that has the value of the last printed y coordinate on a page. This can be used to draw text, multiple tables or other content after a table.
 
@@ -83,7 +89,7 @@ Below is a list of all options supported in the plugin. All of them are used in 
 
 #### Content options
 
-The only thing required is either the html or body option. If you want more control over the columns you can specify the columns property. It is not needed however and if not set the columns will be automatically computed based on the content of the html content or head, body and foot.
+The only thing required is either the html or body option. If you want more control over the columns you can specify the columns property. If columns are not set they will be automatically computed based on the content of the html content or head, body and foot.
 
 - `html: string|HTMLTableElement` A css selector (for example "#table") or an html table element.
 - `head: CellDef[][]` For example [['ID', 'Name', 'Country']]
@@ -136,7 +142,8 @@ doc.autoTable({
 - `lineWidth: number = 0` // If 0, no border is drawn
 
 `Color`:
-Either false for transparent, rbg array e.g. [255, 0, 0] or gray level e.g 200
+Either false for transparent, hex string, gray level 0-255 or rbg array e.g. [255, 0, 0]
+false|string|number|[number, number, number]
 
 `Padding`:
 Either a number or object `{top: number, right: number, bottom: number, left: number}`
@@ -151,7 +158,7 @@ Styles work similar to css and can be overridden by more specific styles. Overri
 
 Styles for specific cells can also be applied using either the hooks (see hooks section above) or the `styles` property on the cell definition object (see content section above).
 
-Example usage of column styles (note that the 0 in the columnStyles below should be dataKey if )
+Example usage of column styles (note that the 0 in the columnStyles below should be dataKey if columns option used)
 
 ```js
 // Example usage with columnStyles,
