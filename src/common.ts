@@ -3,7 +3,11 @@ import { Table } from './models'
 import { Color, MarginPaddingInput, Styles } from './config'
 
 type Text = string | string[]
-export function getStringWidth(text: Text, styles: Styles, doc: DocHandler) {
+export function getStringWidth(
+  text: Text,
+  styles: Partial<Styles>,
+  doc: DocHandler
+) {
   doc.applyStyles(styles, true)
   const textArr: string[] = Array.isArray(text) ? text : [text]
 

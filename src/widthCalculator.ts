@@ -250,7 +250,7 @@ function fitContent(table: Table, doc: DocHandler) {
 export function ellipsize(
   text: string[],
   width: number,
-  styles: Styles,
+  styles: Partial<Styles>,
   doc: DocHandler,
   overflow: string
 ): string[] {
@@ -260,7 +260,7 @@ export function ellipsize(
 function ellipsizeStr(
   text: string,
   width: number,
-  styles: Styles,
+  styles: Partial<Styles>,
   doc: DocHandler,
   overflow: string
 ): string {
