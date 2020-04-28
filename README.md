@@ -45,8 +45,9 @@ You can also use the exported autoTable method. This works  better with typescri
 
 ```js
 import jsPDF from 'jspdf'
-// import jsPDF from 'yworks-pdf' using yworks fork
-// import jsPDF from 'jspdf/dist/jspdf.node.debug' for nodejs support
+// import jsPDF = require('jspdf') // // typescript without esModuleInterop flag
+// import jsPDF from 'yworks-pdf' // using yworks fork
+// import jsPDF from 'jspdf/dist/jspdf.node.debug' // for nodejs
 import autoTable from 'jspdf-autotable'
 
 const doc = new jsPDF()
