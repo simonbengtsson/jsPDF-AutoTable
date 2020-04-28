@@ -59,8 +59,9 @@ export default function (jsPDF: jsPDFConstructor) {
       return null
     }
 
+    const doc = new DocHandler(this)
     const { head, body, foot } = parseHtml(
-      this,
+      doc,
       tableElem,
       window,
       includeHiddenElements,

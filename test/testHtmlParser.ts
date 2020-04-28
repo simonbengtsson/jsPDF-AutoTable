@@ -73,4 +73,13 @@ describe('html parser', () => {
     assert(res.body.length === 0, 'Should have no body cells')
     assert(res.foot.length === 0, 'Should have no foot cells')
   })
+
+  it('autoTableHtmlToJson', () => {
+    ;(global as any).window = dom.window
+    ;(global as any).HTMLTableElement = dom.window.HTMLTableElement
+    const table = dom.window.document.createElement('table')
+    const doc = new jsPDF()
+    const res = doc.autoTableHtmlToJson(table)
+    assert(res.data.length === 0, 'Should have one body cell')
+  })
 })
