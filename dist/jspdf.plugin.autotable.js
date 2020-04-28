@@ -1,6 +1,6 @@
 /*!
  * 
- *             jsPDF AutoTable plugin v3.5.1
+ *             jsPDF AutoTable plugin v3.5.2
  *             
  *             Copyright (c) 2020 Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable
  *             Licensed under the MIT License.
@@ -1551,7 +1551,8 @@ function default_1(jsPDF) {
             console.error('An HTMLTableElement has to be sent to autoTableHtmlToJson');
             return null;
         }
-        var _a = htmlParser_1.parseHtml(this, tableElem, window, includeHiddenElements, false), head = _a.head, body = _a.body, foot = _a.foot;
+        var doc = new documentHandler_1.DocHandler(this);
+        var _a = htmlParser_1.parseHtml(doc, tableElem, window, includeHiddenElements, false), head = _a.head, body = _a.body, foot = _a.foot;
         var firstRow = head[0] || body[0] || foot[0];
         return { columns: firstRow, rows: body, data: body };
     };
