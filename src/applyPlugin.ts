@@ -5,7 +5,20 @@ import { DocHandler, jsPDFConstructor, jsPDFDocument } from './documentHandler'
 import { UserOptions } from './config'
 
 export default function (jsPDF: jsPDFConstructor) {
-  jsPDF.API.autoTable = autoTable
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  jsPDF.API.autoTable = function (this: jsPDFDocument, ...args: any[]) {
+    let options: UserOptions
+    if (args.length === 1) {
+      options = args[0]
+    } else {
+      console.error('Use of deprecated autoTable initiation')
+      options = args[2] || {}
+      options.columns = args[0]
+      options.body = args[1]
+    }
+    autoTable(this, options)
+    return this
+  }
 
   // Assign false to enable `doc.lastAutoTable.finalY || 40` sugar
   jsPDF.API.lastAutoTable = false
