@@ -6,7 +6,7 @@ import { Styles } from './config'
 /**
  * Calculate the column widths
  */
-export function calculateWidths(table: Table, doc: DocHandler) {
+export function calculateWidths(doc: DocHandler, table: Table) {
   const resizableColumns: Column[] = []
   let initialTableWidth = 0
 
@@ -220,7 +220,7 @@ function fitContent(table: Table, doc: DocHandler) {
         cell.text = cell.styles.overflow(cell.text, textSpace)
       }
 
-      cell.contentHeight = cell.getContentHeight(doc)
+      cell.contentHeight = cell.getContentHeight(doc.scaleFactor())
 
       if (cell.styles.minCellHeight > cell.contentHeight) {
         cell.contentHeight = cell.styles.minCellHeight

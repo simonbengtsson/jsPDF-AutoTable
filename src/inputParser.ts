@@ -11,7 +11,7 @@ import {
 import { parseHtml } from './htmlParser'
 import { assign } from './polyfills'
 import { getStringWidth, marginOrPadding, MarginPadding } from './common'
-import { DocHandler } from './documentHandler'
+import { DocHandler, jsPDFDocument } from './documentHandler'
 import validateOptions from './inputValidator'
 import {
   Row,
@@ -25,13 +25,14 @@ import {
   PageHook,
   Settings,
 } from './models'
+import { calculateWidths } from './widthCalculator'
 
 export function createTable(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  current: UserOptions,
-  doc: DocHandler,
-  window?: Window
+  jsPDFDoc: jsPDFDocument,
+  current: UserOptions
 ) {
+  const doc = new DocHandler(jsPDFDoc)
   const document = doc.getDocumentOptions()
   const global = doc.getGlobalOptions()
 
@@ -45,7 +46,12 @@ export function createTable(
   const startY = getStartY(previous, sf, doc.pageNumber(), options, margin.top)
   const settings = parseSettings(options, sf, startY, margin)
   const styles = parseStyles(global, document, current)
-  const content = parseContent(doc, options, styles, settings.theme, sf, window)
+
+  let win: Window | undefined
+  if (typeof window !== 'undefined') {
+    win = window
+  }
+  const content = parseContent(doc, options, styles, settings.theme, sf, win)
 
   const table = new Table(
     current.tableId,
@@ -70,6 +76,10 @@ export function createTable(
   } else {
     table.width = doc.pageSize().width - margin.left - margin.right
   }
+
+  calculateWidths(doc, table)
+
+  doc.applyStyles(doc.userStyles)
 
   return table
 }

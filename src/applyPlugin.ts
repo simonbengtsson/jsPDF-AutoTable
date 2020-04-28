@@ -1,8 +1,9 @@
 import { parseHtml } from './htmlParser'
 import autoTableText, { TextStyles } from './autoTableText'
-import autoTable from './autoTable'
 import { DocHandler, jsPDFConstructor, jsPDFDocument } from './documentHandler'
 import { UserOptions } from './config'
+import { createTable } from './inputParser'
+import { drawTable } from './tableDrawer'
 
 export default function (jsPDF: jsPDFConstructor) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -16,7 +17,8 @@ export default function (jsPDF: jsPDFConstructor) {
       options.columns = args[0]
       options.body = args[1]
     }
-    autoTable(this, options)
+    const table = createTable(this, options)
+    drawTable(this, table)
     return this
   }
 

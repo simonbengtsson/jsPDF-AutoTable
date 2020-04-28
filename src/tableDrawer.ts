@@ -1,11 +1,11 @@
 import { FONT_ROW_RATIO } from './config'
 import { addTableBorder, getFillStyle } from './common'
 import { Cell, Row, Table } from './models'
-import { DocHandler } from './documentHandler'
+import { DocHandler, jsPDFDocument } from './documentHandler'
 import { assign } from './polyfills'
 import autoTableText from './autoTableText'
 
-export function drawTable(table: Table, doc: DocHandler): void {
+export function drawTable(jsPDFDoc: jsPDFDocument, table: Table): void {
   const settings = table.settings
   const startY = settings.startY
   const margin = settings.margin
@@ -20,6 +20,7 @@ export function drawTable(table: Table, doc: DocHandler): void {
   if (settings.pageBreak === 'avoid') {
     minTableBottomPos += table.height
   }
+  const doc = new DocHandler(jsPDFDoc)
   if (
     settings.pageBreak === 'always' ||
     (settings.startY != null && minTableBottomPos > doc.pageSize().height)
@@ -48,6 +49,13 @@ export function drawTable(table: Table, doc: DocHandler): void {
   addTableBorder(table, doc)
 
   table.callEndPageHooks(doc)
+
+  table.finalY = table.cursor.y
+  jsPDFDoc.previousAutoTable = table
+  jsPDFDoc.lastAutoTable = table // Deprecated
+  if (jsPDFDoc.autoTable) jsPDFDoc.autoTable.previous = table // Deprecated
+
+  doc.applyStyles(doc.userStyles)
 }
 
 function getRemainingLineCount(
@@ -67,7 +75,7 @@ function modifyRowToFit(
   row: Row,
   remainingPageSpace: number,
   table: Table,
-  doc: DocHandler
+  jsPDFDoc: jsPDFDocument
 ) {
   const remainderRow = new Row(row.raw, -1, row.section)
   remainderRow.spansMultiplePages = true
@@ -88,6 +96,7 @@ function modifyRowToFit(
     remainderCell.textPos = assign({}, cell.textPos)
     remainderCell.text = []
 
+    const doc = new DocHandler(jsPDFDoc)
     const remainingLineCount = getRemainingLineCount(
       cell,
       remainingPageSpace,
@@ -100,13 +109,14 @@ function modifyRowToFit(
       )
     }
 
-    cell.contentHeight = cell.getContentHeight(doc)
+    const scaleFactor = doc.scaleFactor()
+    cell.contentHeight = cell.getContentHeight(scaleFactor)
     if (cell.contentHeight > row.height) {
       row.height = cell.contentHeight
       row.maxCellHeight = cell.contentHeight
     }
 
-    remainderCell.contentHeight = remainderCell.getContentHeight(doc)
+    remainderCell.contentHeight = remainderCell.getContentHeight(scaleFactor)
     if (remainderCell.contentHeight > remainderRow.height) {
       remainderRow.height = remainderCell.contentHeight
       remainderRow.maxCellHeight = remainderCell.contentHeight

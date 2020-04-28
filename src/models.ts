@@ -231,10 +231,9 @@ export class Cell {
     this.text = text.split(splitRegex)
   }
 
-  getContentHeight(doc: DocHandler) {
+  getContentHeight(scaleFactor: number) {
     const lineCount = Array.isArray(this.text) ? this.text.length : 1
-    const fontHeight =
-      (this.styles.fontSize / doc.scaleFactor()) * FONT_ROW_RATIO
+    const fontHeight = (this.styles.fontSize / scaleFactor) * FONT_ROW_RATIO
     return lineCount * fontHeight + this.padding('vertical')
   }
 

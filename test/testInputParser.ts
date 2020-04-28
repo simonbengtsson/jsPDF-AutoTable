@@ -1,5 +1,4 @@
 import { loadJspdf } from './common'
-import { DocHandler } from '../src/documentHandler'
 import { createTable } from '../src/inputParser'
 
 const assert = require('assert')
@@ -7,22 +6,19 @@ const jsPDF = loadJspdf()
 
 describe('input parser', () => {
   it('non browser', () => {
-    const doc = new DocHandler(new jsPDF())
-    const res = createTable({ html: '#table' }, doc)
+    const res = createTable(new jsPDF(), { html: '#table' })
     assert(res.body.length === 0, 'Should have empty result')
   })
 
   it('array input', () => {
-    const doc = new DocHandler(new jsPDF())
-    const table = createTable(
+    const table = createTable(new jsPDF(),
       {
         head: [['test', 'test']],
         body: [
           ['test', 'test'],
           ['test', 'test'],
         ],
-      },
-      doc
+      }
     )
     assert(table, 'Has table')
     assert.equal(table.head.length, 1)
@@ -34,13 +30,11 @@ describe('input parser', () => {
   })
 
   it('minReadableWidth', () => {
-    const doc = new DocHandler(new jsPDF())
-    const table = createTable(
+    const table = createTable(new jsPDF(),
       {
         head: [['aaaa', 'aa', 'aaa']],
         body: [['a', 'a', 'a']],
-      },
-      doc
+      }
     )
     const cols = table.columns
     assert(table.body[0].cells[0].minReadableWidth > 0)
@@ -49,8 +43,7 @@ describe('input parser', () => {
   })
 
   it('object input', () => {
-    const doc = new DocHandler(new jsPDF())
-    const table = createTable(
+    const table = createTable(new jsPDF(),
       {
         head: [
           {
@@ -62,23 +55,20 @@ describe('input parser', () => {
           },
         ],
       },
-      doc
     )
     assert.equal(table.head[0].cells['id'].text, 'ID')
     assert.equal(table.head[0].cells[0].text, 'ID')
   })
 
   it('object input', () => {
-    const doc = new DocHandler(new jsPDF())
-    const table = createTable(
+    const table = createTable(new jsPDF(),
       {
         head: [[{ content: 'test' }, 'test 2']],
         body: [
           ['body', 'test'],
           ['test', 'test'],
         ],
-      },
-      doc
+      }
     )
     assert.equal(table.head[0].cells[0].text, 'test')
     assert.equal(table.head[0].cells[1].text, 'test 2')
@@ -86,10 +76,8 @@ describe('input parser', () => {
   })
 
   it('rowspan input', () => {
-    const doc = new DocHandler(new jsPDF())
-    const table = createTable(
+    const table = createTable(new jsPDF(),
       { body: [[{ content: 'test', rowSpan: 2 }, 'one'], ['two']] },
-      doc
     )
     assert.equal(table.body[0].cells[0].text, 'test')
     assert.equal(table.body[1].cells[0], null)

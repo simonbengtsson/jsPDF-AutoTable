@@ -1,9 +1,11 @@
 'use strict'
 
 import _applyPlugin from './applyPlugin'
-import _autoTable from './autoTable'
 import { UserOptions } from './config'
 import { jsPDFConstructor, jsPDFDocument } from './documentHandler'
+import { createTable } from './inputParser'
+import { calculateWidths } from './widthCalculator'
+import { drawTable } from './tableDrawer'
 
 export type autoTable = (options: UserOptions) => void
 
@@ -14,7 +16,8 @@ export function applyPlugin(jsPDF: jsPDFConstructor) {
 }
 
 export default function autoTable(doc: jsPDFDocument, options: UserOptions) {
-  _autoTable(doc, options)
+  const table = createTable(doc, options)
+  drawTable(doc, table)
 }
 
 try {
