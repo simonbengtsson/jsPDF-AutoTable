@@ -4,7 +4,6 @@ import _applyPlugin from './applyPlugin'
 import { UserOptions } from './config'
 import { jsPDFConstructor, jsPDFDocument } from './documentHandler'
 import { createTable } from './inputParser'
-import { calculateWidths } from './widthCalculator'
 import { drawTable } from './tableDrawer'
 
 export type autoTable = (options: UserOptions) => void
