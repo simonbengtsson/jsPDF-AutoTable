@@ -1,20 +1,19 @@
-const assert = require('assert')
+import { loadJspdf } from './common'
 import { DocHandler } from '../src/documentHandler'
 import { createTable } from '../src/inputParser'
 
-describe('input parser', () => {
-  let doc: DocHandler, jsPDF
-  before(() => {
-    jsPDF = require('./common').loadJspdf()
-    doc = new DocHandler(new jsPDF())
-  })
+const assert = require('assert')
+const jsPDF = loadJspdf()
 
+describe('input parser', () => {
   it('non browser', () => {
+    const doc = new DocHandler(new jsPDF())
     const res = createTable({ html: '#table' }, doc)
     assert(res.body.length === 0, 'Should have empty result')
   })
 
   it('array input', () => {
+    const doc = new DocHandler(new jsPDF())
     const table = createTable(
       {
         head: [['test', 'test']],
@@ -35,6 +34,7 @@ describe('input parser', () => {
   })
 
   it('minReadableWidth', () => {
+    const doc = new DocHandler(new jsPDF())
     const table = createTable(
       {
         head: [['aaaa', 'aa', 'aaa']],
@@ -49,6 +49,7 @@ describe('input parser', () => {
   })
 
   it('object input', () => {
+    const doc = new DocHandler(new jsPDF())
     const table = createTable(
       {
         head: [
@@ -68,6 +69,7 @@ describe('input parser', () => {
   })
 
   it('object input', () => {
+    const doc = new DocHandler(new jsPDF())
     const table = createTable(
       {
         head: [[{ content: 'test' }, 'test 2']],
@@ -84,6 +86,7 @@ describe('input parser', () => {
   })
 
   it('rowspan input', () => {
+    const doc = new DocHandler(new jsPDF())
     const table = createTable(
       { body: [[{ content: 'test', rowSpan: 2 }, 'one'], ['two']] },
       doc

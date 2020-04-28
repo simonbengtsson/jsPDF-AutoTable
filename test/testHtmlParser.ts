@@ -1,17 +1,14 @@
 import { parseHtml } from '../src/htmlParser'
 import { DocHandler } from '../src/documentHandler'
+import { loadJspdf } from './common'
 const assert = require('assert')
 const jsdom = require('jsdom')
 const dom = new jsdom.JSDOM('')
+const jsPDF = loadJspdf()
 
 describe('html parser', () => {
-  let doc: any, jsPDF: any
-  before(() => {
-    jsPDF = require('./common').loadJspdf()
-    doc = new DocHandler(new jsPDF())
-  })
-
   it('full table', () => {
+    const doc = new DocHandler(new jsPDF())
     const table = dom.window.document.createElement('table')
     let section = table.createTBody()
     let row = section.insertRow()
@@ -38,6 +35,7 @@ describe('html parser', () => {
   })
 
   it('hidden content', () => {
+    const doc = new DocHandler(new jsPDF())
     const table = dom.window.document.createElement('table')
     let section = table.createTBody()
     let row = section.insertRow()
@@ -67,6 +65,7 @@ describe('html parser', () => {
   })
 
   it('empty table', () => {
+    const doc = new DocHandler(new jsPDF())
     const table = dom.window.document.createElement('table')
     const res = parseHtml(doc, table, dom.window)
     assert(res, 'Should have result')
