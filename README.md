@@ -1,4 +1,4 @@
-Take the [developer survey](https://forms.gle/PRTF4byf39HtatBu9)! 
+Take the [developer survey](https://forms.gle/PRTF4byf39HtatBu9)!
 
 # jsPDF-AutoTable - Table plugin for jsPDF
 
@@ -18,70 +18,55 @@ Get jsPDF and this plugin by doing one of these things:
 
 ## Usage
 
-```html
-<table id="my-table">
-  <thead>
-    <tr><td>Name</td><td>Email</td><td>Country</td></tr>
-  </thead>
-  <tbody>
-    <tr><td>David</td><td>david@example.com</td><td>Sweden</td></tr>
-    <tr><td>Castille</td><td>castille@example.com</td><td>Spain</td></tr>
-    <!-- ... -->
-  </tbody>
-</table>
-
-<script src="jspdf.min.js"></script>
-<script src="jspdf.plugin.autotable.min.js"></script>
-
-<script>
-  var doc = new jsPDF()
-  // It can parse html:
-  doc.autoTable({ html: '#my-table' })
-
-  // Or use javascript directly:
-  doc.autoTable({
-    head: [['Name', 'Email', 'Country']],
-    body: [
-      ['David', 'david@example.com', 'Sweden'],
-      ['Castille', 'castille@example.com', 'Spain'],
-      // ...
-    ],
-  })
-
-  doc.save('table.pdf')
-</script>
-```
-
-Or if using javascript modules and es6:
-
 ```js
 import jsPDF from 'jspdf'
 import 'jspdf-autotable'
 
 const doc = new jsPDF()
+
+// It can parse html:
+// <table id="my-table"><!-- ... --></table>
 doc.autoTable({ html: '#my-table' })
+
+// Or use javascript directly:
+doc.autoTable({
+  head: [['Name', 'Email', 'Country']],
+  body: [
+    ['David', 'david@example.com', 'Sweden'],
+    ['Castille', 'castille@example.com', 'Spain'],
+    // ...
+  ],
+})
+
 doc.save('table.pdf')
 ```
 
-Checkout [this example](examples/nodejs/index.js) for nodejs usage
+You can also use the exported autoTable method. This works  better with typescript and alternative jsPDF versions.
+
+```js
+import jsPDF from 'jspdf'
+// import jsPDF from 'yworks-pdf' using yworks fork
+// import jsPDF from 'jspdf/dist/jspdf.node.debug' for nodejs support
+import autoTable from 'jspdf-autotable'
+
+const doc = new jsPDF()
+autoTable(doc, { html: '#my-table' })
+doc.save('table.pdf')
+```
+
+The third usage option is with downloaded or CDN dist files
+
+```html
+<script src="jspdf.min.js"></script>
+<script src="jspdf.plugin.autotable.min.js"></script>
+<script>
+  var doc = new jsPDF()
+  doc.autoTable({ html: '#my-table' })
+  doc.save('table.pdf')
+</script>
+```
 
 Checkout more examples in [examples.js](examples) which is also the source code for the [demo](https://simonbengtsson.github.io/jsPDF-AutoTable/) documents.
-
-## API
-
-- `doc.autoTable({ /* options */ })` 
-- `jsPDF.autoTableSetDefaults({ /* ... */ })` Use for setting global defaults which will be applied for all tables
-
-If you want to know something about the last table that was drawn you can use `doc.lastAutoTable`. It has a `doc.lastAutoTable.finalY` property among other things that has the value of the last printed y coordinate on a page. This can be used to draw text, multiple tables or other content after a table.
-
-If you for example are using nodejs and want to use the nodejs jspdf dist files you can apply the plugin to any
-jsPDF class like this
-
-```
-import jsPDF from 'jspdf/dist/jspdf.node.debug'
-import { applyPlugin } from 'jspdf-autotable'
-applyPlugin(jsPDF)
-```
 
 ## Options
 
@@ -233,13 +218,28 @@ To see what is included in the `Table`, `Row`, `Column` and `Cell` types, either
 ```js
 // Example with an image drawn in each cell in the first column
 doc.autoTable({
-  didDrawCell: data => {
+  didDrawCell: (data) => {
     if (data.section === 'body' && data.column.index === 0) {
       var base64Img = 'data:image/jpeg;base64,iVBORw0KGgoAAAANS...'
       doc.addImage(base64Img, 'JPEG', data.cell.x + 2, data.cell.y + 2, 10, 10)
     }
   },
 })
+```
+
+## API
+
+- `doc.autoTable({ /* options */ })`
+- `jsPDF.autoTableSetDefaults({ /* ... */ })` Use for setting global defaults which will be applied for all tables
+
+If you want to know something about the last table that was drawn you can use `doc.lastAutoTable`. It has a `doc.lastAutoTable.finalY` property among other things that has the value of the last printed y coordinate on a page. This can be used to draw text, multiple tables or other content after a table.
+
+In addition to the exported autoTable(doc, options) method you can also use applyPlugin to add the autoTable api to any jsPDF instance.
+
+```
+import jsPDF from 'jspdf/dist/jspdf.node.debug'
+import { applyPlugin } from 'jspdf-autotable'
+applyPlugin(jsPDF)
 ```
 
 ## Contributions
