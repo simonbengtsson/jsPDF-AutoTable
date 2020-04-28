@@ -1,6 +1,6 @@
 /*!
  * 
- *             jsPDF AutoTable plugin v3.4.6
+ *             jsPDF AutoTable plugin v3.5.0
  *             
  *             Copyright (c) 2020 Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable
  *             Licensed under the MIT License.
@@ -457,45 +457,22 @@ var documentHandler_1 = __webpack_require__(5);
 var inputParser_1 = __webpack_require__(11);
 var widthCalculator_1 = __webpack_require__(14);
 var tableDrawer_1 = __webpack_require__(15);
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function autoTable() {
-    var args = [];
-    for (var _i = 0; _i < arguments.length; _i++) {
-        args[_i] = arguments[_i];
-    }
-    var doc = new documentHandler_1.DocHandler(this);
+function autoTable(doc, options) {
+    var docHandler = new documentHandler_1.DocHandler(doc);
     var win;
     if (typeof window !== 'undefined') {
         win = window;
     }
-    // 1. Parse user input
-    var options = parseUserInput(args);
-    var table = inputParser_1.createTable(options, doc, win);
-    // 2. Calculate preliminary table, column, row and cell dimensions
-    widthCalculator_1.calculateWidths(table, doc);
-    // 3. Output table to pdf
-    tableDrawer_1.drawTable(table, doc);
+    var table = inputParser_1.createTable(options, docHandler, win);
+    widthCalculator_1.calculateWidths(table, docHandler);
+    tableDrawer_1.drawTable(table, docHandler);
     table.finalY = table.cursor.y;
-    this.previousAutoTable = table;
-    this.lastAutoTable = table; // Deprecated
-    this.autoTable.previous = table; // Deprecated
-    doc.applyStyles(doc.userStyles);
-    return this;
+    doc.previousAutoTable = table;
+    doc.lastAutoTable = table; // Deprecated
+    doc.autoTable.previous = table; // Deprecated
+    docHandler.applyStyles(docHandler.userStyles);
 }
-exports.autoTable = autoTable;
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function parseUserInput(args) {
-    if (args.length === 1) {
-        return args[0];
-    }
-    else {
-        console.error("Use of deprecated initiation format, use the new autoTable({/* options */}) instead");
-        var opts = args[2] || {};
-        opts.columns = args[0];
-        opts.body = args[1];
-        return opts;
-    }
-}
+exports.default = autoTable;
 
 
 /***/ }),
@@ -861,11 +838,10 @@ function applyPlugin(jsPDF) {
     applyPlugin_1.default(jsPDF);
 }
 exports.applyPlugin = applyPlugin;
-function autoTable(jsPDF, options) {
-    applyPlugin_1.default(jsPDF);
-    autoTable_1.autoTable(options);
+function autoTable(doc, options) {
+    autoTable_1.default(doc, options);
 }
-exports.autoTable = autoTable;
+exports.default = autoTable;
 try {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     var jsPDF = __webpack_require__(16);
@@ -890,7 +866,25 @@ var autoTableText_1 = __webpack_require__(3);
 var autoTable_1 = __webpack_require__(4);
 var documentHandler_1 = __webpack_require__(5);
 function default_1(jsPDF) {
-    jsPDF.API.autoTable = autoTable_1.autoTable;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    jsPDF.API.autoTable = function () {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        var options;
+        if (args.length === 1) {
+            options = args[0];
+        }
+        else {
+            console.error('Use of deprecated autoTable initiation');
+            options = args[2] || {};
+            options.columns = args[0];
+            options.body = args[1];
+        }
+        autoTable_1.default(this, options);
+        return this;
+    };
     // Assign false to enable `doc.lastAutoTable.finalY || 40` sugar
     jsPDF.API.lastAutoTable = false;
     jsPDF.API.previousAutoTable = false; // deprecated in v3

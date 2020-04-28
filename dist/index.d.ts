@@ -257,8 +257,8 @@ export declare type CellInput = null | string | string[] | number | boolean | Ce
 export declare type RowInput = {
 	[key: string]: CellInput;
 } | HtmlRowInput | CellInput[];
-export declare function applyPlugin(jsPDF: jsPDFConstructor): void;
 export declare type autoTable = (options: UserOptions) => void;
-export declare function autoTable(jsPDF: jsPDFConstructor, options: UserOptions): void;
+export declare function applyPlugin(jsPDF: jsPDFConstructor): void;
+export default function autoTable(doc: jsPDFDocument, options: UserOptions): void;
 
 export {};
