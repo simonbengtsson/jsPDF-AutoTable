@@ -1,6 +1,6 @@
 import { parseHtml } from './htmlParser'
 import autoTableText, { TextStyles } from './autoTableText'
-import { autoTable } from './autoTable'
+import autoTable from './autoTable'
 import { DocHandler, jsPDFConstructor, jsPDFDocument } from './documentHandler'
 import { UserOptions } from './config'
 
