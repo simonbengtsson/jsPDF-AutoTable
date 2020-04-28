@@ -163,7 +163,7 @@ declare class Cell {
 	colSpan: number;
 	rowSpan: number;
 	constructor(raw: CellInput, styles: Styles, section: Section);
-	getContentHeight(doc: DocHandler): number;
+	getContentHeight(scaleFactor: number): number;
 	padding(name: 'vertical' | 'horizontal' | 'top' | 'bottom' | 'left' | 'right'): number;
 }
 declare class Column {
