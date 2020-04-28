@@ -19,7 +19,7 @@ export default function autoTable(doc: jsPDFDocument, options: UserOptions) {
   table.finalY = table.cursor.y
   doc.previousAutoTable = table
   doc.lastAutoTable = table // Deprecated
-  doc.autoTable.previous = table // Deprecated
+  if (doc.autoTable) doc.autoTable.previous = table // Deprecated
 
   docHandler.applyStyles(docHandler.userStyles)
 }
