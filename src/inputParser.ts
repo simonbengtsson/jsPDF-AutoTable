@@ -27,11 +27,7 @@ import {
 } from './models'
 import { calculateWidths } from './widthCalculator'
 
-export function createTable(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  jsPDFDoc: jsPDFDocument,
-  current: UserOptions
-) {
+export function createTable(jsPDFDoc: jsPDFDocument, current: UserOptions) {
   const doc = new DocHandler(jsPDFDoc)
   const document = doc.getDocumentOptions()
   const global = doc.getGlobalOptions()
@@ -78,7 +74,6 @@ export function createTable(
   }
 
   calculateWidths(doc, table)
-
   doc.applyStyles(doc.userStyles)
 
   return table

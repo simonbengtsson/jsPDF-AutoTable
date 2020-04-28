@@ -44,13 +44,13 @@ export interface UserOptions {
   columns?: ColumnInput[]
 
   // Styles
-  styles?: Styles
-  bodyStyles?: Styles
-  headStyles?: Styles
-  footStyles?: Styles
-  alternateRowStyles?: Styles
+  styles?: Partial<Styles>
+  bodyStyles?: Partial<Styles>
+  headStyles?: Partial<Styles>
+  footStyles?: Partial<Styles>
+  alternateRowStyles?: Partial<Styles>
   columnStyles?: {
-    [key: string]: Styles
+    [key: string]: Partial<Styles>
   }
 
   // Hooks

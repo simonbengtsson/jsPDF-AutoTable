@@ -2,7 +2,7 @@ const assert = require('assert')
 import { resizeColumns } from '../src/widthCalculator'
 import { Column } from '../src/models'
 
-describe('column resizer', () => {
+describe('calculator', () => {
   describe('columns resizer', () => {
     it('shrink: one column - no min', () => {
       const col1 = new Column('col1', null, 0)

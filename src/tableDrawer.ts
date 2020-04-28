@@ -75,7 +75,7 @@ function modifyRowToFit(
   row: Row,
   remainingPageSpace: number,
   table: Table,
-  jsPDFDoc: jsPDFDocument
+  doc: DocHandler
 ) {
   const remainderRow = new Row(row.raw, -1, row.section)
   remainderRow.spansMultiplePages = true
@@ -96,7 +96,6 @@ function modifyRowToFit(
     remainderCell.textPos = assign({}, cell.textPos)
     remainderCell.text = []
 
-    const doc = new DocHandler(jsPDFDoc)
     const remainingLineCount = getRemainingLineCount(
       cell,
       remainingPageSpace,
