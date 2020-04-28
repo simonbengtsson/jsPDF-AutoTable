@@ -1,15 +1,21 @@
 'use strict'
 
 import _applyPlugin from './applyPlugin'
+import _autoTable from './autoTable'
 import { UserOptions } from './config'
-import { jsPDFConstructor } from './documentHandler'
+import { jsPDFConstructor, jsPDFDocument } from './documentHandler'
+
+export type autoTable = (options: UserOptions) => void
 
 // export { applyPlugin } didn't export applyPlugin
 // to index.d.ts for some reason
 export function applyPlugin(jsPDF: jsPDFConstructor) {
   _applyPlugin(jsPDF)
 }
-export type autoTable = (options: UserOptions) => void
+
+export default function autoTable(doc: jsPDFDocument, options: UserOptions) {
+  _autoTable(doc, options)
+}
 
 try {
   // eslint-disable-next-line @typescript-eslint/no-var-requires

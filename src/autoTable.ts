@@ -4,22 +4,22 @@ import { calculateWidths } from './widthCalculator'
 import { drawTable } from './tableDrawer'
 import { UserOptions } from './config'
 
-export function autoTable(document: jsPDFDocument, options: UserOptions) {
-  const doc = new DocHandler(document)
+export default function autoTable(doc: jsPDFDocument, options: UserOptions) {
+  const docHandler = new DocHandler(doc)
 
   let win: Window | undefined
   if (typeof window !== 'undefined') {
     win = window
   }
 
-  const table = createTable(options, doc, win)
-  calculateWidths(table, doc)
-  drawTable(table, doc)
+  const table = createTable(options, docHandler, win)
+  calculateWidths(table, docHandler)
+  drawTable(table, docHandler)
 
   table.finalY = table.cursor.y
-  document.previousAutoTable = table
-  document.lastAutoTable = table // Deprecated
-  document.autoTable.previous = table // Deprecated
+  doc.previousAutoTable = table
+  doc.lastAutoTable = table // Deprecated
+  doc.autoTable.previous = table // Deprecated
 
-  doc.applyStyles(doc.userStyles)
+  docHandler.applyStyles(docHandler.userStyles)
 }
