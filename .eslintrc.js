@@ -16,6 +16,7 @@ module.exports = {
     'plugin:prettier/recommended'
   ],
   "rules": {
+    "prettier/prettier": "warn",
     "@typescript-eslint/member-delimiter-style": "off",
     "@typescript-eslint/explicit-function-return-type": "off",
     "@typescript-eslint/no-use-before-define": "off",
