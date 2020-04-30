@@ -72,7 +72,6 @@ export class Table {
   body: Row[] = []
   foot: Row[] = []
 
-  wrappedWidth = 0
   height = 0
   headHeight = 0
   footHeight = 0
@@ -137,7 +136,11 @@ export class Table {
     if (typeof this.settings.tableWidth === 'number') {
       return this.settings.tableWidth
     } else if (this.settings.tableWidth === 'wrap') {
-      return this.wrappedWidth
+      const wrappedWidth = this.columns.reduce(
+        (total, col) => total + col.wrappedWidth,
+        0
+      )
+      return wrappedWidth
     } else {
       const margin = this.settings.margin
       return pageWidth - margin.left - margin.right
