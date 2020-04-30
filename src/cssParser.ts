@@ -1,7 +1,7 @@
 // Limitations
 // - No support for border spacing
 // - No support for transparency
-import { marginOrPadding, MarginPadding } from './common'
+import { parseSpacing, MarginPadding } from './common'
 import { Styles } from './config'
 
 export function parseCss(
@@ -141,7 +141,7 @@ function parsePadding(
   const inputPadding = val.map((n) => {
     return parseInt(n) / pxScaleFactor
   })
-  const padding = marginOrPadding(inputPadding, 0)
+  const padding = parseSpacing(inputPadding, 0)
   if (linePadding > padding.top) {
     padding.top = linePadding
   }

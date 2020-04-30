@@ -55,7 +55,7 @@ export type MarginPadding = {
   left: number
 }
 
-export function marginOrPadding(
+export function parseSpacing(
   value: MarginPaddingInput | undefined,
   defaultValue: number
 ): MarginPadding {

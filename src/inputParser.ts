@@ -1,11 +1,10 @@
 import { UserOptions, ColumnInput, RowInput, CellInput } from './config'
 import { parseHtml } from './htmlParser'
 import { assign } from './polyfills'
-import { marginOrPadding, MarginPadding } from './common'
+import { parseSpacing } from './common'
 import { DocHandler, jsPDFDocument } from './documentHandler'
 import validateOptions from './inputValidator'
 import {
-  Table,
   StyleProp,
   StylesProps,
   CellHook,
@@ -31,27 +30,21 @@ export interface TableInput {
 
 export function parseInput(d: jsPDFDocument, current: UserOptions): TableInput {
   const doc = new DocHandler(d)
+
   const document = doc.getDocumentOptions()
   const global = doc.getGlobalOptions()
-
-  validateOptions(global, document, current, doc)
+  validateOptions(doc, global, document, current)
   const options = assign({}, global, document, current)
-
-  const previous = doc.getPreviousAutoTable()
-  const sf = doc.scaleFactor()
-
-  const margin = marginOrPadding(options.margin, 40 / sf)
-  const startY = getStartY(previous, sf, doc.pageNumber(), options, margin.top)
-  const settings = parseSettings(options, sf, startY, margin)
 
   let win: Window | undefined
   if (typeof window !== 'undefined') {
     win = window
   }
-  const content = unifyInput(doc, options, win)
 
   const styles = parseStyles(global, document, current)
   const hooks = parseHooks(global, document, current)
+  const settings = parseSettings(doc, options)
+  const content = parseContent(doc, options, win)
 
   return {
     id: current.tableId,
@@ -112,12 +105,10 @@ function parseHooks(
   return result
 }
 
-function parseSettings(
-  options: UserOptions,
-  sf: number,
-  startY: number,
-  margin: MarginPadding
-): Settings {
+function parseSettings(doc: DocHandler, options: UserOptions): Settings {
+  const margin = parseSpacing(options.margin, 40 / doc.scaleFactor())
+  const startY = getStartY(doc, options.startY) ?? margin.top
+
   let showFoot: 'everyPage' | 'lastPage' | 'never'
   if (options.showFoot === true) {
     showFoot = 'everyPage'
@@ -132,12 +123,14 @@ function parseSettings(
     showHead = 'everyPage'
   } else if (options.showHead === false) {
     showHead = 'never'
-  } else showHead = options.showHead ?? 'everyPage'
+  } else {
+    showHead = options.showHead ?? 'everyPage'
+  }
 
   const useCss = options.useCss ?? false
   const theme = options.theme || (useCss ? 'plain' : 'striped')
 
-  const settings: Settings = {
+  return {
     includeHiddenHtml: options.includeHiddenHtml ?? false,
     useCss,
     theme,
@@ -151,37 +144,36 @@ function parseSettings(
     tableLineWidth: options.tableLineWidth ?? 0,
     tableLineColor: options.tableLineColor ?? 200,
   }
-  return settings
 }
 
-function getStartY(
-  previous: Table,
-  sf: number,
-  currentPage: number,
-  options: UserOptions,
-  marginTop: number
-) {
+function getStartY(doc: DocHandler, userStartY: number | false | undefined) {
+  const previous = doc.getPreviousAutoTable()
+  const sf = doc.scaleFactor()
+  const currentPage = doc.pageNumber()
+
   let isSamePageAsPreviousTable = false
   if (previous) {
     const endingPage = previous.startPageNumber + previous.pageNumber - 1
     isSamePageAsPreviousTable = endingPage === currentPage
   }
 
-  let startY = options.startY
-  if (startY == null || startY === false) {
+  if (typeof userStartY === 'number') {
+    return userStartY
+  } else if (userStartY == null || userStartY === false) {
     if (isSamePageAsPreviousTable) {
       // Some users had issues with overlapping tables when they used multiple
       // tables without setting startY so setting it here to a sensible default.
-      startY = previous.finalY + 20 / sf
+      return previous.finalY + 20 / sf
     }
   }
-  return startY || marginTop
+  return null
 }
 
-function unifyInput(doc: DocHandler, options: UserOptions, window?: Window) {
+function parseContent(doc: DocHandler, options: UserOptions, window?: Window) {
   let head = options.head || []
   let body = options.body || []
   let foot = options.foot || []
+
   if (options.html) {
     const hidden = options.includeHiddenHtml
     if (window) {
@@ -195,7 +187,7 @@ function unifyInput(doc: DocHandler, options: UserOptions, window?: Window) {
     }
   }
 
-  const columns = options.columns || getColumnDef(head, body, foot)
+  const columns = options.columns || parseColumns(head, body, foot)
   return {
     columns,
     head,
@@ -204,7 +196,7 @@ function unifyInput(doc: DocHandler, options: UserOptions, window?: Window) {
   }
 }
 
-function getColumnDef(head: RowInput[], body: RowInput[], foot: RowInput[]) {
+function parseColumns(head: RowInput[], body: RowInput[], foot: RowInput[]) {
   const firstRow: RowInput = head[0] || body[0] || foot[0] || []
   const result: ColumnInput[] = []
   Object.keys(firstRow)

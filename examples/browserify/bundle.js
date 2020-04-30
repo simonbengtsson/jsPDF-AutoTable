@@ -388,7 +388,7 @@
                     )
                     return settings
                   }
-                  Config.marginOrPadding = function(value, defaultVal) {
+                  Config.parseSpacing = function(value, defaultVal) {
                     var newValue = {}
                     ;['top', 'right', 'bottom', 'left'].forEach(function(
                       side,

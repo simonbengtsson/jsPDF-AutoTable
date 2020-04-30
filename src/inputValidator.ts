@@ -4,10 +4,10 @@ import { HookData } from './HookData'
 import { UserOptions } from './config'
 
 export default function (
+  doc: DocHandler,
   global: UserOptions,
   document: UserOptions,
-  current: UserOptions,
-  doc: DocHandler
+  current: UserOptions
 ) {
   for (const options of [global, document, current] as any) {
     if (options && typeof options !== 'object') {

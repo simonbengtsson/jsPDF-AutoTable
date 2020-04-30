@@ -9,7 +9,7 @@ import {
 } from './config'
 import { DocHandler } from './documentHandler'
 import { CellHookData, HookData } from './HookData'
-import { marginOrPadding, MarginPadding } from './common'
+import { parseSpacing, MarginPadding } from './common'
 import { TableInput } from './inputParser'
 
 export type PageHook = (data: HookData) => void | boolean
@@ -243,7 +243,7 @@ export class Cell {
   padding(
     name: 'vertical' | 'horizontal' | 'top' | 'bottom' | 'left' | 'right'
   ) {
-    const padding = marginOrPadding(this.styles.cellPadding, 0)
+    const padding = parseSpacing(this.styles.cellPadding, 0)
     if (name === 'vertical') {
       return padding.top + padding.bottom
     } else if (name === 'horizontal') {
