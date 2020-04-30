@@ -16,6 +16,7 @@ import { TableInput } from './inputParser'
 
 export function createTable(jsPDFDoc: jsPDFDocument, input: TableInput) {
   const doc = new DocHandler(jsPDFDoc)
+
   const sf = doc.scaleFactor()
   const content = parseContent(input, sf)
   const table = new Table(input, content)
@@ -27,15 +28,6 @@ export function createTable(jsPDFDoc: jsPDFDocument, input: TableInput) {
     (total, col) => total + col.wrappedWidth,
     0
   )
-
-  const margin = input.settings.margin
-  if (typeof table.settings.tableWidth === 'number') {
-    table.width = table.settings.tableWidth
-  } else if (table.settings.tableWidth === 'wrap') {
-    table.width = table.wrappedWidth
-  } else {
-    table.width = doc.pageSize().width - margin.left - margin.right
-  }
 
   calculateWidths(doc, table)
   doc.applyStyles(doc.userStyles)

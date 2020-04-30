@@ -27,7 +27,7 @@ export function addTableBorder(table: Table, doc: DocHandler) {
     doc.rect(
       table.pageStartX,
       table.pageStartY,
-      table.width,
+      table.getWidth(doc.pageSize().width),
       table.cursor.y - table.pageStartY,
       fillStyle
     )

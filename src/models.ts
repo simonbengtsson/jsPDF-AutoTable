@@ -74,7 +74,6 @@ export class Table {
 
   wrappedWidth = 0
   minWidth = 0
-  width = 0
   height = 0
   headHeight = 0
   footHeight = 0
@@ -132,6 +131,17 @@ export class Table {
     doc.applyStyles(doc.userStyles)
     for (const handler of this.hooks.didDrawPage) {
       handler(new HookData(this, doc))
+    }
+  }
+
+  getWidth(pageWidth: number) {
+    if (typeof this.settings.tableWidth === 'number') {
+      return this.settings.tableWidth
+    } else if (this.settings.tableWidth === 'wrap') {
+      return this.wrappedWidth
+    } else {
+      const margin = this.settings.margin
+      return pageWidth - margin.left - margin.right
     }
   }
 }

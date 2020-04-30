@@ -24,7 +24,7 @@ export function calculateWidths(doc: DocHandler, table: Table) {
   })
 
   // width difference that needs to be distributed
-  let resizeWidth = table.width - initialTableWidth
+  let resizeWidth = table.getWidth(doc.pageSize().width) - initialTableWidth
 
   // first resize attempt: with respect to minReadableWidth and minWidth
   if (resizeWidth) {
