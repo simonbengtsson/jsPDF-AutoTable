@@ -23,7 +23,6 @@ export function createTable(jsPDFDoc: jsPDFDocument, input: TableInput) {
 
   calculate(table, sf, doc)
 
-  table.minWidth = table.columns.reduce((total, col) => total + col.minWidth, 0)
   table.wrappedWidth = table.columns.reduce(
     (total, col) => total + col.wrappedWidth,
     0

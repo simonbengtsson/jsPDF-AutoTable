@@ -73,7 +73,6 @@ export class Table {
   foot: Row[] = []
 
   wrappedWidth = 0
-  minWidth = 0
   height = 0
   headHeight = 0
   footHeight = 0
