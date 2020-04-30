@@ -299,7 +299,8 @@ function parseContent(
     }
   }
 
-  const columns = createColumns(options, head, body, foot)
+  const columnInputs = options.columns || getColumnDef(head, body, foot)
+  const columns = createColumns(columnInputs)
 
   // If no head or foot is set, try generating it with content from columns
   if (head.length === 0 && options.columns) {
@@ -416,50 +417,49 @@ function getSectionTitle(section: Section, column: ColumnInput) {
   return null
 }
 
-function createColumns(
-  settings: UserOptions,
+export function getColumnDef(
   head: RowInput[],
   body: RowInput[],
   foot: RowInput[]
 ) {
-  if (settings.columns) {
-    return settings.columns.map((input, index) => {
-      let key
-      if (typeof input === 'object') {
-        key = input.dataKey ?? input.key ?? index
+  const firstRow: RowInput = head[0] || body[0] || foot[0] || []
+  const result: ColumnInput[] = []
+  Object.keys(firstRow)
+    .filter((key) => key !== '_element')
+    .forEach((key) => {
+      let colSpan = 1
+      let input: CellInput
+      if (Array.isArray(firstRow)) {
+        input = firstRow[parseInt(key)]
       } else {
-        key = index
+        input = firstRow[key]
       }
-      return new Column(key, input, index)
-    })
-  } else {
-    const firstRow: RowInput = head[0] || body[0] || foot[0] || []
-    const columns: Column[] = []
-    Object.keys(firstRow)
-      .filter((key) => key !== '_element')
-      .forEach((key) => {
-        let colSpan = 1
-        let input: CellInput
+      if (typeof input === 'object' && !Array.isArray(input)) {
+        colSpan = input?.colSpan || 1
+      }
+      for (let i = 0; i < colSpan; i++) {
+        let id
         if (Array.isArray(firstRow)) {
-          input = firstRow[parseInt(key)]
+          id = result.length
         } else {
-          input = firstRow[key]
+          id = key + (i > 0 ? `_${i}` : '')
         }
-        if (typeof input === 'object' && !Array.isArray(input)) {
-          colSpan = input?.colSpan || 1
-        }
-        for (let i = 0; i < colSpan; i++) {
-          let id
-          if (Array.isArray(firstRow)) {
-            id = columns.length
-          } else {
-            id = key + (i > 0 ? `_${i}` : '')
-          }
-          columns.push(new Column(id, null, columns.length))
-        }
-      })
-    return columns
-  }
+        result.push({ dataKey: id, header: input })
+      }
+    })
+  return result
+}
+
+function createColumns(columns: ColumnInput[]) {
+  return columns.map((input, index) => {
+    let key
+    if (typeof input === 'object') {
+      key = input.dataKey ?? input.key ?? index
+    } else {
+      key = index
+    }
+    return new Column(key, input, index)
+  })
 }
 
 function cellStyles(

@@ -64,9 +64,9 @@ export type ColumnInput =
   | string
   | number
   | {
-      header?: string
-      title?: string // deprecated (same as header)
-      footer?: string
+      header?: CellInput
+      title?: CellInput // deprecated (same as header)
+      footer?: CellInput
       dataKey?: string | number
       key?: string | number // deprecated (same as dataKey)
     }

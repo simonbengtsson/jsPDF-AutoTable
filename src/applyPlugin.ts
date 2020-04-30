@@ -2,7 +2,7 @@ import { parseHtml } from './htmlParser'
 import autoTableText, { TextStyles } from './autoTableText'
 import { DocHandler, jsPDFConstructor, jsPDFDocument } from './documentHandler'
 import { UserOptions } from './config'
-import { createTable } from './inputParser'
+import { createTable, getColumnDef } from './inputParser'
 import { drawTable } from './tableDrawer'
 
 export default function (jsPDF: jsPDFConstructor) {
@@ -54,11 +54,6 @@ export default function (jsPDF: jsPDFConstructor) {
       return null
     }
 
-    if (!tableElem || !(tableElem instanceof HTMLTableElement)) {
-      console.error('An HTMLTableElement has to be sent to autoTableHtmlToJson')
-      return null
-    }
-
     const doc = new DocHandler(this)
     const { head, body, foot } = parseHtml(
       doc,
@@ -67,9 +62,8 @@ export default function (jsPDF: jsPDFConstructor) {
       includeHiddenElements,
       false
     )
-    const firstRow = head[0] || body[0] || foot[0]
-
-    return { columns: firstRow, rows: body, data: body }
+    const columns = getColumnDef(head, body, foot)
+    return { columns, rows: body, data: body }
   }
 
   /**
