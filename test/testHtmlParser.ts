@@ -74,12 +74,23 @@ describe('html parser', () => {
     assert(res.foot.length === 0, 'Should have no foot cells')
   })
 
-  it('autoTableHtmlToJson', () => {
+  it.only('autoTableHtmlToJson', () => {
     ;(global as any).window = dom.window
     ;(global as any).HTMLTableElement = dom.window.HTMLTableElement
     const table = dom.window.document.createElement('table')
+    let body = table.createTBody()
+    let brow = body.insertRow()
+    brow.insertCell().textContent = 'body'
+    brow.insertCell().textContent = 'body 2'
+    let head = table.createTHead()
+    let hrow = head.insertRow()
+    hrow.insertCell().textContent = 'head'
+    hrow.insertCell().outerHTML = '<th>th</th>'
     const doc = new jsPDF()
     const res = doc.autoTableHtmlToJson(table)
-    assert(res.data.length === 0, 'Should have one body cell')
+    assert.equal(res.data[0].length, 2, 'Should have body cell')
+    assert.equal(res.columns.length,  2, 'Should have columns cell')
+    assert.equal(res.data[0][0].content, 'body', 'Should have body content')
+    assert.equal(res.columns[0].content, 'head', 'Should have head content')
   })
 })
