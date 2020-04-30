@@ -1,6 +1,6 @@
 /*!
  * 
- *             jsPDF AutoTable plugin v3.5.2
+ *             jsPDF AutoTable plugin v3.5.3
  *             
  *             Copyright (c) 2020 Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable
  *             Licensed under the MIT License.
@@ -589,9 +589,7 @@ var documentHandler_1 = __webpack_require__(2);
 var inputValidator_1 = __webpack_require__(12);
 var models_1 = __webpack_require__(7);
 var widthCalculator_1 = __webpack_require__(14);
-function createTable(
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-jsPDFDoc, current) {
+function createTable(jsPDFDoc, current) {
     var doc = new documentHandler_1.DocHandler(jsPDFDoc);
     var document = doc.getDocumentOptions();
     var global = doc.getGlobalOptions();
@@ -816,7 +814,8 @@ function parseContent(doc, options, styles, theme, sf, window) {
             console.error('Cannot parse html in non browser environment');
         }
     }
-    var columns = createColumns(options, head, body, foot);
+    var columnInputs = options.columns || getColumnDef(head, body, foot);
+    var columns = createColumns(columnInputs);
     // If no head or foot is set, try generating it with content from columns
     if (head.length === 0 && options.columns) {
         var sectionRow = generateTitleRow(columns, 'head');
@@ -910,50 +909,49 @@ function getSectionTitle(section, column) {
     }
     return null;
 }
-function createColumns(settings, head, body, foot) {
-    if (settings.columns) {
-        return settings.columns.map(function (input, index) {
-            var _a, _b;
-            var key;
-            if (typeof input === 'object') {
-                key = (_b = (_a = input.dataKey) !== null && _a !== void 0 ? _a : input.key) !== null && _b !== void 0 ? _b : index;
+function getColumnDef(head, body, foot) {
+    var firstRow = head[0] || body[0] || foot[0] || [];
+    var result = [];
+    Object.keys(firstRow)
+        .filter(function (key) { return key !== '_element'; })
+        .forEach(function (key) {
+        var colSpan = 1;
+        var input;
+        if (Array.isArray(firstRow)) {
+            input = firstRow[parseInt(key)];
+        }
+        else {
+            input = firstRow[key];
+        }
+        if (typeof input === 'object' && !Array.isArray(input)) {
+            colSpan = (input === null || input === void 0 ? void 0 : input.colSpan) || 1;
+        }
+        for (var i = 0; i < colSpan; i++) {
+            var id = void 0;
+            if (Array.isArray(firstRow)) {
+                id = result.length;
             }
             else {
-                key = index;
+                id = key + (i > 0 ? "_" + i : '');
             }
-            return new models_1.Column(key, input, index);
-        });
-    }
-    else {
-        var firstRow_1 = head[0] || body[0] || foot[0] || [];
-        var columns_2 = [];
-        Object.keys(firstRow_1)
-            .filter(function (key) { return key !== '_element'; })
-            .forEach(function (key) {
-            var colSpan = 1;
-            var input;
-            if (Array.isArray(firstRow_1)) {
-                input = firstRow_1[parseInt(key)];
-            }
-            else {
-                input = firstRow_1[key];
-            }
-            if (typeof input === 'object' && !Array.isArray(input)) {
-                colSpan = (input === null || input === void 0 ? void 0 : input.colSpan) || 1;
-            }
-            for (var i = 0; i < colSpan; i++) {
-                var id = void 0;
-                if (Array.isArray(firstRow_1)) {
-                    id = columns_2.length;
-                }
-                else {
-                    id = key + (i > 0 ? "_" + i : '');
-                }
-                columns_2.push(new models_1.Column(id, null, columns_2.length));
-            }
-        });
-        return columns_2;
-    }
+            result.push({ dataKey: id, header: input });
+        }
+    });
+    return result;
+}
+exports.getColumnDef = getColumnDef;
+function createColumns(columns) {
+    return columns.map(function (input, index) {
+        var _a, _b;
+        var key;
+        if (typeof input === 'object') {
+            key = (_b = (_a = input.dataKey) !== null && _a !== void 0 ? _a : input.key) !== null && _b !== void 0 ? _b : index;
+        }
+        else {
+            key = index;
+        }
+        return new models_1.Column(key, input, index);
+    });
 }
 function cellStyles(sectionName, column, rowIndex, themeName, styles, scaleFactor, cellInputStyles) {
     var theme = config_1.getTheme(themeName);
@@ -1263,7 +1261,7 @@ function getRemainingLineCount(cell, remainingPageSpace, doc) {
     var remainingLines = Math.floor((remainingPageSpace - vPadding) / fontHeight);
     return Math.max(0, remainingLines);
 }
-function modifyRowToFit(row, remainingPageSpace, table, jsPDFDoc) {
+function modifyRowToFit(row, remainingPageSpace, table, doc) {
     var remainderRow = new models_1.Row(row.raw, -1, row.section);
     remainderRow.spansMultiplePages = true;
     row.spansMultiplePages = true;
@@ -1281,7 +1279,6 @@ function modifyRowToFit(row, remainingPageSpace, table, jsPDFDoc) {
         remainderCell = polyfills_1.assign(remainderCell, cell);
         remainderCell.textPos = polyfills_1.assign({}, cell.textPos);
         remainderCell.text = [];
-        var doc = new documentHandler_1.DocHandler(jsPDFDoc);
         var remainingLineCount = getRemainingLineCount(cell, remainingPageSpace, doc);
         if (cell.text.length > remainingLineCount) {
             remainderCell.text = cell.text.splice(remainingLineCount, cell.text.length);
@@ -1547,14 +1544,10 @@ function default_1(jsPDF) {
             console.error('Cannot run autoTableHtmlToJson in non browser environment');
             return null;
         }
-        if (!tableElem || !(tableElem instanceof HTMLTableElement)) {
-            console.error('An HTMLTableElement has to be sent to autoTableHtmlToJson');
-            return null;
-        }
         var doc = new documentHandler_1.DocHandler(this);
         var _a = htmlParser_1.parseHtml(doc, tableElem, window, includeHiddenElements, false), head = _a.head, body = _a.body, foot = _a.foot;
-        var firstRow = head[0] || body[0] || foot[0];
-        return { columns: firstRow, rows: body, data: body };
+        var columns = inputParser_1.getColumnDef(head, body, foot);
+        return { columns: columns, rows: body, data: body };
     };
     /**
      * @deprecated

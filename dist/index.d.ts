@@ -212,13 +212,13 @@ export interface UserOptions {
 	foot?: RowInput[];
 	html?: string | HTMLTableElement;
 	columns?: ColumnInput[];
-	styles?: Styles;
-	bodyStyles?: Styles;
-	headStyles?: Styles;
-	footStyles?: Styles;
-	alternateRowStyles?: Styles;
+	styles?: Partial<Styles>;
+	bodyStyles?: Partial<Styles>;
+	headStyles?: Partial<Styles>;
+	footStyles?: Partial<Styles>;
+	alternateRowStyles?: Partial<Styles>;
 	columnStyles?: {
-		[key: string]: Styles;
+		[key: string]: Partial<Styles>;
 	};
 	didParseCell?: CellHook;
 	willDrawCell?: CellHook;
@@ -226,9 +226,9 @@ export interface UserOptions {
 	didDrawPage?: PageHook;
 }
 export declare type ColumnInput = string | number | {
-	header?: string;
-	title?: string;
-	footer?: string;
+	header?: CellInput;
+	title?: CellInput;
+	footer?: CellInput;
 	dataKey?: string | number;
 	key?: string | number;
 };
