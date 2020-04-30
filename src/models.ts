@@ -234,7 +234,8 @@ export class Cell {
   getContentHeight(scaleFactor: number) {
     const lineCount = Array.isArray(this.text) ? this.text.length : 1
     const fontHeight = (this.styles.fontSize / scaleFactor) * FONT_ROW_RATIO
-    return lineCount * fontHeight + this.padding('vertical')
+    const height = lineCount * fontHeight + this.padding('vertical')
+    return Math.max(height, this.styles.minCellHeight)
   }
 
   padding(

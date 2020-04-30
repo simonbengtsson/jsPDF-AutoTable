@@ -222,10 +222,6 @@ function fitContent(table: Table, doc: DocHandler) {
 
       cell.contentHeight = cell.getContentHeight(doc.scaleFactor())
 
-      if (cell.styles.minCellHeight > cell.contentHeight) {
-        cell.contentHeight = cell.styles.minCellHeight
-      }
-
       let realContentHeight = cell.contentHeight / cell.rowSpan
       if (
         cell.rowSpan > 1 &&

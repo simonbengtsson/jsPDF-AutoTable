@@ -110,6 +110,11 @@ function modifyRowToFit(
 
     const scaleFactor = doc.scaleFactor()
     cell.contentHeight = cell.getContentHeight(scaleFactor)
+
+    if (cell.contentHeight >= remainingPageSpace) {
+      cell.contentHeight = remainingPageSpace
+      remainderCell.styles.minCellHeight -= remainingPageSpace
+    }
     if (cell.contentHeight > row.height) {
       row.height = cell.contentHeight
       row.maxCellHeight = cell.contentHeight
