@@ -2,8 +2,9 @@ import { parseHtml } from './htmlParser'
 import autoTableText, { TextStyles } from './autoTableText'
 import { DocHandler, jsPDFConstructor, jsPDFDocument } from './documentHandler'
 import { UserOptions } from './config'
-import { createTable, getColumnDef } from './inputParser'
+import { parseInput } from './inputParser'
 import { drawTable } from './tableDrawer'
+import { createTable } from './tableCalculator'
 
 export default function (jsPDF: jsPDFConstructor) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -17,7 +18,8 @@ export default function (jsPDF: jsPDFConstructor) {
       options.columns = args[0]
       options.body = args[1]
     }
-    const table = createTable(this, options)
+    const input = parseInput(this, options)
+    const table = createTable(this, input)
     drawTable(this, table)
     return this
   }
@@ -55,14 +57,14 @@ export default function (jsPDF: jsPDFConstructor) {
     }
 
     const doc = new DocHandler(this)
-    const { head, body, foot } = parseHtml(
+    const { head, body } = parseHtml(
       doc,
       tableElem,
       window,
       includeHiddenElements,
       false
     )
-    const columns = getColumnDef(head, body, foot)
+    const columns = head[0].map((c) => c.content)
     return { columns, rows: body, data: body }
   }
 

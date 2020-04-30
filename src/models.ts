@@ -10,6 +10,7 @@ import {
 import { DocHandler } from './documentHandler'
 import { CellHookData, HookData } from './HookData'
 import { marginOrPadding, MarginPadding } from './common'
+import { TableInput } from './inputParser'
 
 export type PageHook = (data: HookData) => void | boolean
 export type CellHook = (data: CellHookData) => void | boolean
@@ -53,6 +54,12 @@ export interface StylesProps {
   columnStyles: { [key: string]: Partial<Styles> }
 }
 
+type ContentSettings = {
+  body: Row[]
+  head: Row[]
+  foot: Row[]
+  columns: Column[]
+}
 export class Table {
   id?: string | number
   cursor = { x: 0, y: 0 }
@@ -86,17 +93,12 @@ export class Table {
 
   hooks: HookProps
 
-  constructor(
-    id: string | number | undefined,
-    settings: Settings,
-    styles: StylesProps,
-    hooks: HookProps,
-    content: { body: Row[]; head: Row[]; foot: Row[]; columns: Column[] }
-  ) {
-    this.id = id
-    this.settings = settings
-    this.styles = styles
-    this.hooks = hooks
+  constructor(input: TableInput, content: ContentSettings) {
+    this.id = input.id
+    this.settings = input.settings
+    this.styles = input.styles
+    this.hooks = input.hooks
+
     this.columns = content.columns
     this.head = content.head
     this.body = content.body

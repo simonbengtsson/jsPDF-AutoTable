@@ -125,6 +125,7 @@ function applyRowSpans(table: Table) {
           data.row.maxCellHeight = data.cell.height
         }
         colRowSpansLeft = data.cell.colSpan
+        delete table.body[1].cells[0]
         delete row.cells[column.index]
         data.left--
         if (data.left <= 1) {

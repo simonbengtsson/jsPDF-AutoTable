@@ -1,6 +1,6 @@
 import { parseCss } from './cssParser'
 import { DocHandler } from './documentHandler'
-import { HtmlRowInput, RowInput } from './config'
+import { HtmlRowInput } from './config'
 
 export function parseHtml(
   doc: DocHandler,
@@ -8,7 +8,7 @@ export function parseHtml(
   window: Window,
   includeHiddenHtml = false,
   useCss = false
-): { head: RowInput[]; body: RowInput[]; foot: RowInput[] } {
+): { head: HtmlRowInput[]; body: HtmlRowInput[]; foot: HtmlRowInput[] } {
   let tableElement: HTMLTableElement
   if (typeof input === 'string') {
     tableElement = window.document.querySelector(input) as HTMLTableElement
@@ -19,9 +19,9 @@ export function parseHtml(
   const supportedFonts = Object.keys(doc.getFontList())
   const scaleFactor = doc.scaleFactor()
 
-  const head: RowInput[] = [],
-    body: RowInput[] = [],
-    foot: RowInput[] = []
+  const head: HtmlRowInput[] = [],
+    body: HtmlRowInput[] = [],
+    foot: HtmlRowInput[] = []
 
   if (!tableElement) {
     console.error('Html table could not be found with input: ', input)

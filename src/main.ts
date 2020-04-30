@@ -3,8 +3,9 @@
 import _applyPlugin from './applyPlugin'
 import { UserOptions } from './config'
 import { jsPDFConstructor, jsPDFDocument } from './documentHandler'
-import { createTable } from './inputParser'
+import { parseInput } from './inputParser'
 import { drawTable } from './tableDrawer'
+import { createTable } from './tableCalculator'
 
 export type autoTable = (options: UserOptions) => void
 
@@ -14,9 +15,10 @@ export function applyPlugin(jsPDF: jsPDFConstructor) {
   _applyPlugin(jsPDF)
 }
 
-export default function autoTable(doc: jsPDFDocument, options: UserOptions) {
-  const table = createTable(doc, options)
-  drawTable(doc, table)
+export default function autoTable(d: jsPDFDocument, options: UserOptions) {
+  const input = parseInput(d, options)
+  const table = createTable(d, input)
+  drawTable(d, table)
 }
 
 try {

@@ -93,7 +93,7 @@ export interface CellDef {
   _element?: HTMLTableCellElement
 }
 
-export class HtmlRowInput extends Array<CellInput> {
+export class HtmlRowInput extends Array<CellDef> {
   _element: HTMLTableRowElement
 
   constructor(element: HTMLTableRowElement) {

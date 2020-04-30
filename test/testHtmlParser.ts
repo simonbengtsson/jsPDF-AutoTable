@@ -91,6 +91,6 @@ describe('html parser', () => {
     assert.equal(res.data[0].length, 2, 'Should have body cell')
     assert.equal(res.columns.length,  2, 'Should have columns cell')
     assert.equal(res.data[0][0].content, 'body', 'Should have body content')
-    assert.equal(res.columns[0].header.content, 'head', 'Should have head content')
+    assert.equal(res.columns[0], 'head', 'Should have head content')
   })
 })
