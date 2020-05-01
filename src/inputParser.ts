@@ -160,7 +160,7 @@ function getStartY(doc: DocHandler, userStartY: number | false | undefined) {
   if (typeof userStartY === 'number') {
     return userStartY
   } else if (userStartY == null || userStartY === false) {
-    if (isSamePageAsPreviousTable) {
+    if (isSamePageAsPreviousTable && previous?.finalY != null) {
       // Some users had issues with overlapping tables when they used multiple
       // tables without setting startY so setting it here to a sensible default.
       return previous.finalY + 20 / sf

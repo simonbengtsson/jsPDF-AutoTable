@@ -1,7 +1,6 @@
 import { DocHandler, jsPDFDocument } from './documentHandler'
 import { Cell, Column, Row, Section, StylesProps, Table } from './models'
 import { calculateWidths } from './widthCalculator'
-import { getStringWidth } from './common'
 import {
   CellInput,
   ColumnInput,
@@ -17,96 +16,14 @@ import { TableInput } from './inputParser'
 export function createTable(jsPDFDoc: jsPDFDocument, input: TableInput) {
   const doc = new DocHandler(jsPDFDoc)
 
-  const sf = doc.scaleFactor()
-  const content = parseContent(input, sf)
+  const content = parseContent(input, doc.scaleFactor())
   const table = new Table(input, content)
 
-  calculate(table, sf, doc)
-
   calculateWidths(doc, table)
+
   doc.applyStyles(doc.userStyles)
 
   return table
-}
-
-function calculate(table: Table, sf: number, doc: DocHandler) {
-  table.allRows().forEach((row) => {
-    for (const column of table.columns) {
-      const cell = row.cells[column.index]
-      if (!cell) continue
-      table.callCellHooks(doc, table.hooks.didParseCell, cell, row, column)
-
-      const padding = cell.padding('horizontal')
-      cell.contentWidth = getStringWidth(cell.text, cell.styles, doc) + padding
-
-      const longestWordWidth = getStringWidth(
-        cell.text.join(' ').split(/\s+/),
-        cell.styles,
-        doc
-      )
-      cell.minReadableWidth = longestWordWidth + cell.padding('horizontal')
-
-      if (typeof cell.styles.cellWidth === 'number') {
-        cell.minWidth = cell.styles.cellWidth
-        cell.wrappedWidth = cell.styles.cellWidth
-      } else if (cell.styles.cellWidth === 'wrap') {
-        cell.minWidth = cell.contentWidth
-        cell.wrappedWidth = cell.contentWidth
-      } else {
-        // auto
-        const defaultMinWidth = 10 / sf
-        cell.minWidth = cell.styles.minCellWidth || defaultMinWidth
-        cell.wrappedWidth = cell.contentWidth
-        if (cell.minWidth > cell.wrappedWidth) {
-          cell.wrappedWidth = cell.minWidth
-        }
-      }
-    }
-  })
-
-  table.allRows().forEach((row) => {
-    for (const column of table.columns) {
-      const cell = row.cells[column.index]
-
-      // For now we ignore the minWidth and wrappedWidth of colspan cells when calculating colspan widths.
-      // Could probably be improved upon however.
-      if (cell && cell.colSpan === 1) {
-        column.wrappedWidth = Math.max(column.wrappedWidth, cell.wrappedWidth)
-        column.minWidth = Math.max(column.minWidth, cell.minWidth)
-        column.minReadableWidth = Math.max(
-          column.minReadableWidth,
-          cell.minReadableWidth
-        )
-      } else {
-        // Respect cellWidth set in columnStyles even if there is no cells for this column
-        // or if the column only have colspan cells. Since the width of colspan cells
-        // does not affect the width of columns, setting columnStyles cellWidth enables the
-        // user to at least do it manually.
-
-        // Note that this is not perfect for now since for example row and table styles are
-        // not accounted for
-        const columnStyles =
-          table.styles.columnStyles[column.dataKey] ||
-          table.styles.columnStyles[column.index] ||
-          {}
-        const cellWidth = columnStyles.cellWidth
-        if (cellWidth && typeof cellWidth === 'number') {
-          column.minWidth = cellWidth
-          column.wrappedWidth = cellWidth
-        }
-      }
-
-      if (cell) {
-        // Make sure all columns get at least min width even though width calculations are not based on them
-        if (cell.colSpan > 1 && !column.minWidth) {
-          column.minWidth = cell.minWidth
-        }
-        if (cell.colSpan > 1 && !column.wrappedWidth) {
-          column.wrappedWidth = cell.minWidth
-        }
-      }
-    }
-  })
 }
 
 function parseContent(input: TableInput, sf: number) {
@@ -115,11 +32,11 @@ function parseContent(input: TableInput, sf: number) {
 
   // If no head or foot is set, try generating it with content from columns
   if (content.head.length === 0) {
-    const sectionRow = generateTitleRow(columns, 'head')
+    const sectionRow = generateSectionRow(columns, 'head')
     if (sectionRow) content.head.push(sectionRow)
   }
   if (content.foot.length === 0) {
-    const sectionRow = generateTitleRow(columns, 'foot')
+    const sectionRow = generateSectionRow(columns, 'foot')
     if (sectionRow) content.foot.push(sectionRow)
   }
 
@@ -203,7 +120,7 @@ function parseSection(
   return result
 }
 
-function generateTitleRow(
+function generateSectionRow(
   columns: Column[],
   section: Section
 ): RowInput | null {

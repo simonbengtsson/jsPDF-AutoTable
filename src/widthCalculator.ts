@@ -7,6 +7,8 @@ import { Styles } from './config'
  * Calculate the column widths
  */
 export function calculateWidths(doc: DocHandler, table: Table) {
+  calculate(doc, table)
+
   const resizableColumns: Column[] = []
   let initialTableWidth = 0
 
@@ -57,6 +59,87 @@ export function calculateWidths(doc: DocHandler, table: Table) {
   applyColSpans(table)
   fitContent(table, doc)
   applyRowSpans(table)
+}
+
+function calculate(doc: DocHandler, table: Table) {
+  const sf = doc.scaleFactor()
+  table.allRows().forEach((row) => {
+    for (const column of table.columns) {
+      const cell = row.cells[column.index]
+      if (!cell) continue
+      table.callCellHooks(doc, table.hooks.didParseCell, cell, row, column)
+
+      const padding = cell.padding('horizontal')
+      cell.contentWidth = getStringWidth(cell.text, cell.styles, doc) + padding
+
+      const longestWordWidth = getStringWidth(
+        cell.text.join(' ').split(/\s+/),
+        cell.styles,
+        doc
+      )
+      cell.minReadableWidth = longestWordWidth + cell.padding('horizontal')
+
+      if (typeof cell.styles.cellWidth === 'number') {
+        cell.minWidth = cell.styles.cellWidth
+        cell.wrappedWidth = cell.styles.cellWidth
+      } else if (cell.styles.cellWidth === 'wrap') {
+        cell.minWidth = cell.contentWidth
+        cell.wrappedWidth = cell.contentWidth
+      } else {
+        // auto
+        const defaultMinWidth = 10 / sf
+        cell.minWidth = cell.styles.minCellWidth || defaultMinWidth
+        cell.wrappedWidth = cell.contentWidth
+        if (cell.minWidth > cell.wrappedWidth) {
+          cell.wrappedWidth = cell.minWidth
+        }
+      }
+    }
+  })
+
+  table.allRows().forEach((row) => {
+    for (const column of table.columns) {
+      const cell = row.cells[column.index]
+
+      // For now we ignore the minWidth and wrappedWidth of colspan cells when calculating colspan widths.
+      // Could probably be improved upon however.
+      if (cell && cell.colSpan === 1) {
+        column.wrappedWidth = Math.max(column.wrappedWidth, cell.wrappedWidth)
+        column.minWidth = Math.max(column.minWidth, cell.minWidth)
+        column.minReadableWidth = Math.max(
+          column.minReadableWidth,
+          cell.minReadableWidth
+        )
+      } else {
+        // Respect cellWidth set in columnStyles even if there is no cells for this column
+        // or if the column only have colspan cells. Since the width of colspan cells
+        // does not affect the width of columns, setting columnStyles cellWidth enables the
+        // user to at least do it manually.
+
+        // Note that this is not perfect for now since for example row and table styles are
+        // not accounted for
+        const columnStyles =
+          table.styles.columnStyles[column.dataKey] ||
+          table.styles.columnStyles[column.index] ||
+          {}
+        const cellWidth = columnStyles.cellWidth
+        if (cellWidth && typeof cellWidth === 'number') {
+          column.minWidth = cellWidth
+          column.wrappedWidth = cellWidth
+        }
+      }
+
+      if (cell) {
+        // Make sure all columns get at least min width even though width calculations are not based on them
+        if (cell.colSpan > 1 && !column.minWidth) {
+          column.minWidth = cell.minWidth
+        }
+        if (cell.colSpan > 1 && !column.wrappedWidth) {
+          column.wrappedWidth = cell.minWidth
+        }
+      }
+    }
+  })
 }
 
 /**

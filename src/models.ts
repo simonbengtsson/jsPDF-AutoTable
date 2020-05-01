@@ -62,33 +62,28 @@ type ContentSettings = {
 }
 export class Table {
   id?: string | number
-  cursor = { x: 0, y: 0 }
+
   settings: Settings
   styles: StylesProps
+  hooks: HookProps
 
   columns: Column[] = []
-
   head: Row[] = []
   body: Row[] = []
   foot: Row[] = []
 
+  startPageNumber = 1
   height = 0
   headHeight = 0
   footHeight = 0
-
-  startPageNumber = 1
-  pageNumber = 1
 
   // Deprecated, use pageNumber instead
   // Not using getter since:
   // https://github.com/simonbengtsson/jsPDF-AutoTable/issues/596
   pageCount = 1
-
-  pageStartX = 0
-  pageStartY = 0
-  finalY = 0
-
-  hooks: HookProps
+  pageNumber = 1
+  cursor = { x: 0, y: 0 }
+  finalY?: number
 
   constructor(input: TableInput, content: ContentSettings) {
     this.id = input.id

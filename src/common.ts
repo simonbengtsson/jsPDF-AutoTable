@@ -18,17 +18,19 @@ export function getStringWidth(
   return widestLineWidth
 }
 
-export function addTableBorder(table: Table, doc: DocHandler) {
+type Pos = { x: number; y: number }
+export function addTableBorder(doc: DocHandler, table: Table, startPos: Pos) {
   const lineWidth = table.settings.tableLineWidth
   const lineColor = table.settings.tableLineColor
   doc.applyStyles({ lineWidth, lineColor })
+
   const fillStyle = getFillStyle(lineWidth, false)
   if (fillStyle) {
     doc.rect(
-      table.pageStartX,
-      table.pageStartY,
+      startPos.x,
+      startPos.y,
       table.getWidth(doc.pageSize().width),
-      table.cursor.y - table.pageStartY,
+      table.cursor.y - startPos.y,
       fillStyle
     )
   }

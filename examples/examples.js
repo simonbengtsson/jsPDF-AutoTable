@@ -394,7 +394,7 @@ examples.custom = function () {
     head: headRows(),
     body: bodyRows(),
     foot: headRows(),
-    startY: 37,
+    margin: { top: 37 },
     tableLineColor: [231, 76, 60],
     tableLineWidth: 1,
     styles: {
