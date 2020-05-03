@@ -15,10 +15,12 @@ export function drawTable(jsPDFDoc: jsPDFDocument, table: Table): void {
     y: startY,
   }
 
-  let minTableBottomPos =
-    startY + margin.bottom + table.getHeadHeight() + table.getFootHeight()
+  const sectionsHeight = table.getHeadHeight() + table.getFootHeight()
+  let minTableBottomPos = startY + margin.bottom + sectionsHeight
   if (settings.pageBreak === 'avoid') {
-    minTableBottomPos += table.height
+    const rows = table.allRows()
+    const tableHeight = rows.reduce((acc, row) => acc + row.height, 0)
+    minTableBottomPos += tableHeight
   }
   const doc = new DocHandler(jsPDFDoc)
   if (

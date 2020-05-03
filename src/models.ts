@@ -67,13 +67,12 @@ export class Table {
   styles: StylesProps
   hooks: HookProps
 
-  columns: Column[] = []
-  head: Row[] = []
-  body: Row[] = []
-  foot: Row[] = []
+  columns: Column[]
+  head: Row[]
+  body: Row[]
+  foot: Row[]
 
   startPageNumber = 1
-  height = 0
 
   // Deprecated, use pageNumber instead
   // Not using getter since:

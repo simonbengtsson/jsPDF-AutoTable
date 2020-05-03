@@ -227,8 +227,6 @@ function applyRowSpans(table: Table) {
         }
       }
     }
-
-    table.height += row.height
   }
 }
 
