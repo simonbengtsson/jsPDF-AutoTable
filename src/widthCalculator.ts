@@ -228,13 +228,6 @@ function applyRowSpans(table: Table) {
       }
     }
 
-    if (row.section === 'head') {
-      table.headHeight += row.maxCellHeight
-    }
-    if (row.section === 'foot') {
-      table.footHeight += row.maxCellHeight
-    }
-
     table.height += row.height
   }
 }

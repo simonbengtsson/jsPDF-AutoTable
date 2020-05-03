@@ -74,8 +74,6 @@ export class Table {
 
   startPageNumber = 1
   height = 0
-  headHeight = 0
-  footHeight = 0
 
   // Deprecated, use pageNumber instead
   // Not using getter since:
@@ -95,6 +93,14 @@ export class Table {
     this.head = content.head
     this.body = content.body
     this.foot = content.foot
+  }
+
+  getHeadHeight() {
+    return this.head.reduce((acc, row) => acc + row.maxCellHeight, 0)
+  }
+
+  getFootHeight() {
+    return this.foot.reduce((acc, row) => acc + row.maxCellHeight, 0)
   }
 
   allRows() {

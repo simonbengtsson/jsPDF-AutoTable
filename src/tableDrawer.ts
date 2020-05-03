@@ -16,7 +16,7 @@ export function drawTable(jsPDFDoc: jsPDFDocument, table: Table): void {
   }
 
   let minTableBottomPos =
-    startY + margin.bottom + table.headHeight + table.footHeight
+    startY + margin.bottom + table.getHeadHeight() + table.getFootHeight()
   if (settings.pageBreak === 'avoid') {
     minTableBottomPos += table.height
   }
@@ -155,7 +155,7 @@ function shouldPrintOnCurrentPage(
   if (row.section === 'body') {
     // Should also take into account that head and foot is not
     // on every page with some settings
-    maxRowHeight -= table.headHeight + table.footHeight
+    maxRowHeight -= table.getHeadHeight() + table.getFootHeight()
   }
 
   const minRowHeight = row.getMinimumRowHeight(table.columns, doc)
@@ -299,7 +299,7 @@ function getRemainingPageSpace(
   let bottomContentHeight = table.settings.margin.bottom
   const showFoot = table.settings.showFoot
   if (showFoot === 'everyPage' || (showFoot === 'lastPage' && isLastRow)) {
-    bottomContentHeight += table.footHeight
+    bottomContentHeight += table.getFootHeight()
   }
   return doc.pageSize().height - table.cursor.y - bottomContentHeight
 }
