@@ -1,5 +1,5 @@
 import { DocHandler } from './documentHandler'
-import { Table } from './models'
+import { Pos, Table } from './models'
 import { Color, MarginPaddingInput, Styles } from './config'
 
 type Text = string | string[]
@@ -18,8 +18,12 @@ export function getStringWidth(
   return widestLineWidth
 }
 
-type Pos = { x: number; y: number }
-export function addTableBorder(doc: DocHandler, table: Table, startPos: Pos) {
+export function addTableBorder(
+  doc: DocHandler,
+  table: Table,
+  startPos: Pos,
+  cursor: Pos
+) {
   const lineWidth = table.settings.tableLineWidth
   const lineColor = table.settings.tableLineColor
   doc.applyStyles({ lineWidth, lineColor })
@@ -30,7 +34,7 @@ export function addTableBorder(doc: DocHandler, table: Table, startPos: Pos) {
       startPos.x,
       startPos.y,
       table.getWidth(doc.pageSize().width),
-      table.cursor.y - startPos.y,
+      cursor.y - startPos.y,
       fillStyle
     )
   }

@@ -152,7 +152,7 @@ function getStartY(doc: DocHandler, userStartY: number | false | undefined) {
   const currentPage = doc.pageNumber()
 
   let isSamePageAsPreviousTable = false
-  if (previous) {
+  if (previous && previous.startPageNumber) {
     const endingPage = previous.startPageNumber + previous.pageNumber - 1
     isSamePageAsPreviousTable = endingPage === currentPage
   }

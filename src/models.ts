@@ -12,6 +12,7 @@ import { CellHookData, HookData } from './HookData'
 import { parseSpacing, MarginPadding } from './common'
 import { TableInput } from './inputParser'
 
+export type Pos = { x: number; y: number }
 export type PageHook = (data: HookData) => void | boolean
 export type CellHook = (data: CellHookData) => void | boolean
 
@@ -61,26 +62,25 @@ type ContentSettings = {
   columns: Column[]
 }
 export class Table {
-  id?: string | number
+  readonly id?: string | number
 
-  settings: Settings
-  styles: StylesProps
-  hooks: HookProps
+  readonly settings: Settings
+  readonly styles: StylesProps
+  readonly hooks: HookProps
 
-  columns: Column[]
-  head: Row[]
-  body: Row[]
-  foot: Row[]
+  readonly columns: Column[]
+  readonly head: Row[]
+  readonly body: Row[]
+  readonly foot: Row[]
 
-  startPageNumber = 1
+  pageNumber = 1
+  finalY?: number
+  startPageNumber?: number
 
   // Deprecated, use pageNumber instead
   // Not using getter since:
   // https://github.com/simonbengtsson/jsPDF-AutoTable/issues/596
   pageCount = 1
-  pageNumber = 1
-  cursor = { x: 0, y: 0 }
-  finalY?: number
 
   constructor(input: TableInput, content: ContentSettings) {
     this.id = input.id
@@ -111,10 +111,11 @@ export class Table {
     handlers: CellHook[],
     cell: Cell,
     row: Row,
-    column: Column
+    column: Column,
+    cursor: { x: number; y: number } | null
   ): boolean {
     for (const handler of handlers) {
-      const data = new CellHookData(this, doc, cell, row, column)
+      const data = new CellHookData(doc, this, cell, row, column, cursor)
       const result = handler(data) === false
       // Make sure text is always string[] since user can assign string
       cell.text = Array.isArray(cell.text) ? cell.text : [cell.text]
@@ -125,10 +126,10 @@ export class Table {
     return true
   }
 
-  callEndPageHooks(doc: DocHandler) {
+  callEndPageHooks(doc: DocHandler, cursor: { x: number; y: number }) {
     doc.applyStyles(doc.userStyles)
     for (const handler of this.hooks.didDrawPage) {
-      handler(new HookData(this, doc))
+      handler(new HookData(doc, this, cursor))
     }
   }
 

@@ -1,6 +1,6 @@
 import { FONT_ROW_RATIO } from './config'
 import { addTableBorder, getFillStyle } from './common'
-import { Cell, Row, Table } from './models'
+import { Cell, Pos, Row, Table } from './models'
 import { DocHandler, jsPDFDocument } from './documentHandler'
 import { assign } from './polyfills'
 import autoTableText from './autoTableText'
@@ -10,7 +10,7 @@ export function drawTable(jsPDFDoc: jsPDFDocument, table: Table): void {
   const startY = settings.startY
   const margin = settings.margin
 
-  table.cursor = {
+  const cursor = {
     x: margin.left,
     y: startY,
   }
@@ -28,30 +28,30 @@ export function drawTable(jsPDFDoc: jsPDFDocument, table: Table): void {
     (settings.startY != null && minTableBottomPos > doc.pageSize().height)
   ) {
     nextPage(doc)
-    table.cursor.y = margin.top
+    cursor.y = margin.top
   }
-  const startPos = assign({}, table.cursor)
+  const startPos = assign({}, cursor)
 
   table.startPageNumber = doc.pageNumber()
 
   doc.applyStyles(doc.userStyles)
   if (settings.showHead === 'firstPage' || settings.showHead === 'everyPage') {
-    table.head.forEach((row) => printRow(table, row, doc))
+    table.head.forEach((row) => printRow(doc, table, row, cursor))
   }
   doc.applyStyles(doc.userStyles)
   table.body.forEach((row, index) => {
     const isLastRow = index === table.body.length - 1
-    printFullRow(table, row, isLastRow, doc, startPos)
+    printFullRow(doc, table, row, isLastRow, startPos, cursor)
   })
   doc.applyStyles(doc.userStyles)
   if (settings.showFoot === 'lastPage' || settings.showFoot === 'everyPage') {
-    table.foot.forEach((row) => printRow(table, row, doc))
+    table.foot.forEach((row) => printRow(doc, table, row, cursor))
   }
 
-  addTableBorder(doc, table, startPos)
-  table.callEndPageHooks(doc)
+  addTableBorder(doc, table, startPos, cursor)
+  table.callEndPageHooks(doc, cursor)
 
-  table.finalY = table.cursor.y
+  table.finalY = cursor.y
   jsPDFDoc.previousAutoTable = table
   jsPDFDoc.lastAutoTable = table // Deprecated
   if (jsPDFDoc.autoTable) jsPDFDoc.autoTable.previous = table // Deprecated
@@ -198,30 +198,30 @@ function shouldPrintOnCurrentPage(
 }
 
 function printFullRow(
+  doc: DocHandler,
   table: Table,
   row: Row,
   isLastRow: boolean,
-  doc: DocHandler,
-  startPos: { x: number; y: number }
+  startPos: Pos,
+  cursor: Pos
 ) {
-  const remainingPageSpace = getRemainingPageSpace(table, isLastRow, doc)
-  if (row.canEntireRowFit(remainingPageSpace)) {
-    printRow(table, row, doc)
+  const remainingSpace = getRemainingPageSpace(doc, table, isLastRow, cursor)
+  if (row.canEntireRowFit(remainingSpace)) {
+    printRow(doc, table, row, cursor)
   } else {
-    if (shouldPrintOnCurrentPage(doc, row, remainingPageSpace, table)) {
-      const remainderRow = modifyRowToFit(row, remainingPageSpace, table, doc)
-      printRow(table, row, doc)
-      addPage(table, doc, startPos)
-      printFullRow(table, remainderRow, isLastRow, doc, startPos)
+    if (shouldPrintOnCurrentPage(doc, row, remainingSpace, table)) {
+      const remainderRow = modifyRowToFit(row, remainingSpace, table, doc)
+      printRow(doc, table, row, cursor)
+      addPage(doc, table, startPos, cursor)
+      printFullRow(doc, table, remainderRow, isLastRow, startPos, cursor)
     } else {
-      addPage(table, doc, startPos)
-      printFullRow(table, row, isLastRow, doc, startPos)
+      addPage(doc, table, startPos, cursor)
+      printFullRow(doc, table, row, isLastRow, startPos, cursor)
     }
   }
 }
 
-function printRow(table: Table, row: Row, doc: DocHandler) {
-  const cursor = table.cursor
+function printRow(doc: DocHandler, table: Table, row: Row, cursor: Pos) {
   cursor.x = table.settings.margin.left
   row.y = cursor.y
   row.x = cursor.x
@@ -259,7 +259,8 @@ function printRow(table: Table, row: Row, doc: DocHandler) {
       table.hooks.willDrawCell,
       cell,
       row,
-      column
+      column,
+      cursor
     )
     if (result === false) {
       cursor.x += column.width
@@ -269,7 +270,7 @@ function printRow(table: Table, row: Row, doc: DocHandler) {
     const cellStyles = cell.styles
     const fillStyle = getFillStyle(cellStyles.lineWidth, cellStyles.fillColor)
     if (fillStyle) {
-      doc.rect(cell.x, table.cursor.y, cell.width, cell.height, fillStyle)
+      doc.rect(cell.x, cursor.y, cell.width, cell.height, fillStyle)
     }
     autoTableText(
       cell.text,
@@ -285,7 +286,7 @@ function printRow(table: Table, row: Row, doc: DocHandler) {
       doc.getDocument()
     )
 
-    table.callCellHooks(doc, table.hooks.didDrawCell, cell, row, column)
+    table.callCellHooks(doc, table.hooks.didDrawCell, cell, row, column, cursor)
 
     cursor.x += column.width
   }
@@ -294,38 +295,44 @@ function printRow(table: Table, row: Row, doc: DocHandler) {
 }
 
 function getRemainingPageSpace(
+  doc: DocHandler,
   table: Table,
   isLastRow: boolean,
-  doc: DocHandler
+  cursor: Pos
 ) {
   let bottomContentHeight = table.settings.margin.bottom
   const showFoot = table.settings.showFoot
   if (showFoot === 'everyPage' || (showFoot === 'lastPage' && isLastRow)) {
     bottomContentHeight += table.getFootHeight()
   }
-  return doc.pageSize().height - table.cursor.y - bottomContentHeight
+  return doc.pageSize().height - cursor.y - bottomContentHeight
 }
 
-type Pos = { x: number; y: number }
-export function addPage(table: Table, doc: DocHandler, startPos: Pos) {
+export function addPage(
+  doc: DocHandler,
+  table: Table,
+  startPos: Pos,
+  cursor: Pos
+) {
   doc.applyStyles(doc.userStyles)
   if (table.settings.showFoot === 'everyPage') {
-    table.foot.forEach((row: Row) => printRow(table, row, doc))
+    table.foot.forEach((row: Row) => printRow(doc, table, row, cursor))
   }
 
   // Add user content just before adding new page ensure it will
   // be drawn above other things on the page
-  table.callEndPageHooks(doc)
+  table.callEndPageHooks(doc, cursor)
 
   const margin = table.settings.margin
-  addTableBorder(doc, table, startPos)
+  addTableBorder(doc, table, startPos, cursor)
   nextPage(doc)
   table.pageNumber++
   table.pageCount++
-  table.cursor = { x: margin.left, y: margin.top }
+  cursor.x = margin.left
+  cursor.y = margin.top
 
   if (table.settings.showHead === 'everyPage') {
-    table.head.forEach((row: Row) => printRow(table, row, doc))
+    table.head.forEach((row: Row) => printRow(doc, table, row, cursor))
   }
 }
 
