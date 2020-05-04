@@ -94,7 +94,6 @@ function modifyRowToFit(
 
     let remainderCell = new Cell(cell.raw, cell.styles, cell.section)
     remainderCell = assign(remainderCell, cell)
-    remainderCell.textPos = assign({}, cell.textPos)
     remainderCell.text = []
 
     const remainingLineCount = getRemainingLineCount(
@@ -239,23 +238,6 @@ function printRow(doc: DocHandler, table: Table, row: Row, cursor: Pos) {
 
     cell.x = cursor.x
     cell.y = row.y
-    if (cell.styles.valign === 'top') {
-      cell.textPos.y = cursor.y + cell.padding('top')
-    } else if (cell.styles.valign === 'bottom') {
-      cell.textPos.y = cursor.y + cell.height - cell.padding('bottom')
-    } else {
-      const netHeight = cell.height - cell.padding('vertical')
-      cell.textPos.y = cursor.y + netHeight / 2 + cell.padding('top')
-    }
-
-    if (cell.styles.halign === 'right') {
-      cell.textPos.x = cell.x + cell.width - cell.padding('right')
-    } else if (cell.styles.halign === 'center') {
-      const netWidth = cell.width - cell.padding('horizontal')
-      cell.textPos.x = cell.x + netWidth / 2 + cell.padding('left')
-    } else {
-      cell.textPos.x = cell.x + cell.padding('left')
-    }
 
     const result = table.callCellHooks(
       doc,
@@ -275,10 +257,11 @@ function printRow(doc: DocHandler, table: Table, row: Row, cursor: Pos) {
     if (fillStyle) {
       doc.rect(cell.x, cursor.y, cell.width, cell.height, fillStyle)
     }
+    const textPos = cell.getTextPos()
     autoTableText(
       cell.text,
-      cell.textPos.x,
-      cell.textPos.y,
+      textPos.x,
+      textPos.y,
       {
         halign: cell.styles.halign,
         valign: cell.styles.valign,

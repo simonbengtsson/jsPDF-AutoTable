@@ -213,20 +213,19 @@ export class Cell {
   styles: Styles
   text: string[]
   section: Section
+  colSpan: number
+  rowSpan: number
 
   contentHeight = 0
   contentWidth = 0
   wrappedWidth = 0
   minReadableWidth = 0
   minWidth = 0
+
   width = 0
   height = 0
-  textPos = { y: 0, x: 0 }
   x = 0
   y = 0
-
-  colSpan = 1
-  rowSpan = 1
 
   constructor(raw: CellInput, styles: Styles, section: Section) {
     this.styles = styles
@@ -241,12 +240,38 @@ export class Cell {
       if (raw._element) {
         this.raw = raw._element
       }
+    } else {
+      this.rowSpan = 1
+      this.colSpan = 1
     }
 
     // Stringify 0 and false, but not undefined or null
     const text = content != null ? '' + content : ''
     const splitRegex = /\r\n|\r|\n/g
     this.text = text.split(splitRegex)
+  }
+
+  getTextPos(): Pos {
+    let y
+    if (this.styles.valign === 'top') {
+      y = this.y + this.padding('top')
+    } else if (this.styles.valign === 'bottom') {
+      y = this.y + this.height - this.padding('bottom')
+    } else {
+      const netHeight = this.height - this.padding('vertical')
+      y = this.y + netHeight / 2 + this.padding('top')
+    }
+
+    let x
+    if (this.styles.halign === 'right') {
+      x = this.x + this.width - this.padding('right')
+    } else if (this.styles.halign === 'center') {
+      const netWidth = this.width - this.padding('horizontal')
+      x = this.x + netWidth / 2 + this.padding('left')
+    } else {
+      x = this.x + this.padding('left')
+    }
+    return { x, y }
   }
 
   getContentHeight(scaleFactor: number) {
