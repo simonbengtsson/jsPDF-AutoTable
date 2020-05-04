@@ -392,7 +392,7 @@ examples.custom = function () {
   var doc = new jsPDF()
   doc.autoTable({
     head: headRows(),
-    body: bodyRows(300),
+    body: bodyRows(),
     foot: headRows(),
     margin: { top: 37 },
     tableLineColor: [231, 76, 60],
