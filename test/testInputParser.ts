@@ -89,4 +89,16 @@ describe('input parser', () => {
     assert.equal(table.body[0].cells[1].text, 'one')
     assert.equal(table.body[1].cells[1].text, 'two')
   })
+
+  it.only('rowspan input two', () => {
+    const d = new jsPDF()
+    const input = parseInput(d, {
+      body: [['one', { content: 'test', rowSpan: 2 }], ['two']],
+    })
+    const table = createTable(d, input)
+    assert.equal(table.body[0].cells[0].text, 'one')
+    assert.equal(table.body[0].cells[1].text, 'test')
+    assert.equal(table.body[1].cells[0].text, 'two')
+    assert.equal(table.body[1].cells[1], null)
+  })
 })
