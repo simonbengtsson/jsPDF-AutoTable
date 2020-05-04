@@ -25,7 +25,7 @@ examples.basic = function () {
   doc.autoTable({ html: '.table' })
 
   // From Javascript
-  var finalY = doc.previousAutoTable.finalY
+  var finalY = doc.previousAutoTable.finalY || 10
   doc.text('From javascript arrays', 14, finalY + 15)
   doc.autoTable({
     startY: finalY + 20,
@@ -392,7 +392,7 @@ examples.custom = function () {
   var doc = new jsPDF()
   doc.autoTable({
     head: headRows(),
-    body: bodyRows(),
+    body: bodyRows(300),
     foot: headRows(),
     margin: { top: 37 },
     tableLineColor: [231, 76, 60],
