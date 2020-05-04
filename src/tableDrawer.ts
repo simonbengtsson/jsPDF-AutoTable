@@ -78,11 +78,11 @@ function modifyRowToFit(
   table: Table,
   doc: DocHandler
 ) {
-  const remainderRow = new Row(row.raw, -1, row.section)
-  remainderRow.spansMultiplePages = true
+  const cells: { [key: string]: Cell } = {}
   row.spansMultiplePages = true
-  row.height = 0
-  row.maxCellHeight = 0
+
+  let rowCellMaxHeight = 0
+  let rowHeight = 0
 
   for (const column of table.columns) {
     const cell: Cell = row.cells[column.index]
@@ -122,13 +122,16 @@ function modifyRowToFit(
     }
 
     remainderCell.contentHeight = remainderCell.getContentHeight(scaleFactor)
-    if (remainderCell.contentHeight > remainderRow.height) {
-      remainderRow.height = remainderCell.contentHeight
-      remainderRow.maxCellHeight = remainderCell.contentHeight
+    if (remainderCell.contentHeight > rowHeight) {
+      rowHeight = remainderCell.contentHeight
+      rowCellMaxHeight = remainderCell.contentHeight
     }
 
-    remainderRow.cells[column.index] = remainderCell
+    cells[column.index] = remainderCell
   }
+  const remainderRow = new Row(row.raw, -1, row.section, cells, true)
+  remainderRow.height = rowHeight
+  remainderRow.maxCellHeight = rowCellMaxHeight
 
   for (const column of table.columns) {
     const remainderCell = remainderRow.cells[column.index]

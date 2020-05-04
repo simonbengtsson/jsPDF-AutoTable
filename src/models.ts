@@ -153,20 +153,21 @@ export class Row {
   raw: HTMLTableRowElement | RowInput
   element?: HTMLTableRowElement
   index: number
-  cells: { [key: string]: Cell } = {}
   section: Section
+  cells: { [key: string]: Cell }
+  spansMultiplePages: boolean
 
   height = 0
   maxCellHeight = 0
   x = 0
   y = 0
 
-  spansMultiplePages = false
-
   constructor(
     raw: RowInput | HTMLTableRowElement,
     index: number,
-    section: Section
+    section: Section,
+    cells: { [key: string]: Cell },
+    spansMultiplePages = false
   ) {
     this.raw = raw
     if (raw instanceof HtmlRowInput) {
@@ -175,6 +176,8 @@ export class Row {
     }
     this.index = index
     this.section = section
+    this.cells = cells
+    this.spansMultiplePages = spansMultiplePages
   }
 
   hasRowSpan(columns: Column[]) {

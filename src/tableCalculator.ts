@@ -63,7 +63,7 @@ function parseSection(
   } = {}
   const result = sectionRows.map((rawRow, rowIndex) => {
     let skippedRowForRowSpans = 0
-    const row = new Row(rawRow, rowIndex, sectionName)
+    const cells: { [key: string]: Cell } = {}
 
     let colSpansAdded = 0
     let columnSpansLeft = 0
@@ -97,8 +97,8 @@ function parseSection(
           const cell = new Cell(rawCell, styles, sectionName)
           // dataKey is not used internally no more but keep for
           // backwards compat in hooks
-          row.cells[column.dataKey] = cell
-          row.cells[column.index] = cell
+          cells[column.dataKey] = cell
+          cells[column.index] = cell
 
           columnSpansLeft = cell.colSpan - 1
           rowSpansLeftForColumn[column.index] = {
@@ -115,7 +115,7 @@ function parseSection(
         skippedRowForRowSpans++
       }
     }
-    return row
+    return new Row(rawRow, rowIndex, sectionName, cells)
   })
   return result
 }
