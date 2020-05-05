@@ -223,8 +223,6 @@ function printFullRow(
 
 function printRow(doc: DocHandler, table: Table, row: Row, cursor: Pos) {
   cursor.x = table.settings.margin.left
-  row.y = cursor.y
-  row.x = cursor.x
 
   for (const column of table.columns) {
     const cell = row.cells[column.index]
@@ -235,7 +233,7 @@ function printRow(doc: DocHandler, table: Table, row: Row, cursor: Pos) {
     doc.applyStyles(cell.styles)
 
     cell.x = cursor.x
-    cell.y = row.y
+    cell.y = cursor.y
 
     const result = table.callCellHooks(
       doc,

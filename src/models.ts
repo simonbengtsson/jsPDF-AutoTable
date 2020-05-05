@@ -164,8 +164,6 @@ export class Row {
   spansMultiplePages: boolean
 
   height = 0
-  x = 0
-  y = 0
 
   constructor(
     raw: RowInput | HTMLTableRowElement,
