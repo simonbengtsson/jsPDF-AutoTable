@@ -94,12 +94,18 @@ export class Table {
     this.foot = content.foot
   }
 
-  getHeadHeight() {
-    return this.head.reduce((acc, row) => acc + row.maxCellHeight, 0)
+  getHeadHeight(columns: Column[]) {
+    return this.head.reduce(
+      (acc, row) => acc + row.getMaxCellHeight(columns),
+      0
+    )
   }
 
-  getFootHeight() {
-    return this.foot.reduce((acc, row) => acc + row.maxCellHeight, 0)
+  getFootHeight(columns: Column[]) {
+    return this.foot.reduce(
+      (acc, row) => acc + row.getMaxCellHeight(columns),
+      0
+    )
   }
 
   allRows() {
@@ -150,15 +156,14 @@ export class Table {
 }
 
 export class Row {
-  raw: HTMLTableRowElement | RowInput
-  element?: HTMLTableRowElement
-  index: number
-  section: Section
-  cells: { [key: string]: Cell }
+  readonly raw: HTMLTableRowElement | RowInput
+  readonly element?: HTMLTableRowElement
+  readonly index: number
+  readonly section: Section
+  readonly cells: { [key: string]: Cell }
   spansMultiplePages: boolean
 
   height = 0
-  maxCellHeight = 0
   x = 0
   y = 0
 
@@ -180,6 +185,13 @@ export class Row {
     this.spansMultiplePages = spansMultiplePages
   }
 
+  getMaxCellHeight(columns: Column[]) {
+    return columns.reduce(
+      (acc, column) => Math.max(acc, this.cells[column.index]?.height || 0),
+      0
+    )
+  }
+
   hasRowSpan(columns: Column[]) {
     return (
       columns.filter((column: Column) => {
@@ -190,8 +202,8 @@ export class Row {
     )
   }
 
-  canEntireRowFit(height: number) {
-    return this.maxCellHeight <= height
+  canEntireRowFit(height: number, columns: Column[]) {
+    return this.getMaxCellHeight(columns) <= height
   }
 
   getMinimumRowHeight(columns: Column[], doc: DocHandler) {

@@ -15,7 +15,8 @@ export function drawTable(jsPDFDoc: jsPDFDocument, table: Table): void {
     y: startY,
   }
 
-  const sectionsHeight = table.getHeadHeight() + table.getFootHeight()
+  const sectionsHeight =
+    table.getHeadHeight(table.columns) + table.getFootHeight(table.columns)
   let minTableBottomPos = startY + margin.bottom + sectionsHeight
   if (settings.pageBreak === 'avoid') {
     const rows = table.allRows()
@@ -81,7 +82,6 @@ function modifyRowToFit(
   const cells: { [key: string]: Cell } = {}
   row.spansMultiplePages = true
 
-  let rowCellMaxHeight = 0
   let rowHeight = 0
 
   for (const column of table.columns) {
@@ -117,20 +117,17 @@ function modifyRowToFit(
     }
     if (cell.contentHeight > row.height) {
       row.height = cell.contentHeight
-      row.maxCellHeight = cell.contentHeight
     }
 
     remainderCell.contentHeight = remainderCell.getContentHeight(scaleFactor)
     if (remainderCell.contentHeight > rowHeight) {
       rowHeight = remainderCell.contentHeight
-      rowCellMaxHeight = remainderCell.contentHeight
     }
 
     cells[column.index] = remainderCell
   }
   const remainderRow = new Row(row.raw, -1, row.section, cells, true)
   remainderRow.height = rowHeight
-  remainderRow.maxCellHeight = rowCellMaxHeight
 
   for (const column of table.columns) {
     const remainderCell = remainderRow.cells[column.index]
@@ -159,7 +156,8 @@ function shouldPrintOnCurrentPage(
   if (row.section === 'body') {
     // Should also take into account that head and foot is not
     // on every page with some settings
-    maxRowHeight -= table.getHeadHeight() + table.getFootHeight()
+    maxRowHeight -=
+      table.getHeadHeight(table.columns) + table.getFootHeight(table.columns)
   }
 
   const minRowHeight = row.getMinimumRowHeight(table.columns, doc)
@@ -176,7 +174,7 @@ function shouldPrintOnCurrentPage(
   }
 
   const rowHasRowSpanCell = row.hasRowSpan(table.columns)
-  const rowHigherThanPage = row.maxCellHeight > maxRowHeight
+  const rowHigherThanPage = row.getMaxCellHeight(table.columns) > maxRowHeight
   if (rowHigherThanPage) {
     if (rowHasRowSpanCell) {
       console.error(
@@ -208,7 +206,7 @@ function printFullRow(
   cursor: Pos
 ) {
   const remainingSpace = getRemainingPageSpace(doc, table, isLastRow, cursor)
-  if (row.canEntireRowFit(remainingSpace)) {
+  if (row.canEntireRowFit(remainingSpace, table.columns)) {
     printRow(doc, table, row, cursor)
   } else {
     if (shouldPrintOnCurrentPage(doc, row, remainingSpace, table)) {
@@ -289,7 +287,7 @@ function getRemainingPageSpace(
   let bottomContentHeight = table.settings.margin.bottom
   const showFoot = table.settings.showFoot
   if (showFoot === 'everyPage' || (showFoot === 'lastPage' && isLastRow)) {
-    bottomContentHeight += table.getFootHeight()
+    bottomContentHeight += table.getFootHeight(table.columns)
   }
   return doc.pageSize().height - cursor.y - bottomContentHeight
 }

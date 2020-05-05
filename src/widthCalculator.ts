@@ -205,9 +205,6 @@ function applyRowSpans(table: Table) {
         delete row.cells[column.index]
       } else if (data) {
         data.cell.height += row.height
-        if (data.cell.height > row.maxCellHeight) {
-          data.row.maxCellHeight = data.cell.height
-        }
         colRowSpansLeft = data.cell.colSpan
         delete row.cells[column.index]
         data.left--
@@ -311,7 +308,6 @@ function fitContent(table: Table, doc: DocHandler) {
       }
       if (realContentHeight > row.height) {
         row.height = realContentHeight
-        row.maxCellHeight = realContentHeight
       }
     }
     rowSpanHeight.count--
