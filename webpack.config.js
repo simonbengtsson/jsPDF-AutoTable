@@ -16,7 +16,7 @@ module.exports = {
     path: path.join(__dirname, './'),
     filename: '[name].js',
     libraryTarget: 'umd',
-    globalObject: 'this',
+    globalObject: 'typeof this !== \'undefined\' ? this : window',
   },
   module: {
     rules: [{ test: /\.ts$/, use: [{ loader: 'ts-loader' }] }],
