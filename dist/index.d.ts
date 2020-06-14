@@ -14,13 +14,13 @@ declare class DocHandler {
 	applyStyles(styles: Partial<Styles>, fontOnly?: boolean): void;
 	splitTextToSize(text: string | string[], size: number, opts: Opts): string[];
 	rect(x: number, y: number, width: number, height: number, fillStyle: string): any;
-	getPreviousAutoTable(): Table;
+	getPreviousAutoTable(): Table | null;
 	getTextWidth(text: string | string[]): number;
 	getDocument(): any;
 	setPage(page: number): void;
 	addPage(): any;
 	getFontList(): {
-		[key: string]: string[];
+		[key: string]: string[] | undefined;
 	};
 	getGlobalOptions(): UserOptions;
 	getDocumentOptions(): UserOptions;
@@ -37,24 +37,38 @@ declare class HookData {
 	pageCount: number;
 	settings: Settings;
 	doc: jsPDFDocument;
-	cursor: {
-		x: number;
-		y: number;
-	};
-	constructor(table: Table, doc: DocHandler);
+	cursor: Pos | null;
+	constructor(doc: DocHandler, table: Table, cursor: Pos | null);
 }
 declare class CellHookData extends HookData {
 	cell: Cell;
 	row: Row;
 	column: Column;
 	section: 'head' | 'body' | 'foot';
-	constructor(table: Table, doc: DocHandler, cell: Cell, row: Row, column: Column);
+	constructor(doc: DocHandler, table: Table, cell: Cell, row: Row, column: Column, cursor: Pos | null);
 }
 export declare type MarginPadding = {
 	top: number;
 	right: number;
 	bottom: number;
 	left: number;
+};
+export interface ContentInput {
+	body: RowInput[];
+	head: RowInput[];
+	foot: RowInput[];
+	columns: ColumnInput[];
+}
+export interface TableInput {
+	id: string | number | undefined;
+	settings: Settings;
+	styles: StylesProps;
+	hooks: HookProps;
+	content: ContentInput;
+}
+export declare type Pos = {
+	x: number;
+	y: number;
 };
 export declare type PageHook = (data: HookData) => void | boolean;
 export declare type CellHook = (data: CellHookData) => void | boolean;
@@ -88,57 +102,55 @@ export interface StylesProps {
 		[key: string]: Partial<Styles>;
 	};
 }
+export declare type ContentSettings = {
+	body: Row[];
+	head: Row[];
+	foot: Row[];
+	columns: Column[];
+};
 declare class Table {
-	id?: string | number;
-	cursor: {
+	readonly id?: string | number;
+	readonly settings: Settings;
+	readonly styles: StylesProps;
+	readonly hooks: HookProps;
+	readonly columns: Column[];
+	readonly head: Row[];
+	readonly body: Row[];
+	readonly foot: Row[];
+	pageNumber: number;
+	finalY?: number;
+	startPageNumber?: number;
+	pageCount: number;
+	constructor(input: TableInput, content: ContentSettings);
+	getHeadHeight(columns: Column[]): number;
+	getFootHeight(columns: Column[]): number;
+	allRows(): Row[];
+	callCellHooks(doc: DocHandler, handlers: CellHook[], cell: Cell, row: Row, column: Column, cursor: {
 		x: number;
 		y: number;
-	};
-	settings: Settings;
-	styles: StylesProps;
-	columns: Column[];
-	head: Row[];
-	body: Row[];
-	foot: Row[];
-	wrappedWidth: number;
-	minWidth: number;
-	width: number;
-	height: number;
-	headHeight: number;
-	footHeight: number;
-	startPageNumber: number;
-	pageNumber: number;
-	pageCount: number;
-	pageStartX: number;
-	pageStartY: number;
-	finalY: number;
-	hooks: HookProps;
-	constructor(id: string | number | undefined, settings: Settings, styles: StylesProps, hooks: HookProps, content: {
-		body: Row[];
-		head: Row[];
-		foot: Row[];
-		columns: Column[];
-	});
-	allRows(): Row[];
-	callCellHooks(doc: DocHandler, handlers: CellHook[], cell: Cell, row: Row, column: Column): boolean;
-	callEndPageHooks(doc: DocHandler): void;
+	} | null): boolean;
+	callEndPageHooks(doc: DocHandler, cursor: {
+		x: number;
+		y: number;
+	}): void;
+	getWidth(pageWidth: number): number;
 }
 declare class Row {
-	raw: HTMLTableRowElement | RowInput;
-	element?: HTMLTableRowElement;
-	index: number;
-	cells: {
+	readonly raw: HTMLTableRowElement | RowInput;
+	readonly element?: HTMLTableRowElement;
+	readonly index: number;
+	readonly section: Section;
+	readonly cells: {
 		[key: string]: Cell;
 	};
-	section: Section;
-	height: number;
-	maxCellHeight: number;
-	x: number;
-	y: number;
 	spansMultiplePages: boolean;
-	constructor(raw: RowInput | HTMLTableRowElement, index: number, section: Section);
+	height: number;
+	constructor(raw: RowInput | HTMLTableRowElement, index: number, section: Section, cells: {
+		[key: string]: Cell;
+	}, spansMultiplePages?: boolean);
+	getMaxCellHeight(columns: Column[]): number;
 	hasRowSpan(columns: Column[]): boolean;
-	canEntireRowFit(height: number): boolean;
+	canEntireRowFit(height: number, columns: Column[]): boolean;
 	getMinimumRowHeight(columns: Column[], doc: DocHandler): number;
 }
 export declare type Section = 'head' | 'body' | 'foot';
@@ -147,6 +159,8 @@ declare class Cell {
 	styles: Styles;
 	text: string[];
 	section: Section;
+	colSpan: number;
+	rowSpan: number;
 	contentHeight: number;
 	contentWidth: number;
 	wrappedWidth: number;
@@ -154,15 +168,10 @@ declare class Cell {
 	minWidth: number;
 	width: number;
 	height: number;
-	textPos: {
-		y: number;
-		x: number;
-	};
 	x: number;
 	y: number;
-	colSpan: number;
-	rowSpan: number;
 	constructor(raw: CellInput, styles: Styles, section: Section);
+	getTextPos(): Pos;
 	getContentHeight(scaleFactor: number): number;
 	padding(name: 'vertical' | 'horizontal' | 'top' | 'bottom' | 'left' | 'right'): number;
 }
@@ -249,7 +258,7 @@ export interface CellDef {
 	title?: string;
 	_element?: HTMLTableCellElement;
 }
-declare class HtmlRowInput extends Array<CellInput> {
+declare class HtmlRowInput extends Array<CellDef> {
 	_element: HTMLTableRowElement;
 	constructor(element: HTMLTableRowElement);
 }
@@ -259,6 +268,8 @@ export declare type RowInput = {
 } | HtmlRowInput | CellInput[];
 export declare type autoTable = (options: UserOptions) => void;
 export declare function applyPlugin(jsPDF: jsPDFConstructor): void;
-export default function autoTable(doc: jsPDFDocument, options: UserOptions): void;
+export default function autoTable(d: jsPDFDocument, options: UserOptions): void;
+export declare function __createTable(d: jsPDFDocument, options: UserOptions): Table;
+export declare function __drawTable(d: jsPDFDocument, table: Table): void;
 
 export {};
