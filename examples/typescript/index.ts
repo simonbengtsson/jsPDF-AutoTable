@@ -1,5 +1,5 @@
 import jsPDF = require('jspdf')
-import autoTable, { autoTable as autoTableType} from 'jspdf-autotable'
+import autoTable from 'jspdf-autotable'
 
 const head = [['ID', 'Country', 'Index', 'Capital']]
 const data = [
@@ -14,16 +14,6 @@ const data = [
 
 const doc = new jsPDF()
 autoTable(doc, {
-  head: head,
-  body: data,
-  didDrawCell: (data) => {
-    console.log(data.column.index)
-  },
-})
-
-// or
-
-;((doc as any).autoTable as autoTableType)({
   head: head,
   body: data,
   didDrawCell: (data) => {
