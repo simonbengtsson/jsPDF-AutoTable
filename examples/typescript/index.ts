@@ -1,5 +1,5 @@
-import jsPDF = require('jspdf')
-import autoTable from 'jspdf-autotable'
+import * as jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 const head = [['ID', 'Country', 'Index', 'Capital']]
 const data = [
