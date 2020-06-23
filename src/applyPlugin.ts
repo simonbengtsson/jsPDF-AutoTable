@@ -74,7 +74,7 @@ export default function (jsPDF: jsPDFConstructor) {
    */
   jsPDF.API.autoTableEndPosY = function () {
     console.error(
-      'Use of deprecated function: autoTableEndPosY. Use doc.previousAutoTable.finalY instead.'
+      'Use of deprecated function: autoTableEndPosY. Use doc.lastAutoTable.finalY instead.'
     )
     const prev: Table = this.lastAutoTable
     if (prev && prev.finalY) {

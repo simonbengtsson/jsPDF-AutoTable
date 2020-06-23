@@ -91,8 +91,8 @@ export class DocHandler {
     return this.jsPDFDocument.rect(x, y, width, height, fillStyle)
   }
 
-  getPreviousAutoTable(): Table | null {
-    return this.jsPDFDocument.previousAutoTable || null
+  getLastAutoTable(): Table | null {
+    return this.jsPDFDocument.lastAutoTable || null
   }
 
   getTextWidth(text: string | string[]): number {

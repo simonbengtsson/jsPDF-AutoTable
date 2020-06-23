@@ -53,8 +53,8 @@ export function drawTable(jsPDFDoc: jsPDFDocument, table: Table): void {
   table.callEndPageHooks(doc, cursor)
 
   table.finalY = cursor.y
-  jsPDFDoc.previousAutoTable = table
-  jsPDFDoc.lastAutoTable = table // Deprecated
+  jsPDFDoc.lastAutoTable = table
+  jsPDFDoc.previousAutoTable = table // Deprecated
   if (jsPDFDoc.autoTable) jsPDFDoc.autoTable.previous = table // Deprecated
 
   doc.applyStyles(doc.userStyles)

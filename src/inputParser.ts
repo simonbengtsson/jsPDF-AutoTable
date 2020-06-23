@@ -147,7 +147,7 @@ function parseSettings(doc: DocHandler, options: UserOptions): Settings {
 }
 
 function getStartY(doc: DocHandler, userStartY: number | false | undefined) {
-  const previous = doc.getPreviousAutoTable()
+  const previous = doc.getLastAutoTable()
   const sf = doc.scaleFactor()
   const currentPage = doc.pageNumber()
 

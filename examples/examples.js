@@ -25,7 +25,7 @@ examples.basic = function () {
   doc.autoTable({ html: '.table' })
 
   // From Javascript
-  var finalY = doc.previousAutoTable.finalY || 10
+  var finalY = doc.lastAutoTable.finalY || 10
   doc.text('From javascript arrays', 14, finalY + 15)
   doc.autoTable({
     startY: finalY + 20,
@@ -46,7 +46,7 @@ examples.basic = function () {
     ],
   })
 
-  finalY = doc.previousAutoTable.finalY
+  finalY = doc.lastAutoTable.finalY
   doc.text('From HTML with CSS', 14, finalY + 15)
   doc.autoTable({
     startY: finalY + 20,
@@ -92,12 +92,12 @@ examples.long = function () {
   doc.text(
     "Overflow 'linebreak' (default) with one column with long content",
     14,
-    doc.autoTable.previous.finalY + 10
+    doc.lastAutoTable.finalY + 10
   )
   doc.autoTable({
     head: head,
     body: body,
-    startY: doc.previousAutoTable.finalY + 15,
+    startY: doc.lastAutoTable.finalY + 15,
     rowPageBreak: 'auto',
     bodyStyles: { valign: 'top' },
   })
@@ -127,7 +127,7 @@ examples.content = function () {
     showHead: 'firstPage',
   })
 
-  doc.text(text, 14, doc.autoTable.previous.finalY + 10)
+  doc.text(text, 14, doc.lastAutoTable.finalY + 10)
 
   return doc
 }
@@ -173,7 +173,7 @@ examples.multiple = function () {
     doc.autoTable({
       head: headRows(),
       body: bodyRows(),
-      startY: doc.autoTable.previous.finalY + 10,
+      startY: doc.lastAutoTable.finalY + 10,
       pageBreak: 'avoid',
     })
   }
@@ -241,7 +241,7 @@ examples.defaults = function () {
     {
       headStyles: { fillColor: [155, 89, 182] }, // Purple
       didDrawPage: function (data) {
-        var finalY = doc.previousAutoTable.finalY + 15
+        var finalY = doc.lastAutoTable.finalY + 15
         var leftMargin = data.settings.margin.left
         doc.text('Default options (purple header)', leftMargin, finalY)
       },
@@ -249,14 +249,14 @@ examples.defaults = function () {
     doc
   )
 
-  var startY = doc.previousAutoTable.finalY + 20
+  var startY = doc.lastAutoTable.finalY + 20
   doc.autoTable({ head: headRows(), body: bodyRows(5), startY: startY })
 
   // Reset defaults
   doc.autoTableSetDefaults(null)
   jsPDF.autoTableSetDefaults(null)
 
-  var finalY = doc.previousAutoTable.finalY
+  var finalY = doc.lastAutoTable.finalY
   doc.text('After reset (blue header)', 15, finalY + 15)
   doc.autoTable({ head: headRows(), body: bodyRows(5), startY: finalY + 20 })
 
@@ -327,19 +327,19 @@ examples.themes = function () {
   doc.text('Theme "striped"', 14, 16)
   doc.autoTable({ head: headRows(), body: bodyRows(5), startY: 20 })
 
-  doc.text('Theme "grid"', 14, doc.autoTable.previous.finalY + 10)
+  doc.text('Theme "grid"', 14, doc.lastAutoTable.finalY + 10)
   doc.autoTable({
     head: headRows(),
     body: bodyRows(5),
-    startY: doc.autoTable.previous.finalY + 14,
+    startY: doc.lastAutoTable.finalY + 14,
     theme: 'grid',
   })
 
-  doc.text('Theme "plain"', 14, doc.autoTable.previous.finalY + 10)
+  doc.text('Theme "plain"', 14, doc.lastAutoTable.finalY + 10)
   doc.autoTable({
     head: headRows(),
     body: bodyRows(5),
-    startY: doc.autoTable.previous.finalY + 14,
+    startY: doc.lastAutoTable.finalY + 14,
     theme: 'plain',
   })
 
