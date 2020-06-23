@@ -5,6 +5,7 @@ import { UserOptions } from './config'
 import { parseInput } from './inputParser'
 import { drawTable } from './tableDrawer'
 import { createTable } from './tableCalculator'
+import { Table } from './models'
 
 export default function (jsPDF: jsPDFConstructor) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -75,9 +76,9 @@ export default function (jsPDF: jsPDFConstructor) {
     console.error(
       'Use of deprecated function: autoTableEndPosY. Use doc.previousAutoTable.finalY instead.'
     )
-    const prev = this.previousAutoTable
-    if (prev.cursor && typeof prev.cursor.y === 'number') {
-      return prev.cursor.y
+    const prev: Table = this.lastAutoTable
+    if (prev && prev.finalY) {
+      return prev.finalY
     } else {
       return 0
     }
