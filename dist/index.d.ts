@@ -14,7 +14,7 @@ declare class DocHandler {
 	applyStyles(styles: Partial<Styles>, fontOnly?: boolean): void;
 	splitTextToSize(text: string | string[], size: number, opts: Opts): string[];
 	rect(x: number, y: number, width: number, height: number, fillStyle: string): any;
-	getPreviousAutoTable(): Table | null;
+	getLastAutoTable(): Table | null;
 	getTextWidth(text: string | string[]): number;
 	getDocument(): any;
 	setPage(page: number): void;

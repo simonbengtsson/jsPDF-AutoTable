@@ -1,6 +1,6 @@
 /*!
  * 
- *             jsPDF AutoTable plugin v3.5.4
+ *             jsPDF AutoTable plugin v3.5.5
  *             
  *             Copyright (c) 2020 Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable
  *             Licensed under the MIT License.
@@ -16,7 +16,7 @@
 		var a = typeof exports === 'object' ? factory((function webpackLoadOptionalExternalModule() { try { return require("jspdf"); } catch(e) {} }())) : factory(root["jsPDF"]);
 		for(var i in a) (typeof exports === 'object' ? exports : root)[i] = a[i];
 	}
-})(this, function(__WEBPACK_EXTERNAL_MODULE__16__) {
+})(typeof this !== 'undefined' ? this : window, function(__WEBPACK_EXTERNAL_MODULE__16__) {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -386,8 +386,8 @@ var DocHandler = /** @class */ (function () {
     DocHandler.prototype.rect = function (x, y, width, height, fillStyle) {
         return this.jsPDFDocument.rect(x, y, width, height, fillStyle);
     };
-    DocHandler.prototype.getPreviousAutoTable = function () {
-        return this.jsPDFDocument.previousAutoTable || null;
+    DocHandler.prototype.getLastAutoTable = function () {
+        return this.jsPDFDocument.lastAutoTable || null;
     };
     DocHandler.prototype.getTextWidth = function (text) {
         return this.jsPDFDocument.getTextWidth(text);
@@ -741,7 +741,7 @@ function parseSettings(doc, options) {
     };
 }
 function getStartY(doc, userStartY) {
-    var previous = doc.getPreviousAutoTable();
+    var previous = doc.getLastAutoTable();
     var sf = doc.scaleFactor();
     var currentPage = doc.pageNumber();
     var isSamePageAsPreviousTable = false;
@@ -870,8 +870,8 @@ function drawTable(jsPDFDoc, table) {
     common_1.addTableBorder(doc, table, startPos, cursor);
     table.callEndPageHooks(doc, cursor);
     table.finalY = cursor.y;
-    jsPDFDoc.previousAutoTable = table;
-    jsPDFDoc.lastAutoTable = table; // Deprecated
+    jsPDFDoc.lastAutoTable = table;
+    jsPDFDoc.previousAutoTable = table; // Deprecated
     if (jsPDFDoc.autoTable)
         jsPDFDoc.autoTable.previous = table; // Deprecated
     doc.applyStyles(doc.userStyles);
@@ -1548,10 +1548,10 @@ function default_1(jsPDF) {
      * @deprecated
      */
     jsPDF.API.autoTableEndPosY = function () {
-        console.error('Use of deprecated function: autoTableEndPosY. Use doc.previousAutoTable.finalY instead.');
-        var prev = this.previousAutoTable;
-        if (prev.cursor && typeof prev.cursor.y === 'number') {
-            return prev.cursor.y;
+        console.error('Use of deprecated function: autoTableEndPosY. Use doc.lastAutoTable.finalY instead.');
+        var prev = this.lastAutoTable;
+        if (prev && prev.finalY) {
+            return prev.finalY;
         }
         else {
             return 0;
