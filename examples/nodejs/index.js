@@ -6,7 +6,7 @@
 global.window = {}
 
 const fs = require('fs')
-const jsPDF = require('jspdf/dist/jspdf.node.debug')
+const { jsPDF } = require('jspdf/dist/jspdf.node')
 
 // If you are not importing jsPDF with require('jspdf')
 // you can apply the AutoTable plugin to any jsPDF with the
