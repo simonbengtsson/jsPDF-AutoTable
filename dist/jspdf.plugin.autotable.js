@@ -1,6 +1,6 @@
 /*!
  * 
- *             jsPDF AutoTable plugin v3.5.6
+ *             jsPDF AutoTable plugin v3.5.7
  *             
  *             Copyright (c) 2020 Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable
  *             Licensed under the MIT License.
@@ -353,7 +353,7 @@ var DocHandler = /** @class */ (function () {
         var _a, _b, _c;
         if (fontOnly === void 0) { fontOnly = false; }
         if (styles.fontStyle)
-            this.jsPDFDocument.setFontStyle(styles.fontStyle);
+            this.jsPDFDocument.setFontStyle && this.jsPDFDocument.setFontStyle(styles.fontStyle);
         if (styles.font) {
             var available = this.getFontList()[styles.font];
             var fontStyle = styles.fontStyle;
@@ -363,7 +363,7 @@ var DocHandler = /** @class */ (function () {
                 // https://github.com/simonbengtsson/jsPDF-AutoTable/issues/653
                 this.jsPDFDocument.setFontStyle(available[0]);
             }
-            this.jsPDFDocument.setFont(styles.font);
+            this.jsPDFDocument.setFont(styles.font, styles.fontStyle);
         }
         if (styles.fontSize)
             this.jsPDFDocument.setFontSize(styles.fontSize);
