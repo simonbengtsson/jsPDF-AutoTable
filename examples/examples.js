@@ -193,7 +193,6 @@ examples['header-footer'] = function () {
       // Header
       doc.setFontSize(20)
       doc.setTextColor(40)
-      doc.setFontStyle('normal')
       if (base64Img) {
         doc.addImage(base64Img, 'JPEG', data.settings.margin.left, 15, 10, 10)
       }
@@ -462,7 +461,6 @@ examples.custom = function () {
       if (data.row.section === 'body' && data.column.dataKey === 'expenses') {
         if (data.cell.raw > 750) {
           doc.setTextColor(231, 76, 60) // Red
-          doc.setFontStyle('bold')
         }
       }
     },

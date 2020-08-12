@@ -193,7 +193,8 @@
 <script>if (!window.Promise) window.Promise = {prototype: null}; // Needed for jspdf IE support</script>
 <!-- 1.3.5 (no custom fonts), 1.4.1, 1.5.3 -->
 <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.4.1/jspdf.debug.js"></script>-->
-<script src="examples/libs/jspdf.debug.js"></script>
+<script src="examples/libs/jspdf.umd.js"></script>
+<script>if (!window.jsPDF) window.jsPDF = window.jspdf.jsPDF</script>
 <script src="examples/mitubachi-normal.js"></script>
 
 <script src="examples/libs/faker.min.js"></script>
