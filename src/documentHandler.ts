@@ -51,7 +51,7 @@ export class DocHandler {
     // Font style needs to be applied before font
     // https://github.com/simonbengtsson/jsPDF-AutoTable/issues/632
 
-    if (styles.fontStyle) this.jsPDFDocument.setFontStyle(styles.fontStyle)
+    if (styles.fontStyle) this.jsPDFDocument.setFontStyle && this.jsPDFDocument.setFontStyle(styles.fontStyle)
     if (styles.font) {
       const available = this.getFontList()[styles.font]
       const fontStyle = styles.fontStyle
@@ -61,7 +61,7 @@ export class DocHandler {
         // https://github.com/simonbengtsson/jsPDF-AutoTable/issues/653
         this.jsPDFDocument.setFontStyle(available[0])
       }
-      this.jsPDFDocument.setFont(styles.font)
+      this.jsPDFDocument.setFont(styles.font, styles.fontStyle)
     }
     if (styles.fontSize) this.jsPDFDocument.setFontSize(styles.fontSize)
 
