@@ -15,5 +15,5 @@ export function loadJspdf() {
   delete (global as any).navigator
   delete (global as any).html2pdf
 
-  return jsPDF
+  return jsPDF.jsPDF
 }

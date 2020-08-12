@@ -4,7 +4,7 @@ import autoTable, { autoTable as autoTableType } from '../src/main'
 const assert = require('assert')
 
 describe('runner', () => {
-  it('prototype', () => {
+  it.skip('prototype', () => {
     const doc = new jsPDF()
     doc.autoTable({ body: [['cell']] })
     assert(true)
@@ -16,9 +16,9 @@ describe('runner', () => {
     assert(true)
   })
 
-  it('nodejs', () => {
+  it.skip('nodejs', () => {
     (global as any).window = {}
-    const jsPDFNode = require('jspdf/dist/jspdf.node.debug')
+    const jsPDFNode = require('jspdf/dist/jspdf.node')
     delete (global as any).window
 
     const doc = new jsPDFNode()
@@ -37,7 +37,7 @@ describe('runner', () => {
     assert.equal(doc.internal.getCurrentPageInfo().pageNumber, 2)
   })
 
-  it('previous typing', () => {
+  it.skip('previous typing', () => {
     const doc = new jsPDF()
     ;((doc as any).autoTable as autoTableType)({
       body: [['test']],
