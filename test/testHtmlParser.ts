@@ -74,7 +74,7 @@ describe('html parser', () => {
     assert(res.foot.length === 0, 'Should have no foot cells')
   })
 
-  it.skip('autoTableHtmlToJson', () => {
+  it('autoTableHtmlToJson', () => {
     ;(global as any).window = dom.window
     ;(global as any).HTMLTableElement = dom.window.HTMLTableElement
     const table = dom.window.document.createElement('table')
