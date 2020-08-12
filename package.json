@@ -47,7 +47,7 @@
     "version": "npm test && npm run build && git add -A dist",
     "hosting": "git push origin master:gh-pages -f",
     "deploy": "git push --follow-tags && npm run hosting && npm publish",
-    "update-libs": "ncu -u && npm i && cd examples/browserify && ncu -u && npm i && cd ../nodejs && ncu -u && npm i && cd ../requirejs && ncu -u && npm i && cd ../typescript && ncu -u && npm i && cd ../webpack && ncu -u && npm i",
+    "update-libs": "cd examples/nodejs && ncu -u && npm i && cd ../typescript && ncu -u && npm i && cd ../webpack && ncu -u && npm i",
     "types": "dts-bundle-generator src/main.ts -o ./dist/index.d.ts"
   },
   "repository": {
