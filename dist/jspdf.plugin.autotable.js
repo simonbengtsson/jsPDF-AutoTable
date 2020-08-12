@@ -1,6 +1,6 @@
 /*!
  * 
- *             jsPDF AutoTable plugin v3.5.7
+ *             jsPDF AutoTable plugin v3.5.8
  *             
  *             Copyright (c) 2020 Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable
  *             Licensed under the MIT License.
@@ -1485,6 +1485,10 @@ exports.__drawTable = __drawTable;
 try {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     var jsPDF = __webpack_require__(16);
+    // Webpack imported jspdf instead of jsPDF for some reason 
+    // while it seemed to work everywhere else.
+    if (jsPDF.jsPDF)
+        jsPDF = jsPDF.jsPDF;
     applyPlugin(jsPDF);
 }
 catch (error) {
