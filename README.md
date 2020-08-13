@@ -13,7 +13,7 @@ This jsPDF plugin adds the ability to generate PDF tables either by parsing HTML
 Get jsPDF and this plugin by doing one of these things:
 
 - `npm install jspdf jspdf-autotable`
-- Download [jspdf](https://raw.githubusercontent.com/MrRio/jsPDF/master/dist/jspdf.min.js) and [jspdf-autotable](https://raw.githubusercontent.com/simonbengtsson/jsPDF-AutoTable/master/dist/jspdf.plugin.autotable.js) from github
+- Download [jspdf](https://raw.githubusercontent.com/MrRio/jsPDF/master/dist/jspdf.umd.min.js) and [jspdf-autotable](https://raw.githubusercontent.com/simonbengtsson/jsPDF-AutoTable/master/dist/jspdf.plugin.autotable.js) from github
 - Use a CDN, for example: [https://unpkg.com/jspdf](https://unpkg.com/jspdf) and [https://unpkg.com/jspdf-autotable](https://unpkg.com/jspdf-autotable)
 
 ## Usage
