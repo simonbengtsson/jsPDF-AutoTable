@@ -123,7 +123,7 @@ function calculate(doc: DocHandler, table: Table) {
           table.styles.columnStyles[column.dataKey] ||
           table.styles.columnStyles[column.index] ||
           {}
-        const cellWidth = columnStyles.cellWidth
+        const cellWidth = columnStyles.cellWidth || columnStyles.minCellWidth
         if (cellWidth && typeof cellWidth === 'number') {
           column.minWidth = cellWidth
           column.wrappedWidth = cellWidth
