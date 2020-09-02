@@ -1,6 +1,6 @@
 /*!
  * 
- *             jsPDF AutoTable plugin v3.5.9
+ *             jsPDF AutoTable plugin v3.5.10
  *             
  *             Copyright (c) 2020 Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable
  *             Licensed under the MIT License.
@@ -2004,7 +2004,7 @@ function calculate(doc, table) {
                 var columnStyles = table.styles.columnStyles[column.dataKey] ||
                     table.styles.columnStyles[column.index] ||
                     {};
-                var cellWidth = columnStyles.cellWidth;
+                var cellWidth = columnStyles.cellWidth || columnStyles.minCellWidth;
                 if (cellWidth && typeof cellWidth === 'number') {
                     column.minWidth = cellWidth;
                     column.wrappedWidth = cellWidth;
