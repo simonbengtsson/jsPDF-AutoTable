@@ -1,6 +1,6 @@
 {
   "name": "jspdf-autotable",
-  "version": "3.5.10",
+  "version": "3.5.11",
   "description": "Generate pdf tables with javascript (jsPDF plugin)",
   "main": "dist/jspdf.plugin.autotable.js",
   "types": "dist/index",
@@ -11,28 +11,28 @@
     "example": "examples"
   },
   "peerDependencies": {
-    "jspdf": "^2.0.0"
+    "jspdf": "^2.1.1"
   },
   "prettier": {
     "semi": false,
     "singleQuote": true
   },
   "devDependencies": {
-    "@types/mocha": "^8.0.2",
-    "@typescript-eslint/eslint-plugin": "^3.9.0",
-    "@typescript-eslint/parser": "^3.9.0",
-    "dts-bundle-generator": "^5.3.0",
-    "eslint": "^7.6.0",
+    "@types/mocha": "^8.0.3",
+    "@typescript-eslint/eslint-plugin": "^4.1.0",
+    "@typescript-eslint/parser": "^4.1.0",
+    "dts-bundle-generator": "^5.4.0",
+    "eslint": "^7.8.1",
     "eslint-config-prettier": "^6.11.0",
     "eslint-plugin-prettier": "^3.1.4",
     "jsdom": "^16.4.0",
-    "jspdf": "^2.0.0",
-    "mocha": "^8.1.1",
-    "npm-check-updates": "^7.1.0",
-    "prettier": "2.0.5",
-    "ts-loader": "^8.0.2",
-    "ts-node": "^8.10.2",
-    "typescript": "^3.9.7",
+    "jspdf": "^2.1.1",
+    "mocha": "^8.1.3",
+    "npm-check-updates": "^8.1.1",
+    "prettier": "2.1.1",
+    "ts-loader": "^8.0.3",
+    "ts-node": "^9.0.0",
+    "typescript": "^4.0.2",
     "webpack": "^4.44.1",
     "webpack-cli": "^3.3.12",
     "webpack-dev-server": "^3.11.0"
