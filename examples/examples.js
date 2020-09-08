@@ -447,12 +447,14 @@ examples.custom = function () {
         data.cell.text = '' // Use an icon in didDrawCell instead
       }
 
-      if (
-        data.row.index === 0 &&
-        data.row.section === 'body' &&
-        data.column.dataKey === 'city'
-      ) {
-        data.cell.text = 'とうきょう'
+      if (data.column.dataKey === 'city') {
+        data.cell.styles.font = 'mitubachi'
+        if (data.row.section === 'head') {
+          data.cell.text = 'シティ'
+        }
+        if (data.row.index === 0 && data.row.section === 'body') {
+          data.cell.text = 'とうきょう'
+        }
       }
     },
     // Use for changing styles with jspdf functions or customize the positioning of cells or cell text

@@ -52,17 +52,21 @@ export class DocHandler {
     // https://github.com/simonbengtsson/jsPDF-AutoTable/issues/632
 
     if (styles.fontStyle) this.jsPDFDocument.setFontStyle && this.jsPDFDocument.setFontStyle(styles.fontStyle)
-    if (styles.font) {
-      const available = this.getFontList()[styles.font]
-      const fontStyle = styles.fontStyle
-      if (available && fontStyle && available.indexOf(fontStyle) === -1) {
-        // Common issue for uses with was that the default bold in headers
+    let { fontStyle, fontName } = this.jsPDFDocument.internal.getFont()
+    if (styles.font) fontName = styles.font
+    if (styles.fontStyle) {
+      fontStyle = styles.fontStyle
+      const availableFontStyles = this.getFontList()[fontName]
+      if (availableFontStyles && availableFontStyles.indexOf(fontStyle) === -1) {
+        // Common issue was that the default bold in headers
         // made custom fonts not work. For example:
         // https://github.com/simonbengtsson/jsPDF-AutoTable/issues/653
-        this.jsPDFDocument.setFontStyle(available[0])
+        this.jsPDFDocument.setFontStyle && this.jsPDFDocument.setFontStyle(availableFontStyles[0])
+        fontStyle = availableFontStyles[0]
       }
-      this.jsPDFDocument.setFont(styles.font, styles.fontStyle)
     }
+    this.jsPDFDocument.setFont(fontName, fontStyle)
+
     if (styles.fontSize) this.jsPDFDocument.setFontSize(styles.fontSize)
 
     if (fontOnly) {
