@@ -1,6 +1,6 @@
 /*!
  * 
- *             jsPDF AutoTable plugin v3.5.10
+ *             jsPDF AutoTable plugin v3.5.12
  *             
  *             Copyright (c) 2020 Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable
  *             Licensed under the MIT License.
@@ -216,7 +216,7 @@ var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
@@ -354,17 +354,21 @@ var DocHandler = /** @class */ (function () {
         if (fontOnly === void 0) { fontOnly = false; }
         if (styles.fontStyle)
             this.jsPDFDocument.setFontStyle && this.jsPDFDocument.setFontStyle(styles.fontStyle);
-        if (styles.font) {
-            var available = this.getFontList()[styles.font];
-            var fontStyle = styles.fontStyle;
-            if (available && fontStyle && available.indexOf(fontStyle) === -1) {
-                // Common issue for uses with was that the default bold in headers
+        var _d = this.jsPDFDocument.internal.getFont(), fontStyle = _d.fontStyle, fontName = _d.fontName;
+        if (styles.font)
+            fontName = styles.font;
+        if (styles.fontStyle) {
+            fontStyle = styles.fontStyle;
+            var availableFontStyles = this.getFontList()[fontName];
+            if (availableFontStyles && availableFontStyles.indexOf(fontStyle) === -1) {
+                // Common issue was that the default bold in headers
                 // made custom fonts not work. For example:
                 // https://github.com/simonbengtsson/jsPDF-AutoTable/issues/653
-                this.jsPDFDocument.setFontStyle(available[0]);
+                this.jsPDFDocument.setFontStyle && this.jsPDFDocument.setFontStyle(availableFontStyles[0]);
+                fontStyle = availableFontStyles[0];
             }
-            this.jsPDFDocument.setFont(styles.font, styles.fontStyle);
         }
+        this.jsPDFDocument.setFont(fontName, fontStyle);
         if (styles.fontSize)
             this.jsPDFDocument.setFontSize(styles.fontSize);
         if (fontOnly) {
@@ -1857,7 +1861,7 @@ var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
