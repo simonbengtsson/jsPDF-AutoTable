@@ -31,7 +31,7 @@ declare class DocHandler {
 	scaleFactor(): number;
 	pageNumber(): number;
 }
-declare class HookData {
+export declare class HookData {
 	table: Table;
 	pageNumber: number;
 	pageCount: number;
@@ -40,7 +40,7 @@ declare class HookData {
 	cursor: Pos | null;
 	constructor(doc: DocHandler, table: Table, cursor: Pos | null);
 }
-declare class CellHookData extends HookData {
+export declare class CellHookData extends HookData {
 	cell: Cell;
 	row: Row;
 	column: Column;
