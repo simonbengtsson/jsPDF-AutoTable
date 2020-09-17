@@ -26,7 +26,7 @@ module.exports = {
       commonjs: 'jspdf',
       commonjs2: 'jspdf',
       amd: 'jspdf',
-      root: 'jsPDF',
+      root: 'jspdf',
     },
   },
   performance: { hints: false },

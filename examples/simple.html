@@ -18,7 +18,7 @@
   <body>
     <button onclick="generate()">Generate pdf</button>
 
-    <script src="libs/jspdf.debug.js"></script>
+    <script src="libs/jspdf.umd.js"></script>
     <script src="../dist/jspdf.plugin.autotable.js"></script>
 
     <table id="table">
@@ -54,7 +54,7 @@
 
     <script>
       function generate() {
-        var doc = new jsPDF()
+        var doc = new jspdf.jsPDF()
 
         // Simple data example
         var head = [['ID', 'Country', 'Rank', 'Capital']]
