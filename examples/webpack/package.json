@@ -1,8 +1,8 @@
 {
   "private": true,
   "dependencies": {
-    "jspdf": "^2.0.0",
-    "jspdf-autotable": "^3.5.8"
+    "jspdf": "^2.1.1",
+    "jspdf-autotable": "^3.5.12"
   },
   "devDependencies": {
     "webpack": "^4.44.1"
