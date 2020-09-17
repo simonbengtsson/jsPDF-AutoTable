@@ -108,7 +108,7 @@ export declare type ContentSettings = {
 	foot: Row[];
 	columns: Column[];
 };
-declare class Table {
+export declare class Table {
 	readonly id?: string | number;
 	readonly settings: Settings;
 	readonly styles: StylesProps;
@@ -135,7 +135,7 @@ declare class Table {
 	}): void;
 	getWidth(pageWidth: number): number;
 }
-declare class Row {
+export declare class Row {
 	readonly raw: HTMLTableRowElement | RowInput;
 	readonly element?: HTMLTableRowElement;
 	readonly index: number;
@@ -154,7 +154,7 @@ declare class Row {
 	getMinimumRowHeight(columns: Column[], doc: DocHandler): number;
 }
 export declare type Section = "head" | "body" | "foot";
-declare class Cell {
+export declare class Cell {
 	raw: HTMLTableCellElement | CellInput;
 	styles: Styles;
 	text: string[];
@@ -175,7 +175,7 @@ declare class Cell {
 	getContentHeight(scaleFactor: number): number;
 	padding(name: "vertical" | "horizontal" | "top" | "bottom" | "left" | "right"): number;
 }
-declare class Column {
+export declare class Column {
 	raw: ColumnInput | null;
 	dataKey: string | number;
 	index: number;
