@@ -1,12 +1,13 @@
 'use strict'
+import _applyPlugin from './applyPlugin';
+import { UserOptions } from './config';
+import { jsPDFConstructor, jsPDFDocument } from './documentHandler';
+import { CellHookData, HookData } from './HookData';
+import { parseInput } from './inputParser';
+import { Cell, Column, Row, Table } from './models';
+import { createTable as _createTable } from './tableCalculator';
+import { drawTable as _drawTable } from './tableDrawer';
 
-import _applyPlugin from './applyPlugin'
-import { UserOptions } from './config'
-import { jsPDFConstructor, jsPDFDocument } from './documentHandler'
-import { parseInput } from './inputParser'
-import { drawTable as _drawTable } from './tableDrawer'
-import { createTable as _createTable } from './tableCalculator'
-import { Table } from './models'
 
 export type autoTable = (options: UserOptions) => void
 
@@ -44,3 +45,10 @@ try {
   // 1.5.3 so we need to silence potential errors to support using for example
   // the nodejs jspdf dist files with the exported applyPlugin
 }
+
+export { HookData }
+export { CellHookData }
+export { Table }
+export { Row }
+export { Column }
+export { Cell }

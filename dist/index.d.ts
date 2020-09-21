@@ -31,7 +31,7 @@ declare class DocHandler {
 	scaleFactor(): number;
 	pageNumber(): number;
 }
-export declare class HookData {
+declare class HookData {
 	table: Table;
 	pageNumber: number;
 	pageCount: number;
@@ -40,7 +40,7 @@ export declare class HookData {
 	cursor: Pos | null;
 	constructor(doc: DocHandler, table: Table, cursor: Pos | null);
 }
-export declare class CellHookData extends HookData {
+declare class CellHookData extends HookData {
 	cell: Cell;
 	row: Row;
 	column: Column;
@@ -108,7 +108,7 @@ export declare type ContentSettings = {
 	foot: Row[];
 	columns: Column[];
 };
-export declare class Table {
+declare class Table {
 	readonly id?: string | number;
 	readonly settings: Settings;
 	readonly styles: StylesProps;
@@ -135,7 +135,7 @@ export declare class Table {
 	}): void;
 	getWidth(pageWidth: number): number;
 }
-export declare class Row {
+declare class Row {
 	readonly raw: HTMLTableRowElement | RowInput;
 	readonly element?: HTMLTableRowElement;
 	readonly index: number;
@@ -154,7 +154,7 @@ export declare class Row {
 	getMinimumRowHeight(columns: Column[], doc: DocHandler): number;
 }
 export declare type Section = "head" | "body" | "foot";
-export declare class Cell {
+declare class Cell {
 	raw: HTMLTableCellElement | CellInput;
 	styles: Styles;
 	text: string[];
@@ -175,7 +175,7 @@ export declare class Cell {
 	getContentHeight(scaleFactor: number): number;
 	padding(name: "vertical" | "horizontal" | "top" | "bottom" | "left" | "right"): number;
 }
-export declare class Column {
+declare class Column {
 	raw: ColumnInput | null;
 	dataKey: string | number;
 	index: number;
