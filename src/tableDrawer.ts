@@ -81,6 +81,7 @@ function modifyRowToFit(
 ) {
   const cells: { [key: string]: Cell } = {}
   row.spansMultiplePages = true
+  row.height = 0
 
   let rowHeight = 0
 
