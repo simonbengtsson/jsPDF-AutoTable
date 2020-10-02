@@ -276,6 +276,43 @@ examples.colstyles = function () {
       id: { fillColor: [41, 128, 185], textColor: 255, fontStyle: 'bold' },
     },
   })
+
+  doc.text('Column border styles', 14, doc.lastAutoTable.finalY + 10)
+  doc.autoTable({
+    head: headRows(),
+    body: bodyRows(5),
+    startY: doc.lastAutoTable.finalY + 14,
+    theme: 'plain',
+    columnStyles: {
+      id: {
+        lineSides: 'bottom',
+        lineColor: '576574',
+        lineWidth: 0.2
+      },
+      name: {
+        lineSides: 'bottom',
+        lineColor: '576574',
+        lineWidth: 0.2
+      },
+      city: {
+        lineSides: ['left', 'right', 'bottom'],
+        lineColor: '576574',
+        lineWidth: 0.2
+      },
+      email: {
+        lineSides: 'bottom',
+        lineColor: '576574',
+        lineWidth: 0.2
+      },
+      expenses: {
+        lineSides: 'bottom',
+        lineColor: '576574',
+        lineWidth: 0.2
+      }
+
+    }
+  })
+
   return doc
 }
 

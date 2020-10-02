@@ -249,11 +249,10 @@ function printRow(doc: DocHandler, table: Table, row: Row, cursor: Pos) {
       continue
     }
 
-    const cellStyles = cell.styles
-    const fillStyle = getFillStyle(cellStyles.lineWidth, cellStyles.fillColor)
-    if (fillStyle) {
-      doc.rect(cell.x, cursor.y, cell.width, cell.height, fillStyle)
-    }
+    // draw cell borders
+    drawBorders(doc, cell, cursor)
+
+   
     const textPos = cell.getTextPos()
     autoTableText(
       cell.text,
@@ -275,6 +274,64 @@ function printRow(doc: DocHandler, table: Table, row: Row, cursor: Pos) {
   }
 
   cursor.y += row.height
+}
+
+function drawBorders(doc: DocHandler, cell: Cell, cursor: Pos) {
+  const cellStyles = cell.styles
+  let lineWidth: number = typeof cellStyles.lineWidth === 'number' ? cellStyles.lineWidth : cellStyles.lineWidth[0]
+  let fillStyle = getFillStyle(lineWidth, cellStyles.fillColor)
+  if (typeof cellStyles.lineSides === 'string') {
+    // print single side border
+    drawBorderForSide(doc, cell, cursor, cellStyles.lineSides, fillStyle || 'S')
+    return;
+  } else if (Array.isArray(cellStyles.lineSides) === true && cellStyles.lineSides.length) {
+    // print for mulitple sides
+    (cellStyles.lineSides || []).map((side: string, index: number) => {
+      // set width if its provided
+      if (typeof cellStyles.lineWidth !== 'number' && cellStyles.lineWidth[index]) {
+        lineWidth = cellStyles.lineWidth[index]
+        fillStyle = getFillStyle(lineWidth, cellStyles.fillColor)
+      }
+      // now print the line
+      drawBorderForSide(doc, cell, cursor, side, 'S')
+    })
+    return;
+  }
+  // prints normal cell border
+  if (fillStyle) {
+    doc.rect(cell.x, cursor.y, cell.width, cell.height, fillStyle)
+  }
+}
+
+function drawBorderForSide(doc: DocHandler, cell: Cell, cursor: Pos, side: string, fillStyle: string) {
+  let x1, y1, x2, y2;
+  switch(side) {
+    case 'top':
+      x1 = cursor.x;
+      y1 = cursor.y;
+      x2 = cursor.x + cell.width;
+      y2 = cursor.y;
+      break;
+    case 'left':
+      x1 = cursor.x;
+      y1 = cursor.y;
+      x2 = cursor.x;
+      y2 = cursor.y + cell.height;
+      break;
+    case 'right':
+      x1 = cursor.x + cell.width;
+      y1 = cursor.y;
+      x2 = cursor.x + cell.width;
+      y2 = cursor.y + cell.height;
+      break;
+    default: // default it will print bottom
+      x1 = cursor.x;
+      y1 = cursor.y + cell.height;
+      x2 = cursor.x + cell.width;
+      y2 = cursor.y + cell.height;
+      break;
+  }
+  doc.getDocument().line(x1, y1, x2, y2, fillStyle)
 }
 
 function getRemainingPageSpace(
