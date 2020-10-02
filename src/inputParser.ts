@@ -130,7 +130,7 @@ function parseSettings(doc: DocHandler, options: UserOptions): Settings {
   const useCss = options.useCss ?? false
   const theme = options.theme || (useCss ? 'plain' : 'striped')
 
-  const splitColumns: boolean = options.splitColumns ? true : false
+  const splitPages: boolean = options.splitPages ? true : false
 
   return {
     includeHiddenHtml: options.includeHiddenHtml ?? false,
@@ -145,7 +145,7 @@ function parseSettings(doc: DocHandler, options: UserOptions): Settings {
     showFoot,
     tableLineWidth: options.tableLineWidth ?? 0,
     tableLineColor: options.tableLineColor ?? 200,
-    splitColumns,
+    splitPages,
   }
 }
 
