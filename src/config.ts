@@ -5,6 +5,8 @@ import { CellHook, PageHook } from './models'
  */
 export const FONT_ROW_RATIO = 1.15
 
+export type LineSide = 'bottom' | 'top' | 'left' | 'right'
+
 export interface Styles {
   font: 'helvetica' | 'times' | 'courier' | string
   fontStyle: 'normal' | 'bold' | 'italic' | 'bolditalic'
@@ -16,7 +18,8 @@ export interface Styles {
   fontSize: number
   cellPadding: MarginPaddingInput
   lineColor: Color
-  lineWidth: number
+  lineWidth: number | number[]
+  lineSides: LineSide | LineSide[]
   cellWidth: 'auto' | 'wrap' | number
   minCellHeight: number
   minCellWidth: number
@@ -119,6 +122,7 @@ export function defaultStyles(scaleFactor: number): Styles {
     cellPadding: 5 / scaleFactor, // number or {top,left,right,left,vertical,horizontal}
     lineColor: 200,
     lineWidth: 0,
+    lineSides: [],
     cellWidth: 'auto', // 'auto'|'wrap'|number
     minCellHeight: 0,
     minCellWidth: 0,
