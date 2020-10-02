@@ -4,6 +4,7 @@ import { Cell, Pos, Row, Table } from './models'
 import { DocHandler, jsPDFDocument } from './documentHandler'
 import { assign } from './polyfills'
 import autoTableText from './autoTableText'
+import tablePrinter, { ColumnFitInPageResult } from './tablePrinter'
 
 export function drawTable(jsPDFDoc: jsPDFDocument, table: Table): void {
   const settings = table.settings
@@ -34,19 +35,73 @@ export function drawTable(jsPDFDoc: jsPDFDocument, table: Table): void {
   const startPos = assign({}, cursor)
 
   table.startPageNumber = doc.pageNumber()
+  console.log('inside splitColumns - 0 ****** ', settings)
 
-  doc.applyStyles(doc.userStyles)
-  if (settings.showHead === 'firstPage' || settings.showHead === 'everyPage') {
-    table.head.forEach((row) => printRow(doc, table, row, cursor))
-  }
-  doc.applyStyles(doc.userStyles)
-  table.body.forEach((row, index) => {
-    const isLastRow = index === table.body.length - 1
-    printFullRow(doc, table, row, isLastRow, startPos, cursor)
-  })
-  doc.applyStyles(doc.userStyles)
-  if (settings.showFoot === 'lastPage' || settings.showFoot === 'everyPage') {
-    table.foot.forEach((row) => printRow(doc, table, row, cursor))
+  if (settings.splitColumns === true) {
+    // managed flow for split columns
+    // calculate width of columns and render only those which can fit into page
+    const allColumnsCanFitResult: ColumnFitInPageResult[] = tablePrinter.calculateAllColumnsCanFitInPage(
+      doc,
+      table
+    )
+
+    allColumnsCanFitResult.map(
+      (colsAndIndexes: ColumnFitInPageResult, index: number) => {
+        doc.applyStyles(doc.userStyles)
+        // add page to print next columns in new page
+        if (index > 0) {
+          addPage(doc, table, startPos, cursor, {
+            columns: colsAndIndexes.columns,
+          })
+        } else if (
+          settings.showHead === 'firstPage' ||
+          settings.showHead === 'everyPage'
+        ) {
+          // print head for selected columns
+          table.head.forEach((row) =>
+            printRow(doc, table, row, cursor, {
+              columns: colsAndIndexes.columns,
+            })
+          )
+        }
+        // print body for selected columns
+        doc.applyStyles(doc.userStyles)
+        table.body.forEach((row, index) => {
+          const isLastRow = index === table.body.length - 1
+          printFullRow(doc, table, row, isLastRow, startPos, cursor, {
+            columns: colsAndIndexes.columns,
+          })
+        })
+        // print foot for selected columns
+        doc.applyStyles(doc.userStyles)
+        if (
+          settings.showFoot === 'lastPage' ||
+          settings.showFoot === 'everyPage'
+        ) {
+          table.foot.forEach((row) => printRow(doc, table, row, cursor))
+        }
+      }
+    )
+
+    // unitl all rows are not finished
+  } else {
+    // normal flow
+    doc.applyStyles(doc.userStyles)
+    if (
+      settings.showHead === 'firstPage' ||
+      settings.showHead === 'everyPage'
+    ) {
+      table.head.forEach((row) => printRow(doc, table, row, cursor))
+    }
+    doc.applyStyles(doc.userStyles)
+    table.body.forEach((row, index) => {
+      const isLastRow = index === table.body.length - 1
+      printFullRow(doc, table, row, isLastRow, startPos, cursor)
+    })
+    doc.applyStyles(doc.userStyles)
+    if (settings.showFoot === 'lastPage' || settings.showFoot === 'everyPage') {
+      table.foot.forEach((row) => printRow(doc, table, row, cursor))
+    }
   }
 
   addTableBorder(doc, table, startPos, cursor)
@@ -203,28 +258,44 @@ function printFullRow(
   row: Row,
   isLastRow: boolean,
   startPos: Pos,
-  cursor: Pos
+  cursor: Pos,
+  config: any = {}
 ) {
   const remainingSpace = getRemainingPageSpace(doc, table, isLastRow, cursor)
-  if (row.canEntireRowFit(remainingSpace, table.columns)) {
-    printRow(doc, table, row, cursor)
+  const columns = config && config.columns ? config.columns : table.columns
+  if (row.canEntireRowFit(remainingSpace, columns)) {
+    printRow(doc, table, row, cursor, config)
   } else {
     if (shouldPrintOnCurrentPage(doc, row, remainingSpace, table)) {
       const remainderRow = modifyRowToFit(row, remainingSpace, table, doc)
-      printRow(doc, table, row, cursor)
-      addPage(doc, table, startPos, cursor)
-      printFullRow(doc, table, remainderRow, isLastRow, startPos, cursor)
+      printRow(doc, table, row, cursor, config)
+      addPage(doc, table, startPos, cursor, config)
+      printFullRow(
+        doc,
+        table,
+        remainderRow,
+        isLastRow,
+        startPos,
+        cursor,
+        config
+      )
     } else {
-      addPage(doc, table, startPos, cursor)
-      printFullRow(doc, table, row, isLastRow, startPos, cursor)
+      addPage(doc, table, startPos, cursor, config)
+      printFullRow(doc, table, row, isLastRow, startPos, cursor, config)
     }
   }
 }
 
-function printRow(doc: DocHandler, table: Table, row: Row, cursor: Pos) {
+function printRow(
+  doc: DocHandler,
+  table: Table,
+  row: Row,
+  cursor: Pos,
+  config: any = {}
+) {
   cursor.x = table.settings.margin.left
 
-  for (const column of table.columns) {
+  for (const column of config.columns || table.columns) {
     const cell = row.cells[column.index]
     if (!cell) {
       cursor.x += column.width
@@ -294,11 +365,12 @@ export function addPage(
   doc: DocHandler,
   table: Table,
   startPos: Pos,
-  cursor: Pos
+  cursor: Pos,
+  config: any = {}
 ) {
   doc.applyStyles(doc.userStyles)
   if (table.settings.showFoot === 'everyPage') {
-    table.foot.forEach((row: Row) => printRow(doc, table, row, cursor))
+    table.foot.forEach((row: Row) => printRow(doc, table, row, cursor, config))
   }
 
   // Add user content just before adding new page ensure it will
@@ -314,7 +386,7 @@ export function addPage(
   cursor.y = margin.top
 
   if (table.settings.showHead === 'everyPage') {
-    table.head.forEach((row: Row) => printRow(doc, table, row, cursor))
+    table.head.forEach((row: Row) => printRow(doc, table, row, cursor, config))
   }
 }
 

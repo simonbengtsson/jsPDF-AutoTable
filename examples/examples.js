@@ -501,6 +501,45 @@ examples.custom = function () {
   return doc
 }
 
+// Split columns - shows how the overflowed columns split into pages
+examples.splitcolumns = function () {
+  var doc = new jsPDF('l')
+
+  var head = headRows()
+  head[0].region = 'Region';
+  head[0].country = 'Country';
+  head[0].zipcode = 'Zipcode';
+  head[0].phone = 'Phone';
+  // head[0].timeZone = 'Timezone';
+  head[0]['text'] = 'Text'
+  var body = bodyRows(4)
+  body.forEach(function (row) {
+    // row['text'] = faker.lorem.sentence(100);
+    row['zipcode'] = faker.address.zipCode();
+    row['country'] = faker.address.country();
+    row['region'] = faker.address.state();
+    row['phone'] = faker.phone.phoneNumber();
+    // row['timeZone'] = faker.address.timeZone();
+  })
+
+  doc.text("Overflow ('ellipsize') with one column with long content", 14, 20)
+  doc.autoTable({
+    head: head,
+    body: body,
+    startY: 25,
+    // split overflowing columns into pages
+    splitColumns: true,
+    // Default for all columns
+    styles: { 
+      // overflow: 'ellipsize', 
+      cellWidth: 50 
+    },
+    // Override the default above for the text column
+    // columnStyles: { text: { cellWidth: 'auto' } },
+  })
+  return doc
+}
+
 /*
  |--------------------------------------------------------------------------
  | Below is some helper functions for the examples
