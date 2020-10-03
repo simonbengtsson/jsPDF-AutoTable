@@ -249,8 +249,7 @@ function printRow(doc: DocHandler, table: Table, row: Row, cursor: Pos) {
       continue
     }
 
-    // draw cell borders
-    drawBorders(doc, cell, cursor)
+    drawCellBorders(doc, cell, cursor)
 
    
     const textPos = cell.getTextPos()
@@ -276,7 +275,7 @@ function printRow(doc: DocHandler, table: Table, row: Row, cursor: Pos) {
   cursor.y += row.height
 }
 
-function drawBorders(doc: DocHandler, cell: Cell, cursor: Pos) {
+function drawCellBorders(doc: DocHandler, cell: Cell, cursor: Pos) {
   const cellStyles = cell.styles
   if (typeof cellStyles.lineWidth === 'number') {
     // prints normal cell border
