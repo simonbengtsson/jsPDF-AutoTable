@@ -42,7 +42,7 @@ export interface UserOptions {
   foot?: RowInput[]
   html?: string | HTMLTableElement
   columns?: ColumnInput[]
-  splitPages?: boolean
+  horizontalPageBreak?: boolean
 
   // Styles
   styles?: Partial<Styles>

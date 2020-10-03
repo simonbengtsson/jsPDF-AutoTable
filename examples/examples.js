@@ -528,7 +528,7 @@ examples.splitPages = function () {
     body: body,
     startY: 25,
     // split overflowing columns into pages
-    splitPages: true,
+    horizontalPageBreak: true,
     // Default for all columns
     styles: { 
       // overflow: 'ellipsize', 
