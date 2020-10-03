@@ -297,12 +297,10 @@ examples.colstyles = function () {
         lineWidth: { left: 0.2, bottom: 0.5 }
       },
       email: {
-        lineSides: 'bottom',
         lineColor: '576574',
         lineWidth: { bottom: 0.5 }
       },
       expenses: {
-        lineSides: 'bottom',
         lineColor: '576574',
         lineWidth: { left: 0.2, right: 0.2, bottom: 0.5 }
       }
