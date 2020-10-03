@@ -285,29 +285,26 @@ examples.colstyles = function () {
     theme: 'plain',
     columnStyles: {
       id: {
-        lineSides: 'bottom',
         lineColor: '576574',
-        lineWidth: 0.2
+        lineWidth: 0.5
       },
       name: {
-        lineSides: 'bottom',
         lineColor: '576574',
-        lineWidth: 0.2
+        lineWidth: { bottom: 0.5 }
       },
       city: {
-        lineSides: ['left', 'right', 'bottom'],
         lineColor: '576574',
-        lineWidth: 0.2
+        lineWidth: { left: 0.2, bottom: 0.5 }
       },
       email: {
         lineSides: 'bottom',
         lineColor: '576574',
-        lineWidth: 0.2
+        lineWidth: { bottom: 0.5 }
       },
       expenses: {
         lineSides: 'bottom',
         lineColor: '576574',
-        lineWidth: 0.2
+        lineWidth: { left: 0.2, right: 0.2, bottom: 0.5 }
       }
 
     }

@@ -278,32 +278,23 @@ function printRow(doc: DocHandler, table: Table, row: Row, cursor: Pos) {
 
 function drawBorders(doc: DocHandler, cell: Cell, cursor: Pos) {
   const cellStyles = cell.styles
-  let lineWidth: number = typeof cellStyles.lineWidth === 'number' ? cellStyles.lineWidth : cellStyles.lineWidth[0]
-  let fillStyle = getFillStyle(lineWidth, cellStyles.fillColor)
-  if (typeof cellStyles.lineSides === 'string') {
-    // print single side border
-    drawBorderForSide(doc, cell, cursor, cellStyles.lineSides, fillStyle || 'S')
-    return;
-  } else if (Array.isArray(cellStyles.lineSides) === true && cellStyles.lineSides.length) {
-    // print for mulitple sides
-    (cellStyles.lineSides || []).map((side: string, index: number) => {
-      // set width if its provided
-      if (typeof cellStyles.lineWidth !== 'number' && cellStyles.lineWidth[index]) {
-        lineWidth = cellStyles.lineWidth[index]
-        fillStyle = getFillStyle(lineWidth, cellStyles.fillColor)
-      }
-      // now print the line
-      drawBorderForSide(doc, cell, cursor, side, 'S')
-    })
-    return;
-  }
-  // prints normal cell border
-  if (fillStyle) {
-    doc.rect(cell.x, cursor.y, cell.width, cell.height, fillStyle)
+  if (typeof cellStyles.lineWidth === 'number') {
+    // prints normal cell border
+    let fillStyle = getFillStyle(cellStyles.lineWidth, cellStyles.fillColor)
+    if (fillStyle) {
+      doc.rect(cell.x, cursor.y, cell.width, cell.height, fillStyle)
+    }
+  } else if(typeof cellStyles.lineWidth === 'object') {
+    const sides = Object.keys(cellStyles.lineWidth);
+    const lineWidth: any = cellStyles.lineWidth;
+    sides.map((side: string) => {
+      let fillStyle = getFillStyle(lineWidth[side], cellStyles.fillColor)
+      drawBorderForSide(doc, cell, cursor, side, fillStyle || 'S', lineWidth[side])
+    });
   }
 }
 
-function drawBorderForSide(doc: DocHandler, cell: Cell, cursor: Pos, side: string, fillStyle: string) {
+function drawBorderForSide(doc: DocHandler, cell: Cell, cursor: Pos, side: string, fillStyle: string, lineWidth: number) {
   let x1, y1, x2, y2;
   switch(side) {
     case 'top':
@@ -331,6 +322,7 @@ function drawBorderForSide(doc: DocHandler, cell: Cell, cursor: Pos, side: strin
       y2 = cursor.y + cell.height;
       break;
   }
+  doc.getDocument().setLineWidth(lineWidth)
   doc.getDocument().line(x1, y1, x2, y2, fillStyle)
 }
 
