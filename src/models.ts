@@ -36,7 +36,7 @@ export interface Settings {
   showFoot: 'everyPage' | 'lastPage' | 'never'
   tableLineWidth: number
   tableLineColor: Color
-  splitPages?: boolean
+  horizontalPageBreak?: boolean
 }
 
 export type StyleProp =

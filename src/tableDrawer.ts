@@ -36,9 +36,9 @@ export function drawTable(jsPDFDoc: jsPDFDocument, table: Table): void {
 
   table.startPageNumber = doc.pageNumber()
 
-  if (settings.splitPages === true) {
+  if (settings.horizontalPageBreak === true) {
     // managed flow for split columns
-    printTableWithSplitPage(doc, table, startPos, cursor);
+    printTableWithHorizontalPageBreak(doc, table, startPos, cursor);
   } else {
     // normal flow
     doc.applyStyles(doc.userStyles)
@@ -70,7 +70,7 @@ export function drawTable(jsPDFDoc: jsPDFDocument, table: Table): void {
   doc.applyStyles(doc.userStyles)
 }
 
-function printTableWithSplitPage(
+function printTableWithHorizontalPageBreak(
   doc: DocHandler,
   table: Table,
   startPos: {x: number, y: number},

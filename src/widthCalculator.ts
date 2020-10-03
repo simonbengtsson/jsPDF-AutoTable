@@ -45,7 +45,7 @@ export function calculateWidths(doc: DocHandler, table: Table) {
   }
 
   resizeWidth = Math.abs(resizeWidth)
-  if (!table.settings.splitPages && resizeWidth > 0.1 / doc.scaleFactor()) {
+  if (!table.settings.horizontalPageBreak && resizeWidth > 0.1 / doc.scaleFactor()) {
     // Table can't get smaller due to custom-width or minWidth restrictions
     // We can't really do much here. Up to user to for example
     // reduce font size, increase page size or remove custom cell widths
