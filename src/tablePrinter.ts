@@ -24,6 +24,11 @@ const getColumnsCanFitInPage = (
   while (i < len) {
     const colWidth = table.columns[i].wrappedWidth
     if (remainingWidth < colWidth) {
+      // check if it's first column in the sequence then add it into result
+      if (i === 0 || i === config.start) {
+        cols.push(i)
+        columns.push(table.columns[i])
+      }
       // can't print more columns in same page
       break
     }
