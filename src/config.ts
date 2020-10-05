@@ -12,6 +12,18 @@ export interface LineWidths {
   'right': number;
 }
 
+export interface LinestyleOptions {
+  lineLength: number;
+  lineSpacing: number;
+}
+
+export interface LineStyles {
+  'bottom': LinestyleOptions;
+  'top' : LinestyleOptions;
+  'left' : LinestyleOptions;
+  'right': LinestyleOptions;
+}
+
 export interface Styles {
   font: 'helvetica' | 'times' | 'courier' | string
   fontStyle: 'normal' | 'bold' | 'italic' | 'bolditalic'
@@ -24,6 +36,7 @@ export interface Styles {
   cellPadding: MarginPaddingInput
   lineColor: Color
   lineWidth: number | Partial<LineWidths>
+  lineStyle: LinestyleOptions | Partial<LineStyles> | null
   cellWidth: 'auto' | 'wrap' | number
   minCellHeight: number
   minCellWidth: number
@@ -126,6 +139,7 @@ export function defaultStyles(scaleFactor: number): Styles {
     cellPadding: 5 / scaleFactor, // number or {top,left,right,left,vertical,horizontal}
     lineColor: 200,
     lineWidth: 0,
+    lineStyle: null,
     cellWidth: 'auto', // 'auto'|'wrap'|number
     minCellHeight: 0,
     minCellWidth: 0,

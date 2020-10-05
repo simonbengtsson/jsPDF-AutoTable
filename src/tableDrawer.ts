@@ -1,4 +1,4 @@
-import { FONT_ROW_RATIO } from './config'
+import { FONT_ROW_RATIO, LinestyleOptions, LineStyles } from './config'
 import { addTableBorder, getFillStyle } from './common'
 import { Cell, Pos, Row, Table } from './models'
 import { DocHandler, jsPDFDocument } from './documentHandler'
@@ -278,19 +278,71 @@ function printRow(doc: DocHandler, table: Table, row: Row, cursor: Pos) {
 function drawCellBorders(doc: DocHandler, cell: Cell, cursor: Pos) {
   const cellStyles = cell.styles
   if (typeof cellStyles.lineWidth === 'number') {
+    // set border pattern
+    if(cellStyles.lineStyle) {
+      applyLineStyle(doc, cellStyles.lineStyle, '')
+    }
     // prints normal cell border
     let fillStyle = getFillStyle(cellStyles.lineWidth, cellStyles.fillColor)
     if (fillStyle) {
       doc.rect(cell.x, cursor.y, cell.width, cell.height, fillStyle)
     }
+    clearLineStyle(doc);
   } else if(typeof cellStyles.lineWidth === 'object') {
     const sides = Object.keys(cellStyles.lineWidth);
     const lineWidth: any = cellStyles.lineWidth;
     sides.map((side: string) => {
+      // set border pattern
+      if(cellStyles.lineStyle) {
+        applyLineStyle(doc, cellStyles.lineStyle, side)
+      }
       let fillStyle = getFillStyle(lineWidth[side], cellStyles.fillColor)
       drawBorderForSide(doc, cell, cursor, side, fillStyle || 'S', lineWidth[side])
+      clearLineStyle(doc);
     });
   }
+  
+}
+
+function applyLineStyle(
+  doc: DocHandler,
+  lineStyle: LinestyleOptions | Partial<LineStyles> | null,
+  side: string
+) {
+
+  if(!lineStyle) {
+    return;
+  }
+
+  if (!side && typeof lineStyle === 'object' && lineStyle.hasOwnProperty('lineLength') && lineStyle.hasOwnProperty('lineSpacing')) {
+    // apply lineStyle for all sides
+    const ls: any = lineStyle;
+    const {lineLength, lineSpacing} = ls;
+    if(lineLength && lineSpacing) {
+      doc.getDocument().setLineDashPattern([
+        lineLength,
+        lineSpacing,
+      ])
+    }
+    return;
+  }
+
+  if(side && typeof lineStyle === 'object' && lineStyle.hasOwnProperty(side)) {
+    const ls: any = lineStyle;
+    const {lineLength, lineSpacing} = ls[side] || {};
+    if(lineLength && lineSpacing) {
+      doc.getDocument().setLineDashPattern([
+        lineLength,
+        lineSpacing,
+      ])
+    }
+    return;
+  }
+
+}
+
+function clearLineStyle(doc: DocHandler) {
+  doc.getDocument().setLineDashPattern()
 }
 
 function drawBorderForSide(doc: DocHandler, cell: Cell, cursor: Pos, side: string, fillStyle: string, lineWidth: number) {

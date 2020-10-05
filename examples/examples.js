@@ -286,7 +286,8 @@ examples.colstyles = function () {
     columnStyles: {
       id: {
         lineColor: '576574',
-        lineWidth: 0.5
+        lineWidth: 0.5,
+        lineStyle: {lineLength: 3, lineSpacing: 1}
       },
       name: {
         lineColor: '576574',
@@ -298,7 +299,8 @@ examples.colstyles = function () {
       },
       email: {
         lineColor: '576574',
-        lineWidth: { bottom: 0.5 }
+        lineWidth: { bottom: 0.5 },
+        lineStyle: {bottom: {lineLength: 3, lineSpacing: 1}}
       },
       expenses: {
         lineColor: '576574',
