@@ -503,7 +503,7 @@ examples.custom = function () {
 }
 
 // Split columns - shows how the overflowed columns split into pages
-examples.splitPages = function () {
+examples.horizontalPageBreak = function () {
   var doc = new jsPDF('l')
 
   var head = headRows()
