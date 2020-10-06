@@ -2,6 +2,7 @@ import { getStringWidth } from './common'
 import { Table, Cell, Column, Row } from './models'
 import { DocHandler } from './documentHandler'
 import { Styles } from './config'
+import TablePrinter from './tablePrinter'
 
 /**
  * Calculate the column widths
@@ -63,6 +64,8 @@ export function calculateWidths(doc: DocHandler, table: Table) {
 
 function calculate(doc: DocHandler, table: Table) {
   const sf = doc.scaleFactor()
+  const horizontalPageBreak = table.settings.horizontalPageBreak
+  const availablePageWidth = TablePrinter.getPageAvailableWidth(doc, table);
   table.allRows().forEach((row) => {
     for (const column of table.columns) {
       const cell = row.cells[column.index]
@@ -79,13 +82,19 @@ function calculate(doc: DocHandler, table: Table) {
         doc
       )
       cell.minReadableWidth = longestWordWidth + cell.padding('horizontal')
-
+      
       if (typeof cell.styles.cellWidth === 'number') {
         cell.minWidth = cell.styles.cellWidth
         cell.wrappedWidth = cell.styles.cellWidth
-      } else if (cell.styles.cellWidth === 'wrap') {
-        cell.minWidth = cell.contentWidth
-        cell.wrappedWidth = cell.contentWidth
+      } else if (cell.styles.cellWidth === 'wrap' || horizontalPageBreak === true) {
+        // cell width should not be more than available page width
+        if(cell.contentWidth > availablePageWidth) {
+          cell.minWidth = availablePageWidth
+          cell.wrappedWidth = availablePageWidth
+        } else {
+          cell.minWidth = cell.contentWidth
+          cell.wrappedWidth = cell.contentWidth
+        }
       } else {
         // auto
         const defaultMinWidth = 10 / sf
