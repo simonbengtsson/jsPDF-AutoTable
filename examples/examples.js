@@ -546,7 +546,7 @@ examples.horizontalPageBreak = function () {
   head[0]['text'] = 'Text'
   var body = bodyRows(4)
   body.forEach(function (row) {
-    // row['text'] = faker.lorem.sentence(100);
+    row['text'] = faker.lorem.sentence(100);
     row['zipcode'] = faker.address.zipCode();
     row['country'] = faker.address.country();
     row['region'] = faker.address.state();
@@ -561,13 +561,6 @@ examples.horizontalPageBreak = function () {
     startY: 25,
     // split overflowing columns into pages
     horizontalPageBreak: true,
-    // Default for all columns
-    styles: { 
-      // overflow: 'ellipsize', 
-      cellWidth: 50 
-    },
-    // Override the default above for the text column
-    // columnStyles: { text: { cellWidth: 'auto' } },
   })
   return doc
 }

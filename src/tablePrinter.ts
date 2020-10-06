@@ -1,9 +1,17 @@
+import { parseSpacing } from './common'
 import { DocHandler } from './documentHandler'
 import { Column, Table } from './models'
 
 export interface ColumnFitInPageResult {
   colIndexes: number[]
   columns: Column[]
+}
+
+const getPageAvailableWidth = (doc: DocHandler, table: Table) => {
+  const margins = parseSpacing(table.settings.margin, 0)
+  const availablePageWidth =
+    doc.pageSize().width - (margins.left + margins.right)
+  return availablePageWidth
 }
 
 // get columns can be fit into page
@@ -13,9 +21,7 @@ const getColumnsCanFitInPage = (
   config: any = {}
 ): ColumnFitInPageResult => {
   // get page width
-  const margins = table.settings.margin
-  const availablePageWidth =
-    doc.pageSize().width - (margins.left + margins.right)
+  const availablePageWidth = getPageAvailableWidth(doc, table)
   let remainingWidth = availablePageWidth
   const cols: number[] = []
   const columns: Column[] = []
@@ -26,6 +32,9 @@ const getColumnsCanFitInPage = (
     if (remainingWidth < colWidth) {
       // check if it's first column in the sequence then add it into result
       if (i === 0 || i === config.start) {
+        // this cell width is more than page width set it available pagewidth
+        /* table.columns[i].wrappedWidth = availablePageWidth
+        table.columns[i].minWidth = availablePageWidth */
         cols.push(i)
         columns.push(table.columns[i])
       }
@@ -67,4 +76,5 @@ const calculateAllColumnsCanFitInPage = (
 export default {
   getColumnsCanFitInPage,
   calculateAllColumnsCanFitInPage,
+  getPageAvailableWidth
 }
