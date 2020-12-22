@@ -12,7 +12,7 @@ export default function (
   doc: jsPDFDocument
 ) {
   styles = styles || {}
-  const FONT_ROW_RATIO = 1.15
+  const FONT_ROW_RATIO = doc.getLineHeightFactor();
 
   const k = doc.internal.scaleFactor
   const fontSize = doc.internal.getFontSize() / k
