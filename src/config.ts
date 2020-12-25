@@ -14,7 +14,7 @@ export interface LineWidths {
 
 export interface Styles {
   font: 'helvetica' | 'times' | 'courier' | string
-  fontStyle: 'normal' | 'bold' | 'italic' | 'bolditalic'
+  fontStyle: 'normal' | 'bold' | 'italic' | 'bolditalic' | string
   overflow: 'linebreak' | 'ellipsize' | 'visible' | 'hidden' | Function
   fillColor: Color
   textColor: Color
