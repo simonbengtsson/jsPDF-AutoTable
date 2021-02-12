@@ -40,7 +40,7 @@ declare class HookData {
 	cursor: Pos | null;
 	constructor(doc: DocHandler, table: Table, cursor: Pos | null);
 }
-declare class CellHookData extends HookData {
+export declare class CellHookData extends HookData {
 	cell: Cell;
 	row: Row;
 	column: Column;
@@ -91,6 +91,7 @@ export interface Settings {
 	showFoot: "everyPage" | "lastPage" | "never";
 	tableLineWidth: number;
 	tableLineColor: Color;
+	horizontalPageBreak?: boolean;
 }
 export interface StylesProps {
 	styles: Partial<Styles>;
@@ -108,7 +109,7 @@ export declare type ContentSettings = {
 	foot: Row[];
 	columns: Column[];
 };
-declare class Table {
+export declare class Table {
 	readonly id?: string | number;
 	readonly settings: Settings;
 	readonly styles: StylesProps;
@@ -135,7 +136,7 @@ declare class Table {
 	}): void;
 	getWidth(pageWidth: number): number;
 }
-declare class Row {
+export declare class Row {
 	readonly raw: HTMLTableRowElement | RowInput;
 	readonly element?: HTMLTableRowElement;
 	readonly index: number;
@@ -154,7 +155,7 @@ declare class Row {
 	getMinimumRowHeight(columns: Column[], doc: DocHandler): number;
 }
 export declare type Section = "head" | "body" | "foot";
-declare class Cell {
+export declare class Cell {
 	raw: HTMLTableCellElement | CellInput;
 	styles: Styles;
 	text: string[];
@@ -175,7 +176,7 @@ declare class Cell {
 	getContentHeight(scaleFactor: number): number;
 	padding(name: "vertical" | "horizontal" | "top" | "bottom" | "left" | "right"): number;
 }
-declare class Column {
+export declare class Column {
 	raw: ColumnInput | null;
 	dataKey: string | number;
 	index: number;
@@ -186,9 +187,15 @@ declare class Column {
 	constructor(dataKey: string | number, raw: ColumnInput | null, index: number);
 	getMaxCustomCellWidth(table: Table): number;
 }
+export interface LineWidths {
+	"bottom": number;
+	"top": number;
+	"left": number;
+	"right": number;
+}
 export interface Styles {
 	font: "helvetica" | "times" | "courier" | string;
-	fontStyle: "normal" | "bold" | "italic" | "bolditalic";
+	fontStyle: "normal" | "bold" | "italic" | "bolditalic" | string;
 	overflow: "linebreak" | "ellipsize" | "visible" | "hidden" | Function;
 	fillColor: Color;
 	textColor: Color;
@@ -197,7 +204,7 @@ export interface Styles {
 	fontSize: number;
 	cellPadding: MarginPaddingInput;
 	lineColor: Color;
-	lineWidth: number;
+	lineWidth: number | Partial<LineWidths>;
 	cellWidth: "auto" | "wrap" | number;
 	minCellHeight: number;
 	minCellWidth: number;
@@ -221,6 +228,7 @@ export interface UserOptions {
 	foot?: RowInput[];
 	html?: string | HTMLTableElement;
 	columns?: ColumnInput[];
+	horizontalPageBreak?: boolean;
 	styles?: Partial<Styles>;
 	bodyStyles?: Partial<Styles>;
 	headStyles?: Partial<Styles>;
