@@ -15,18 +15,20 @@ export function parseCss(
 
   const pxScaleFactor = 96 / 72
 
-  let color = parseColor(element, (elem) => {
+  const backgroundColor = parseColor(element, (elem) => {
     return window.getComputedStyle(elem)['backgroundColor']
   })
-  if (color != null) result.fillColor = color
-  color = parseColor(element, (elem) => {
+  if (backgroundColor != null) result.fillColor = backgroundColor
+
+  const textColor = parseColor(element, (elem) => {
     return window.getComputedStyle(elem)['color']
   })
-  if (color != null) result.textColor = color
-  color = parseColor(element, (elem) => {
+  if (textColor != null) result.textColor = textColor
+
+  const borderColor = parseColor(element, (elem) => {
     return window.getComputedStyle(elem)['borderTopColor']
   })
-  if (color != null) result.lineColor = color
+  if (borderColor != null) result.lineColor = borderColor
 
   const padding = parsePadding(style, scaleFactor)
   if (padding) result.cellPadding = padding
