@@ -42,14 +42,14 @@ describe('css parser', () => {
     assert(styles.fontSize === 16 / pxScaleFactor, 'No font size')
   })
 
-  it('minimal styles', () => {
+  it.only('minimal styles', () => {
     let element = table.insertRow()
     const styles = parseCss([], element, 1, element.style, dom.window)
     assert(styles, 'Should have result')
-    assert(!styles.fillColor, 'Transparent')
-    assert(!styles.halign, 'Empty string halign')
-    assert(!styles.valign, 'Empty tring valign')
-    assert(!(styles as any).cellPadding?.top, 'Empty string padding')
-    assert(!styles.fontStyle, 'No font style')
+    assert.strictEqual(styles.fillColor, undefined, 'Transparent')
+    assert(styles.halign == null, 'Empty string halign')
+    assert(styles.valign == null, 'Empty tring valign')
+    assert((styles as any).cellPadding?.top == 0, 'Empty string padding')
+    assert(styles.fontStyle == null, 'No font style')
   })
 })

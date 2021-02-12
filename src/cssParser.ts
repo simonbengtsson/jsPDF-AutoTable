@@ -139,7 +139,7 @@ function parsePadding(
     (parseInt(style.lineHeight) - parseInt(style.fontSize)) / scaleFactor / 2
 
   const inputPadding = val.map((n) => {
-    return parseInt(n) / pxScaleFactor
+    return parseInt(n || '0') / pxScaleFactor
   })
   const padding = parseSpacing(inputPadding, 0)
   if (linePadding > padding.top) {
