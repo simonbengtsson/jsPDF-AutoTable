@@ -50,6 +50,8 @@ export interface UserOptions {
   html?: string | HTMLTableElement
   columns?: ColumnInput[]
   horizontalPageBreak?: boolean
+  // column data key to repeat if horizontalPageBreak = true
+  horizontalPageBreakRepeat?: string
 
   // Styles
   styles?: Partial<Styles>

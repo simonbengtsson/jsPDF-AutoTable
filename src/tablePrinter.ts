@@ -23,11 +23,28 @@ const getColumnsCanFitInPage = (
   // get page width
   const availablePageWidth = getPageAvailableWidth(doc, table)
   let remainingWidth = availablePageWidth
+  // get column data key to repeat
+  const horizontalPageBreakRepeat = table.settings.horizontalPageBreakRepeat;
+  let repeatColumnIndex = -1;
   const cols: number[] = []
   const columns: Column[] = []
   const len = table.columns.length
   let i = config && config.start ? config.start : 0
+  // code to repeat the given column in split pages
+  if (horizontalPageBreakRepeat) {
+    let repeatCol = table.columns.find((item) => item.dataKey == horizontalPageBreakRepeat);
+    if (repeatCol) {
+      repeatColumnIndex = repeatCol.index
+      cols.push(repeatColumnIndex)
+      columns.push(table.columns[repeatColumnIndex])
+      remainingWidth = remainingWidth - repeatCol.wrappedWidth
+    }
+  }
   while (i < len) {
+    if (repeatColumnIndex != -1 && repeatColumnIndex === i) {
+      i++ // prevent columnDataKeyToRepeat to be pushed twice in a page
+      continue
+    };
     const colWidth = table.columns[i].wrappedWidth
     if (remainingWidth < colWidth) {
       // check if it's first column in the sequence then add it into result

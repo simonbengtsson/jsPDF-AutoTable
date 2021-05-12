@@ -37,6 +37,7 @@ export interface Settings {
   tableLineWidth: number
   tableLineColor: Color
   horizontalPageBreak?: boolean
+  horizontalPageBreakRepeat?: string
 }
 
 export type StyleProp =

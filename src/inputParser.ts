@@ -131,6 +131,7 @@ function parseSettings(doc: DocHandler, options: UserOptions): Settings {
   const theme = options.theme || (useCss ? 'plain' : 'striped')
 
   const horizontalPageBreak: boolean = options.horizontalPageBreak ? true : false
+  const horizontalPageBreakRepeat: string = options.horizontalPageBreakRepeat ? options.horizontalPageBreakRepeat : ''
 
   return {
     includeHiddenHtml: options.includeHiddenHtml ?? false,
@@ -146,6 +147,7 @@ function parseSettings(doc: DocHandler, options: UserOptions): Settings {
     tableLineWidth: options.tableLineWidth ?? 0,
     tableLineColor: options.tableLineColor ?? 200,
     horizontalPageBreak,
+    horizontalPageBreakRepeat,
   }
 }
 
