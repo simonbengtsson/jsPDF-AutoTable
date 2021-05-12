@@ -530,6 +530,8 @@ examples.horizontalPageBreak = function () {
     startY: 25,
     // split overflowing columns into pages
     horizontalPageBreak: true,
+    // repeat this column in split pages
+    horizontalPageBreakRepeat: 'id',
   })
   return doc
 }
