@@ -131,7 +131,7 @@ function parseSettings(doc: DocHandler, options: UserOptions): Settings {
   const theme = options.theme || (useCss ? 'plain' : 'striped')
 
   const horizontalPageBreak: boolean = options.horizontalPageBreak ? true : false
-  const horizontalPageBreakRepeat: string = options.horizontalPageBreakRepeat ? options.horizontalPageBreakRepeat : ''
+  const horizontalPageBreakRepeat = options.horizontalPageBreakRepeat ?? null
 
   return {
     includeHiddenHtml: options.includeHiddenHtml ?? false,
