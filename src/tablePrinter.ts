@@ -25,23 +25,22 @@ const getColumnsCanFitInPage = (
   let remainingWidth = availablePageWidth
   // get column data key to repeat
   const horizontalPageBreakRepeat = table.settings.horizontalPageBreakRepeat;
-  let repeatColumnIndex = -1;
+  let repeatColumn = null;
   const cols: number[] = []
   const columns: Column[] = []
   const len = table.columns.length
   let i = config && config.start ? config.start : 0
   // code to repeat the given column in split pages
   if (horizontalPageBreakRepeat) {
-    let repeatCol = table.columns.find((item) => item.dataKey == horizontalPageBreakRepeat);
-    if (repeatCol) {
-      repeatColumnIndex = repeatCol.index
-      cols.push(repeatColumnIndex)
-      columns.push(table.columns[repeatColumnIndex])
-      remainingWidth = remainingWidth - repeatCol.wrappedWidth
+    repeatColumn = table.columns.find((item) => item.dataKey === horizontalPageBreakRepeat || item.index === horizontalPageBreakRepeat);
+    if (repeatColumn) {
+      cols.push(repeatColumn.index)
+      columns.push(table.columns[repeatColumn.index])
+      remainingWidth = remainingWidth - repeatColumn.wrappedWidth
     }
   }
   while (i < len) {
-    if (repeatColumnIndex != -1 && repeatColumnIndex === i) {
+    if (repeatColumn?.index === i) {
       i++ // prevent columnDataKeyToRepeat to be pushed twice in a page
       continue
     };
