@@ -38,7 +38,7 @@ export function drawTable(jsPDFDoc: jsPDFDocument, table: Table): void {
 
   if (settings.horizontalPageBreak === true) {
     // managed flow for split columns
-    printTableWithHorizontalPageBreak(doc, table, startPos, cursor);
+    printTableWithHorizontalPageBreak(doc, table, startPos, cursor)
   } else {
     // normal flow
     doc.applyStyles(doc.userStyles)
@@ -46,7 +46,9 @@ export function drawTable(jsPDFDoc: jsPDFDocument, table: Table): void {
       settings.showHead === 'firstPage' ||
       settings.showHead === 'everyPage'
     ) {
-      table.head.forEach((row) => printRow(doc, table, row, cursor, table.columns))
+      table.head.forEach((row) =>
+        printRow(doc, table, row, cursor, table.columns)
+      )
     }
     doc.applyStyles(doc.userStyles)
     table.body.forEach((row, index) => {
@@ -55,7 +57,9 @@ export function drawTable(jsPDFDoc: jsPDFDocument, table: Table): void {
     })
     doc.applyStyles(doc.userStyles)
     if (settings.showFoot === 'lastPage' || settings.showFoot === 'everyPage') {
-      table.foot.forEach((row) => printRow(doc, table, row, cursor, table.columns))
+      table.foot.forEach((row) =>
+        printRow(doc, table, row, cursor, table.columns)
+      )
     }
   }
 
@@ -73,11 +77,11 @@ export function drawTable(jsPDFDoc: jsPDFDocument, table: Table): void {
 function printTableWithHorizontalPageBreak(
   doc: DocHandler,
   table: Table,
-  startPos: {x: number, y: number},
-  cursor: {x: number, y: number}
+  startPos: { x: number; y: number },
+  cursor: { x: number; y: number }
 ) {
-   // calculate width of columns and render only those which can fit into page
-   const allColumnsCanFitResult: ColumnFitInPageResult[] = tablePrinter.calculateAllColumnsCanFitInPage(
+  // calculate width of columns and render only those which can fit into page
+  const allColumnsCanFitResult: ColumnFitInPageResult[] = tablePrinter.calculateAllColumnsCanFitInPage(
     doc,
     table
   )
@@ -107,16 +111,13 @@ function printHead(
   cursor: Pos,
   columns: Column[]
 ) {
-  const settings = table.settings;
+  const settings = table.settings
   doc.applyStyles(doc.userStyles)
-  if (
-    settings.showHead === 'firstPage' ||
-    settings.showHead === 'everyPage'
-  ) {
+  if (settings.showHead === 'firstPage' || settings.showHead === 'everyPage') {
     table.head.forEach((row) => printRow(doc, table, row, cursor, columns))
   }
 }
- 
+
 function printBody(
   doc: DocHandler,
   table: Table,
@@ -137,7 +138,7 @@ function printFoot(
   cursor: Pos,
   columns: Column[]
 ) {
-  const settings = table.settings;
+  const settings = table.settings
   doc.applyStyles(doc.userStyles)
   if (settings.showFoot === 'lastPage' || settings.showFoot === 'everyPage') {
     table.foot.forEach((row) => printRow(doc, table, row, cursor, columns))
@@ -349,7 +350,6 @@ function printRow(
 
     drawCellBorders(doc, cell, cursor)
 
-   
     const textPos = cell.getTextPos()
     autoTableText(
       cell.text,
@@ -381,43 +381,58 @@ function drawCellBorders(doc: DocHandler, cell: Cell, cursor: Pos) {
     if (fillStyle) {
       doc.rect(cell.x, cursor.y, cell.width, cell.height, fillStyle)
     }
-  } else if(typeof cellStyles.lineWidth === 'object') {
-    const sides = Object.keys(cellStyles.lineWidth);
-    const lineWidth: any = cellStyles.lineWidth;
+  } else if (typeof cellStyles.lineWidth === 'object') {
+    const sides = Object.keys(cellStyles.lineWidth)
+    const lineWidth: any = cellStyles.lineWidth
     sides.map((side: string) => {
       let fillStyle = getFillStyle(lineWidth[side], cellStyles.fillColor)
-      drawBorderForSide(doc, cell, cursor, side, fillStyle || 'S', lineWidth[side])
-    });
+      drawBorderForSide(
+        doc,
+        cell,
+        cursor,
+        side,
+        fillStyle || 'S',
+        lineWidth[side]
+      )
+    })
   }
 }
 
-function drawBorderForSide(doc: DocHandler, cell: Cell, cursor: Pos, side: string, fillStyle: string, lineWidth: number) {
-  let x1, y1, x2, y2;
-  switch(side) {
+function drawBorderForSide(
+  doc: DocHandler,
+  cell: Cell,
+  cursor: Pos,
+  side: string,
+  fillStyle: string,
+  lineWidth: number
+) {
+  let x1, y1, x2, y2
+  switch (side) {
     case 'top':
-      x1 = cursor.x;
-      y1 = cursor.y;
-      x2 = cursor.x + cell.width;
-      y2 = cursor.y;
-      break;
+      x1 = cursor.x
+      y1 = cursor.y
+      x2 = cursor.x + cell.width
+      y2 = cursor.y
+      break
     case 'left':
-      x1 = cursor.x;
-      y1 = cursor.y;
-      x2 = cursor.x;
-      y2 = cursor.y + cell.height;
-      break;
+      x1 = cursor.x
+      y1 = cursor.y
+      x2 = cursor.x
+      y2 = cursor.y + cell.height
+      break
     case 'right':
-      x1 = cursor.x + cell.width;
-      y1 = cursor.y;
-      x2 = cursor.x + cell.width;
-      y2 = cursor.y + cell.height;
-      break;
-    default: // default it will print bottom
-      x1 = cursor.x;
-      y1 = cursor.y + cell.height;
-      x2 = cursor.x + cell.width;
-      y2 = cursor.y + cell.height;
-      break;
+      x1 = cursor.x + cell.width
+      y1 = cursor.y
+      x2 = cursor.x + cell.width
+      y2 = cursor.y + cell.height
+      break
+    default:
+      // default it will print bottom
+      x1 = cursor.x
+      y1 = cursor.y + cell.height
+      x2 = cursor.x + cell.width
+      y2 = cursor.y + cell.height
+      break
   }
   doc.getDocument().setLineWidth(lineWidth)
   doc.getDocument().line(x1, y1, x2, y2, fillStyle)

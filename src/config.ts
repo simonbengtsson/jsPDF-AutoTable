@@ -6,10 +6,10 @@ import { CellHook, PageHook } from './models'
 export const FONT_ROW_RATIO = 1.15
 
 export interface LineWidths {
-  'bottom': number;
-  'top' : number;
-  'left' : number;
-  'right': number;
+  bottom: number
+  top: number
+  left: number
+  right: number
 }
 
 export interface Styles {
