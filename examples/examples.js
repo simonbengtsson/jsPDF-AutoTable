@@ -531,6 +531,40 @@ examples.horizontalPageBreak = function () {
     // split overflowing columns into pages
     horizontalPageBreak: true,
     // repeat this column in split pages
+    // horizontalPageBreakRepeat: 'id',
+  })
+  return doc
+}
+
+// Split columns - shows how the overflowed columns split into pages with a given column repeated
+examples.horizontalPageBreakRepeat = function () {
+  var doc = new jsPDF('l')
+
+  var head = headRows()
+  head[0].region = 'Region';
+  head[0].country = 'Country';
+  head[0].zipcode = 'Zipcode';
+  head[0].phone = 'Phone';
+  // head[0].timeZone = 'Timezone';
+  head[0]['text'] = 'Text'
+  var body = bodyRows(4)
+  body.forEach(function (row) {
+    row['text'] = faker.lorem.sentence(100);
+    row['zipcode'] = faker.address.zipCode();
+    row['country'] = faker.address.country();
+    row['region'] = faker.address.state();
+    row['phone'] = faker.phone.phoneNumber();
+    // row['timeZone'] = faker.address.timeZone();
+  })
+
+  doc.text("Split columns across pages if not fit in a single page with a column repeated.", 14, 20)
+  doc.autoTable({
+    head: head,
+    body: body,
+    startY: 25,
+    // split overflowing columns into pages
+    horizontalPageBreak: true,
+    // repeat this column in split pages
     horizontalPageBreakRepeat: 'id',
   })
   return doc
