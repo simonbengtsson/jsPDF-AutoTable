@@ -46,7 +46,10 @@ export function calculateWidths(doc: DocHandler, table: Table) {
   }
 
   resizeWidth = Math.abs(resizeWidth)
-  if (!table.settings.horizontalPageBreak && resizeWidth > 0.1 / doc.scaleFactor()) {
+  if (
+    !table.settings.horizontalPageBreak &&
+    resizeWidth > 0.1 / doc.scaleFactor()
+  ) {
     // Table can't get smaller due to custom-width or minWidth restrictions
     // We can't really do much here. Up to user to for example
     // reduce font size, increase page size or remove custom cell widths
@@ -65,7 +68,7 @@ export function calculateWidths(doc: DocHandler, table: Table) {
 function calculate(doc: DocHandler, table: Table) {
   const sf = doc.scaleFactor()
   const horizontalPageBreak = table.settings.horizontalPageBreak
-  const availablePageWidth = TablePrinter.getPageAvailableWidth(doc, table);
+  const availablePageWidth = TablePrinter.getPageAvailableWidth(doc, table)
   table.allRows().forEach((row) => {
     for (const column of table.columns) {
       const cell = row.cells[column.index]
@@ -82,13 +85,16 @@ function calculate(doc: DocHandler, table: Table) {
         doc
       )
       cell.minReadableWidth = longestWordWidth + cell.padding('horizontal')
-      
+
       if (typeof cell.styles.cellWidth === 'number') {
         cell.minWidth = cell.styles.cellWidth
         cell.wrappedWidth = cell.styles.cellWidth
-      } else if (cell.styles.cellWidth === 'wrap' || horizontalPageBreak === true) {
+      } else if (
+        cell.styles.cellWidth === 'wrap' ||
+        horizontalPageBreak === true
+      ) {
         // cell width should not be more than available page width
-        if(cell.contentWidth > availablePageWidth) {
+        if (cell.contentWidth > availablePageWidth) {
           cell.minWidth = availablePageWidth
           cell.wrappedWidth = availablePageWidth
         } else {

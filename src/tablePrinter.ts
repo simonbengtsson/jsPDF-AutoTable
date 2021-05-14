@@ -24,15 +24,19 @@ const getColumnsCanFitInPage = (
   const availablePageWidth = getPageAvailableWidth(doc, table)
   let remainingWidth = availablePageWidth
   // get column data key to repeat
-  const horizontalPageBreakRepeat = table.settings.horizontalPageBreakRepeat;
-  let repeatColumn = null;
+  const horizontalPageBreakRepeat = table.settings.horizontalPageBreakRepeat
+  let repeatColumn = null
   const cols: number[] = []
   const columns: Column[] = []
   const len = table.columns.length
   let i = config && config.start ? config.start : 0
   // code to repeat the given column in split pages
   if (horizontalPageBreakRepeat) {
-    repeatColumn = table.columns.find((item) => item.dataKey === horizontalPageBreakRepeat || item.index === horizontalPageBreakRepeat);
+    repeatColumn = table.columns.find(
+      (item) =>
+        item.dataKey === horizontalPageBreakRepeat ||
+        item.index === horizontalPageBreakRepeat
+    )
     if (repeatColumn) {
       cols.push(repeatColumn.index)
       columns.push(table.columns[repeatColumn.index])
@@ -43,7 +47,7 @@ const getColumnsCanFitInPage = (
     if (repeatColumn?.index === i) {
       i++ // prevent columnDataKeyToRepeat to be pushed twice in a page
       continue
-    };
+    }
     const colWidth = table.columns[i].wrappedWidth
     if (remainingWidth < colWidth) {
       // check if it's first column in the sequence then add it into result
@@ -92,5 +96,5 @@ const calculateAllColumnsCanFitInPage = (
 export default {
   getColumnsCanFitInPage,
   calculateAllColumnsCanFitInPage,
-  getPageAvailableWidth
+  getPageAvailableWidth,
 }
