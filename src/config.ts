@@ -51,7 +51,7 @@ export interface UserOptions {
   columns?: ColumnInput[]
   horizontalPageBreak?: boolean
   // column data key to repeat if horizontalPageBreak = true
-  horizontalPageBreakRepeat?: string
+  horizontalPageBreakRepeat?: string | number
 
   // Styles
   styles?: Partial<Styles>
