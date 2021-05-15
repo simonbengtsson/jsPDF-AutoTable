@@ -41,7 +41,7 @@ doc.autoTable({
 doc.save('table.pdf')
 ```
 
-You can also use the exported autoTable method. This works  better with typescript and alternative jsPDF versions.
+You can also use the exported autoTable method. This works better with typescript and alternative jsPDF versions.
 
 ```js
 import jsPDF from 'jspdf'
@@ -184,6 +184,8 @@ doc.autoTable({
 - `showFoot: 'everyPage'|'lastPage'|'never' = 'everyPage''`
 - `tableLineWidth: number = 0`
 - `tableLineColor: Color = 200` The table line/border color
+- `horizontalPageBreak: boolean = true` To split/break the table into multiple pages if the given table width exceeds the page width
+- `horizontalPageBreakRepeat: string | number = 'id'` To repeat the given column in the split pages, works when `horizontalPageBreak = true`. The accepted values are column data keys, such as `'id'`, `recordId` or column indexes, such as `0`, `1`.
 
 `Margin`:
 Either a number or object `{top: number, right: number, bottom: number, left: number}`
