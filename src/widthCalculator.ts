@@ -137,6 +137,12 @@ function calculate(doc: DocHandler, table: Table) {
           column.minWidth = cellWidth
           column.wrappedWidth = cellWidth
         }
+
+        if (cell && cell.colSpan > 1) {
+          column.minWidth = Math.max(column.minWidth, cell.minWidth / cell.colSpan)
+          column.wrappedWidth = Math.max(column.wrappedWidth, column.minWidth)
+          column.minReadableWidth = Math.max(column.minReadableWidth, column.minWidth)
+        }
       }
 
       if (cell) {
