@@ -1477,7 +1477,7 @@ var getColumnsCanFitInPage = function (doc, table, config) {
     var len = table.columns.length;
     var i = config && config.start ? config.start : 0;
     // code to repeat the given column in split pages
-    if (horizontalPageBreakRepeat) {
+    if (horizontalPageBreakRepeat !== null) {
         repeatColumn = table.columns.find(function (item) {
             return item.dataKey === horizontalPageBreakRepeat ||
                 item.index === horizontalPageBreakRepeat;
