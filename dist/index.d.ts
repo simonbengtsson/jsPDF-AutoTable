@@ -92,6 +92,7 @@ export interface Settings {
 	tableLineWidth: number;
 	tableLineColor: Color;
 	horizontalPageBreak?: boolean;
+	horizontalPageBreakRepeat?: string | number | null;
 }
 export interface StylesProps {
 	styles: Partial<Styles>;
@@ -188,10 +189,10 @@ export declare class Column {
 	getMaxCustomCellWidth(table: Table): number;
 }
 export interface LineWidths {
-	"bottom": number;
-	"top": number;
-	"left": number;
-	"right": number;
+	bottom: number;
+	top: number;
+	left: number;
+	right: number;
 }
 export interface Styles {
 	font: "helvetica" | "times" | "courier" | string;
@@ -229,6 +230,7 @@ export interface UserOptions {
 	html?: string | HTMLTableElement;
 	columns?: ColumnInput[];
 	horizontalPageBreak?: boolean;
+	horizontalPageBreakRepeat?: string | number;
 	styles?: Partial<Styles>;
 	bodyStyles?: Partial<Styles>;
 	headStyles?: Partial<Styles>;
