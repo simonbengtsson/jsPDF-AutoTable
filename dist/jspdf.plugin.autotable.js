@@ -100,7 +100,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 11);
+/******/ 	return __webpack_require__(__webpack_require__.s = 12);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -707,7 +707,7 @@ exports.assign = assign;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.parseHtml = void 0;
-var cssParser_1 = __webpack_require__(13);
+var cssParser_1 = __webpack_require__(14);
 var config_1 = __webpack_require__(1);
 function parseHtml(doc, input, window, includeHiddenHtml, useCss) {
     var _a, _b;
@@ -858,7 +858,7 @@ var htmlParser_1 = __webpack_require__(5);
 var polyfills_1 = __webpack_require__(4);
 var common_1 = __webpack_require__(0);
 var documentHandler_1 = __webpack_require__(2);
-var inputValidator_1 = __webpack_require__(14);
+var inputValidator_1 = __webpack_require__(15);
 function parseInput(d, current) {
     var doc = new documentHandler_1.DocHandler(d);
     var document = doc.getDocumentOptions();
@@ -1066,7 +1066,7 @@ var models_1 = __webpack_require__(3);
 var documentHandler_1 = __webpack_require__(2);
 var polyfills_1 = __webpack_require__(4);
 var autoTableText_1 = __webpack_require__(6);
-var tablePrinter_1 = __webpack_require__(15);
+var tablePrinter_1 = __webpack_require__(10);
 function drawTable(jsPDFDoc, table) {
     var settings = table.settings;
     var startY = settings.startY;
@@ -1446,6 +1446,77 @@ exports.CellHookData = CellHookData;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+var common_1 = __webpack_require__(0);
+var getPageAvailableWidth = function (doc, table) {
+    var margins = common_1.parseSpacing(table.settings.margin, 0);
+    var availablePageWidth = doc.pageSize().width - (margins.left + margins.right);
+    return availablePageWidth;
+};
+// get columns can be fit into page
+var getColumnsCanFitInPage = function (doc, table, config) {
+    if (config === void 0) { config = {}; }
+    // get page width
+    var availablePageWidth = getPageAvailableWidth(doc, table);
+    var remainingWidth = availablePageWidth;
+    var cols = [];
+    var columns = [];
+    var len = table.columns.length;
+    var i = config && config.start ? config.start : 0;
+    while (i < len) {
+        var colWidth = table.columns[i].wrappedWidth;
+        if (remainingWidth < colWidth) {
+            // check if it's first column in the sequence then add it into result
+            if (i === 0 || i === config.start) {
+                // this cell width is more than page width set it available pagewidth
+                /* table.columns[i].wrappedWidth = availablePageWidth
+                table.columns[i].minWidth = availablePageWidth */
+                cols.push(i);
+                columns.push(table.columns[i]);
+            }
+            // can't print more columns in same page
+            break;
+        }
+        cols.push(i);
+        columns.push(table.columns[i]);
+        remainingWidth = remainingWidth - colWidth;
+        i++;
+    }
+    return { colIndexes: cols, columns: columns };
+};
+var calculateAllColumnsCanFitInPage = function (doc, table) {
+    // const margins = table.settings.margin;
+    // const availablePageWidth = doc.pageSize().width - (margins.left + margins.right);
+    var allResults = [];
+    var index = 0;
+    var len = table.columns.length;
+    while (index < len) {
+        var result = getColumnsCanFitInPage(doc, table, {
+            start: index === 0 ? 0 : index,
+        });
+        if (result && result.columns && result.columns.length) {
+            index += result.columns.length;
+            allResults.push(result);
+        }
+        else {
+            index++;
+        }
+    }
+    return allResults;
+};
+exports.default = {
+    getColumnsCanFitInPage: getColumnsCanFitInPage,
+    calculateAllColumnsCanFitInPage: calculateAllColumnsCanFitInPage,
+    getPageAvailableWidth: getPageAvailableWidth
+};
+
+
+/***/ }),
+/* 11 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
 exports.createTable = void 0;
 var documentHandler_1 = __webpack_require__(2);
 var models_1 = __webpack_require__(3);
@@ -1600,17 +1671,17 @@ function cellStyles(sectionName, column, rowIndex, themeName, styles, scaleFacto
 
 
 /***/ }),
-/* 11 */
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Cell = exports.Column = exports.Row = exports.Table = exports.CellHookData = exports.__drawTable = exports.__createTable = exports.applyPlugin = void 0;
-var applyPlugin_1 = __webpack_require__(12);
+var applyPlugin_1 = __webpack_require__(13);
 var inputParser_1 = __webpack_require__(7);
 var tableDrawer_1 = __webpack_require__(8);
-var tableCalculator_1 = __webpack_require__(10);
+var tableCalculator_1 = __webpack_require__(11);
 var models_1 = __webpack_require__(3);
 Object.defineProperty(exports, "Table", { enumerable: true, get: function () { return models_1.Table; } });
 var HookData_1 = __webpack_require__(9);
@@ -1658,7 +1729,7 @@ catch (error) {
 
 
 /***/ }),
-/* 12 */
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1669,7 +1740,7 @@ var autoTableText_1 = __webpack_require__(6);
 var documentHandler_1 = __webpack_require__(2);
 var inputParser_1 = __webpack_require__(7);
 var tableDrawer_1 = __webpack_require__(8);
-var tableCalculator_1 = __webpack_require__(10);
+var tableCalculator_1 = __webpack_require__(11);
 function default_1(jsPDF) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     jsPDF.API.autoTable = function () {
@@ -1754,7 +1825,7 @@ exports.default = default_1;
 
 
 /***/ }),
-/* 13 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1768,21 +1839,21 @@ var common_1 = __webpack_require__(0);
 function parseCss(supportedFonts, element, scaleFactor, style, window) {
     var result = {};
     var pxScaleFactor = 96 / 72;
-    var color = parseColor(element, function (elem) {
+    var backgroundColor = parseColor(element, function (elem) {
         return window.getComputedStyle(elem)['backgroundColor'];
     });
-    if (color != null)
-        result.fillColor = color;
-    color = parseColor(element, function (elem) {
+    if (backgroundColor != null)
+        result.fillColor = backgroundColor;
+    var textColor = parseColor(element, function (elem) {
         return window.getComputedStyle(elem)['color'];
     });
-    if (color != null)
-        result.textColor = color;
-    color = parseColor(element, function (elem) {
+    if (textColor != null)
+        result.textColor = textColor;
+    var borderColor = parseColor(element, function (elem) {
         return window.getComputedStyle(elem)['borderTopColor'];
     });
-    if (color != null)
-        result.lineColor = color;
+    if (borderColor != null)
+        result.lineColor = borderColor;
     var padding = parsePadding(style, scaleFactor);
     if (padding)
         result.cellPadding = padding;
@@ -1868,7 +1939,7 @@ function parsePadding(style, scaleFactor) {
     var pxScaleFactor = 96 / (72 / scaleFactor);
     var linePadding = (parseInt(style.lineHeight) - parseInt(style.fontSize)) / scaleFactor / 2;
     var inputPadding = val.map(function (n) {
-        return parseInt(n) / pxScaleFactor;
+        return parseInt(n || '0') / pxScaleFactor;
     });
     var padding = common_1.parseSpacing(inputPadding, 0);
     if (linePadding > padding.top) {
@@ -1882,7 +1953,7 @@ function parsePadding(style, scaleFactor) {
 
 
 /***/ }),
-/* 14 */
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2007,68 +2078,6 @@ function checkStyles(styles) {
 
 
 /***/ }),
-/* 15 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-// get columns can be fit into page
-var getColumnsCanFitInPage = function (doc, table, config) {
-    if (config === void 0) { config = {}; }
-    // get page width
-    var margins = table.settings.margin;
-    var availablePageWidth = doc.pageSize().width - (margins.left + margins.right);
-    var remainingWidth = availablePageWidth;
-    var cols = [];
-    var columns = [];
-    var len = table.columns.length;
-    var i = config && config.start ? config.start : 0;
-    while (i < len) {
-        var colWidth = table.columns[i].wrappedWidth;
-        if (remainingWidth < colWidth) {
-            // check if it's first column in the sequence then add it into result
-            if (i === 0 || i === config.start) {
-                cols.push(i);
-                columns.push(table.columns[i]);
-            }
-            // can't print more columns in same page
-            break;
-        }
-        cols.push(i);
-        columns.push(table.columns[i]);
-        remainingWidth = remainingWidth - colWidth;
-        i++;
-    }
-    return { colIndexes: cols, columns: columns };
-};
-var calculateAllColumnsCanFitInPage = function (doc, table) {
-    // const margins = table.settings.margin;
-    // const availablePageWidth = doc.pageSize().width - (margins.left + margins.right);
-    var allResults = [];
-    var index = 0;
-    var len = table.columns.length;
-    while (index < len) {
-        var result = getColumnsCanFitInPage(doc, table, {
-            start: index === 0 ? 0 : index,
-        });
-        if (result && result.columns && result.columns.length) {
-            index += result.columns.length;
-            allResults.push(result);
-        }
-        else {
-            index++;
-        }
-    }
-    return allResults;
-};
-exports.default = {
-    getColumnsCanFitInPage: getColumnsCanFitInPage,
-    calculateAllColumnsCanFitInPage: calculateAllColumnsCanFitInPage,
-};
-
-
-/***/ }),
 /* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -2077,6 +2086,7 @@ exports.default = {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ellipsize = exports.resizeColumns = exports.calculateWidths = void 0;
 var common_1 = __webpack_require__(0);
+var tablePrinter_1 = __webpack_require__(10);
 /**
  * Calculate the column widths
  */
@@ -2125,6 +2135,8 @@ function calculateWidths(doc, table) {
 exports.calculateWidths = calculateWidths;
 function calculate(doc, table) {
     var sf = doc.scaleFactor();
+    var horizontalPageBreak = table.settings.horizontalPageBreak;
+    var availablePageWidth = tablePrinter_1.default.getPageAvailableWidth(doc, table);
     table.allRows().forEach(function (row) {
         for (var _i = 0, _a = table.columns; _i < _a.length; _i++) {
             var column = _a[_i];
@@ -2141,9 +2153,16 @@ function calculate(doc, table) {
                 cell.minWidth = cell.styles.cellWidth;
                 cell.wrappedWidth = cell.styles.cellWidth;
             }
-            else if (cell.styles.cellWidth === 'wrap') {
-                cell.minWidth = cell.contentWidth;
-                cell.wrappedWidth = cell.contentWidth;
+            else if (cell.styles.cellWidth === 'wrap' || horizontalPageBreak === true) {
+                // cell width should not be more than available page width
+                if (cell.contentWidth > availablePageWidth) {
+                    cell.minWidth = availablePageWidth;
+                    cell.wrappedWidth = availablePageWidth;
+                }
+                else {
+                    cell.minWidth = cell.contentWidth;
+                    cell.wrappedWidth = cell.contentWidth;
+                }
             }
             else {
                 // auto
@@ -2181,6 +2200,11 @@ function calculate(doc, table) {
                 if (cellWidth && typeof cellWidth === 'number') {
                     column.minWidth = cellWidth;
                     column.wrappedWidth = cellWidth;
+                }
+                if (cell && cell.colSpan > 1) {
+                    column.minWidth = Math.max(column.minWidth, cell.minWidth / cell.colSpan);
+                    column.wrappedWidth = Math.max(column.wrappedWidth, column.minWidth);
+                    column.minReadableWidth = Math.max(column.minReadableWidth, column.minWidth);
                 }
             }
             if (cell) {
