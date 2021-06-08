@@ -208,6 +208,7 @@ export interface Styles {
 	cellWidth: "auto" | "wrap" | number;
 	minCellHeight: number;
 	minCellWidth: number;
+	deferredMinColspanWidth: number;
 }
 export interface UserOptions {
 	includeHiddenHtml?: boolean;
@@ -265,6 +266,7 @@ export declare type MarginPaddingInput = number | number[] | {
 export interface CellDef {
 	rowSpan?: number;
 	colSpan?: number;
+	deferredColspanWidthCalculation?: boolean;
 	styles?: Partial<Styles>;
 	content?: string | string[] | number;
 	title?: string;

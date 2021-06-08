@@ -1,4 +1,4 @@
-import { CellHook, PageHook } from './models'
+import { CellHook, PageHook } from './models';
 
 /**
  * Ratio between font size and font height. The number comes from jspdf's source code
@@ -27,6 +27,7 @@ export interface Styles {
   cellWidth: 'auto' | 'wrap' | number
   minCellHeight: number
   minCellWidth: number
+  deferredMinColspanWidth: number
 }
 
 export interface UserOptions {
@@ -95,6 +96,7 @@ export type MarginPaddingInput =
 export interface CellDef {
   rowSpan?: number
   colSpan?: number
+  deferredColspanWidthCalculation?: boolean
   styles?: Partial<Styles>
   content?: string | string[] | number
   title?: string // Deprecated, same as content
@@ -130,6 +132,7 @@ export function defaultStyles(scaleFactor: number): Styles {
     cellWidth: 'auto', // 'auto'|'wrap'|number
     minCellHeight: 0,
     minCellWidth: 0,
+    deferredMinColspanWidth: 0,
   }
 }
 

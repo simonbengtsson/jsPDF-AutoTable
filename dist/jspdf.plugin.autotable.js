@@ -260,6 +260,7 @@ function defaultStyles(scaleFactor) {
         cellWidth: 'auto',
         minCellHeight: 0,
         minCellWidth: 0,
+        deferredMinColspanWidth: 0,
     };
 }
 exports.defaultStyles = defaultStyles;
