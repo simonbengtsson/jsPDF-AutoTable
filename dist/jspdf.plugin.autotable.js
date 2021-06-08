@@ -220,6 +220,8 @@ var __extends = (this && this.__extends) || (function () {
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -1405,6 +1407,8 @@ var __extends = (this && this.__extends) || (function () {
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -2040,18 +2044,18 @@ function default_1(doc, global, document, current) {
                     ' instead.');
             }
         });
-        for (var _i = 0, _a = [
+        for (var _b = 0, _c = [
             'styles',
             'bodyStyles',
             'headStyles',
             'footStyles',
-        ]; _i < _a.length; _i++) {
-            var styleProp = _a[_i];
+        ]; _b < _c.length; _b++) {
+            var styleProp = _c[_b];
             checkStyles(options[styleProp] || {});
         }
         var columnStyles = options['columnStyles'] || {};
-        for (var _b = 0, _c = Object.keys(columnStyles); _b < _c.length; _b++) {
-            var key = _c[_b];
+        for (var _d = 0, _e = Object.keys(columnStyles); _d < _e.length; _d++) {
+            var key = _e[_d];
             checkStyles(columnStyles[key] || {});
         }
     };
@@ -2176,8 +2180,9 @@ function calculate(doc, table) {
         }
     });
     table.allRows().forEach(function (row) {
-        for (var _i = 0, _a = table.columns; _i < _a.length; _i++) {
-            var column = _a[_i];
+        var _a;
+        for (var _i = 0, _b = table.columns; _i < _b.length; _i++) {
+            var column = _b[_i];
             var cell = row.cells[column.index];
             // For now we ignore the minWidth and wrappedWidth of colspan cells when calculating colspan widths.
             // Could probably be improved upon however.
@@ -2201,10 +2206,13 @@ function calculate(doc, table) {
                     column.minWidth = cellWidth;
                     column.wrappedWidth = cellWidth;
                 }
-                if (cell && cell.colSpan > 1) {
-                    column.minWidth = Math.max(column.minWidth, cell.minWidth / cell.colSpan);
-                    column.wrappedWidth = Math.max(column.wrappedWidth, column.minWidth);
-                    column.minReadableWidth = Math.max(column.minReadableWidth, column.minWidth);
+                if (cell && cell.colSpan > 1 && !((_a = cell.raw) === null || _a === void 0 ? void 0 : _a.deferredColspanWidthCalculation)) {
+                    for (var i = 0; i < cell.colSpan; i++) {
+                        var spannedColumn = table.columns[column.index + i];
+                        spannedColumn.wrappedWidth = Math.max(spannedColumn.wrappedWidth, cell.wrappedWidth / cell.colSpan);
+                        spannedColumn.minWidth = Math.max(spannedColumn.minWidth, cell.minWidth / cell.colSpan);
+                        spannedColumn.minReadableWidth = Math.max(spannedColumn.minReadableWidth, cell.minReadableWidth / cell.colSpan);
+                    }
                 }
             }
             if (cell) {
@@ -2214,6 +2222,24 @@ function calculate(doc, table) {
                 }
                 if (cell.colSpan > 1 && !column.wrappedWidth) {
                     column.wrappedWidth = cell.minWidth;
+                }
+            }
+        }
+    });
+    table.allRows().forEach(function (row) {
+        var _a;
+        for (var _i = 0, _b = table.columns; _i < _b.length; _i++) {
+            var column = _b[_i];
+            var cell = row.cells[column.index];
+            if (cell && ((_a = cell.raw) === null || _a === void 0 ? void 0 : _a.deferredColspanWidthCalculation)) {
+                var wrappedWidthSum = 0;
+                for (var i = 0; i < cell.colSpan; i++) {
+                    wrappedWidthSum += table.columns[column.index + i].wrappedWidth;
+                }
+                for (var i = 0; i < cell.colSpan; i++) {
+                    var spannedColumn = table.columns[column.index + i];
+                    var ratio = spannedColumn.wrappedWidth / wrappedWidthSum;
+                    spannedColumn.minWidth = Math.max(spannedColumn.minWidth, cell.raw.styles.deferredMinColspanWidth * ratio);
                 }
             }
         }

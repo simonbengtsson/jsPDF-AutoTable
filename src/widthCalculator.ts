@@ -1,15 +1,14 @@
-import { getStringWidth } from './common'
-import { Table, Cell, Column, Row } from './models'
-import { DocHandler } from './documentHandler'
-import { Styles } from './config'
-import TablePrinter from './tablePrinter'
+import { getStringWidth } from './common';
+import { Styles } from './config';
+import { DocHandler } from './documentHandler';
+import { Cell, Column, Row, Table } from './models';
+import TablePrinter from './tablePrinter';
 
 /**
  * Calculate the column widths
  */
 export function calculateWidths(doc: DocHandler, table: Table) {
   calculate(doc, table)
-
   const resizableColumns: Column[] = []
   let initialTableWidth = 0
 
@@ -82,13 +81,13 @@ function calculate(doc: DocHandler, table: Table) {
         doc
       )
       cell.minReadableWidth = longestWordWidth + cell.padding('horizontal')
-      
+
       if (typeof cell.styles.cellWidth === 'number') {
         cell.minWidth = cell.styles.cellWidth
         cell.wrappedWidth = cell.styles.cellWidth
       } else if (cell.styles.cellWidth === 'wrap' || horizontalPageBreak === true) {
         // cell width should not be more than available page width
-        if(cell.contentWidth > availablePageWidth) {
+        if (cell.contentWidth > availablePageWidth) {
           cell.minWidth = availablePageWidth
           cell.wrappedWidth = availablePageWidth
         } else {
@@ -138,10 +137,14 @@ function calculate(doc: DocHandler, table: Table) {
           column.wrappedWidth = cellWidth
         }
 
-        if (cell && cell.colSpan > 1) {
-          column.minWidth = Math.max(column.minWidth, cell.minWidth / cell.colSpan)
-          column.wrappedWidth = Math.max(column.wrappedWidth, column.minWidth)
-          column.minReadableWidth = Math.max(column.minReadableWidth, column.minWidth)
+        if (cell && cell.colSpan > 1 && !(<any>cell.raw)?.deferredColspanWidthCalculation) {
+          for (let i = 0; i < cell.colSpan; i++) {
+            const spannedColumn = table.columns[column.index + i]
+
+            spannedColumn.wrappedWidth = Math.max(spannedColumn.wrappedWidth, cell.wrappedWidth / cell.colSpan)
+            spannedColumn.minWidth = Math.max(spannedColumn.minWidth, cell.minWidth / cell.colSpan)
+            spannedColumn.minReadableWidth = Math.max(spannedColumn.minReadableWidth, cell.minReadableWidth / cell.colSpan)
+          }
         }
       }
 
@@ -152,6 +155,24 @@ function calculate(doc: DocHandler, table: Table) {
         }
         if (cell.colSpan > 1 && !column.wrappedWidth) {
           column.wrappedWidth = cell.minWidth
+        }
+      }
+    }
+  })
+
+  table.allRows().forEach((row) => {
+    for (const column of table.columns) {
+      const cell = row.cells[column.index]
+
+      if (cell && (<any>cell.raw)?.deferredColspanWidthCalculation) {
+        let wrappedWidthSum = 0;
+        for (let i = 0; i < cell.colSpan; i++) {
+          wrappedWidthSum += table.columns[column.index + i].wrappedWidth;
+        }
+        for (let i = 0; i < cell.colSpan; i++) {
+          const spannedColumn = table.columns[column.index + i];
+          const ratio = spannedColumn.wrappedWidth / wrappedWidthSum;
+          spannedColumn.minWidth = Math.max(spannedColumn.minWidth, (<any>cell.raw).styles.deferredMinColspanWidth * ratio);
         }
       }
     }
@@ -313,7 +334,7 @@ function fitContent(table: Table, doc: DocHandler) {
       if (
         cell.rowSpan > 1 &&
         rowSpanHeight.count * rowSpanHeight.height <
-          realContentHeight * cell.rowSpan
+        realContentHeight * cell.rowSpan
       ) {
         rowSpanHeight = { height: realContentHeight, count: cell.rowSpan }
       } else if (rowSpanHeight && rowSpanHeight.count > 0) {
