@@ -209,6 +209,8 @@ export interface Styles {
 	minCellHeight: number;
 	minCellWidth: number;
 	deferredMinColspanWidth: number;
+	isLongerLabel: boolean;
+	isCustomContent: boolean;
 }
 export interface UserOptions {
 	includeHiddenHtml?: boolean;
@@ -266,11 +268,12 @@ export declare type MarginPaddingInput = number | number[] | {
 export interface CellDef {
 	rowSpan?: number;
 	colSpan?: number;
-	deferredColspanWidthCalculation?: boolean;
 	styles?: Partial<Styles>;
 	content?: string | string[] | number;
 	title?: string;
 	_element?: HTMLTableCellElement;
+	deferredColspanWidthCalculation?: boolean;
+	label?: string;
 }
 declare class HtmlRowInput extends Array<CellDef> {
 	_element: HTMLTableRowElement;

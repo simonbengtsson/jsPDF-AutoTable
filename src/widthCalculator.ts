@@ -1,8 +1,19 @@
+import { jsPDF } from 'jspdf';
+
 import { getStringWidth } from './common';
 import { Styles } from './config';
 import { DocHandler } from './documentHandler';
 import { Cell, Column, Row, Table } from './models';
 import TablePrinter from './tablePrinter';
+
+function getTextHeight(doc: DocHandler): number { // Height from descender line to ascender line
+  return doc.getDocument().getTextDimensions(' ').h;
+}
+
+function getLineHeight(doc: DocHandler): number { // Height from descender line to ascender line + line leading
+  return getTextHeight(doc) * doc.getDocument().getLineHeightFactor();
+}
+
 
 /**
  * Calculate the column widths
@@ -57,6 +68,7 @@ export function calculateWidths(doc: DocHandler, table: Table) {
   }
 
   applyColSpans(table)
+  handleParameterLabels(table, doc)
   fitContent(table, doc)
   applyRowSpans(table)
 }
@@ -169,10 +181,27 @@ function calculate(doc: DocHandler, table: Table) {
         for (let i = 0; i < cell.colSpan; i++) {
           wrappedWidthSum += table.columns[column.index + i].wrappedWidth;
         }
+
+        let minWidthSum = 0;
+        for (let i = 0; i < table.columns.length; i++) {
+          minWidthSum += table.columns[i]?.minWidth;
+        }
+
+        let leftToDistribute = (<any>cell.raw).styles.deferredMinColspanWidth;
         for (let i = 0; i < cell.colSpan; i++) {
           const spannedColumn = table.columns[column.index + i];
           const ratio = spannedColumn.wrappedWidth / wrappedWidthSum;
-          spannedColumn.minWidth = Math.max(spannedColumn.minWidth, (<any>cell.raw).styles.deferredMinColspanWidth * ratio);
+          // Limiting growth based on available width to prevent overflow, crucial when ratio is really high
+          const allowedMinWidth = Math.min((<any>cell.raw).styles.deferredMinColspanWidth * ratio, table.getWidth((doc.pageSize().width) - minWidthSum) * 0.9);
+          spannedColumn.minWidth = Math.max(spannedColumn.minWidth, allowedMinWidth);
+          leftToDistribute -= spannedColumn.minWidth;
+        }
+        // Just distribute the remainder evenly
+        if (leftToDistribute > 0) {
+          for (let i = 0; i < cell.colSpan; i++) {
+            const spannedColumn = table.columns[column.index + i];
+            spannedColumn.minWidth += leftToDistribute / cell.colSpan;
+          }
         }
       }
     }
@@ -302,6 +331,33 @@ function applyColSpans(table: Table) {
       }
     }
   }
+}
+
+function handleParameterLabels(table: Table, doc: DocHandler) {
+  table.allRows().forEach((row) => {
+    for (const column of table.columns) {
+      const cell = row.cells[column.index]
+      if (cell) {
+        const label = (<any>cell.raw)?.label
+        if (label) {
+          const jspdf = doc.getDocument() as jsPDF
+          const fontStyle = jspdf.getFont().fontStyle
+          jspdf.setFont(cell.styles.font, 'bold')
+          const textLines = jspdf.splitTextToSize(label, cell.width - <number>cell.styles.cellPadding * 2)
+
+          cell.styles.isLongerLabel = textLines.length > 1
+
+          const emptyLines = Array(cell.styles.isLongerLabel ? 2 : 1).fill('')
+          cell.text.unshift(...emptyLines)
+          if (cell.styles.isLongerLabel && cell.styles.isCustomContent) {
+            cell.styles.minCellHeight += getLineHeight(doc)
+          }
+
+          jspdf.setFont(cell.styles.font, fontStyle)
+        }
+      }
+    }
+  })
 }
 
 function fitContent(table: Table, doc: DocHandler) {

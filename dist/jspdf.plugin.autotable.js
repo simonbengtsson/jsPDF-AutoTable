@@ -1,6 +1,6 @@
 /*!
  * 
- *             jsPDF AutoTable plugin v13.5.14
+ *             jsPDF AutoTable plugin v13.5.15
  *             
  *             Copyright (c) 2021 Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable
  *             Licensed under the MIT License.
@@ -261,6 +261,8 @@ function defaultStyles(scaleFactor) {
         minCellHeight: 0,
         minCellWidth: 0,
         deferredMinColspanWidth: 0,
+        isLongerLabel: false,
+        isCustomContent: false,
     };
 }
 exports.defaultStyles = defaultStyles;
@@ -2092,6 +2094,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ellipsize = exports.resizeColumns = exports.calculateWidths = void 0;
 var common_1 = __webpack_require__(0);
 var tablePrinter_1 = __webpack_require__(10);
+function getTextHeight(doc) {
+    return doc.getDocument().getTextDimensions(' ').h;
+}
+function getLineHeight(doc) {
+    return getTextHeight(doc) * doc.getDocument().getLineHeightFactor();
+}
 /**
  * Calculate the column widths
  */
@@ -2134,6 +2142,7 @@ function calculateWidths(doc, table) {
         console.error("Of the table content, " + resizeWidth + " units width could not fit page");
     }
     applyColSpans(table);
+    handleParameterLabels(table, doc);
     fitContent(table, doc);
     applyRowSpans(table);
 }
@@ -2228,19 +2237,34 @@ function calculate(doc, table) {
         }
     });
     table.allRows().forEach(function (row) {
-        var _a;
-        for (var _i = 0, _b = table.columns; _i < _b.length; _i++) {
-            var column = _b[_i];
+        var _a, _b;
+        for (var _i = 0, _c = table.columns; _i < _c.length; _i++) {
+            var column = _c[_i];
             var cell = row.cells[column.index];
             if (cell && ((_a = cell.raw) === null || _a === void 0 ? void 0 : _a.deferredColspanWidthCalculation)) {
                 var wrappedWidthSum = 0;
                 for (var i = 0; i < cell.colSpan; i++) {
                     wrappedWidthSum += table.columns[column.index + i].wrappedWidth;
                 }
+                var minWidthSum = 0;
+                for (var i = 0; i < table.columns.length; i++) {
+                    minWidthSum += (_b = table.columns[i]) === null || _b === void 0 ? void 0 : _b.minWidth;
+                }
+                var leftToDistribute = cell.raw.styles.deferredMinColspanWidth;
                 for (var i = 0; i < cell.colSpan; i++) {
                     var spannedColumn = table.columns[column.index + i];
                     var ratio = spannedColumn.wrappedWidth / wrappedWidthSum;
-                    spannedColumn.minWidth = Math.max(spannedColumn.minWidth, cell.raw.styles.deferredMinColspanWidth * ratio);
+                    // Limiting growth based on available width to prevent overflow, crucial when ratio is really high
+                    var allowedMinWidth = Math.min(cell.raw.styles.deferredMinColspanWidth * ratio, table.getWidth((doc.pageSize().width) - minWidthSum) * 0.9);
+                    spannedColumn.minWidth = Math.max(spannedColumn.minWidth, allowedMinWidth);
+                    leftToDistribute -= spannedColumn.minWidth;
+                }
+                // Just distribute the remainder evenly
+                if (leftToDistribute > 0) {
+                    for (var i = 0; i < cell.colSpan; i++) {
+                        var spannedColumn = table.columns[column.index + i];
+                        spannedColumn.minWidth += leftToDistribute / cell.colSpan;
+                    }
                 }
             }
         }
@@ -2351,6 +2375,32 @@ function applyColSpans(table) {
             }
         }
     }
+}
+function handleParameterLabels(table, doc) {
+    table.allRows().forEach(function (row) {
+        var _a;
+        var _b;
+        for (var _i = 0, _c = table.columns; _i < _c.length; _i++) {
+            var column = _c[_i];
+            var cell = row.cells[column.index];
+            if (cell) {
+                var label = (_b = cell.raw) === null || _b === void 0 ? void 0 : _b.label;
+                if (label) {
+                    var jspdf = doc.getDocument();
+                    var fontStyle = jspdf.getFont().fontStyle;
+                    jspdf.setFont(cell.styles.font, 'bold');
+                    var textLines = jspdf.splitTextToSize(label, cell.width - cell.styles.cellPadding * 2);
+                    cell.styles.isLongerLabel = textLines.length > 1;
+                    var emptyLines = Array(cell.styles.isLongerLabel ? 2 : 1).fill('');
+                    (_a = cell.text).unshift.apply(_a, emptyLines);
+                    if (cell.styles.isLongerLabel && cell.styles.isCustomContent) {
+                        cell.styles.minCellHeight += getLineHeight(doc);
+                    }
+                    jspdf.setFont(cell.styles.font, fontStyle);
+                }
+            }
+        }
+    });
 }
 function fitContent(table, doc) {
     var rowSpanHeight = { count: 0, height: 0 };

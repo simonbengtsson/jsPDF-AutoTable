@@ -28,6 +28,8 @@ export interface Styles {
   minCellHeight: number
   minCellWidth: number
   deferredMinColspanWidth: number
+  isLongerLabel: boolean
+  isCustomContent: boolean
 }
 
 export interface UserOptions {
@@ -96,11 +98,12 @@ export type MarginPaddingInput =
 export interface CellDef {
   rowSpan?: number
   colSpan?: number
-  deferredColspanWidthCalculation?: boolean
   styles?: Partial<Styles>
   content?: string | string[] | number
   title?: string // Deprecated, same as content
   _element?: HTMLTableCellElement
+  deferredColspanWidthCalculation?: boolean
+  label?: string
 }
 
 export class HtmlRowInput extends Array<CellDef> {
@@ -133,6 +136,8 @@ export function defaultStyles(scaleFactor: number): Styles {
     minCellHeight: 0,
     minCellWidth: 0,
     deferredMinColspanWidth: 0,
+    isLongerLabel: false,
+    isCustomContent: false,
   }
 }
 
