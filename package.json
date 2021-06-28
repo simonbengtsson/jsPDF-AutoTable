@@ -39,7 +39,7 @@
   },
   "scripts": {
     "start": "webpack serve --config webpack.config.js --mode=development",
-    "start-external": "webpack serve -d --open --host 0.0.0.0",
+    "start-external": "webpack serve --config webpack.config.js --mode=development --host 0.0.0.0",
     "build": "webpack --mode=production && webpack --mode=production --minified && npm run types",
     "lint": "eslint . --ext .ts",
     "test": "mocha -r ts-node/register test/test*.ts",

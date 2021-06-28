@@ -2,7 +2,7 @@
   "name": "nodejs-example",
   "version": "1.0",
   "dependencies": {
-    "jspdf": "^2.1.1",
-    "jspdf-autotable": "^3.5.12"
+    "jspdf": "^2.3.1",
+    "jspdf-autotable": "^3.5.15"
   }
 }
