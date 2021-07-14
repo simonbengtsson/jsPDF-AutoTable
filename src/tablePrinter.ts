@@ -4,7 +4,8 @@ import { Column, Table } from './models'
 
 export interface ColumnFitInPageResult {
   colIndexes: number[]
-  columns: Column[]
+  columns: Column[],
+  lastIndex: number
 }
 
 const getPageAvailableWidth = (doc: DocHandler, table: Table) => {
@@ -66,7 +67,7 @@ const getColumnsCanFitInPage = (
     remainingWidth = remainingWidth - colWidth
     i++
   }
-  return { colIndexes: cols, columns }
+  return { colIndexes: cols, columns, lastIndex: i }
 }
 
 const calculateAllColumnsCanFitInPage = (
@@ -84,7 +85,7 @@ const calculateAllColumnsCanFitInPage = (
       start: index === 0 ? 0 : index,
     })
     if (result && result.columns && result.columns.length) {
-      index += result.columns.length
+      index = result.lastIndex
       allResults.push(result)
     } else {
       index++
