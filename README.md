@@ -114,7 +114,7 @@ doc.autoTable({
 
 - `font: 'helvetica'|'times'|'courier' = 'helvetica'`
 - `fontStyle: 'normal'|'bold'|'italic'|'bolditalic' = 'normal'`
-- `overflow: 'linebreak'|'ellipsize'|'visible'|'hidden' = 'normal'`
+- `overflow: 'linebreak'|'ellipsize'|'visible'|'hidden' = 'linebreak'`
 - `fillColor: Color? = null`
 - `textColor: Color? = 20`
 - `cellWidth: 'auto'|'wrap'|number = 'auto'`
