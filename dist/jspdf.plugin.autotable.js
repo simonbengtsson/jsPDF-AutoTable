@@ -1,6 +1,6 @@
 /*!
  * 
- *             jsPDF AutoTable plugin v13.5.16
+ *             jsPDF AutoTable plugin v13.5.17
  *             
  *             Copyright (c) 2021 Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable
  *             Licensed under the MIT License.
@@ -1726,7 +1726,7 @@ function cellStyles(sectionName, column, rowIndex, themeName, styles, scaleFacto
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Cell = exports.Column = exports.Row = exports.Table = exports.CellHookData = exports.__getRemainingPageSpace = exports.__drawTable = exports.__createTable = exports.applyPlugin = void 0;
+exports.Cell = exports.Column = exports.Row = exports.Table = exports.CellHookData = exports.getRemainingPageHeight = exports.__drawTable = exports.__createTable = exports.applyPlugin = void 0;
 var applyPlugin_1 = __webpack_require__(13);
 var HookData_1 = __webpack_require__(9);
 Object.defineProperty(exports, "CellHookData", { enumerable: true, get: function () { return HookData_1.CellHookData; } });
@@ -1760,10 +1760,10 @@ function __drawTable(d, table) {
     tableDrawer_1.drawTable(d, table);
 }
 exports.__drawTable = __drawTable;
-function __getRemainingPageSpace(doc, table, isLastRow, cursor) {
+function getRemainingPageHeight(doc, table, isLastRow, cursor) {
     return tableDrawer_1.getRemainingPageSpace(doc, table, isLastRow, cursor);
 }
-exports.__getRemainingPageSpace = __getRemainingPageSpace;
+exports.getRemainingPageHeight = getRemainingPageHeight;
 try {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     var jsPDF = __webpack_require__(17);

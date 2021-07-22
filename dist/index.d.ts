@@ -295,6 +295,6 @@ export declare function applyPlugin(jsPDF: jsPDFConstructor): void;
 export default function autoTable(d: jsPDFDocument, options: UserOptions): void;
 declare function __createTable(d: jsPDFDocument, options: UserOptions): Table;
 declare function __drawTable(d: jsPDFDocument, table: Table): void;
-declare function __getRemainingPageSpace(doc: DocHandler, table: Table, isLastRow: boolean, cursor: Pos): number;
+export declare function getRemainingPageHeight(doc: DocHandler, table: Table, isLastRow: boolean, cursor: Pos): number;
 
 export {};

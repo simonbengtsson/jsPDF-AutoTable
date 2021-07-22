@@ -34,7 +34,7 @@ export function __drawTable(d: jsPDFDocument, table: Table) {
   _drawTable(d, table)
 }
 
-export function __getRemainingPageSpace(doc: DocHandler, table: Table, isLastRow: boolean, cursor: Pos) {
+export function getRemainingPageHeight(doc: DocHandler, table: Table, isLastRow: boolean, cursor: Pos) {
   return getRemainingPageSpace(doc, table, isLastRow, cursor)
 }
 
