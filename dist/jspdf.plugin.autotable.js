@@ -1,6 +1,6 @@
 /*!
  * 
- *             jsPDF AutoTable plugin v13.5.15
+ *             jsPDF AutoTable plugin v13.5.16
  *             
  *             Copyright (c) 2021 Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable
  *             Licensed under the MIT License.
@@ -1331,8 +1331,6 @@ function printRow(doc, table, row, cursor, columns) {
             continue;
         }
         doc.applyStyles(cell.styles);
-        // cell.x = cursor.x
-        // cell.y = cursor.y
         var result = table.callCellHooks(doc, table.hooks.willDrawCell, cell, row, column, cursor);
         if (result === false) {
             cursor.x += column.width;
