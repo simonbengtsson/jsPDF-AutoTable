@@ -1,14 +1,13 @@
 'use strict'
+import _applyPlugin from './applyPlugin';
+import { UserOptions } from './config';
+import { DocHandler, jsPDFConstructor, jsPDFDocument } from './documentHandler';
+import { CellHookData } from './HookData';
+import { parseInput } from './inputParser';
+import { Cell, Column, Pos, Row, Table } from './models';
+import { createTable as _createTable } from './tableCalculator';
+import { drawTable as _drawTable, getRemainingPageSpace } from './tableDrawer';
 
-import _applyPlugin from './applyPlugin'
-import { UserOptions } from './config'
-import { jsPDFConstructor, jsPDFDocument } from './documentHandler'
-import { parseInput } from './inputParser'
-import { drawTable as _drawTable } from './tableDrawer'
-import { createTable as _createTable } from './tableCalculator'
-import { Table } from './models'
-import { CellHookData, HookData } from './HookData';
-import { Cell, Column, Row } from './models';
 
 
 export type autoTable = (options: UserOptions) => void
@@ -33,6 +32,10 @@ export function __createTable(d: jsPDFDocument, options: UserOptions): Table {
 
 export function __drawTable(d: jsPDFDocument, table: Table) {
   _drawTable(d, table)
+}
+
+export function __getRemainingPageSpace(doc: DocHandler, table: Table, isLastRow: boolean, cursor: Pos) {
+  return getRemainingPageSpace(doc, table, isLastRow, cursor)
 }
 
 try {

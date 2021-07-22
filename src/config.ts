@@ -30,6 +30,7 @@ export interface Styles {
   deferredMinColspanWidth: number
   isLongerLabel: boolean
   isCustomContent: boolean
+  minimumNonBreakableHeight: number
 }
 
 export interface UserOptions {
@@ -138,6 +139,7 @@ export function defaultStyles(scaleFactor: number): Styles {
     deferredMinColspanWidth: 0,
     isLongerLabel: false,
     isCustomContent: false,
+    minimumNonBreakableHeight: 0,
   }
 }
 

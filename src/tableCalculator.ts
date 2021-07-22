@@ -1,17 +1,9 @@
-import { DocHandler, jsPDFDocument } from './documentHandler'
-import { Cell, Column, Row, Section, StylesProps, Table } from './models'
-import { calculateWidths } from './widthCalculator'
-import {
-  CellInput,
-  ColumnInput,
-  defaultStyles,
-  getTheme,
-  RowInput,
-  Styles,
-  ThemeName,
-} from './config'
-import { assign } from './polyfills'
-import { TableInput } from './inputParser'
+import { CellInput, ColumnInput, defaultStyles, getTheme, RowInput, Styles, ThemeName } from './config';
+import { DocHandler, jsPDFDocument } from './documentHandler';
+import { TableInput } from './inputParser';
+import { Cell, Column, Row, Section, StylesProps, Table } from './models';
+import { assign } from './polyfills';
+import { calculateWidths } from './widthCalculator';
 
 export function createTable(jsPDFDoc: jsPDFDocument, input: TableInput) {
   const doc = new DocHandler(jsPDFDoc)

@@ -148,8 +148,7 @@ function calculate(doc: DocHandler, table: Table) {
           column.minWidth = cellWidth
           column.wrappedWidth = cellWidth
         }
-
-        if (cell && cell.colSpan > 1 && !(<any>cell.raw)?.deferredColspanWidthCalculation) {
+        if (cell && cell.colSpan > 1 && !cell.deferredColspanWidthCalculation) {
           for (let i = 0; i < cell.colSpan; i++) {
             const spannedColumn = table.columns[column.index + i]
 
@@ -176,7 +175,7 @@ function calculate(doc: DocHandler, table: Table) {
     for (const column of table.columns) {
       const cell = row.cells[column.index]
 
-      if (cell && (<any>cell.raw)?.deferredColspanWidthCalculation) {
+      if (cell && cell.deferredColspanWidthCalculation) {
         let wrappedWidthSum = 0;
         for (let i = 0; i < cell.colSpan; i++) {
           wrappedWidthSum += table.columns[column.index + i].wrappedWidth;
@@ -187,12 +186,12 @@ function calculate(doc: DocHandler, table: Table) {
           minWidthSum += table.columns[i]?.minWidth;
         }
 
-        let leftToDistribute = (<any>cell.raw).styles.deferredMinColspanWidth;
+        let leftToDistribute = cell.styles.deferredMinColspanWidth;
         for (let i = 0; i < cell.colSpan; i++) {
           const spannedColumn = table.columns[column.index + i];
           const ratio = spannedColumn.wrappedWidth / wrappedWidthSum;
           // Limiting growth based on available width to prevent overflow, crucial when ratio is really high
-          const allowedMinWidth = Math.min((<any>cell.raw).styles.deferredMinColspanWidth * ratio, table.getWidth((doc.pageSize().width) - minWidthSum) * 0.9);
+          const allowedMinWidth = Math.min(cell.styles.deferredMinColspanWidth * ratio, table.getWidth((doc.pageSize().width) - minWidthSum) * 0.9);
           spannedColumn.minWidth = Math.max(spannedColumn.minWidth, allowedMinWidth);
           leftToDistribute -= spannedColumn.minWidth;
         }
@@ -338,7 +337,7 @@ function handleParameterLabels(table: Table, doc: DocHandler) {
     for (const column of table.columns) {
       const cell = row.cells[column.index]
       if (cell) {
-        const label = (<any>cell.raw)?.label
+        const label = cell.label
         if (label) {
           const jspdf = doc.getDocument() as jsPDF
           const fontStyle = jspdf.getFont().fontStyle
@@ -347,7 +346,7 @@ function handleParameterLabels(table: Table, doc: DocHandler) {
 
           cell.styles.isLongerLabel = textLines.length > 1
 
-          const emptyLines = Array(cell.styles.isLongerLabel ? 2 : 1).fill('')
+          const emptyLines = Array(cell.styles.isLongerLabel ? 2 : 1).fill(' ')
           cell.text.unshift(...emptyLines)
           if (cell.styles.isLongerLabel && cell.styles.isCustomContent) {
             cell.styles.minCellHeight += getLineHeight(doc)

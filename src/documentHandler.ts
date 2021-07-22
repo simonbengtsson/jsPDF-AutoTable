@@ -1,5 +1,5 @@
-import { Table } from './models'
-import { Color, Styles, UserOptions } from './config'
+import { Color, Styles, UserOptions } from './config';
+import { Table } from './models';
 
 let globalDefaults: UserOptions = {}
 

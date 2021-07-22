@@ -1,16 +1,8 @@
-import {
-  CellInput,
-  Color,
-  ColumnInput,
-  FONT_ROW_RATIO,
-  HtmlRowInput,
-  RowInput,
-  Styles,
-} from './config'
-import { DocHandler } from './documentHandler'
-import { CellHookData, HookData } from './HookData'
-import { parseSpacing, MarginPadding } from './common'
-import { TableInput } from './inputParser'
+import { MarginPadding, parseSpacing } from './common';
+import { CellInput, Color, ColumnInput, FONT_ROW_RATIO, HtmlRowInput, RowInput, Styles } from './config';
+import { DocHandler } from './documentHandler';
+import { CellHookData, HookData } from './HookData';
+import { TableInput } from './inputParser';
 
 export type Pos = { x: number; y: number }
 export type PageHook = (data: HookData) => void | boolean
@@ -163,6 +155,8 @@ export class Row {
   readonly section: Section
   readonly cells: { [key: string]: Cell }
   spansMultiplePages: boolean
+  isParameterRow: boolean
+  isNotDrawn: boolean
 
   height = 0
 
@@ -171,7 +165,9 @@ export class Row {
     index: number,
     section: Section,
     cells: { [key: string]: Cell },
-    spansMultiplePages = false
+    spansMultiplePages = false,
+    isParameterRow = false,
+    isNotDrawn = false,
   ) {
     this.raw = raw
     if (raw instanceof HtmlRowInput) {
@@ -182,6 +178,8 @@ export class Row {
     this.section = section
     this.cells = cells
     this.spansMultiplePages = spansMultiplePages
+    this.isParameterRow = isParameterRow
+    this.isNotDrawn = isNotDrawn
   }
 
   getMaxCellHeight(columns: Column[]) {
@@ -238,6 +236,10 @@ export class Cell {
   x = 0
   y = 0
 
+  deferredColspanWidthCalculation = false
+  overflowHeightPenalty = 0
+  label = ''
+
   constructor(raw: CellInput, styles: Styles, section: Section) {
     this.styles = styles
     this.section = section
@@ -251,6 +253,8 @@ export class Cell {
       if (raw._element) {
         this.raw = raw._element
       }
+      this.deferredColspanWidthCalculation = raw.deferredColspanWidthCalculation || false
+      this.label = raw.label || ''
     } else {
       this.rowSpan = 1
       this.colSpan = 1

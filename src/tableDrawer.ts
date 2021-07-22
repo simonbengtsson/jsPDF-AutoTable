@@ -1,10 +1,10 @@
-import { FONT_ROW_RATIO } from './config'
-import { addTableBorder, getFillStyle } from './common'
-import { Cell, Column, Pos, Row, Table } from './models'
-import { DocHandler, jsPDFDocument } from './documentHandler'
-import { assign } from './polyfills'
-import autoTableText from './autoTableText'
-import tablePrinter, { ColumnFitInPageResult } from './tablePrinter'
+import autoTableText from './autoTableText';
+import { addTableBorder, getFillStyle } from './common';
+import { FONT_ROW_RATIO } from './config';
+import { DocHandler, jsPDFDocument } from './documentHandler';
+import { Cell, Column, Pos, Row, Table } from './models';
+import { assign } from './polyfills';
+import tablePrinter, { ColumnFitInPageResult } from './tablePrinter';
 
 export function drawTable(jsPDFDoc: jsPDFDocument, table: Table): void {
   const settings = table.settings
@@ -73,11 +73,11 @@ export function drawTable(jsPDFDoc: jsPDFDocument, table: Table): void {
 function printTableWithHorizontalPageBreak(
   doc: DocHandler,
   table: Table,
-  startPos: {x: number, y: number},
-  cursor: {x: number, y: number}
+  startPos: { x: number, y: number },
+  cursor: { x: number, y: number }
 ) {
-   // calculate width of columns and render only those which can fit into page
-   const allColumnsCanFitResult: ColumnFitInPageResult[] = tablePrinter.calculateAllColumnsCanFitInPage(
+  // calculate width of columns and render only those which can fit into page
+  const allColumnsCanFitResult: ColumnFitInPageResult[] = tablePrinter.calculateAllColumnsCanFitInPage(
     doc,
     table
   )
@@ -116,7 +116,7 @@ function printHead(
     table.head.forEach((row) => printRow(doc, table, row, cursor, columns))
   }
 }
- 
+
 function printBody(
   doc: DocHandler,
   table: Table,
@@ -166,7 +166,6 @@ function modifyRowToFit(
   const cells: { [key: string]: Cell } = {}
   row.spansMultiplePages = true
   row.height = 0
-
   let rowHeight = 0
 
   for (const column of table.columns) {
@@ -198,8 +197,8 @@ function modifyRowToFit(
 
     if (cell.contentHeight >= remainingPageSpace) {
       cell.contentHeight = remainingPageSpace
-      remainderCell.styles.minCellHeight -= remainingPageSpace
     }
+    remainderCell.styles.minCellHeight -= remainingPageSpace
     if (cell.contentHeight > row.height) {
       row.height = cell.contentHeight
     }
@@ -211,7 +210,8 @@ function modifyRowToFit(
 
     cells[column.index] = remainderCell
   }
-  const remainderRow = new Row(row.raw, -1, row.section, cells, true)
+  const remainderRow = new Row(row.raw, -1, row.section, cells, true, row.isParameterRow)
+  remainderRow.spansMultiplePages = false
   remainderRow.height = rowHeight
 
   for (const column of table.columns) {
@@ -245,7 +245,12 @@ function shouldPrintOnCurrentPage(
       table.getHeadHeight(table.columns) + table.getFootHeight(table.columns)
   }
 
-  const minRowHeight = row.getMinimumRowHeight(table.columns, doc)
+  let minRowHeight = 0
+  for (const [key, cell] of Object.entries(row.cells)) {
+    minRowHeight = Math.max(minRowHeight, cell.styles.minimumNonBreakableHeight)
+  }
+
+  minRowHeight = Math.max(minRowHeight, row.getMinimumRowHeight(table.columns, doc))
   const minRowFits = minRowHeight < remainingPageSpace
   if (minRowHeight > maxRowHeight) {
     console.error(
@@ -298,6 +303,24 @@ function printFullRow(
     if (shouldPrintOnCurrentPage(doc, row, remainingSpace, table)) {
       const remainderRow = modifyRowToFit(row, remainingSpace, table, doc)
       printRow(doc, table, row, cursor, columns)
+      let maxHeight = 0;
+      for (const [key, cell] of Object.entries(remainderRow.cells)) {
+        cell.contentHeight += row.cells[key].overflowHeightPenalty
+        cell.height = Math.max(cell.height, cell.contentHeight)
+        cell.styles.minCellHeight += row.cells[key].overflowHeightPenalty
+
+        remainderRow.height = Math.max(remainderRow.height, cell.height);
+
+        if (cell.height > maxHeight) {
+          maxHeight = cell.height
+        }
+      }
+
+      remainderRow.height = maxHeight
+      for (const [key, cell] of Object.entries(remainderRow.cells)) {
+        cell.height = maxHeight
+      }
+
       addPage(doc, table, startPos, cursor, columns)
       printFullRow(
         doc,
@@ -322,6 +345,17 @@ function printRow(
   cursor: Pos,
   columns: Column[]
 ) {
+
+  cursor.x = table.settings.margin.left
+  for (const column of columns) { // Set x and y before we render row cells
+    const cell = row.cells[column.index]
+    if (cell) {
+      cell.x = cursor.x
+      cell.y = cursor.y
+    }
+    cursor.x += column.width
+  }
+
   cursor.x = table.settings.margin.left
   for (const column of columns) {
     const cell = row.cells[column.index]
@@ -330,9 +364,6 @@ function printRow(
       continue
     }
     doc.applyStyles(cell.styles)
-
-    cell.x = cursor.x
-    cell.y = cursor.y
 
     const result = table.callCellHooks(
       doc,
@@ -349,7 +380,7 @@ function printRow(
 
     drawCellBorders(doc, cell, cursor)
 
-   
+
     const textPos = cell.getTextPos()
     autoTableText(
       cell.text,
@@ -366,7 +397,6 @@ function printRow(
     )
 
     table.callCellHooks(doc, table.hooks.didDrawCell, cell, row, column, cursor)
-
     cursor.x += column.width
   }
 
@@ -381,7 +411,7 @@ function drawCellBorders(doc: DocHandler, cell: Cell, cursor: Pos) {
     if (fillStyle) {
       doc.rect(cell.x, cursor.y, cell.width, cell.height, fillStyle)
     }
-  } else if(typeof cellStyles.lineWidth === 'object') {
+  } else if (typeof cellStyles.lineWidth === 'object') {
     const sides = Object.keys(cellStyles.lineWidth);
     const lineWidth: any = cellStyles.lineWidth;
     sides.map((side: string) => {
@@ -393,7 +423,7 @@ function drawCellBorders(doc: DocHandler, cell: Cell, cursor: Pos) {
 
 function drawBorderForSide(doc: DocHandler, cell: Cell, cursor: Pos, side: string, fillStyle: string, lineWidth: number) {
   let x1, y1, x2, y2;
-  switch(side) {
+  switch (side) {
     case 'top':
       x1 = cursor.x;
       y1 = cursor.y;
@@ -423,7 +453,7 @@ function drawBorderForSide(doc: DocHandler, cell: Cell, cursor: Pos, side: strin
   doc.getDocument().line(x1, y1, x2, y2, fillStyle)
 }
 
-function getRemainingPageSpace(
+export function getRemainingPageSpace(
   doc: DocHandler,
   table: Table,
   isLastRow: boolean,

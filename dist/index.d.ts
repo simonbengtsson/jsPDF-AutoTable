@@ -31,12 +31,19 @@ declare class DocHandler {
 	scaleFactor(): number;
 	pageNumber(): number;
 }
+export declare type MarginPadding = {
+	top: number;
+	right: number;
+	bottom: number;
+	left: number;
+};
 declare class HookData {
 	table: Table;
 	pageNumber: number;
 	pageCount: number;
 	settings: Settings;
 	doc: jsPDFDocument;
+	docHandler: DocHandler;
 	cursor: Pos | null;
 	constructor(doc: DocHandler, table: Table, cursor: Pos | null);
 }
@@ -47,12 +54,6 @@ export declare class CellHookData extends HookData {
 	section: "head" | "body" | "foot";
 	constructor(doc: DocHandler, table: Table, cell: Cell, row: Row, column: Column, cursor: Pos | null);
 }
-export declare type MarginPadding = {
-	top: number;
-	right: number;
-	bottom: number;
-	left: number;
-};
 export interface ContentInput {
 	body: RowInput[];
 	head: RowInput[];
@@ -145,10 +146,12 @@ export declare class Row {
 		[key: string]: Cell;
 	};
 	spansMultiplePages: boolean;
+	isParameterRow: boolean;
+	isNotDrawn: boolean;
 	height: number;
 	constructor(raw: RowInput | HTMLTableRowElement, index: number, section: Section, cells: {
 		[key: string]: Cell;
-	}, spansMultiplePages?: boolean);
+	}, spansMultiplePages?: boolean, isParameterRow?: boolean, isNotDrawn?: boolean);
 	getMaxCellHeight(columns: Column[]): number;
 	hasRowSpan(columns: Column[]): boolean;
 	canEntireRowFit(height: number, columns: Column[]): boolean;
@@ -171,6 +174,9 @@ export declare class Cell {
 	height: number;
 	x: number;
 	y: number;
+	deferredColspanWidthCalculation: boolean;
+	overflowHeightPenalty: number;
+	label: string;
 	constructor(raw: CellInput, styles: Styles, section: Section);
 	getTextPos(): Pos;
 	getContentHeight(scaleFactor: number): number;
@@ -211,6 +217,7 @@ export interface Styles {
 	deferredMinColspanWidth: number;
 	isLongerLabel: boolean;
 	isCustomContent: boolean;
+	minimumNonBreakableHeight: number;
 }
 export interface UserOptions {
 	includeHiddenHtml?: boolean;
@@ -288,5 +295,6 @@ export declare function applyPlugin(jsPDF: jsPDFConstructor): void;
 export default function autoTable(d: jsPDFDocument, options: UserOptions): void;
 declare function __createTable(d: jsPDFDocument, options: UserOptions): Table;
 declare function __drawTable(d: jsPDFDocument, table: Table): void;
+declare function __getRemainingPageSpace(doc: DocHandler, table: Table, isLastRow: boolean, cursor: Pos): number;
 
 export {};

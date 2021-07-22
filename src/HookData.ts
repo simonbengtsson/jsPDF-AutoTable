@@ -1,5 +1,5 @@
-import { DocHandler, jsPDFDocument } from './documentHandler'
-import { Table, Cell, Row, Column, Settings, Pos } from './models'
+import { DocHandler, jsPDFDocument } from './documentHandler';
+import { Cell, Column, Pos, Row, Settings, Table } from './models';
 
 export class HookData {
   table: Table
@@ -7,6 +7,7 @@ export class HookData {
   pageCount: number // Deprecated, use pageNumber instead
   settings: Settings
   doc: jsPDFDocument
+  docHandler: DocHandler
   cursor: Pos | null
 
   constructor(doc: DocHandler, table: Table, cursor: Pos | null) {
@@ -16,6 +17,7 @@ export class HookData {
     this.settings = table.settings
     this.cursor = cursor
     this.doc = doc.getDocument()
+    this.docHandler = doc
   }
 }
 
