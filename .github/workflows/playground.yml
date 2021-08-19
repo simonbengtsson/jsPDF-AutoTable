@@ -28,7 +28,9 @@ jobs:
           npm version ${{ github.event.inputs.semverType }}
           
       - name: Deploy and publish
-        run: npm run deploy
+        run: |
+          npm whoami
+          npm run deploy
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
