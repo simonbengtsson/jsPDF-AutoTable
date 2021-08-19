@@ -1,9 +1,12 @@
-# This is a basic workflow to help you get started with Actions
-
-name: New Release
+name: Release
 
 on:
   workflow_dispatch:
+    inputs:
+      semverType:
+        description: 'Semver Type'     
+        required: true
+        default: 'patch'
 
 jobs:
   build:
@@ -11,22 +14,23 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v1
-      
-      - name: Install dependencies
-        run: npm install
-          
-      - name: Run tests
-        run: npm run test
-        
-      - name: Generate build and types
-        run: npm run build
-        
-      - name: Commit and push build files
-        uses: stefanzweifel/git-auto-commit-action@v4
-        with:
-          commit_message: Build update
 
-      - name: Run a multi-line script
+      - name: General setup and install dependencies
         run: |
-          echo Add other actions to build,
-          echo test, and deploy your project.
+          git config --global user.name 'Release Bot'
+          git config --global user.email 'simonbengtsson@users.noreply.github.com'
+          npm ci
+  
+      - name: Build and update version
+        run: |
+          echo "Type: ${{ github.event.inputs.semverType }}"
+          npm version ${{ github.event.inputs.semverType }}
+          
+      - name: Deploy and publish
+        run: |
+          echo '//registry.npmjs.org/:_authToken=${NPM_TOKEN}' > .npmrc
+          npm run deploy
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+        
