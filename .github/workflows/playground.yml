@@ -19,7 +19,6 @@ jobs:
         run: |
           git config --global user.name 'Release Bot'
           git config --global user.email 'simonbengtsson@users.noreply.github.com'
-          npm whoami
           npm ci
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
@@ -29,10 +28,11 @@ jobs:
         run: |
           echo "Type: ${{ github.event.inputs.semverType }}"
           npm version ${{ github.event.inputs.semverType }}
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           
       - name: Deploy and publish
         run: |
-          npm whoami
           npm run deploy
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
