@@ -10,9 +10,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-
-      - name: Run a one-line script
-        run: echo Hello, world!
+      - uses: actions/setup-node@v1
+      
+      - name: Install dependencies
+        run: npm install
+          
+      - name: Run tests
+        run: npm run test
+        
+      - name: Generate build and types
+        run: npm run build
+        
+      - name: Commit and push build files
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: Build update
 
       - name: Run a multi-line script
         run: |
