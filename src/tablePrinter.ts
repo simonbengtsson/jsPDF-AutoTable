@@ -32,7 +32,7 @@ const getColumnsCanFitInPage = (
   const len = table.columns.length
   let i = config && config.start ? config.start : 0
   // code to repeat the given column in split pages
-  if (horizontalPageBreakRepeat) {
+  if (horizontalPageBreakRepeat != null) {
     repeatColumn = table.columns.find(
       (item) =>
         item.dataKey === horizontalPageBreakRepeat ||
