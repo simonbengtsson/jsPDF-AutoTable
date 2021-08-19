@@ -3,8 +3,8 @@ name: Playground
 on:
   workflow_dispatch:
     inputs:
-      semverVersion:
-        description: 'Semver Version'     
+      semverType:
+        description: 'Semver Type'     
         required: true
         default: 'patch'
 
@@ -14,21 +14,21 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v1
-      
-      - name: Install dependencies
-        run: npm install
-          
-      - name: Run tests
-        run: npm run test
-        
-      - name: Generate build and types
-        run: npm run build
-        
-      - name: Git
+
+      - name: General setup and install dependencies
         run: |
           git config --global user.name 'Release Bot'
           git config --global user.email 'simonbengtsson@users.noreply.github.com'
-          git add -A
-          git commit -m "Build"
-          git push
+          npm install
+        
+      - name: Build and update version
+        run: |
+          echo "Type: ${{ github.event.inputs.semverType }}"
+          npm version ${{ github.event.inputs.semverType }}
+          
+      - name: Deploy and publish
+        run: npm run deploy
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
         
