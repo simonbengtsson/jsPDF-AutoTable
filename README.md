@@ -256,10 +256,9 @@ Contributions are always welcome, especially on open issues. If you have somethi
 
 **If you don't use [Prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode) on autosave, please run `yarn run format-all` before opening your PR**
 
-### Release workflow (write access required)
+### Release workflow
 
-- `npm version <semver|major|minor|patch>`
-- `npm run deploy`
+- Run Release workflow on github (or run `npm version <semver>` and  npm run deploy)
 - Verify release at https://simonbengtsson.github.io/jsPDF-AutoTable
 
 ### Pull requests locally
