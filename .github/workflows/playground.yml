@@ -11,4 +11,17 @@ jobs:
       - uses: actions/setup-node@v1
       
       - name: Install dependencies
-        run: git status
+        run: npm install
+          
+      - name: Run tests
+        run: npm run test
+        
+      - name: Generate build and types
+        run: npm run build
+        
+      - name: Git
+        run: |
+          git add -A
+          git commit -m "Build"
+          git push
+        
