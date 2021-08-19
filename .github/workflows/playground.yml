@@ -20,15 +20,6 @@ jobs:
           git config --global user.name 'Release Bot'
           git config --global user.email 'simonbengtsson@users.noreply.github.com'
           npm install
-        
-      - name: Build and update version
-        run: |
-          echo "Type: ${{ github.event.inputs.semverType }}"
-          npm version ${{ github.event.inputs.semverType }}
-          
-      - name: Deploy and publish
-        run: npm run deploy
-        env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          npm publish
 
         
