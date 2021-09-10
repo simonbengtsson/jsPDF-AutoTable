@@ -1,3 +1,6 @@
+// Fix for https://github.com/simonbengtsson/jsPDF-AutoTable/runs/3567913815
+global.TextEncoder = require("util").TextEncoder; 
+
 import { parseCss } from '../src/cssParser'
 const assert = require('assert')
 const jsdom = require('jsdom')
