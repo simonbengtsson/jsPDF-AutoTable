@@ -42,7 +42,7 @@ describe('css parser', () => {
     assert(styles.fontSize === 16 / pxScaleFactor, 'No font size')
   })
 
-  it.only('minimal styles', () => {
+  it('minimal styles', () => {
     let element = table.insertRow()
     const styles = parseCss([], element, 1, element.style, dom.window)
     assert(styles, 'Should have result')
