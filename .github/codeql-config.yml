@@ -1,0 +1,7 @@
+name: "Custom CodeQL Config"
+
+queries:
+  - uses: security-and-quality
+
+paths:
+  - src
