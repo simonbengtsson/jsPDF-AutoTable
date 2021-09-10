@@ -35,7 +35,9 @@ module.exports = (env) => {
     },
     performance: { hints: false },
     devServer: {
-      contentBase: '.',
+      static: {
+        directory: '.',
+      },
       port: 9000,
       proxy: {
         '/libs/jspdf.plugin.autotable.js': {
