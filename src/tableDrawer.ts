@@ -475,6 +475,7 @@ export function addPage(
   table.pageCount++
   cursor.x = margin.left
   cursor.y = margin.top
+  startPos.y = margin.top
 
   if (table.settings.showHead === 'everyPage') {
     table.head.forEach((row: Row) => printRow(doc, table, row, cursor, columns))
