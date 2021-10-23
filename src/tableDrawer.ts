@@ -377,15 +377,18 @@ function drawCellBorders(doc: DocHandler, cell: Cell, cursor: Pos) {
   const cellStyles = cell.styles
   if (typeof cellStyles.lineWidth === 'number') {
     // prints normal cell border
-    let fillStyle = getFillStyle(cellStyles.lineWidth, cellStyles.fillColor)
+    const fillStyle = getFillStyle(cellStyles.lineWidth, cellStyles.fillColor)
     if (fillStyle) {
       doc.rect(cell.x, cursor.y, cell.width, cell.height, fillStyle)
     }
   } else if (typeof cellStyles.lineWidth === 'object') {
+    doc.rect(cell.x, cursor.y, cell.width, cell.height, 'F')
+
     const sides = Object.keys(cellStyles.lineWidth)
     const lineWidth: any = cellStyles.lineWidth
+
     sides.map((side: string) => {
-      let fillStyle = getFillStyle(lineWidth[side], cellStyles.fillColor)
+      const fillStyle = getFillStyle(lineWidth[side], cellStyles.fillColor)
       drawBorderForSide(
         doc,
         cell,
@@ -407,6 +410,7 @@ function drawBorderForSide(
   lineWidth: number
 ) {
   let x1, y1, x2, y2
+
   switch (side) {
     case 'top':
       x1 = cursor.x
@@ -429,11 +433,12 @@ function drawBorderForSide(
     default:
       // default it will print bottom
       x1 = cursor.x
-      y1 = cursor.y + cell.height
+      y1 = cursor.y + cell.height - lineWidth
       x2 = cursor.x + cell.width
-      y2 = cursor.y + cell.height
+      y2 = cursor.y + cell.height - lineWidth
       break
   }
+
   doc.getDocument().setLineWidth(lineWidth)
   doc.getDocument().line(x1, y1, x2, y2, fillStyle)
 }
