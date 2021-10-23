@@ -12,9 +12,11 @@ export interface LineWidths {
   right: number
 }
 
+export type FontStyle = 'normal' | 'bold' | 'italic' | 'bolditalic'
+
 export interface Styles {
   font: 'helvetica' | 'times' | 'courier' | string
-  fontStyle: 'normal' | 'bold' | 'italic' | 'bolditalic' | string
+  fontStyle: FontStyle
   overflow: 'linebreak' | 'ellipsize' | 'visible' | 'hidden' | Function
   fillColor: Color
   textColor: Color
@@ -74,25 +76,25 @@ export type ColumnInput =
   | string
   | number
   | {
-      header?: CellInput
-      title?: CellInput // deprecated (same as header)
-      footer?: CellInput
-      dataKey?: string | number
-      key?: string | number // deprecated (same as dataKey)
-    }
+    header?: CellInput
+    title?: CellInput // deprecated (same as header)
+    footer?: CellInput
+    dataKey?: string | number
+    key?: string | number // deprecated (same as dataKey)
+  }
 
 export type Color = [number, number, number] | number | string | false
 export type MarginPaddingInput =
   | number
   | number[]
   | {
-      top?: number
-      right?: number
-      bottom?: number
-      left?: number
-      horizontal?: number
-      vertical?: number
-    }
+    top?: number
+    right?: number
+    bottom?: number
+    left?: number
+    horizontal?: number
+    vertical?: number
+  }
 
 export interface CellDef {
   rowSpan?: number
