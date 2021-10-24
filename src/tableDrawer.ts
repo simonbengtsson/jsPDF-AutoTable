@@ -375,6 +375,9 @@ function printRow(
 
 function drawCellBorders(doc: DocHandler, cell: Cell, cursor: Pos) {
   const cellStyles = cell.styles
+
+  doc.getDocument().setFillColor(doc.getDocument().getFillColor())
+
   if (typeof cellStyles.lineWidth === 'number') {
     // prints normal cell border
     const fillStyle = getFillStyle(cellStyles.lineWidth, cellStyles.fillColor)
