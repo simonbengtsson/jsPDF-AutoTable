@@ -194,9 +194,10 @@ export interface LineWidths {
 	left: number;
 	right: number;
 }
+export declare type FontStyle = "normal" | "bold" | "italic" | "bolditalic";
 export interface Styles {
 	font: "helvetica" | "times" | "courier" | string;
-	fontStyle: "normal" | "bold" | "italic" | "bolditalic" | string;
+	fontStyle: FontStyle;
 	overflow: "linebreak" | "ellipsize" | "visible" | "hidden" | Function;
 	fillColor: Color;
 	textColor: Color;
