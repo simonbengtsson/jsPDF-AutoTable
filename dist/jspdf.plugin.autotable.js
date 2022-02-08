@@ -2,7 +2,7 @@
  * 
  *             jsPDF AutoTable plugin v13.5.17
  *             
- *             Copyright (c) 2021 Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable
+ *             Copyright (c) 2022 Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable
  *             Licensed under the MIT License.
  *             http://opensource.org/licenses/mit-license
  *         
@@ -1278,6 +1278,7 @@ function shouldPrintOnCurrentPage(doc, row, remainingPageSpace, table) {
     return true;
 }
 function printFullRow(doc, table, row, isLastRow, startPos, cursor, columns) {
+    var _a;
     var remainingSpace = getRemainingPageSpace(doc, table, isLastRow, cursor);
     if (row.canEntireRowFit(remainingSpace, columns)) {
         printRow(doc, table, row, cursor, columns);
@@ -1285,10 +1286,19 @@ function printFullRow(doc, table, row, isLastRow, startPos, cursor, columns) {
     else {
         if (shouldPrintOnCurrentPage(doc, row, remainingSpace, table)) {
             var remainderRow = modifyRowToFit(row, remainingSpace, table, doc);
-            printRow(doc, table, row, cursor, columns);
+            var didNotDrawRow = printRow(doc, table, row, cursor, columns);
+            if (didNotDrawRow) {
+                for (var _i = 0, _b = Object.entries(remainderRow.cells); _i < _b.length; _i++) {
+                    var _c = _b[_i], key = _c[0], cell = _c[1];
+                    (_a = cell.text).unshift.apply(_a, row.cells[key].text);
+                    var vPadding = cell.padding('vertical');
+                    cell.contentHeight += row.cells[key].contentHeight - vPadding;
+                    cell.height += row.cells[key].height - vPadding;
+                }
+            }
             var maxHeight = 0;
-            for (var _i = 0, _a = Object.entries(remainderRow.cells); _i < _a.length; _i++) {
-                var _b = _a[_i], key = _b[0], cell = _b[1];
+            for (var _d = 0, _e = Object.entries(remainderRow.cells); _d < _e.length; _d++) {
+                var _f = _e[_d], key = _f[0], cell = _f[1];
                 cell.contentHeight += row.cells[key].overflowHeightPenalty;
                 cell.height = Math.max(cell.height, cell.contentHeight);
                 cell.styles.minCellHeight += row.cells[key].overflowHeightPenalty;
@@ -1298,8 +1308,8 @@ function printFullRow(doc, table, row, isLastRow, startPos, cursor, columns) {
                 }
             }
             remainderRow.height = maxHeight;
-            for (var _c = 0, _d = Object.entries(remainderRow.cells); _c < _d.length; _c++) {
-                var _e = _d[_c], key = _e[0], cell = _e[1];
+            for (var _g = 0, _h = Object.entries(remainderRow.cells); _g < _h.length; _g++) {
+                var _j = _h[_g], key = _j[0], cell = _j[1];
                 cell.height = maxHeight;
             }
             addPage(doc, table, startPos, cursor, columns);
@@ -1312,6 +1322,7 @@ function printFullRow(doc, table, row, isLastRow, startPos, cursor, columns) {
     }
 }
 function printRow(doc, table, row, cursor, columns) {
+    var didNotDrawRow = true;
     cursor.x = table.settings.margin.left;
     for (var _i = 0, columns_1 = columns; _i < columns_1.length; _i++) { // Set x and y before we render row cells
         var column = columns_1[_i];
@@ -1336,6 +1347,9 @@ function printRow(doc, table, row, cursor, columns) {
             cursor.x += column.width;
             continue;
         }
+        else {
+            didNotDrawRow = false;
+        }
         drawCellBorders(doc, cell, cursor);
         var textPos = cell.getTextPos();
         autoTableText_1.default(cell.text, textPos.x, textPos.y, {
@@ -1347,6 +1361,7 @@ function printRow(doc, table, row, cursor, columns) {
         cursor.x += column.width;
     }
     cursor.y += row.height;
+    return didNotDrawRow;
 }
 function drawCellBorders(doc, cell, cursor) {
     var cellStyles = cell.styles;

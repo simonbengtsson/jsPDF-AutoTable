@@ -302,14 +302,24 @@ function printFullRow(
   } else {
     if (shouldPrintOnCurrentPage(doc, row, remainingSpace, table)) {
       const remainderRow = modifyRowToFit(row, remainingSpace, table, doc)
-      printRow(doc, table, row, cursor, columns)
-      let maxHeight = 0;
+      const didNotDrawRow = printRow(doc, table, row, cursor, columns)
+
+      if (didNotDrawRow) {
+        for (const [key, cell] of Object.entries(remainderRow.cells)) {
+          cell.text.unshift(...row.cells[key].text)
+          const vPadding = cell.padding('vertical')
+          cell.contentHeight += row.cells[key].contentHeight - vPadding
+          cell.height += row.cells[key].height - vPadding
+        }
+      }
+
+      let maxHeight = 0
       for (const [key, cell] of Object.entries(remainderRow.cells)) {
         cell.contentHeight += row.cells[key].overflowHeightPenalty
         cell.height = Math.max(cell.height, cell.contentHeight)
         cell.styles.minCellHeight += row.cells[key].overflowHeightPenalty
 
-        remainderRow.height = Math.max(remainderRow.height, cell.height);
+        remainderRow.height = Math.max(remainderRow.height, cell.height)
 
         if (cell.height > maxHeight) {
           maxHeight = cell.height
@@ -345,7 +355,7 @@ function printRow(
   cursor: Pos,
   columns: Column[]
 ) {
-
+  let didNotDrawRow = true
   cursor.x = table.settings.margin.left
   for (const column of columns) { // Set x and y before we render row cells
     const cell = row.cells[column.index]
@@ -376,10 +386,11 @@ function printRow(
     if (result === false) {
       cursor.x += column.width
       continue
+    } else {
+      didNotDrawRow = false
     }
 
     drawCellBorders(doc, cell, cursor)
-
 
     const textPos = cell.getTextPos()
     autoTableText(
@@ -401,6 +412,7 @@ function printRow(
   }
 
   cursor.y += row.height
+  return didNotDrawRow
 }
 
 function drawCellBorders(doc: DocHandler, cell: Cell, cursor: Pos) {
