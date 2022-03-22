@@ -20,9 +20,6 @@ Get jsPDF and this plugin by doing one of these things:
 
 ```js
 import jsPDF from "jspdf";
-// import jsPDF = require('jspdf') // // typescript without esModuleInterop flag
-// import jsPDF from 'yworks-pdf' // using yworks fork
-// import jsPDF from 'jspdf/dist/jspdf.node.debug' // for nodejs
 import autoTable from 'jspdf-autotable';
 
 const doc = new jsPDF()
