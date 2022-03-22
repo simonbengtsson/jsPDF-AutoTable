@@ -41,7 +41,7 @@ autoTable(doc, {
 doc.save('table.pdf')
 ```
 
-You can also add all the plugin methods to the jsPDF document objects:
+You can also use the plugin methods directly on the jsPDF documents:
 
 ```js
 import jsPDF from 'jspdf'
