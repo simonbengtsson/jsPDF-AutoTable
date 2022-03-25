@@ -4,10 +4,12 @@ const TerserPlugin = require('terser-webpack-plugin')
 const packageJson = require('./package.json')
 
 module.exports = (env) => {
-  const minified = env.minified
+  const minified = !!env.minified
   const newVersion = packageJson.version
   const currentYear = new Date().getFullYear()
   const outputPath = path.join(__dirname, './')
+
+  console.log('ENVIR', minified)
 
   return {
     entry: {
@@ -57,7 +59,7 @@ module.exports = (env) => {
     ],
     optimization: {
       minimizer: [new TerserPlugin({ extractComments: false })],
-      minimize: minified,
+      minimize: !!minified,
     },
   }
 }
