@@ -9,8 +9,6 @@ module.exports = (env) => {
   const currentYear = new Date().getFullYear()
   const outputPath = path.join(__dirname, './')
 
-  console.log('ENVIR', minified)
-
   return {
     entry: {
       [`dist/jspdf.plugin.autotable${minified ? '.min' : ''}`]: './src/main.ts',
