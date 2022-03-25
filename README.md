@@ -19,17 +19,17 @@ Get jsPDF and this plugin by doing one of these things:
 ## Usage
 
 ```js
-import jsPDF from 'jspdf'
-import 'jspdf-autotable'
+import jsPDF from "jspdf";
+import autoTable from 'jspdf-autotable';
 
 const doc = new jsPDF()
 
 // It can parse html:
 // <table id="my-table"><!-- ... --></table>
-doc.autoTable({ html: '#my-table' })
+autoTable(doc, { html: '#my-table' })
 
 // Or use javascript directly:
-doc.autoTable({
+autoTable(doc, {
   head: [['Name', 'Email', 'Country']],
   body: [
     ['David', 'david@example.com', 'Sweden'],
@@ -41,17 +41,14 @@ doc.autoTable({
 doc.save('table.pdf')
 ```
 
-You can also use the exported autoTable method. This works better with typescript and alternative jsPDF versions.
+You can also use the plugin methods directly on the jsPDF documents:
 
 ```js
 import jsPDF from 'jspdf'
-// import jsPDF = require('jspdf') // // typescript without esModuleInterop flag
-// import jsPDF from 'yworks-pdf' // using yworks fork
-// import jsPDF from 'jspdf/dist/jspdf.node.debug' // for nodejs
-import autoTable from 'jspdf-autotable'
+import 'jspdf-autotable'
 
 const doc = new jsPDF()
-autoTable(doc, { html: '#my-table' })
+doc.autoTable({ html: '#my-table' })
 doc.save('table.pdf')
 ```
 
@@ -93,7 +90,7 @@ The header property is optional and the values of any content in `head` will be 
 Usage with colspan, rowspan and inline cell styles:
 
 ```js
-doc.autoTable({
+autoTable(doc, {
   body: [
     [{ content: 'Text', colSpan: 2, rowSpan: 2, styles: { halign: 'center' } }],
   ],
@@ -148,7 +145,7 @@ Example usage of column styles (note that the 0 in the columnStyles below should
 
 ```js
 // Example usage with columnStyles,
-doc.autoTable({
+autoTable(doc, {
   styles: { fillColor: [255, 0, 0] },
   columnStyles: { 0: { halign: 'center', fillColor: [0, 255, 0] } }, // Cells in first column centered and green
   margin: { top: 10 },
@@ -160,7 +157,7 @@ doc.autoTable({
 })
 
 // Example usage of columns property. Note that America will not be included even though it exist in the body since there is no column specified for it.
-doc.autoTable({
+autoTable(doc, ({
   columnStyles: { europe: { halign: 'center' } }, // European countries centered
   body: [
     { europe: 'Sweden', america: 'Canada', asia: 'China' },
@@ -170,7 +167,7 @@ doc.autoTable({
     { header: 'Europe', dataKey: 'europe' },
     { header: 'Asia', dataKey: 'asia' },
   ],
-})
+}))
 ```
 
 #### Other options
@@ -220,19 +217,20 @@ To see what is included in the `Table`, `Row`, `Column` and `Cell` types, either
 
 ```js
 // Example with an image drawn in each cell in the first column
-doc.autoTable({
+autoTable(doc, ({
   didDrawCell: (data) => {
     if (data.section === 'body' && data.column.index === 0) {
       var base64Img = 'data:image/jpeg;base64,iVBORw0KGgoAAAANS...'
       doc.addImage(base64Img, 'JPEG', data.cell.x + 2, data.cell.y + 2, 10, 10)
     }
   },
-})
+}))
 ```
 
 ## API
 
 - `doc.autoTable({ /* options */ })`
+- `autoTable(doc, { /* options */ })`
 - `jsPDF.autoTableSetDefaults({ /* ... */ })` Use for setting global defaults which will be applied for all tables
 
 If you want to know something about the last table that was drawn you can use `doc.lastAutoTable`. It has a `doc.lastAutoTable.finalY` property among other things that has the value of the last printed y coordinate on a page. This can be used to draw text, multiple tables or other content after a table.
