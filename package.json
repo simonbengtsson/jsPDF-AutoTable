@@ -7,6 +7,11 @@
   "files": [
     "dist/*"
   ],
+  "browserslist": [
+    "last 2 versions",
+    "> 1%",
+    "IE 11"
+  ],
   "directories": {
     "example": "examples"
   },
