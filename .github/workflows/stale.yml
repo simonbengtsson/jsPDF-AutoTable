@@ -13,4 +13,4 @@ jobs:
           stale-issue-label: 'stale'
           days-before-stale: 7
           days-before-close: 1
-          any-of-labels: question,needs-information,needs-mvc
+          any-of-labels: question,needs-information,needs-mvc,needs information
