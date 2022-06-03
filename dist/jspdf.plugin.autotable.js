@@ -1,6 +1,6 @@
 /*!
  * 
- *               jsPDF AutoTable plugin v3.5.24
+ *               jsPDF AutoTable plugin v3.5.25
  *
  *               Copyright (c) 2022 Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable
  *               Licensed under the MIT License.
@@ -16,8 +16,8 @@
 		var a = typeof exports === 'object' ? factory((function webpackLoadOptionalExternalModule() { try { return require("jspdf"); } catch(e) {} }())) : factory(root["jspdf"]);
 		for(var i in a) (typeof exports === 'object' ? exports : root)[i] = a[i];
 	}
-})(typeof this !== 'undefined' ? this : window, (__WEBPACK_EXTERNAL_MODULE__84__) => {
-return /******/ (() => { // webpackBootstrap
+})(typeof this !== 'undefined' ? this : window, function(__WEBPACK_EXTERNAL_MODULE__84__) {
+return /******/ (function() { // webpackBootstrap
 /******/ 	"use strict";
 /******/ 	var __webpack_modules__ = ({
 
@@ -72,7 +72,7 @@ exports.CellHookData = CellHookData;
 /***/ }),
 
 /***/ 790:
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
@@ -168,7 +168,7 @@ exports["default"] = default_1;
 /***/ }),
 
 /***/ 938:
-/***/ ((__unused_webpack_module, exports) => {
+/***/ (function(__unused_webpack_module, exports) {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
@@ -227,7 +227,7 @@ exports["default"] = default_1;
 /***/ }),
 
 /***/ 200:
-/***/ ((__unused_webpack_module, exports) => {
+/***/ (function(__unused_webpack_module, exports) {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
@@ -428,7 +428,7 @@ exports.getTheme = getTheme;
 /***/ }),
 
 /***/ 259:
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
@@ -556,7 +556,7 @@ function parsePadding(style, scaleFactor) {
 /***/ }),
 
 /***/ 323:
-/***/ ((__unused_webpack_module, exports) => {
+/***/ (function(__unused_webpack_module, exports) {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
@@ -701,7 +701,7 @@ exports.DocHandler = DocHandler;
 /***/ }),
 
 /***/ 148:
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
@@ -789,7 +789,7 @@ function parseCellContent(orgCell) {
 /***/ }),
 
 /***/ 587:
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
@@ -999,7 +999,7 @@ function parseColumns(head, body, foot) {
 /***/ }),
 
 /***/ 291:
-/***/ ((__unused_webpack_module, exports) => {
+/***/ (function(__unused_webpack_module, exports) {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
@@ -1124,7 +1124,7 @@ function checkStyles(styles) {
 /***/ }),
 
 /***/ 287:
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
@@ -1346,7 +1346,7 @@ exports.Column = Column;
 /***/ }),
 
 /***/ 360:
-/***/ ((__unused_webpack_module, exports) => {
+/***/ (function(__unused_webpack_module, exports) {
 
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
@@ -1379,7 +1379,7 @@ exports.assign = assign;
 /***/ }),
 
 /***/ 858:
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
@@ -1539,7 +1539,7 @@ function cellStyles(sectionName, column, rowIndex, themeName, styles, scaleFacto
 /***/ }),
 
 /***/ 49:
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
@@ -1885,7 +1885,7 @@ function nextPage(doc) {
 /***/ }),
 
 /***/ 435:
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
@@ -1975,7 +1975,7 @@ exports["default"] = {
 /***/ }),
 
 /***/ 189:
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
@@ -2283,7 +2283,7 @@ function ellipsizeStr(text, width, styles, doc, overflow) {
 /***/ }),
 
 /***/ 84:
-/***/ ((module) => {
+/***/ (function(module) {
 
 if(typeof __WEBPACK_EXTERNAL_MODULE__84__ === 'undefined') { var e = new Error("Cannot find module 'undefined'"); e.code = 'MODULE_NOT_FOUND'; throw e; }
 
@@ -2320,7 +2320,7 @@ module.exports = __WEBPACK_EXTERNAL_MODULE__84__;
 /************************************************************************/
 var __webpack_exports__ = {};
 // This entry need to be wrapped in an IIFE because it need to be isolated against other modules in the chunk.
-(() => {
+!function() {
 var exports = __webpack_exports__;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
@@ -2374,8 +2374,7 @@ catch (error) {
     // the nodejs jspdf dist files with the exported applyPlugin
 }
 
-})();
-
+}();
 /******/ 	return __webpack_exports__;
 /******/ })()
 ;
