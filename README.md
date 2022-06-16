@@ -99,7 +99,7 @@ autoTable(doc, {
 
 #### Styling options
 
-- `theme: 'striped'|'grid'|'plain'|'css' = 'striped'`
+- `theme: 'striped'|'grid'|'plain' = 'striped'`
 - `styles: StyleDef`
 - `headStyles: StyleDef`
 - `bodyStyles: StyleDef`
