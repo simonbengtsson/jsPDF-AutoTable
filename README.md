@@ -122,13 +122,16 @@ autoTable(doc, {
 - `fontSize: number = 10`
 - `cellPadding: Padding = 10`
 - `lineColor: Color = 10`
-- `lineWidth: number = 0` // If 0, no border is drawn
+- `lineWidth: border = 0 ` // If 0, no border is drawn
 
 `Color`:
 Either false for transparent, hex string, gray level 0-255 or rbg array e.g. [255, 0, 0]
 false|string|number|[number, number, number]
 
 `Padding`:
+Either a number or object `{top: number, right: number, bottom: number, left: number}`
+
+`border`:
 Either a number or object `{top: number, right: number, bottom: number, left: number}`
 
 Styles work similar to css and can be overridden by more specific styles. Overriding order:
