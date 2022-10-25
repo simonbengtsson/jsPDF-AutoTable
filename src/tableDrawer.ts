@@ -10,21 +10,25 @@ export function drawTable(jsPDFDoc: jsPDFDocument, table: Table): void {
   const settings = table.settings
   const startY = settings.startY
   const margin = settings.margin
-
+  const originalDrawColor = jsPDFDoc.getDrawColor()
+  const originalLineWidth = jsPDFDoc.getLineWidth()
   const cursor = {
     x: margin.left,
     y: startY,
   }
-
   const sectionsHeight =
     table.getHeadHeight(table.columns) + table.getFootHeight(table.columns)
   let minTableBottomPos = startY + margin.bottom + sectionsHeight
+
   if (settings.pageBreak === 'avoid') {
     const rows = table.allRows()
     const tableHeight = rows.reduce((acc, row) => acc + row.height, 0)
+
     minTableBottomPos += tableHeight
   }
+
   const doc = new DocHandler(jsPDFDoc)
+
   if (
     settings.pageBreak === 'always' ||
     (settings.startY != null && minTableBottomPos > doc.pageSize().height)
@@ -32,6 +36,7 @@ export function drawTable(jsPDFDoc: jsPDFDocument, table: Table): void {
     nextPage(doc)
     cursor.y = margin.top
   }
+
   const startPos = assign({}, cursor)
 
   table.startPageNumber = doc.pageNumber()
@@ -42,6 +47,7 @@ export function drawTable(jsPDFDoc: jsPDFDocument, table: Table): void {
   } else {
     // normal flow
     doc.applyStyles(doc.userStyles)
+
     if (
       settings.showHead === 'firstPage' ||
       settings.showHead === 'everyPage'
@@ -50,12 +56,14 @@ export function drawTable(jsPDFDoc: jsPDFDocument, table: Table): void {
         printRow(doc, table, row, cursor, table.columns)
       )
     }
+
     doc.applyStyles(doc.userStyles)
     table.body.forEach((row, index) => {
       const isLastRow = index === table.body.length - 1
       printFullRow(doc, table, row, isLastRow, startPos, cursor, table.columns)
     })
     doc.applyStyles(doc.userStyles)
+
     if (settings.showFoot === 'lastPage' || settings.showFoot === 'everyPage') {
       table.foot.forEach((row) =>
         printRow(doc, table, row, cursor, table.columns)
@@ -69,9 +77,13 @@ export function drawTable(jsPDFDoc: jsPDFDocument, table: Table): void {
   table.finalY = cursor.y
   jsPDFDoc.lastAutoTable = table
   jsPDFDoc.previousAutoTable = table // Deprecated
+
   if (jsPDFDoc.autoTable) jsPDFDoc.autoTable.previous = table // Deprecated
 
   doc.applyStyles(doc.userStyles)
+
+  jsPDFDoc.setLineWidth(originalLineWidth)
+  jsPDFDoc.setDrawColor(originalDrawColor)
 }
 
 function printTableWithHorizontalPageBreak(
