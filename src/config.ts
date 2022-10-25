@@ -13,39 +13,55 @@ export interface LineWidths {
 }
 
 export type FontStyle = 'normal' | 'bold' | 'italic' | 'bolditalic'
+export type FontType = 'helvetica' | 'times' | 'courier'
+export type HAlignType = 'left' | 'center' | 'right' | 'justify'
+export type VAlignType = 'top' | 'middle' | 'bottom'
+export type OverflowType =
+  | 'linebreak'
+  | 'ellipsize'
+  | 'visible'
+  | 'hidden'
+  | Function
+export type CellWidthType = 'auto' | 'wrap' | number
 
 export interface Styles {
-  font: 'helvetica' | 'times' | 'courier' | string
+  font: FontType
   fontStyle: FontStyle
-  overflow: 'linebreak' | 'ellipsize' | 'visible' | 'hidden' | Function
+  overflow: OverflowType
   fillColor: Color
   textColor: Color
-  halign: 'left' | 'center' | 'right' | 'justify'
-  valign: 'top' | 'middle' | 'bottom'
+  halign: HAlignType
+  valign: VAlignType
   fontSize: number
   cellPadding: MarginPaddingInput
   lineColor: Color
   lineWidth: number | Partial<LineWidths>
-  cellWidth: 'auto' | 'wrap' | number
+  cellWidth: CellWidthType
   minCellHeight: number
   minCellWidth: number
 }
 
+export type ThemeType = 'striped' | 'grid' | 'plain' | null
+export type PageBreakType = 'auto' | 'avoid' | 'always'
+export type RowPageBreakType = 'auto' | 'avoid'
+export type TableWidthType = 'auto' | 'wrap' | number
+export type ShowHeadType = 'everyPage' | 'firstPage' | 'never' | boolean
+export type ShowFootType = 'everyPage' | 'lastPage' | 'never' | boolean
+
 export interface UserOptions {
   includeHiddenHtml?: boolean
   useCss?: boolean
-  theme?: 'striped' | 'grid' | 'plain' | null
+  theme?: ThemeType
   startY?: number | false
   margin?: MarginPaddingInput
-  pageBreak?: 'auto' | 'avoid' | 'always'
-  rowPageBreak?: 'auto' | 'avoid'
-  tableWidth?: 'auto' | 'wrap' | number
-  showHead?: 'everyPage' | 'firstPage' | 'never' | boolean
-  showFoot?: 'everyPage' | 'lastPage' | 'never' | boolean
+  pageBreak?: PageBreakType
+  rowPageBreak?: RowPageBreakType
+  tableWidth?: TableWidthType
+  showHead?: ShowHeadType
+  showFoot?: ShowFootType
   tableLineWidth?: number
   tableLineColor?: Color
   tableId?: string | number
-
   head?: RowInput[]
   body?: RowInput[]
   foot?: RowInput[]
