@@ -19,8 +19,8 @@ Get jsPDF and this plugin by doing one of these things:
 ## Usage
 
 ```js
-import jsPDF from "jspdf";
-import autoTable from 'jspdf-autotable';
+import jsPDF from 'jspdf'
+import autoTable from 'jspdf-autotable'
 
 const doc = new jsPDF()
 
@@ -160,7 +160,7 @@ autoTable(doc, {
 })
 
 // Example usage of columns property. Note that America will not be included even though it exist in the body since there is no column specified for it.
-autoTable(doc, ({
+autoTable(doc, {
   columnStyles: { europe: { halign: 'center' } }, // European countries centered
   body: [
     { europe: 'Sweden', america: 'Canada', asia: 'China' },
@@ -170,11 +170,12 @@ autoTable(doc, ({
     { header: 'Europe', dataKey: 'europe' },
     { header: 'Asia', dataKey: 'asia' },
   ],
-}))
+})
 ```
 
 #### Other options
 
+- `useCss: boolean = false`
 - `startY: number = null` Where the table should start to be printed (basically a margin top value only for the first page)
 - `margin: Margin = 40`
 - `pageBreak: 'auto'|'avoid'|'always'` If set to `avoid` the plugin will only split a table onto multiple pages if table height is larger than page height.
@@ -220,14 +221,14 @@ To see what is included in the `Table`, `Row`, `Column` and `Cell` types, either
 
 ```js
 // Example with an image drawn in each cell in the first column
-autoTable(doc, ({
+autoTable(doc, {
   didDrawCell: (data) => {
     if (data.section === 'body' && data.column.index === 0) {
       var base64Img = 'data:image/jpeg;base64,iVBORw0KGgoAAAANS...'
       doc.addImage(base64Img, 'JPEG', data.cell.x + 2, data.cell.y + 2, 10, 10)
     }
   },
-}))
+})
 ```
 
 ## API
@@ -259,7 +260,7 @@ Contributions are always welcome, especially on open issues. If you have somethi
 
 ### Release workflow
 
-- Run Release workflow on github (or run `npm version <semver>` and  npm run deploy)
+- Run Release workflow on github (or run `npm version <semver>` and npm run deploy)
 - Verify release at https://simonbengtsson.github.io/jsPDF-AutoTable
 
 ### Pull requests locally
