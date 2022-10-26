@@ -21,7 +21,7 @@ export type OverflowType =
   | 'ellipsize'
   | 'visible'
   | 'hidden'
-  | Function
+  | ((text: string | string[], width: number) => string | string[])
 export type CellWidthType = 'auto' | 'wrap' | number
 
 export interface Styles {

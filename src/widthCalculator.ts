@@ -304,7 +304,12 @@ function fitContent(table: Table, doc: DocHandler) {
       } else if (cell.styles.overflow === 'hidden') {
         cell.text = ellipsize(cell.text, textSpace, cell.styles, doc, '')
       } else if (typeof cell.styles.overflow === 'function') {
-        cell.text = cell.styles.overflow(cell.text, textSpace)
+        const result = cell.styles.overflow(cell.text, textSpace)
+        if (typeof result === 'string') {
+          cell.text = [result]
+        } else {
+          cell.text = result
+        }
       }
 
       cell.contentHeight = cell.getContentHeight(doc.scaleFactor())
