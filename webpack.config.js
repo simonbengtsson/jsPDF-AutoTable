@@ -20,7 +20,8 @@ module.exports = (env) => {
       path: outputPath,
       filename: '[name].js',
       libraryTarget: 'umd',
-      globalObject: "typeof this !== 'undefined' ? this : window",
+      globalObject:
+        "typeof globalThis !== 'undefined' ? globalThis : typeof this !== 'undefined' ? this : typeof window !== 'undefined' ? window : typeof self !== 'undefined' ? self : global ",
     },
     module: {
       rules: [{ test: /\.ts$/, use: [{ loader: 'ts-loader' }] }],
@@ -49,7 +50,7 @@ module.exports = (env) => {
     plugins: [
       new webpack.BannerPlugin(`
               jsPDF AutoTable plugin v${newVersion}
-              
+
               Copyright (c) ${currentYear} Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable
               Licensed under the MIT License.
               http://opensource.org/licenses/mit-license
