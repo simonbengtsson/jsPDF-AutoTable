@@ -7,7 +7,7 @@ import { parseInput } from './inputParser'
 import { drawTable as _drawTable } from './tableDrawer'
 import { createTable as _createTable } from './tableCalculator'
 import { Table } from './models'
-import { CellHookData, HookData } from './HookData'
+import { CellHookData } from './HookData'
 import { Cell, Column, Row } from './models'
 
 export type autoTable = (options: UserOptions) => void
