@@ -24,6 +24,14 @@ export class DocHandler {
       fontSize: jsPDFDocument.internal.getFontSize(),
       fontStyle: jsPDFDocument.internal.getFont().fontStyle,
       font: jsPDFDocument.internal.getFont().fontName,
+      // 0 for versions of jspdf without getLineWidth
+      lineWidth: jsPDFDocument.getLineWidth
+        ? this.jsPDFDocument.getLineWidth()
+        : 0,
+      // Black for versions of jspdf without getDrawColor
+      lineColor: jsPDFDocument.getDrawColor
+        ? this.jsPDFDocument.getDrawColor()
+        : 0,
     }
   }
 

@@ -10,8 +10,6 @@ export function drawTable(jsPDFDoc: jsPDFDocument, table: Table): void {
   const settings = table.settings
   const startY = settings.startY
   const margin = settings.margin
-  const originalDrawColor = jsPDFDoc.getDrawColor()
-  const originalLineWidth = jsPDFDoc.getLineWidth()
   const cursor = {
     x: margin.left,
     y: startY,
@@ -81,9 +79,6 @@ export function drawTable(jsPDFDoc: jsPDFDocument, table: Table): void {
   if (jsPDFDoc.autoTable) jsPDFDoc.autoTable.previous = table // Deprecated
 
   doc.applyStyles(doc.userStyles)
-
-  jsPDFDoc.setLineWidth(originalLineWidth)
-  jsPDFDoc.setDrawColor(originalDrawColor)
 }
 
 function printTableWithHorizontalPageBreak(
