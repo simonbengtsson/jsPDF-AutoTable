@@ -11,8 +11,6 @@ export default (env) => {
   const newVersion = packageJson.version
   const currentYear = new Date().getFullYear()
   const __dirname = url.fileURLToPath(new url.URL('.', import.meta.url))
-  console.log(packageJson)
-
   const outputPath = path.join(__dirname, './')
 
   return {
