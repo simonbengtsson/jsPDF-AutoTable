@@ -5,7 +5,7 @@
     "jspdf-autotable": "^3.5.25"
   },
   "devDependencies": {
-    "webpack": "^5.74.0"
+    "webpack": "^5.75.0"
   },
   "scripts": {
     "build": "webpack"
