@@ -1,12 +1,18 @@
-const webpack = require('webpack')
-const path = require('path')
-const TerserPlugin = require('terser-webpack-plugin')
-const packageJson = require('./package.json')
+import webpack from 'webpack'
+import path from 'path'
+import fs from 'fs'
+import TerserPlugin from 'terser-webpack-plugin'
+import * as url from 'url'
 
-module.exports = (env) => {
+export default (env) => {
   const minified = !!env.minified
+  const packageJsonStr = fs.readFileSync('package.json')
+  const packageJson = JSON.parse(packageJsonStr)
   const newVersion = packageJson.version
   const currentYear = new Date().getFullYear()
+  const __dirname = url.fileURLToPath(new url.URL('.', import.meta.url))
+  console.log(packageJson)
+
   const outputPath = path.join(__dirname, './')
 
   return {
