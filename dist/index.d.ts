@@ -294,8 +294,16 @@ export type RowInput = {
 } | HtmlRowInput | CellInput[];
 export type autoTable = (options: UserOptions) => void;
 export declare function applyPlugin(jsPDF: jsPDFConstructor): void;
-export default function autoTable(d: jsPDFDocument, options: UserOptions): void;
+export declare function autoTable(d: jsPDFDocument, options: UserOptions): void;
+export declare namespace autoTable {
+	var _a: typeof autoTable;
+	export { _a as default };
+}
 declare function __createTable(d: jsPDFDocument, options: UserOptions): Table;
 declare function __drawTable(d: jsPDFDocument, table: Table): void;
+
+export {
+	autoTable as default,
+};
 
 export {};

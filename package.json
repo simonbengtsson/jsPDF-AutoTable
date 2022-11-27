@@ -3,6 +3,12 @@
   "version": "3.5.25",
   "description": "Generate pdf tables with javascript (jsPDF plugin)",
   "main": "dist/jspdf.plugin.autotable.js",
+  "exports": {
+    ".": {
+      "require": "./dist/jspdf.plugin.autotable.js",
+      "import": "./dist/jspdf.plugin.autotable.mjs"
+    }
+  },
   "types": "dist/index",
   "files": [
     "dist/*"
@@ -23,6 +29,7 @@
     "singleQuote": true
   },
   "devDependencies": {
+    "@rollup/plugin-typescript": "^9.0.2",
     "@types/mocha": "^10.0.0",
     "@typescript-eslint/eslint-plugin": "^5.44.0",
     "@typescript-eslint/parser": "^5.44.0",
@@ -45,9 +52,10 @@
   "scripts": {
     "start": "webpack serve --config webpack.config.mjs --mode=development",
     "start-external": "webpack serve --config webpack.config.mjs --mode=development --host 0.0.0.0",
-    "build": "webpack --mode=production && webpack --mode=production --env minified && npm run types",
+    "build": "webpack --mode=production && webpack --mode=production --env minified && npm run buildes && npm run types",
+    "buildes": "rollup --config rollup.config.mjs",
     "lint": "eslint . --ext .ts",
-    "test": "mocha -r ts-node/register test/test*.mjs test/test*.js test/test*.ts",
+    "test": "cd test && npm i && cd .. && mocha -r ts-node/register test/test*.mjs test/test*.js test/test*.ts",
     "format": "prettier --write src",
     "version": "npm test && npm run build && git add -A dist",
     "hosting": "git push origin master:gh-pages -f",

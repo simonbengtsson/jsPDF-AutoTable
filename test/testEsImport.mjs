@@ -3,16 +3,11 @@ import { jsPDF } from 'jspdf'
 import { applyPlugin } from 'jspdf-autotable'
 import defaultAutoTableImport from 'jspdf-autotable'
 
-describe('esm imports', () => {
+describe('es imports', () => {
   it('jspdf import checks', () => {
     assert.equal(typeof jsPDF, 'function')
     const doc = new jsPDF()
     assert.equal(typeof doc.text, 'function')
-  })
-
-  it('autotable prototype', () => {
-    const doc = new jsPDF()
-    assert.equal(typeof doc.autoTable, 'function')
   })
 
   it('applyPlugin', () => {
@@ -24,7 +19,11 @@ describe('esm imports', () => {
     assert.equal(typeof doc.autoTable, 'function')
   })
 
-  it('deprecated autoTable default import', () => {
+  it('default import', () => {
+    assert.equal(typeof defaultAutoTableImport, 'function')
+  })
+
+  it('deprecated default property import', () => {
     assert.equal(typeof defaultAutoTableImport.default, 'function')
   })
 })

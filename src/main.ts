@@ -18,7 +18,7 @@ export function applyPlugin(jsPDF: jsPDFConstructor) {
   _applyPlugin(jsPDF)
 }
 
-export default function autoTable(d: jsPDFDocument, options: UserOptions) {
+export function autoTable(d: jsPDFDocument, options: UserOptions) {
   const input = parseInput(d, options)
   const table = _createTable(d, input)
   _drawTable(d, table)
@@ -47,6 +47,9 @@ try {
   // the nodejs jspdf dist files with the exported applyPlugin
 }
 
+autoTable.default = autoTable
+
+export default autoTable
 export { CellHookData }
 export { Table }
 export { Row }
