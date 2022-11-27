@@ -16,7 +16,7 @@
 		var a = typeof exports === 'object' ? factory((function webpackLoadOptionalExternalModule() { try { return require("jspdf"); } catch(e) {} }())) : factory(root["jspdf"]);
 		for(var i in a) (typeof exports === 'object' ? exports : root)[i] = a[i];
 	}
-})(typeof this !== 'undefined' ? this : window, function(__WEBPACK_EXTERNAL_MODULE__84__) {
+})(typeof globalThis !== 'undefined' ? globalThis : typeof this !== 'undefined' ? this : typeof window !== 'undefined' ? window : typeof self !== 'undefined' ? self : global , function(__WEBPACK_EXTERNAL_MODULE__84__) {
 return /******/ (function() { // webpackBootstrap
 /******/ 	"use strict";
 /******/ 	var __webpack_modules__ = ({
@@ -573,6 +573,14 @@ var DocHandler = /** @class */ (function () {
             fontSize: jsPDFDocument.internal.getFontSize(),
             fontStyle: jsPDFDocument.internal.getFont().fontStyle,
             font: jsPDFDocument.internal.getFont().fontName,
+            // 0 for versions of jspdf without getLineWidth
+            lineWidth: jsPDFDocument.getLineWidth
+                ? this.jsPDFDocument.getLineWidth()
+                : 0,
+            // Black for versions of jspdf without getDrawColor
+            lineColor: jsPDFDocument.getDrawColor
+                ? this.jsPDFDocument.getDrawColor()
+                : 0,
         };
     }
     DocHandler.setDefaults = function (defaults, doc) {
@@ -2239,7 +2247,13 @@ function fitContent(table, doc) {
                 cell.text = ellipsize(cell.text, textSpace, cell.styles, doc, '');
             }
             else if (typeof cell.styles.overflow === 'function') {
-                cell.text = cell.styles.overflow(cell.text, textSpace);
+                var result = cell.styles.overflow(cell.text, textSpace);
+                if (typeof result === 'string') {
+                    cell.text = [result];
+                }
+                else {
+                    cell.text = result;
+                }
             }
             cell.contentHeight = cell.getContentHeight(doc.scaleFactor());
             var realContentHeight = cell.contentHeight / cell.rowSpan;
