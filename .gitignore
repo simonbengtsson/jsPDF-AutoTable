@@ -4,3 +4,4 @@ yarn.lock
 node_modules
 examples/local/*
 !examples/local/basic.html
+examples/webpack/dist
