@@ -55,7 +55,7 @@
     "build": "webpack --mode=production && webpack --mode=production --env minified && npm run buildes && npm run types",
     "buildes": "rollup --config rollup.config.mjs",
     "lint": "eslint . --ext .ts",
-    "test": "cd test && npm i && cd .. && mocha -r ts-node/register test/test*.mjs test/test*.js test/test*.ts",
+    "test": "mocha -r ts-node/register test/test*.ts",
     "format": "prettier --write src",
     "version": "npm test && npm run build && git add -A dist",
     "hosting": "git push origin master:gh-pages -f",
