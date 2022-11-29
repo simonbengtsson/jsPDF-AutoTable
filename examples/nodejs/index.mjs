@@ -14,3 +14,4 @@ doc.autoTable({
   ],
 })
 doc.save('table.pdf')
+console.log('./table.pdf generated')
