@@ -27,7 +27,6 @@
     "singleQuote": true
   },
   "devDependencies": {
-    "rollup": "^3.5.0",
     "@rollup/plugin-typescript": "^9.0.2",
     "@types/mocha": "^10.0.0",
     "@typescript-eslint/eslint-plugin": "^5.44.0",
@@ -41,8 +40,10 @@
     "mocha": "^10.1.0",
     "npm-check-updates": "^16.4.3",
     "prettier": "2.8.0",
+    "rollup": "^3.5.0",
     "ts-loader": "^9.4.1",
     "ts-node": "^10.9.1",
+    "tslib": "^2.4.1",
     "typescript": "^4.9.3",
     "webpack": "^5.75.0",
     "webpack-cli": "^5.0.0",
