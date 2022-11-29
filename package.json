@@ -4,10 +4,8 @@
   "description": "Generate pdf tables with javascript (jsPDF plugin)",
   "main": "dist/jspdf.plugin.autotable.js",
   "exports": {
-    ".": {
-      "require": "./dist/jspdf.plugin.autotable.js",
-      "import": "./dist/jspdf.plugin.autotable.mjs"
-    }
+    ".": "./dist/jspdf.plugin.autotable.js",
+    "./es": "./dist/jspdf.plugin.autotable.mjs"
   },
   "types": "dist/index",
   "files": [

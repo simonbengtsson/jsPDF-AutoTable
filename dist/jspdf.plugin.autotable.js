@@ -2338,7 +2338,7 @@ var __webpack_exports__ = {};
 var exports = __webpack_exports__;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.Cell = exports.Column = exports.Row = exports.Table = exports.CellHookData = exports.__drawTable = exports.__createTable = exports.autoTable = exports.applyPlugin = void 0;
+exports.Cell = exports.Column = exports.Row = exports.Table = exports.CellHookData = exports.__drawTable = exports.__createTable = exports.applyPlugin = void 0;
 var applyPlugin_1 = __webpack_require__(790);
 var inputParser_1 = __webpack_require__(587);
 var tableDrawer_1 = __webpack_require__(49);
@@ -2362,7 +2362,6 @@ function autoTable(d, options) {
     var table = (0, tableCalculator_1.createTable)(d, input);
     (0, tableDrawer_1.drawTable)(d, table);
 }
-exports.autoTable = autoTable;
 // Experimental export
 function __createTable(d, options) {
     var input = (0, inputParser_1.parseInput)(d, options);
@@ -2387,7 +2386,6 @@ catch (error) {
     // 1.5.3 so we need to silence potential errors to support using for example
     // the nodejs jspdf dist files with the exported applyPlugin
 }
-autoTable.default = autoTable;
 exports["default"] = autoTable;
 
 }();
