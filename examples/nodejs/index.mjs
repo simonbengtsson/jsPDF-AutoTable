@@ -1,5 +1,5 @@
-const { jsPDF } = require('jspdf')
-require('jspdf-autotable')
+import { jsPDF } from 'jspdf'
+import 'jspdf-autotable'
 
 const doc = new jsPDF()
 doc.autoTable({
