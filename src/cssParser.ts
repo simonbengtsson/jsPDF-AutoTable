@@ -2,7 +2,7 @@
 // - No support for border spacing
 // - No support for transparency
 import { parseSpacing, MarginPadding } from './common'
-import { FontType, Styles } from './config'
+import { Styles } from './config'
 
 export function parseCss(
   supportedFonts: string[],
@@ -53,7 +53,7 @@ export function parseCss(
 
   const font = (style.fontFamily || '').toLowerCase()
   if (supportedFonts.indexOf(font) !== -1) {
-    result.font = font as FontType
+    result.font = font
   }
 
   return result
