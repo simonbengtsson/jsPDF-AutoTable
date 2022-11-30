@@ -195,7 +195,9 @@ export interface LineWidths {
 	right: number;
 }
 export type FontStyle = "normal" | "bold" | "italic" | "bolditalic";
-export type FontType = "helvetica" | "times" | "courier";
+export type StandardFontType = "helvetica" | "times" | "courier";
+export type CustomFontType = string;
+export type FontType = StandardFontType | CustomFontType;
 export type HAlignType = "left" | "center" | "right" | "justify";
 export type VAlignType = "top" | "middle" | "bottom";
 export type OverflowType = "linebreak" | "ellipsize" | "visible" | "hidden" | ((text: string | string[], width: number) => string | string[]);
