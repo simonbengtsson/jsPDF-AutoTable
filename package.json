@@ -27,10 +27,10 @@
     "singleQuote": true
   },
   "devDependencies": {
-    "@rollup/plugin-typescript": "^9.0.2",
-    "@types/mocha": "^10.0.0",
-    "@typescript-eslint/eslint-plugin": "^5.44.0",
-    "@typescript-eslint/parser": "^5.44.0",
+    "@rollup/plugin-typescript": "^10.0.1",
+    "@types/mocha": "^10.0.1",
+    "@typescript-eslint/eslint-plugin": "^5.45.0",
+    "@typescript-eslint/parser": "^5.45.0",
     "dts-bundle-generator": "^7.1.0",
     "eslint": "^8.28.0",
     "eslint-config-prettier": "^8.5.0",
