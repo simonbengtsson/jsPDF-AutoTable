@@ -494,6 +494,7 @@ export function addPage(
 
   if (table.settings.showHead === 'everyPage') {
     table.head.forEach((row: Row) => printRow(doc, table, row, cursor, columns))
+    doc.applyStyles(doc.userStyles)
   }
 }
 
