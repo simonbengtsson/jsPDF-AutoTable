@@ -206,7 +206,7 @@ examples['header-footer'] = function () {
       }
       doc.setFontSize(10)
 
-      // jsPDF 1.4+ uses getWidth, <1.4 uses .width
+      // jsPDF 1.4+ uses getHeight, <1.4 uses .height
       var pageSize = doc.internal.pageSize
       var pageHeight = pageSize.height ? pageSize.height : pageSize.getHeight()
       doc.text(str, data.settings.margin.left, pageHeight - 10)
