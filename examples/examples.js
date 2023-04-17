@@ -502,6 +502,117 @@ examples.custom = function () {
   return doc
 }
 
+// Custom style - shows how custom styles can be applied
+examples.borders = function () {
+  var doc = new jsPDF()
+  doc.autoTable({
+    head: headRows(),
+    body: bodyRows(3),
+    foot: [
+      [{
+        content: 'ID',
+        dataKey: 'id',
+        styles: {
+          fillColor: [255, 0, 0],
+          lineWidth: 1,
+          lineColor: 'black'
+        },
+      },
+      {
+        content: 'Name',
+        dataKey: 'name',
+        styles: {
+          fillColor: [0, 255, 0],
+        },
+      },
+      {
+        content: 'Email',
+        dataKey: 'email',
+        styles: {
+          fillColor: [0, 0, 255],
+          lineWidth: 2,
+          lineColor: 'yellow',
+        },
+      },
+      {
+        content: 'City',
+        dataKey: 'city',
+        styles: {
+          fillColor: [0, 255, 0],
+          lineWidth: 0.5
+        },
+      },
+      {
+        content: 'Sum',
+        dataKey: 'sum',
+        styles: {
+          textColor: 'white',
+          fillColor: [255, 0, 0],
+          lineColor: 'black',
+          lineWidth: {
+            right: 2,
+            bottom: 3,
+            top: 1,
+            left: 6
+          }
+        },
+      },]
+    ],
+    margin: { top: 40 },
+    theme: 'plain',
+    headStyles: {
+      fillColor: [241, 196, 15],
+      fontSize: 15,
+    },
+    footStyles: {
+      fillColor: [241, 196, 15],
+      fontSize: 15,
+    },
+    // Note that the "email" key below is the same as the column's dataKey used for
+    // the head and body rows. If your data is entered in array form instead you have to
+    // use the integer index instead i.e. `columnStyles: {5: {fillColor: [41, 128, 185], ...}}`
+    columnStyles: {
+      email: {
+        fontStyle: 'bold',
+      },
+      city: {
+        // The font file mitubachi-normal.js is included on the page and was created from mitubachi.ttf
+        // with https://rawgit.com/MrRio/jsPDF/master/fontconverter/fontconverter.html
+        // refer to https://github.com/MrRio/jsPDF#use-of-utf-8--ttf
+        font: 'mitubachi',
+      },
+      id: {
+        halign: 'right',
+      },
+    },
+    allSectionHooks: true,
+    // Use for customizing texts or styles of specific cells after they have been formatted by this plugin.
+    // This hook is called just before the column width and other features are computed.
+    didParseCell: function (data) {
+      if (data.row.section === 'head' && ['name','city'].includes(data.column.dataKey)) {
+        data.cell.styles.lineColor = 'black'
+        data.cell.styles.lineWidth = {
+          bottom: 1
+        }
+      }
+    },
+    // Use this to add content to each page that has the autoTable on it. This can be page headers,
+    // page footers and page numbers for example.
+    didDrawPage: function (data) {
+      doc.setFontSize(18)
+      doc.text('Custom borders showcase', data.settings.margin.left, 22)
+      doc.setFontSize(12)
+      doc.text(
+        'Borders are drawn just at the edge of the cell, which means that half of the border is in the cell and the other half is outside.',
+        data.settings.margin.left,
+        30,
+        {maxWidth: 180}
+      )
+    },
+  })
+  return doc
+}
+
 // Split columns - shows how the overflowed columns split into pages
 examples.horizontalPageBreak = function () {
   var doc = new jsPDF('l')

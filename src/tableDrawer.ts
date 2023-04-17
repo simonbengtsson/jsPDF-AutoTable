@@ -1,4 +1,4 @@
-import { FONT_ROW_RATIO } from './config'
+import { Color, FONT_ROW_RATIO, LineWidths } from './config'
 import { addTableBorder, getFillStyle } from './common'
 import { Cell, Column, Pos, Row, Table } from './models'
 import { DocHandler, jsPDFDocument } from './documentHandler'
@@ -382,75 +382,120 @@ function printRow(
 
 function drawCellBorders(doc: DocHandler, cell: Cell, cursor: Pos) {
   const cellStyles = cell.styles
-
   doc.getDocument().setFillColor(doc.getDocument().getFillColor())
 
   if (typeof cellStyles.lineWidth === 'number') {
-    // prints normal cell border
+    // prints normal cell border using rect's stroke
     const fillStyle = getFillStyle(cellStyles.lineWidth, cellStyles.fillColor)
     if (fillStyle) {
       doc.rect(cell.x, cursor.y, cell.width, cell.height, fillStyle)
     }
   } else if (typeof cellStyles.lineWidth === 'object') {
-    doc.rect(cell.x, cursor.y, cell.width, cell.height, 'F')
-
-    const sides = Object.keys(cellStyles.lineWidth)
-    const lineWidth: any = cellStyles.lineWidth
-
-    sides.map((side: string) => {
-      const fillStyle = getFillStyle(lineWidth[side], cellStyles.fillColor)
-      drawBorderForSide(
-        doc,
-        cell,
-        cursor,
-        side,
-        fillStyle || 'S',
-        lineWidth[side]
-      )
-    })
+    drawCellBackground(doc, cell, cursor, cellStyles.fillColor)
+    drawBorders(doc, cell, cursor, cellStyles.fillColor, cellStyles.lineWidth)
   }
 }
 
-function drawBorderForSide(
+/**
+ * Prints cell background without borders and allows transparent color.
+ * @param doc
+ * @param cell
+ * @param cursor
+ * @param fillColor - `false` for transparent, `string` for color, other types will use "F" from jsPDF.rect
+ */
+function drawCellBackground(
   doc: DocHandler,
   cell: Cell,
   cursor: Pos,
-  side: string,
-  fillStyle: string,
-  lineWidth: number
+  fillColor: Color
+) {
+  const cellFillColor =
+    fillColor === false ? null : typeof fillColor !== 'string' ? 'F' : fillColor
+  doc.rect(cell.x, cursor.y, cell.width, cell.height, cellFillColor)
+}
+
+/**
+ * Draw all specified borders. Borders are centered on cell's edge and lengthened
+ * to overlap with neighbours to create sharp corners.
+ * @param doc
+ * @param cell
+ * @param cursor
+ * @param fillColor
+ * @param lineWidth
+ */
+function drawBorders(
+  doc: DocHandler,
+  cell: Cell,
+  cursor: Pos,
+  fillColor: Color,
+  lineWidth: Partial<LineWidths>
 ) {
   let x1, y1, x2, y2
 
-  switch (side) {
-    case 'top':
-      x1 = cursor.x
-      y1 = cursor.y
-      x2 = cursor.x + cell.width
-      y2 = cursor.y
-      break
-    case 'left':
-      x1 = cursor.x
-      y1 = cursor.y
-      x2 = cursor.x
-      y2 = cursor.y + cell.height
-      break
-    case 'right':
-      x1 = cursor.x + cell.width
-      y1 = cursor.y
-      x2 = cursor.x + cell.width
-      y2 = cursor.y + cell.height
-      break
-    default:
-      // default it will print bottom
-      x1 = cursor.x
-      y1 = cursor.y + cell.height - lineWidth
-      x2 = cursor.x + cell.width
-      y2 = cursor.y + cell.height - lineWidth
-      break
+  if (lineWidth.top) {
+    x1 = cursor.x
+    y1 = cursor.y
+    x2 = cursor.x + cell.width
+    y2 = cursor.y
+    if (lineWidth.right) {
+      x2 += 0.5 * lineWidth.right
+    }
+    if (lineWidth.left) {
+      x1 -= 0.5 * lineWidth.left
+    }
+    drawLine([x1, y1, x2, y2], lineWidth.top, fillColor)
   }
 
-  doc.getDocument().setLineWidth(lineWidth)
-  doc.getDocument().line(x1, y1, x2, y2, fillStyle)
+  if (lineWidth.bottom) {
+    x1 = cursor.x
+    y1 = cursor.y + cell.height
+    x2 = cursor.x + cell.width
+    y2 = cursor.y + cell.height
+    if (lineWidth.right) {
+      x2 += 0.5 * lineWidth.right
+    }
+    if (lineWidth.left) {
+      x1 -= 0.5 * lineWidth.left
+    }
+    drawLine([x1, y1, x2, y2], lineWidth.bottom, fillColor)
+  }
+
+  if (lineWidth.left) {
+    x1 = cursor.x
+    y1 = cursor.y
+    x2 = cursor.x
+    y2 = cursor.y + cell.height
+    if (lineWidth.top) {
+      y1 -= 0.5 * lineWidth.top
+    }
+    if (lineWidth.bottom) {
+      y2 += 0.5 * lineWidth.bottom
+    }
+    drawLine([x1, y1, x2, y2], lineWidth.left, fillColor)
+  }
+
+  if (lineWidth.right) {
+    x1 = cursor.x + cell.width
+    y1 = cursor.y
+    x2 = cursor.x + cell.width
+    y2 = cursor.y + cell.height
+    if (lineWidth.top) {
+      y1 -= 0.5 * lineWidth.top
+    }
+    if (lineWidth.bottom) {
+      y2 += 0.5 * lineWidth.bottom
+    }
+    drawLine([x1, y1, x2, y2], lineWidth.right, fillColor)
+  }
+
+  function drawLine(
+    coords: [number, number, number, number],
+    width: number,
+    color: Color
+  ) {
+    doc.getDocument().setLineWidth(width)
+    doc.getDocument().line(...coords, getFillStyle(width, color))
+  }
 }
 
 function getRemainingPageSpace(
