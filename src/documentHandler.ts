@@ -105,7 +105,7 @@ export class DocHandler {
     return this.jsPDFDocument.splitTextToSize(text, size, opts)
   }
 
-  rect(x: number, y: number, width: number, height: number, fillStyle: string) {
+  rect(x: number, y: number, width: number, height: number, fillStyle: string | null) {
     return this.jsPDFDocument.rect(x, y, width, height, fillStyle)
   }
 
