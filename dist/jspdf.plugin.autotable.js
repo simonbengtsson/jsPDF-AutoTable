@@ -1,8 +1,8 @@
 /*!
  * 
- *               jsPDF AutoTable plugin v3.5.28
+ *               jsPDF AutoTable plugin v3.5.29
  *
- *               Copyright (c) 2022 Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable
+ *               Copyright (c) 2023 Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable
  *               Licensed under the MIT License.
  *               http://opensource.org/licenses/mit-license
  *
@@ -1550,6 +1550,15 @@ function cellStyles(sectionName, column, rowIndex, themeName, styles, scaleFacto
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
+var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
+    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+        if (ar || !(i in from)) {
+            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+            ar[i] = from[i];
+        }
+    }
+    return to.concat(ar || Array.prototype.slice.call(from));
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.addPage = exports.drawTable = void 0;
 var config_1 = __webpack_require__(913);
@@ -1802,53 +1811,96 @@ function drawCellBorders(doc, cell, cursor) {
     var cellStyles = cell.styles;
     doc.getDocument().setFillColor(doc.getDocument().getFillColor());
     if (typeof cellStyles.lineWidth === 'number') {
-        // prints normal cell border
+        // prints normal cell border using rect's stroke
         var fillStyle = (0, common_1.getFillStyle)(cellStyles.lineWidth, cellStyles.fillColor);
         if (fillStyle) {
             doc.rect(cell.x, cursor.y, cell.width, cell.height, fillStyle);
         }
     }
     else if (typeof cellStyles.lineWidth === 'object') {
-        doc.rect(cell.x, cursor.y, cell.width, cell.height, 'F');
-        var sides = Object.keys(cellStyles.lineWidth);
-        var lineWidth_1 = cellStyles.lineWidth;
-        sides.map(function (side) {
-            var fillStyle = (0, common_1.getFillStyle)(lineWidth_1[side], cellStyles.fillColor);
-            drawBorderForSide(doc, cell, cursor, side, fillStyle || 'S', lineWidth_1[side]);
-        });
+        drawCellBackground(doc, cell, cursor, cellStyles.fillColor);
+        drawBorders(doc, cell, cursor, cellStyles.fillColor, cellStyles.lineWidth);
     }
 }
-function drawBorderForSide(doc, cell, cursor, side, fillStyle, lineWidth) {
+/**
+ * Prints cell background without borders and allows transparent color.
+ * @param doc
+ * @param cell
+ * @param cursor
+ * @param fillColor - `false` for transparent, `string` for color, other types will use "F" from jsPDF.rect
+ */
+function drawCellBackground(doc, cell, cursor, fillColor) {
+    var cellFillColor = fillColor === false ? null : typeof fillColor !== 'string' ? 'F' : fillColor;
+    doc.rect(cell.x, cursor.y, cell.width, cell.height, cellFillColor);
+}
+/**
+ * Draw all specified borders. Borders are centered on cell's edge and lengthened
+ * to overlap with neighbours to create sharp corners.
+ * @param doc
+ * @param cell
+ * @param cursor
+ * @param fillColor
+ * @param lineWidth
+ */
+function drawBorders(doc, cell, cursor, fillColor, lineWidth) {
     var x1, y1, x2, y2;
-    switch (side) {
-        case 'top':
-            x1 = cursor.x;
-            y1 = cursor.y;
-            x2 = cursor.x + cell.width;
-            y2 = cursor.y;
-            break;
-        case 'left':
-            x1 = cursor.x;
-            y1 = cursor.y;
-            x2 = cursor.x;
-            y2 = cursor.y + cell.height;
-            break;
-        case 'right':
-            x1 = cursor.x + cell.width;
-            y1 = cursor.y;
-            x2 = cursor.x + cell.width;
-            y2 = cursor.y + cell.height;
-            break;
-        default:
-            // default it will print bottom
-            x1 = cursor.x;
-            y1 = cursor.y + cell.height - lineWidth;
-            x2 = cursor.x + cell.width;
-            y2 = cursor.y + cell.height - lineWidth;
-            break;
+    if (lineWidth.top) {
+        x1 = cursor.x;
+        y1 = cursor.y;
+        x2 = cursor.x + cell.width;
+        y2 = cursor.y;
+        if (lineWidth.right) {
+            x2 += 0.5 * lineWidth.right;
+        }
+        if (lineWidth.left) {
+            x1 -= 0.5 * lineWidth.left;
+        }
+        drawLine([x1, y1, x2, y2], lineWidth.top, fillColor);
     }
-    doc.getDocument().setLineWidth(lineWidth);
-    doc.getDocument().line(x1, y1, x2, y2, fillStyle);
+    if (lineWidth.bottom) {
+        x1 = cursor.x;
+        y1 = cursor.y + cell.height;
+        x2 = cursor.x + cell.width;
+        y2 = cursor.y + cell.height;
+        if (lineWidth.right) {
+            x2 += 0.5 * lineWidth.right;
+        }
+        if (lineWidth.left) {
+            x1 -= 0.5 * lineWidth.left;
+        }
+        drawLine([x1, y1, x2, y2], lineWidth.bottom, fillColor);
+    }
+    if (lineWidth.left) {
+        x1 = cursor.x;
+        y1 = cursor.y;
+        x2 = cursor.x;
+        y2 = cursor.y + cell.height;
+        if (lineWidth.top) {
+            y1 -= 0.5 * lineWidth.top;
+        }
+        if (lineWidth.bottom) {
+            y2 += 0.5 * lineWidth.bottom;
+        }
+        drawLine([x1, y1, x2, y2], lineWidth.left, fillColor);
+    }
+    if (lineWidth.right) {
+        x1 = cursor.x + cell.width;
+        y1 = cursor.y;
+        x2 = cursor.x + cell.width;
+        y2 = cursor.y + cell.height;
+        if (lineWidth.top) {
+            y1 -= 0.5 * lineWidth.top;
+        }
+        if (lineWidth.bottom) {
+            y2 += 0.5 * lineWidth.bottom;
+        }
+        drawLine([x1, y1, x2, y2], lineWidth.right, fillColor);
+    }
+    function drawLine(coords, width, color) {
+        var _a;
+        doc.getDocument().setLineWidth(width);
+        (_a = doc.getDocument()).line.apply(_a, __spreadArray(__spreadArray([], coords, false), [(0, common_1.getFillStyle)(width, color)], false));
+    }
 }
 function getRemainingPageSpace(doc, table, isLastRow, cursor) {
     var bottomContentHeight = table.settings.margin.bottom;
@@ -1877,6 +1929,7 @@ function addPage(doc, table, startPos, cursor, columns) {
     startPos.y = margin.top;
     if (table.settings.showHead === 'everyPage') {
         table.head.forEach(function (row) { return printRow(doc, table, row, cursor, columns); });
+        doc.applyStyles(doc.userStyles);
     }
 }
 exports.addPage = addPage;
