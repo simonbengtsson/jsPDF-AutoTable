@@ -1,4 +1,4 @@
-Take the [developer survey](https://forms.gle/PRTF4byf39HtatBu9)!
+Support project with a coffee [](https://ko-fi.com/A535IR4)
 
 # jsPDF-AutoTable - Table plugin for jsPDF
 
