@@ -1,4 +1,4 @@
-Support project with a coffee [](https://ko-fi.com/A535IR4)
+[Support project with a coffee](https://ko-fi.com/A535IR4)
 
 # jsPDF-AutoTable - Table plugin for jsPDF
 
