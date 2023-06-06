@@ -84,10 +84,15 @@ export interface UserOptions {
   }
 
   // Hooks
+  /** Called when the plugin finished parsing cell content. Can be used to override content or styles for a specific cell. */
   didParseCell?: CellHook
+  /** Called before a cell or row is drawn. Can be used to call native jspdf styling functions such as `doc.setTextColor` or change position of text etc before it is drawn. */
   willDrawCell?: CellHook
+  /** Called after a cell has been added to the page. Can be used to draw additional cell content such as images with `doc.addImage`, additional text with `doc.addText` or other jspdf shapes. */
   didDrawCell?: CellHook
-  didAddPage?: PageHook
+  /** Called before starting to draw on a page. Can be used to add headers or any other content that you want on each page there is an autotable. */
+  willDrawPage?: PageHook
+  /** Called after the plugin has finished drawing everything on a page. Can be used to add footers with page numbers or any other content that you want on each page there is an autotable. */
   didDrawPage?: PageHook
 }
 
@@ -95,25 +100,25 @@ export type ColumnInput =
   | string
   | number
   | {
-    header?: CellInput
-    title?: CellInput // deprecated (same as header)
-    footer?: CellInput
-    dataKey?: string | number
-    key?: string | number // deprecated (same as dataKey)
-  }
+      header?: CellInput
+      title?: CellInput // deprecated (same as header)
+      footer?: CellInput
+      dataKey?: string | number
+      key?: string | number // deprecated (same as dataKey)
+    }
 
 export type Color = [number, number, number] | number | string | false
 export type MarginPaddingInput =
   | number
   | number[]
   | {
-    top?: number
-    right?: number
-    bottom?: number
-    left?: number
-    horizontal?: number
-    vertical?: number
-  }
+      top?: number
+      right?: number
+      bottom?: number
+      left?: number
+      horizontal?: number
+      vertical?: number
+    }
 
 export interface CellDef {
   rowSpan?: number

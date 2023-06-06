@@ -93,14 +93,14 @@ function parseHooks(
     didParseCell: [] as CellHook[],
     willDrawCell: [] as CellHook[],
     didDrawCell: [] as CellHook[],
-    didAddPage: [] as PageHook[],
+    willDrawPage: [] as PageHook[],
     didDrawPage: [] as PageHook[],
   }
   for (const options of allOptions) {
     if (options.didParseCell) result.didParseCell.push(options.didParseCell)
     if (options.willDrawCell) result.willDrawCell.push(options.willDrawCell)
     if (options.didDrawCell) result.didDrawCell.push(options.didDrawCell)
-    if (options.didAddPage) result.didAddPage.push(options.didAddPage)
+    if (options.willDrawPage) result.willDrawPage.push(options.willDrawPage)
     if (options.didDrawPage) result.didDrawPage.push(options.didDrawPage)
   }
 

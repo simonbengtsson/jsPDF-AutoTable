@@ -189,7 +189,7 @@ examples['header-footer'] = function () {
   doc.autoTable({
     head: headRows(),
     body: bodyRows(40),
-    didAddPage: function (data) {
+    willDrawPage: function (data) {
       // Header
       doc.setFontSize(20)
       doc.setTextColor(40)
