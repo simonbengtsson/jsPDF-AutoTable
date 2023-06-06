@@ -31,8 +31,13 @@ export function drawTable(jsPDFDoc: jsPDFDocument, table: Table): void {
     settings.pageBreak === 'always' ||
     (settings.startY != null && minTableBottomPos > doc.pageSize().height)
   ) {
-    nextPage(doc)
+    const didAddPage = nextPage(doc)
     cursor.y = margin.top
+
+    // call didAddPage hooks before any content is added to the page
+    if (didAddPage) {
+      table.callDidAddPageHooks(doc, cursor)
+    }
   }
 
   const startPos = assign({}, cursor)
@@ -530,12 +535,17 @@ export function addPage(
 
   const margin = table.settings.margin
   addTableBorder(doc, table, startPos, cursor)
-  nextPage(doc)
+  const didAddPage = nextPage(doc)
   table.pageNumber++
   table.pageCount++
   cursor.x = margin.left
   cursor.y = margin.top
   startPos.y = margin.top
+
+  // call didAddPage hooks before any content is added to the page
+  if (didAddPage) {
+    table.callDidAddPageHooks(doc, cursor)
+  }
 
   if (table.settings.showHead === 'everyPage') {
     table.head.forEach((row: Row) => printRow(doc, table, row, cursor, columns))
@@ -543,6 +553,7 @@ export function addPage(
   }
 }
 
+/** Remember to call the didAddPage hooks afterwards! */
 function nextPage(doc: DocHandler) {
   const current = doc.pageNumber()
   doc.setPage(current + 1)
@@ -550,5 +561,7 @@ function nextPage(doc: DocHandler) {
 
   if (newCurrent === current) {
     doc.addPage()
+    return true
   }
+  return false
 }

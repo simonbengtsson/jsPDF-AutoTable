@@ -17,9 +17,15 @@ export type PageHook = (data: HookData) => void | boolean
 export type CellHook = (data: CellHookData) => void | boolean
 
 export interface HookProps {
+  /** Called when the plugin finished parsing cell content. Can be used to override content or styles for a specific cell. */
   didParseCell: CellHook[]
+  /** Called before a cell or row is drawn. Can be used to call native jspdf styling functions such as `doc.setTextColor` or change position of text etc before it is drawn. */
   willDrawCell: CellHook[]
+  /** Called after a cell has been added to the page. Can be used to draw additional cell content such as images with `doc.addImage`, additional text with `doc.addText` or other jspdf shapes. */
   didDrawCell: CellHook[]
+  /** Called after the plugin adds a page, before any content is added. Can be used to add headers or any other content that you want on each page there is an autotable. */
+  didAddPage: PageHook[]
+  /** Called after the plugin has finished drawing everything on a page. Can be used to add footers with page numbers or any other content that you want on each page there is an autotable. */
   didDrawPage: PageHook[]
 }
 
@@ -137,6 +143,11 @@ export class Table {
   callEndPageHooks(doc: DocHandler, cursor: { x: number; y: number }) {
     doc.applyStyles(doc.userStyles)
     for (const handler of this.hooks.didDrawPage) {
+      handler(new HookData(doc, this, cursor))
+    }
+  }
+  callDidAddPageHooks(doc: DocHandler, cursor: { x: number; y: number }) {
+    for (const handler of this.hooks.didAddPage) {
       handler(new HookData(doc, this, cursor))
     }
   }
