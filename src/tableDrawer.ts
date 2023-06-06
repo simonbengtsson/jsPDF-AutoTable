@@ -31,14 +31,10 @@ export function drawTable(jsPDFDoc: jsPDFDocument, table: Table): void {
     settings.pageBreak === 'always' ||
     (settings.startY != null && minTableBottomPos > doc.pageSize().height)
   ) {
-    const didAddPage = nextPage(doc)
+    nextPage(doc)
     cursor.y = margin.top
-
-    // call didAddPage hooks before any content is added to the page
-    if (didAddPage) {
-      table.callDidAddPageHooks(doc, cursor)
-    }
   }
+  table.callWillDrawPageHooks(doc, cursor)
 
   const startPos = assign({}, cursor)
 
@@ -93,10 +89,8 @@ function printTableWithHorizontalPageBreak(
   cursor: { x: number; y: number }
 ) {
   // calculate width of columns and render only those which can fit into page
-  const allColumnsCanFitResult: ColumnFitInPageResult[] = tablePrinter.calculateAllColumnsCanFitInPage(
-    doc,
-    table
-  )
+  const allColumnsCanFitResult: ColumnFitInPageResult[] =
+    tablePrinter.calculateAllColumnsCanFitInPage(doc, table)
 
   allColumnsCanFitResult.map(
     (colsAndIndexes: ColumnFitInPageResult, index: number) => {
@@ -535,7 +529,7 @@ export function addPage(
 
   const margin = table.settings.margin
   addTableBorder(doc, table, startPos, cursor)
-  const didAddPage = nextPage(doc)
+  nextPage(doc)
   table.pageNumber++
   table.pageCount++
   cursor.x = margin.left
@@ -543,9 +537,7 @@ export function addPage(
   startPos.y = margin.top
 
   // call didAddPage hooks before any content is added to the page
-  if (didAddPage) {
-    table.callDidAddPageHooks(doc, cursor)
-  }
+  table.callWillDrawPageHooks(doc, cursor)
 
   if (table.settings.showHead === 'everyPage') {
     table.head.forEach((row: Row) => printRow(doc, table, row, cursor, columns))
@@ -553,7 +545,6 @@ export function addPage(
   }
 }
 
-/** Remember to call the didAddPage hooks afterwards! */
 function nextPage(doc: DocHandler) {
   const current = doc.pageNumber()
   doc.setPage(current + 1)
