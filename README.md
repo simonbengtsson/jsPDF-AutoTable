@@ -198,7 +198,8 @@ You can customize the content and styling of the table by using the hooks. See t
 - `didParseCell: (HookData) => {}` - Called when the plugin finished parsing cell content. Can be used to override content or styles for a specific cell.
 - `willDrawCell: (HookData) => {}` - Called before a cell or row is drawn. Can be used to call native jspdf styling functions such as `doc.setTextColor` or change position of text etc before it is drawn.
 - `didDrawCell: (HookData) => {}` - Called after a cell has been added to the page. Can be used to draw additional cell content such as images with `doc.addImage`, additional text with `doc.addText` or other jspdf shapes.
-- `didDrawPage: (HookData) => {}` - Called after the plugin has finished drawing everything on a page. Can be used to add headers and footers with page numbers or any other content that you want on each page there is an autotable.
+- `didAddPage: (HookData) => {}` - Called after the plugin adds a page, before any content is added. Can be used to add headers or any other content that you want on each page there is an autotable.
+- `didDrawPage: (HookData) => {}` - Called after the plugin has finished drawing everything on a page. Can be used to add footers with page numbers or any other content that you want on each page there is an autotable.
 
 All hooks functions get passed an HookData object with information about the state of the table and cell. For example the position on the page, which page it is on etc.
 

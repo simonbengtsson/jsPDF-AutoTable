@@ -87,6 +87,7 @@ export interface UserOptions {
   didParseCell?: CellHook
   willDrawCell?: CellHook
   didDrawCell?: CellHook
+  didAddPage?: PageHook
   didDrawPage?: PageHook
 }
 

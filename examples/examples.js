@@ -189,7 +189,7 @@ examples['header-footer'] = function () {
   doc.autoTable({
     head: headRows(),
     body: bodyRows(40),
-    didDrawPage: function (data) {
+    didAddPage: function (data) {
       // Header
       doc.setFontSize(20)
       doc.setTextColor(40)
@@ -197,7 +197,8 @@ examples['header-footer'] = function () {
         doc.addImage(base64Img, 'JPEG', data.settings.margin.left, 15, 10, 10)
       }
       doc.text('Report', data.settings.margin.left + 15, 22)
-
+    },
+    didDrawPage: function (data) {
       // Footer
       var str = 'Page ' + doc.internal.getNumberOfPages()
       // Total page number plugin only available in jspdf v1.0+
@@ -509,54 +510,56 @@ examples.borders = function () {
     head: headRows(),
     body: bodyRows(3),
     foot: [
-      [{
-        content: 'ID',
-        dataKey: 'id',
-        styles: {
-          fillColor: [255, 0, 0],
-          lineWidth: 1,
-          lineColor: 'black'
+      [
+        {
+          content: 'ID',
+          dataKey: 'id',
+          styles: {
+            fillColor: [255, 0, 0],
+            lineWidth: 1,
+            lineColor: 'black',
+          },
         },
-      },
-      {
-        content: 'Name',
-        dataKey: 'name',
-        styles: {
-          fillColor: [0, 255, 0],
+        {
+          content: 'Name',
+          dataKey: 'name',
+          styles: {
+            fillColor: [0, 255, 0],
+          },
         },
-      },
-      {
-        content: 'Email',
-        dataKey: 'email',
-        styles: {
-          fillColor: [0, 0, 255],
-          lineWidth: 2,
-          lineColor: 'yellow',
+        {
+          content: 'Email',
+          dataKey: 'email',
+          styles: {
+            fillColor: [0, 0, 255],
+            lineWidth: 2,
+            lineColor: 'yellow',
+          },
         },
-      },
-      {
-        content: 'City',
-        dataKey: 'city',
-        styles: {
-          fillColor: [0, 255, 0],
-          lineWidth: 0.5
+        {
+          content: 'City',
+          dataKey: 'city',
+          styles: {
+            fillColor: [0, 255, 0],
+            lineWidth: 0.5,
+          },
         },
-      },
-      {
-        content: 'Sum',
-        dataKey: 'sum',
-        styles: {
-          textColor: 'white',
-          fillColor: [255, 0, 0],
-          lineColor: 'black',
-          lineWidth: {
-            right: 2,
-            bottom: 3,
-            top: 1,
-            left: 6
-          }
+        {
+          content: 'Sum',
+          dataKey: 'sum',
+          styles: {
+            textColor: 'white',
+            fillColor: [255, 0, 0],
+            lineColor: 'black',
+            lineWidth: {
+              right: 2,
+              bottom: 3,
+              top: 1,
+              left: 6,
+            },
+          },
         },
-      },]
+      ],
     ],
     margin: { top: 40 },
     theme: 'plain',
@@ -589,10 +592,13 @@ examples.borders = function () {
     // Use for customizing texts or styles of specific cells after they have been formatted by this plugin.
     // This hook is called just before the column width and other features are computed.
     didParseCell: function (data) {
-      if (data.row.section === 'head' && ['name','city'].includes(data.column.dataKey)) {
+      if (
+        data.row.section === 'head' &&
+        ['name', 'city'].includes(data.column.dataKey)
+      ) {
         data.cell.styles.lineColor = 'black'
         data.cell.styles.lineWidth = {
-          bottom: 1
+          bottom: 1,
         }
       }
     },
@@ -606,7 +612,7 @@ examples.borders = function () {
         'Borders are drawn just at the edge of the cell, which means that half of the border is in the cell and the other half is outside.',
         data.settings.margin.left,
         30,
-        {maxWidth: 180}
+        { maxWidth: 180 }
       )
     },
   })
