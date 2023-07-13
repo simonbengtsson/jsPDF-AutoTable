@@ -219,7 +219,7 @@ LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
 OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 PERFORMANCE OF THIS SOFTWARE.
 ***************************************************************************** */
-/* global Reflect, Promise */
+/* global Reflect, Promise, SuppressedError, Symbol */
 
 var extendStatics = function(d, b) {
     extendStatics = Object.setPrototypeOf ||
@@ -245,6 +245,11 @@ function __spreadArray(to, from, pack) {
     }
     return to.concat(ar || Array.prototype.slice.call(from));
 }
+
+typeof SuppressedError === "function" ? SuppressedError : function (error, suppressed, message) {
+    var e = new Error(message);
+    return e.name = "SuppressedError", e.error = error, e.suppressed = suppressed, e;
+};
 
 /**
  * Ratio between font size and font height. The number comes from jspdf's source code
@@ -779,6 +784,7 @@ function parseHooks(global, document, current) {
         didParseCell: [],
         willDrawCell: [],
         didDrawCell: [],
+        willDrawPage: [],
         didDrawPage: [],
     };
     for (var _i = 0, allOptions_1 = allOptions; _i < allOptions_1.length; _i++) {
@@ -789,6 +795,8 @@ function parseHooks(global, document, current) {
             result.willDrawCell.push(options.willDrawCell);
         if (options.didDrawCell)
             result.didDrawCell.push(options.didDrawCell);
+        if (options.willDrawPage)
+            result.willDrawPage.push(options.willDrawPage);
         if (options.didDrawPage)
             result.didDrawPage.push(options.didDrawPage);
     }
@@ -983,6 +991,12 @@ var Table = /** @class */ (function () {
     Table.prototype.callEndPageHooks = function (doc, cursor) {
         doc.applyStyles(doc.userStyles);
         for (var _i = 0, _a = this.hooks.didDrawPage; _i < _a.length; _i++) {
+            var handler = _a[_i];
+            handler(new HookData(doc, this, cursor));
+        }
+    };
+    Table.prototype.callWillDrawPageHooks = function (doc, cursor) {
+        for (var _i = 0, _a = this.hooks.willDrawPage; _i < _a.length; _i++) {
             var handler = _a[_i];
             handler(new HookData(doc, this, cursor));
         }
@@ -1240,7 +1254,7 @@ function drawTable(jsPDFDoc, table) {
     var sectionsHeight = table.getHeadHeight(table.columns) + table.getFootHeight(table.columns);
     var minTableBottomPos = startY + margin.bottom + sectionsHeight;
     if (settings.pageBreak === 'avoid') {
-        var rows = table.allRows();
+        var rows = table.body;
         var tableHeight = rows.reduce(function (acc, row) { return acc + row.height; }, 0);
         minTableBottomPos += tableHeight;
     }
@@ -1250,6 +1264,7 @@ function drawTable(jsPDFDoc, table) {
         nextPage(doc);
         cursor.y = margin.top;
     }
+    table.callWillDrawPageHooks(doc, cursor);
     var startPos = assign({}, cursor);
     table.startPageNumber = doc.pageNumber();
     if (settings.horizontalPageBreak === true) {
@@ -1587,6 +1602,8 @@ function addPage(doc, table, startPos, cursor, columns) {
     cursor.x = margin.left;
     cursor.y = margin.top;
     startPos.y = margin.top;
+    // call didAddPage hooks before any content is added to the page
+    table.callWillDrawPageHooks(doc, cursor);
     if (table.settings.showHead === 'everyPage') {
         table.head.forEach(function (row) { return printRow(doc, table, row, cursor, columns); });
         doc.applyStyles(doc.userStyles);
@@ -1598,7 +1615,9 @@ function nextPage(doc) {
     var newCurrent = doc.pageNumber();
     if (newCurrent === current) {
         doc.addPage();
+        return true;
     }
+    return false;
 }
 
 /**
@@ -1641,7 +1660,7 @@ function calculateWidths(doc, table) {
         // reduce font size, increase page size or remove custom cell widths
         // to allow more columns to be reduced in size
         resizeWidth = resizeWidth < 1 ? resizeWidth : Math.round(resizeWidth);
-        console.error("Of the table content, ".concat(resizeWidth, " units width could not fit page"));
+        console.warn("Of the table content, ".concat(resizeWidth, " units width could not fit page"));
     }
     applyColSpans(table);
     fitContent(table, doc);
