@@ -3,6 +3,6 @@
   "version": "1.0",
   "dependencies": {
     "jspdf": "^2.5.1",
-    "jspdf-autotable": "^3.5.28"
+    "jspdf-autotable": "^3.5.29"
   }
 }
