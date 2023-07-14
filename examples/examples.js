@@ -564,8 +564,11 @@ examples.borders = function () {
     margin: { top: 40 },
     theme: 'plain',
     headStyles: {
-      fillColor: [241, 196, 15],
+      fillColor: '#f1c40f',
       fontSize: 15,
+      lineWidth: {
+        top: 1
+      }
     },
     footStyles: {
       fillColor: [241, 196, 15],
@@ -599,6 +602,13 @@ examples.borders = function () {
         data.cell.styles.lineColor = 'black'
         data.cell.styles.lineWidth = {
           bottom: 1,
+        }
+      }
+      if (data.row.section === "body" && data.row.index === 1 && data.cell === data.row.cells[1]) {
+        data.cell.styles.fillColor = '#f1c40f' // cell background color
+        data.cell.styles.lineColor = 'red' // cell border color
+        data.cell.styles.lineWidth = {
+          bottom: 1, // only bottom border will be painted
         }
       }
     },
