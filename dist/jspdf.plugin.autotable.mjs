@@ -539,7 +539,18 @@ var DocHandler = /** @class */ (function () {
     DocHandler.prototype.splitTextToSize = function (text, size, opts) {
         return this.jsPDFDocument.splitTextToSize(text, size, opts);
     };
+    /**
+     * Adds a rectangle to the PDF
+     * @param x Coordinate (in units declared at inception of PDF document) against left edge of the page
+     * @param y Coordinate (in units declared at inception of PDF document) against upper edge of the page
+     * @param width Width (in units declared at inception of PDF document)
+     * @param height Height (in units declared at inception of PDF document)
+     * @param fillStyle A string specifying the painting style or null. Valid styles include: 'S' [default] - stroke, 'F' - fill, and 'DF' (or 'FD') - fill then stroke. In "compat" API mode, a null value postpones setting the style so that a shape may be composed using multiple method calls. The last drawing method call used to define the shape should not have a null style argument. **In "advanced" API mode this parameter is deprecated.**
+     */
     DocHandler.prototype.rect = function (x, y, width, height, fillStyle) {
+        if (!['S', 'F', 'DF', 'FD', null].some(function (v) { return v === fillStyle; })) {
+            throw new TypeError("Invalid value '".concat(fillStyle, "' passed to rect. Allowed values are: 'S', 'F', 'DF', 'FD', null"));
+        }
         return this.jsPDFDocument.rect(x, y, width, height, fillStyle);
     };
     DocHandler.prototype.getLastAutoTable = function () {
@@ -1502,11 +1513,11 @@ function drawCellBorders(doc, cell, cursor) {
  * @param doc
  * @param cell
  * @param cursor
- * @param fillColor - `false` for transparent, `string` for color, other types will use "F" from jsPDF.rect
+ * @param fillColor - passed to getFillStyle; `false` will map to transparent, `truthy` values to 'F' from jsPDF.rect
  */
 function drawCellBackground(doc, cell, cursor, fillColor) {
-    var cellFillColor = fillColor === false ? null : typeof fillColor !== 'string' ? 'F' : fillColor;
-    doc.rect(cell.x, cursor.y, cell.width, cell.height, cellFillColor);
+    var fillStyle = getFillStyle(0, fillColor);
+    doc.rect(cell.x, cursor.y, cell.width, cell.height, fillStyle);
 }
 /**
  * Draw all specified borders. Borders are centered on cell's edge and lengthened
