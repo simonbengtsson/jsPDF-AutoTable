@@ -105,7 +105,20 @@ export class DocHandler {
     return this.jsPDFDocument.splitTextToSize(text, size, opts)
   }
 
-  rect(x: number, y: number, width: number, height: number, fillStyle: string | null) {
+  /**
+   * Adds a rectangle to the PDF
+   * @param x Coordinate (in units declared at inception of PDF document) against left edge of the page
+   * @param y Coordinate (in units declared at inception of PDF document) against upper edge of the page
+   * @param width Width (in units declared at inception of PDF document)
+   * @param height Height (in units declared at inception of PDF document)
+   * @param fillStyle A string specifying the painting style or null. Valid styles include: 'S' [default] - stroke, 'F' - fill, and 'DF' (or 'FD') - fill then stroke. In "compat" API mode, a null value postpones setting the style so that a shape may be composed using multiple method calls. The last drawing method call used to define the shape should not have a null style argument. **In "advanced" API mode this parameter is deprecated.**
+   */
+  rect(x: number, y: number, width: number, height: number, fillStyle: 'S' | 'F' | 'DF' | 'FD' | null) {
+    if (!['S', 'F', 'DF', 'FD', null].some((v) => v === fillStyle)) {
+      throw new TypeError(
+        `Invalid value '${fillStyle}' passed to rect. Allowed values are: 'S', 'F', 'DF', 'FD', null`
+      )
+    }
     return this.jsPDFDocument.rect(x, y, width, height, fillStyle)
   }
 

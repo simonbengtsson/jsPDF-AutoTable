@@ -400,7 +400,7 @@ function drawCellBorders(doc: DocHandler, cell: Cell, cursor: Pos) {
  * @param doc
  * @param cell
  * @param cursor
- * @param fillColor - `false` for transparent, `string` for color, other types will use "F" from jsPDF.rect
+ * @param fillColor - passed to getFillStyle; `false` will map to transparent, `truthy` values to 'F' from jsPDF.rect
  */
 function drawCellBackground(
   doc: DocHandler,
@@ -408,9 +408,8 @@ function drawCellBackground(
   cursor: Pos,
   fillColor: Color
 ) {
-  const cellFillColor =
-    fillColor === false ? null : typeof fillColor !== 'string' ? 'F' : fillColor
-  doc.rect(cell.x, cursor.y, cell.width, cell.height, cellFillColor)
+  const fillStyle = getFillStyle(0, fillColor)
+  doc.rect(cell.x, cursor.y, cell.width, cell.height, fillStyle)
 }
 
 /**
