@@ -21,18 +21,37 @@ const getColumnsCanFitInPage = (
   table: Table,
   config: any = {}
 ): ColumnFitInPageResult => {
-  // get page width
+  // Get page width
   const availablePageWidth = getPageAvailableWidth(doc, table)
   let remainingWidth = availablePageWidth
-  // get column data key to repeat
-  const horizontalPageBreakRepeat = table.settings.horizontalPageBreakRepeat
+
+  // Get column data key to repeat
+  const repeatColumnsMap = new Map<number, Column>();
   let repeatColumn = null
   const cols: number[] = []
   const columns: Column[] = []
+
   const len = table.columns.length
-  let i = config && config.start ? config.start : 0
-  // code to repeat the given column in split pages
-  if (horizontalPageBreakRepeat != null) {
+  let i = config?.start ?? 0;
+
+  const horizontalPageBreakRepeat = table.settings.horizontalPageBreakRepeat
+  // Code to repeat the given column in split pages
+  if (horizontalPageBreakRepeat !== null && horizontalPageBreakRepeat !== undefined && Array.isArray(horizontalPageBreakRepeat)) {
+    for (const field of horizontalPageBreakRepeat) {
+      const col = table.columns.find(
+        (item) =>
+          item.dataKey === field ||
+          item.index === field
+      )
+      if (col) {
+        repeatColumnsMap.set(col.index, col);
+        cols.push(col.index)
+        columns.push(table.columns[col.index])
+        remainingWidth = remainingWidth - col.wrappedWidth
+      }
+    }
+    // It can be a single value of type string or number (even number: 0)
+  } else if (horizontalPageBreakRepeat !== null && horizontalPageBreakRepeat !== undefined) {
     repeatColumn = table.columns.find(
       (item) =>
         item.dataKey === horizontalPageBreakRepeat ||
@@ -44,29 +63,30 @@ const getColumnsCanFitInPage = (
       remainingWidth = remainingWidth - repeatColumn.wrappedWidth
     }
   }
+
   while (i < len) {
-    if (repeatColumn?.index === i) {
-      i++ // prevent columnDataKeyToRepeat to be pushed twice in a page
-      continue
+    // Prevent columnDataKeyToRepeat from being pushed twice on a page
+    if ((Array.isArray(horizontalPageBreakRepeat) && repeatColumnsMap.get(i))
+      || repeatColumn?.index === i) {
+      i++;
+      continue;
     }
-    const colWidth = table.columns[i].wrappedWidth
+
+    const colWidth = table.columns[i].wrappedWidth;
     if (remainingWidth < colWidth) {
-      // check if it's first column in the sequence then add it into result
       if (i === 0 || i === config.start) {
-        // this cell width is more than page width set it available pagewidth
-        /* table.columns[i].wrappedWidth = availablePageWidth
-        table.columns[i].minWidth = availablePageWidth */
-        cols.push(i)
-        columns.push(table.columns[i])
+        cols.push(i);
+        columns.push(table.columns[i]);
       }
-      // can't print more columns in same page
-      break
+      break;
     }
-    cols.push(i)
-    columns.push(table.columns[i])
-    remainingWidth = remainingWidth - colWidth
-    i++
+
+    cols.push(i);
+    columns.push(table.columns[i]);
+    remainingWidth -= colWidth;
+    i++;
   }
+
   return { colIndexes: cols, columns, lastIndex: i }
 }
 
