@@ -101,7 +101,7 @@ export interface Settings {
 	tableLineWidth: number;
 	tableLineColor: Color;
 	horizontalPageBreak?: boolean;
-	horizontalPageBreakRepeat?: string | number | null;
+	horizontalPageBreakRepeat?: string | number | string[] | number[] | null;
 }
 export interface StylesProps {
 	styles: Partial<Styles>;
@@ -257,7 +257,7 @@ export interface UserOptions {
 	html?: string | HTMLTableElement;
 	columns?: ColumnInput[];
 	horizontalPageBreak?: boolean;
-	horizontalPageBreakRepeat?: string | number;
+	horizontalPageBreakRepeat?: string[] | number[] | string | number;
 	styles?: Partial<Styles>;
 	bodyStyles?: Partial<Styles>;
 	headStyles?: Partial<Styles>;

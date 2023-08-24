@@ -1180,19 +1180,40 @@ var getPageAvailableWidth = function (doc, table) {
 };
 // get columns can be fit into page
 var getColumnsCanFitInPage = function (doc, table, config) {
+    var _a;
     if (config === void 0) { config = {}; }
-    // get page width
+    // Get page width
     var availablePageWidth = getPageAvailableWidth(doc, table);
     var remainingWidth = availablePageWidth;
-    // get column data key to repeat
-    var horizontalPageBreakRepeat = table.settings.horizontalPageBreakRepeat;
+    // Get column data key to repeat
+    var repeatColumnsMap = new Map();
     var repeatColumn = null;
     var cols = [];
     var columns = [];
     var len = table.columns.length;
-    var i = config && config.start ? config.start : 0;
-    // code to repeat the given column in split pages
-    if (horizontalPageBreakRepeat != null) {
+    var i = (_a = config === null || config === void 0 ? void 0 : config.start) !== null && _a !== void 0 ? _a : 0;
+    var horizontalPageBreakRepeat = table.settings.horizontalPageBreakRepeat;
+    // Code to repeat the given column in split pages
+    if (horizontalPageBreakRepeat !== null && horizontalPageBreakRepeat !== undefined && Array.isArray(horizontalPageBreakRepeat)) {
+        var _loop_1 = function (field) {
+            var col = table.columns.find(function (item) {
+                return item.dataKey === field ||
+                    item.index === field;
+            });
+            if (col) {
+                repeatColumnsMap.set(col.index, col);
+                cols.push(col.index);
+                columns.push(table.columns[col.index]);
+                remainingWidth = remainingWidth - col.wrappedWidth;
+            }
+        };
+        for (var _i = 0, horizontalPageBreakRepeat_1 = horizontalPageBreakRepeat; _i < horizontalPageBreakRepeat_1.length; _i++) {
+            var field = horizontalPageBreakRepeat_1[_i];
+            _loop_1(field);
+        }
+        // It can be a single value of type string or number (even number: 0)
+    }
+    else if (horizontalPageBreakRepeat !== null && horizontalPageBreakRepeat !== undefined) {
         repeatColumn = table.columns.find(function (item) {
             return item.dataKey === horizontalPageBreakRepeat ||
                 item.index === horizontalPageBreakRepeat;
@@ -1204,26 +1225,23 @@ var getColumnsCanFitInPage = function (doc, table, config) {
         }
     }
     while (i < len) {
-        if ((repeatColumn === null || repeatColumn === void 0 ? void 0 : repeatColumn.index) === i) {
-            i++; // prevent columnDataKeyToRepeat to be pushed twice in a page
+        // Prevent columnDataKeyToRepeat from being pushed twice on a page
+        if ((Array.isArray(horizontalPageBreakRepeat) && repeatColumnsMap.get(i))
+            || (repeatColumn === null || repeatColumn === void 0 ? void 0 : repeatColumn.index) === i) {
+            i++;
             continue;
         }
         var colWidth = table.columns[i].wrappedWidth;
         if (remainingWidth < colWidth) {
-            // check if it's first column in the sequence then add it into result
             if (i === 0 || i === config.start) {
-                // this cell width is more than page width set it available pagewidth
-                /* table.columns[i].wrappedWidth = availablePageWidth
-                table.columns[i].minWidth = availablePageWidth */
                 cols.push(i);
                 columns.push(table.columns[i]);
             }
-            // can't print more columns in same page
             break;
         }
         cols.push(i);
         columns.push(table.columns[i]);
-        remainingWidth = remainingWidth - colWidth;
+        remainingWidth -= colWidth;
         i++;
     }
     return { colIndexes: cols, columns: columns, lastIndex: i };
