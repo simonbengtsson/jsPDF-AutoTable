@@ -185,8 +185,8 @@ autoTable(doc, {
 - `showFoot: 'everyPage'|'lastPage'|'never' = 'everyPage''`
 - `tableLineWidth: number = 0`
 - `tableLineColor: Color = 200` The table line/border color
-- `horizontalPageBreak: boolean = true` To split/break the table into multiple pages if the given table width exceeds the page width
-- `horizontalPageBreakRepeat: string | number = 'id'` To repeat the given column in the split pages, works when `horizontalPageBreak = true`. The accepted values are column data keys, such as `'id'`, `recordId` or column indexes, such as `0`, `1`.
+- `horizontalPageBreak: boolean = false` To split/break the table into multiple pages if the given table width exceeds the page width
+- `horizontalPageBreakRepeat: string|number|string[]|number[]` To repeat the given column in the split pages, works when `horizontalPageBreak = true`. The accepted values are column dataKeys, such as `'id'`, `recordId` or column indexes, such as `0`, `1` or array for multiple columns.
 
 `Margin`:
 Either a number or object `{top: number, right: number, bottom: number, left: number}`
