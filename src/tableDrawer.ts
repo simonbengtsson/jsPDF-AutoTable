@@ -4,7 +4,7 @@ import { Cell, Column, Pos, Row, Table } from './models'
 import { DocHandler, jsPDFDocument } from './documentHandler'
 import { assign } from './polyfills'
 import autoTableText from './autoTableText'
-import tablePrinter, { ColumnFitInPageResult } from './tablePrinter'
+import { calculateAllColumnsCanFitInPage } from './tablePrinter'
 
 export function drawTable(jsPDFDoc: jsPDFDocument, table: Table): void {
   const settings = table.settings
@@ -40,7 +40,7 @@ export function drawTable(jsPDFDoc: jsPDFDocument, table: Table): void {
 
   table.startPageNumber = doc.pageNumber()
 
-  if (settings.horizontalPageBreak === true) {
+  if (settings.horizontalPageBreak) {
     // managed flow for split columns
     printTableWithHorizontalPageBreak(doc, table, startPos, cursor)
   } else {
@@ -89,11 +89,10 @@ function printTableWithHorizontalPageBreak(
   cursor: { x: number; y: number }
 ) {
   // calculate width of columns and render only those which can fit into page
-  const allColumnsCanFitResult: ColumnFitInPageResult[] =
-    tablePrinter.calculateAllColumnsCanFitInPage(doc, table)
+  const allColumnsCanFitResult = calculateAllColumnsCanFitInPage(doc, table)
 
   allColumnsCanFitResult.map(
-    (colsAndIndexes: ColumnFitInPageResult, index: number) => {
+    (colsAndIndexes, index: number) => {
       doc.applyStyles(doc.userStyles)
       // add page to print next columns in new page
       if (index > 0) {
@@ -102,10 +101,8 @@ function printTableWithHorizontalPageBreak(
         // print head for selected columns
         printHead(doc, table, cursor, colsAndIndexes.columns)
       }
-      // print body for selected columns
+      // print body & footer for selected columns
       printBody(doc, table, startPos, cursor, colsAndIndexes.columns)
-
-      // print foot for selected columns
       printFoot(doc, table, cursor, colsAndIndexes.columns)
     }
   )

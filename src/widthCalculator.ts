@@ -1,8 +1,7 @@
-import { getStringWidth } from './common'
+import { getStringWidth, getPageAvailableWidth } from './common'
 import { Table, Cell, Column, Row } from './models'
 import { DocHandler } from './documentHandler'
 import { Styles } from './config'
-import TablePrinter from './tablePrinter'
 
 /**
  * Calculate the column widths
@@ -68,7 +67,7 @@ export function calculateWidths(doc: DocHandler, table: Table) {
 function calculate(doc: DocHandler, table: Table) {
   const sf = doc.scaleFactor()
   const horizontalPageBreak = table.settings.horizontalPageBreak
-  const availablePageWidth = TablePrinter.getPageAvailableWidth(doc, table)
+  const availablePageWidth = getPageAvailableWidth(doc, table)
   table.allRows().forEach((row) => {
     for (const column of table.columns) {
       const cell = row.cells[column.index]

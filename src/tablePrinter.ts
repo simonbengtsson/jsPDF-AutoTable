@@ -1,121 +1,87 @@
-import { parseSpacing } from './common'
+import { getPageAvailableWidth } from './common'
 import { DocHandler } from './documentHandler'
 import { Column, Table } from './models'
 
-export interface ColumnFitInPageResult {
+interface ColumnFitInPageResult {
   colIndexes: number[]
-  columns: Column[],
+  columns: Column[]
   lastIndex: number
 }
 
-const getPageAvailableWidth = (doc: DocHandler, table: Table) => {
-  const margins = parseSpacing(table.settings.margin, 0)
-  const availablePageWidth =
-    doc.pageSize().width - (margins.left + margins.right)
-  return availablePageWidth
-}
-
 // get columns can be fit into page
-const getColumnsCanFitInPage = (
+function getColumnsCanFitInPage(
   doc: DocHandler,
   table: Table,
-  config: any = {}
-): ColumnFitInPageResult => {
+  config: any = {},
+): ColumnFitInPageResult {
   // Get page width
-  const availablePageWidth = getPageAvailableWidth(doc, table)
-  let remainingWidth = availablePageWidth
+  let remainingWidth = getPageAvailableWidth(doc, table)
 
   // Get column data key to repeat
-  const repeatColumnsMap = new Map<number, Column>();
-  let repeatColumn = null
-  const cols: number[] = []
+  const repeatColumnsMap = new Map<number, boolean>()
+  const colIndexes: number[] = []
   const columns: Column[] = []
 
-  const len = table.columns.length
-  let i = config?.start ?? 0;
+  let horizontalPageBreakRepeat: (number | string)[] = []
+  table.settings.horizontalPageBreakRepeat
 
-  const horizontalPageBreakRepeat = table.settings.horizontalPageBreakRepeat
-  // Code to repeat the given column in split pages
-  if (horizontalPageBreakRepeat !== null && horizontalPageBreakRepeat !== undefined && Array.isArray(horizontalPageBreakRepeat)) {
-    for (const field of horizontalPageBreakRepeat) {
-      const col = table.columns.find(
-        (item) =>
-          item.dataKey === field ||
-          item.index === field
-      )
-      if (col) {
-        repeatColumnsMap.set(col.index, col);
-        cols.push(col.index)
-        columns.push(table.columns[col.index])
-        remainingWidth = remainingWidth - col.wrappedWidth
-      }
-    }
+  if (Array.isArray(table.settings.horizontalPageBreakRepeat)) {
+    horizontalPageBreakRepeat = table.settings.horizontalPageBreakRepeat
     // It can be a single value of type string or number (even number: 0)
-  } else if (horizontalPageBreakRepeat !== null && horizontalPageBreakRepeat !== undefined) {
-    repeatColumn = table.columns.find(
-      (item) =>
-        item.dataKey === horizontalPageBreakRepeat ||
-        item.index === horizontalPageBreakRepeat
+  } else if (
+    typeof table.settings.horizontalPageBreakRepeat === 'string' ||
+    typeof table.settings.horizontalPageBreakRepeat === 'number'
+  ) {
+    horizontalPageBreakRepeat = [table.settings.horizontalPageBreakRepeat]
+  }
+
+  // Code to repeat the given column in split pages
+  horizontalPageBreakRepeat.forEach((field) => {
+    const col = table.columns.find(
+      (item) => item.dataKey === field || item.index === field,
     )
-    if (repeatColumn) {
-      cols.push(repeatColumn.index)
-      columns.push(table.columns[repeatColumn.index])
-      remainingWidth = remainingWidth - repeatColumn.wrappedWidth
+
+    if (col && !repeatColumnsMap.has(col.index)) {
+      repeatColumnsMap.set(col.index, true)
+      colIndexes.push(col.index)
+      columns.push(table.columns[col.index])
+      remainingWidth -= col.wrappedWidth
+    }
+  })
+
+  let first = true
+  let i = config?.start ?? 0 // make sure couter is initiated outside the loop
+  for (i = i; i < table.columns.length; i++) {
+    // Prevent duplicates
+    if (repeatColumnsMap.has(i)) continue
+
+    const colWidth = table.columns[i].wrappedWidth
+
+    // Take at least one column even if it doesn't fit
+    if (first || remainingWidth >= colWidth) {
+      first = false
+      colIndexes.push(i)
+      columns.push(table.columns[i])
+      remainingWidth -= colWidth
+    } else {
+      break
     }
   }
 
-  while (i < len) {
-    // Prevent columnDataKeyToRepeat from being pushed twice on a page
-    if ((Array.isArray(horizontalPageBreakRepeat) && repeatColumnsMap.get(i))
-      || repeatColumn?.index === i) {
-      i++;
-      continue;
-    }
-
-    const colWidth = table.columns[i].wrappedWidth;
-    if (remainingWidth < colWidth) {
-      if (i === 0 || i === config.start) {
-        cols.push(i);
-        columns.push(table.columns[i]);
-      }
-      break;
-    }
-
-    cols.push(i);
-    columns.push(table.columns[i]);
-    remainingWidth -= colWidth;
-    i++;
-  }
-
-  return { colIndexes: cols, columns, lastIndex: i }
+  return { colIndexes, columns, lastIndex: i - 1 }
 }
 
-const calculateAllColumnsCanFitInPage = (
+export function calculateAllColumnsCanFitInPage(
   doc: DocHandler,
-  table: Table
-): ColumnFitInPageResult[] => {
-  // const margins = table.settings.margin;
-  // const availablePageWidth = doc.pageSize().width - (margins.left + margins.right);
-
+  table: Table,
+): ColumnFitInPageResult[] {
   const allResults: ColumnFitInPageResult[] = []
-  let index = 0
-  const len = table.columns.length
-  while (index < len) {
-    const result = getColumnsCanFitInPage(doc, table, {
-      start: index === 0 ? 0 : index,
-    })
-    if (result && result.columns && result.columns.length) {
-      index = result.lastIndex
+  for (let i = 0; i < table.columns.length; i++) {
+    const result = getColumnsCanFitInPage(doc, table, { start: i })
+    if (result.columns.length) {
       allResults.push(result)
-    } else {
-      index++
+      i = result.lastIndex
     }
   }
   return allResults
-}
-
-export default {
-  getColumnsCanFitInPage,
-  calculateAllColumnsCanFitInPage,
-  getPageAvailableWidth,
 }
