@@ -12,10 +12,12 @@ export default function (
   doc: jsPDFDocument
 ) {
   styles = styles || {}
-  const FONT_ROW_RATIO = 1.15
+  const PHYSICAL_LINE_HEIGHT = 1.15
 
   const k = doc.internal.scaleFactor
   const fontSize = doc.internal.getFontSize() / k
+  const lineHeightFactor = doc.getLineHeightFactor ? doc.getLineHeightFactor() : PHYSICAL_LINE_HEIGHT
+  const lineHeight = fontSize * lineHeightFactor
 
   const splitRegex = /\r\n|\r|\n/g
   let splitText: string | string[] = ''
@@ -31,12 +33,12 @@ export default function (
   }
 
   // Align the top
-  y += fontSize * (2 - FONT_ROW_RATIO)
+  y += fontSize * (2 - PHYSICAL_LINE_HEIGHT)
 
   if (styles.valign === 'middle')
-    y -= (lineCount / 2) * fontSize * FONT_ROW_RATIO
+    y -= (lineCount / 2) * lineHeight
   else if (styles.valign === 'bottom')
-    y -= lineCount * fontSize * FONT_ROW_RATIO
+    y -= lineCount * lineHeight
 
   if (styles.halign === 'center' || styles.halign === 'right') {
     let alignSize = fontSize
@@ -49,7 +51,7 @@ export default function (
           x - doc.getStringUnitWidth(splitText[iLine]) * alignSize,
           y
         )
-        y += fontSize * FONT_ROW_RATIO
+        y += lineHeight
       }
       return doc
     }

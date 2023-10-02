@@ -2,7 +2,6 @@ import {
   CellInput,
   Color,
   ColumnInput,
-  FONT_ROW_RATIO,
   HtmlRowInput,
   RowInput,
   Styles,
@@ -216,10 +215,9 @@ export class Row {
     return columns.reduce((acc: number, column: Column) => {
       const cell = this.cells[column.index]
       if (!cell) return 0
-      const fontHeight =
-        (cell.styles.fontSize / doc.scaleFactor()) * FONT_ROW_RATIO
+      const lineHeight = doc.getLineHeight(cell.styles.fontSize)
       const vPadding = cell.padding('vertical')
-      const oneRowHeight = vPadding + fontHeight
+      const oneRowHeight = vPadding + lineHeight
       return oneRowHeight > acc ? oneRowHeight : acc
     }, 0)
   }
@@ -292,10 +290,11 @@ export class Cell {
     return { x, y }
   }
 
-  getContentHeight(scaleFactor: number) {
+  // TODO (v4): replace parameters with only (lineHeight)
+  getContentHeight(scaleFactor: number, lineHeightFactor: number = 1.15) {
     const lineCount = Array.isArray(this.text) ? this.text.length : 1
-    const fontHeight = (this.styles.fontSize / scaleFactor) * FONT_ROW_RATIO
-    const height = lineCount * fontHeight + this.padding('vertical')
+    const lineHeight = (this.styles.fontSize / scaleFactor) * lineHeightFactor
+    const height = lineCount * lineHeight + this.padding('vertical')
     return Math.max(height, this.styles.minCellHeight)
   }
 

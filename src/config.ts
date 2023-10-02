@@ -1,10 +1,5 @@
 import { CellHook, PageHook } from './models'
 
-/**
- * Ratio between font size and font height. The number comes from jspdf's source code
- */
-export const FONT_ROW_RATIO = 1.15
-
 export interface LineWidths {
   bottom: number
   top: number
