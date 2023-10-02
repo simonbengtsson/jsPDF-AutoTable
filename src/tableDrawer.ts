@@ -1,4 +1,4 @@
-import { Color, FONT_ROW_RATIO, LineWidths } from './config'
+import { Color, LineWidths } from './config'
 import { addTableBorder, getFillStyle } from './common'
 import { Cell, Column, Pos, Row, Table } from './models'
 import { DocHandler, jsPDFDocument } from './documentHandler'
@@ -153,10 +153,10 @@ function getRemainingLineCount(
   remainingPageSpace: number,
   doc: DocHandler
 ) {
-  const fontHeight = (cell.styles.fontSize / doc.scaleFactor()) * FONT_ROW_RATIO
+  const lineHeight = doc.getLineHeight(cell.styles.fontSize)
   const vPadding = cell.padding('vertical')
   const remainingLines = Math.floor(
-    (remainingPageSpace - vPadding) / fontHeight
+    (remainingPageSpace - vPadding) / lineHeight
   )
   return Math.max(0, remainingLines)
 }
@@ -198,7 +198,8 @@ function modifyRowToFit(
     }
 
     const scaleFactor = doc.scaleFactor()
-    cell.contentHeight = cell.getContentHeight(scaleFactor)
+    const lineHeightFactor = doc.lineHeightFactor
+    cell.contentHeight = cell.getContentHeight(scaleFactor, lineHeightFactor)
 
     if (cell.contentHeight >= remainingPageSpace) {
       cell.contentHeight = remainingPageSpace
@@ -208,7 +209,7 @@ function modifyRowToFit(
       row.height = cell.contentHeight
     }
 
-    remainderCell.contentHeight = remainderCell.getContentHeight(scaleFactor)
+    remainderCell.contentHeight = remainderCell.getContentHeight(scaleFactor, lineHeightFactor)
     if (remainderCell.contentHeight > rowHeight) {
       rowHeight = remainderCell.contentHeight
     }

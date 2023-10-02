@@ -172,6 +172,15 @@ export class DocHandler {
     return this.jsPDFDocument.internal.scaleFactor
   }
 
+  get lineHeightFactor(): number {
+    const doc = this.jsPDFDocument
+    return doc.getLineHeightFactor ? doc.getLineHeightFactor() : 1.15
+  }
+
+  getLineHeight(fontSize: number): number {
+    return (fontSize / this.scaleFactor()) * this.lineHeightFactor
+  }
+
   pageNumber(): number {
     const pageInfo = this.jsPDFDocument.internal.getCurrentPageInfo()
     if (!pageInfo) {
