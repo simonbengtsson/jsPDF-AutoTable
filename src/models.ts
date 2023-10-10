@@ -99,14 +99,14 @@ export class Table {
   getHeadHeight(columns: Column[]) {
     return this.head.reduce(
       (acc, row) => acc + row.getMaxCellHeight(columns),
-      0
+      0,
     )
   }
 
   getFootHeight(columns: Column[]) {
     return this.foot.reduce(
       (acc, row) => acc + row.getMaxCellHeight(columns),
-      0
+      0,
     )
   }
 
@@ -120,7 +120,7 @@ export class Table {
     cell: Cell,
     row: Row,
     column: Column,
-    cursor: { x: number; y: number } | null
+    cursor: { x: number; y: number } | null,
   ): boolean {
     for (const handler of handlers) {
       const data = new CellHookData(doc, this, cell, row, column, cursor)
@@ -152,7 +152,7 @@ export class Table {
     } else if (this.settings.tableWidth === 'wrap') {
       const wrappedWidth = this.columns.reduce(
         (total, col) => total + col.wrappedWidth,
-        0
+        0,
       )
       return wrappedWidth
     } else {
@@ -177,7 +177,7 @@ export class Row {
     index: number,
     section: Section,
     cells: { [key: string]: Cell },
-    spansMultiplePages = false
+    spansMultiplePages = false,
   ) {
     this.raw = raw
     if (raw instanceof HtmlRowInput) {
@@ -193,7 +193,7 @@ export class Row {
   getMaxCellHeight(columns: Column[]) {
     return columns.reduce(
       (acc, column) => Math.max(acc, this.cells[column.index]?.height || 0),
-      0
+      0,
     )
   }
 
@@ -299,7 +299,7 @@ export class Cell {
   }
 
   padding(
-    name: 'vertical' | 'horizontal' | 'top' | 'bottom' | 'left' | 'right'
+    name: 'vertical' | 'horizontal' | 'top' | 'bottom' | 'left' | 'right',
   ) {
     const padding = parseSpacing(this.styles.cellPadding, 0)
     if (name === 'vertical') {
@@ -325,7 +325,7 @@ export class Column {
   constructor(
     dataKey: string | number,
     raw: ColumnInput | null,
-    index: number
+    index: number,
   ) {
     this.dataKey = dataKey
     this.raw = raw

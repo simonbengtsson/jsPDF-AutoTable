@@ -118,7 +118,7 @@ export class DocHandler {
     y: number,
     width: number,
     height: number,
-    fillStyle: 'S' | 'F' | 'DF' | 'FD'
+    fillStyle: 'S' | 'F' | 'DF' | 'FD',
   ) {
     // null is excluded from fillStyle possible values because it isn't needed
     // and is prone to bugs as it's used to postpone setting the style

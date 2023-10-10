@@ -58,7 +58,7 @@ export function parseInput(d: jsPDFDocument, current: UserOptions): TableInput {
 function parseStyles(
   gInput: UserOptions,
   dInput: UserOptions,
-  cInput: UserOptions
+  cInput: UserOptions,
 ) {
   const styleOptions: StylesProps = {
     styles: {},
@@ -86,7 +86,7 @@ function parseStyles(
 function parseHooks(
   global: UserOptions,
   document: UserOptions,
-  current: UserOptions
+  current: UserOptions,
 ) {
   const allOptions = [global, document, current]
   const result = {

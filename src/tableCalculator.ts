@@ -56,7 +56,7 @@ function parseSection(
   columns: Column[],
   styleProps: StylesProps,
   theme: ThemeName,
-  scaleFactor: number
+  scaleFactor: number,
 ): Row[] {
   const rowSpansLeftForColumn: {
     [key: string]: { left: number; times: number }
@@ -92,7 +92,7 @@ function parseSection(
             theme,
             styleProps,
             scaleFactor,
-            cellInputStyles
+            cellInputStyles,
           )
           const cell = new Cell(rawCell, styles, sectionName)
           // dataKey is not used internally no more but keep for
@@ -122,7 +122,7 @@ function parseSection(
 
 function generateSectionRow(
   columns: Column[],
-  section: Section
+  section: Section,
 ): RowInput | null {
   const sectionRow: { [key: string]: CellInput } = {}
   columns.forEach((col) => {
@@ -166,7 +166,7 @@ function cellStyles(
   themeName: ThemeName,
   styles: StylesProps,
   scaleFactor: number,
-  cellInputStyles: Partial<Styles>
+  cellInputStyles: Partial<Styles>,
 ) {
   const theme = getTheme(themeName)
   let sectionStyles
@@ -182,7 +182,7 @@ function cellStyles(
     theme.table,
     theme[sectionName],
     styles.styles,
-    sectionStyles
+    sectionStyles,
   )
   const columnStyles =
     styles.columnStyles[column.dataKey] ||
@@ -199,7 +199,7 @@ function cellStyles(
     defaultStyle,
     otherStyles,
     rowStyles,
-    colStyles
+    colStyles,
   )
   return assign(themeStyles, cellInputStyles)
 }

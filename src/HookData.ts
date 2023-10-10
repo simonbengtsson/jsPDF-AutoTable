@@ -31,7 +31,7 @@ export class CellHookData extends HookData {
     cell: Cell,
     row: Row,
     column: Column,
-    cursor: Pos | null
+    cursor: Pos | null,
   ) {
     super(doc, table, cursor)
 

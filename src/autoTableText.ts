@@ -9,7 +9,7 @@ export default function (
   x: number,
   y: number,
   styles: TextStyles,
-  doc: jsPDFDocument
+  doc: jsPDFDocument,
 ) {
   styles = styles || {}
   const PHYSICAL_LINE_HEIGHT = 1.15
@@ -49,7 +49,7 @@ export default function (
         doc.text(
           splitText[iLine],
           x - doc.getStringUnitWidth(splitText[iLine]) * alignSize,
-          y
+          y,
         )
         y += lineHeight
       }

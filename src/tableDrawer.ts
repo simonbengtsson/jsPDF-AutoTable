@@ -52,7 +52,7 @@ export function drawTable(jsPDFDoc: jsPDFDocument, table: Table): void {
       settings.showHead === 'everyPage'
     ) {
       table.head.forEach((row) =>
-        printRow(doc, table, row, cursor, table.columns)
+        printRow(doc, table, row, cursor, table.columns),
       )
     }
 
@@ -65,7 +65,7 @@ export function drawTable(jsPDFDoc: jsPDFDocument, table: Table): void {
 
     if (settings.showFoot === 'lastPage' || settings.showFoot === 'everyPage') {
       table.foot.forEach((row) =>
-        printRow(doc, table, row, cursor, table.columns)
+        printRow(doc, table, row, cursor, table.columns),
       )
     }
   }
@@ -86,7 +86,7 @@ function printTableWithHorizontalPageBreak(
   doc: DocHandler,
   table: Table,
   startPos: { x: number; y: number },
-  cursor: { x: number; y: number }
+  cursor: { x: number; y: number },
 ) {
   // calculate width of columns and render only those which can fit into page
   const allColumnsCanFitResult = calculateAllColumnsCanFitInPage(doc, table)
@@ -110,7 +110,7 @@ function printHead(
   doc: DocHandler,
   table: Table,
   cursor: Pos,
-  columns: Column[]
+  columns: Column[],
 ) {
   const settings = table.settings
   doc.applyStyles(doc.userStyles)
@@ -124,7 +124,7 @@ function printBody(
   table: Table,
   startPos: Pos,
   cursor: Pos,
-  columns: Column[]
+  columns: Column[],
 ) {
   doc.applyStyles(doc.userStyles)
   table.body.forEach((row, index) => {
@@ -137,7 +137,7 @@ function printFoot(
   doc: DocHandler,
   table: Table,
   cursor: Pos,
-  columns: Column[]
+  columns: Column[],
 ) {
   const settings = table.settings
   doc.applyStyles(doc.userStyles)
@@ -149,12 +149,12 @@ function printFoot(
 function getRemainingLineCount(
   cell: Cell,
   remainingPageSpace: number,
-  doc: DocHandler
+  doc: DocHandler,
 ) {
   const lineHeight = doc.getLineHeight(cell.styles.fontSize)
   const vPadding = cell.padding('vertical')
   const remainingLines = Math.floor(
-    (remainingPageSpace - vPadding) / lineHeight
+    (remainingPageSpace - vPadding) / lineHeight,
   )
   return Math.max(0, remainingLines)
 }
@@ -163,7 +163,7 @@ function modifyRowToFit(
   row: Row,
   remainingPageSpace: number,
   table: Table,
-  doc: DocHandler
+  doc: DocHandler,
 ) {
   const cells: { [key: string]: Cell } = {}
   row.spansMultiplePages = true
@@ -186,12 +186,12 @@ function modifyRowToFit(
     const remainingLineCount = getRemainingLineCount(
       cell,
       remainingPageSpace,
-      doc
+      doc,
     )
     if (cell.text.length > remainingLineCount) {
       remainderCell.text = cell.text.splice(
         remainingLineCount,
-        cell.text.length
+        cell.text.length,
       )
     }
 
@@ -209,7 +209,7 @@ function modifyRowToFit(
 
     remainderCell.contentHeight = remainderCell.getContentHeight(
       scaleFactor,
-      lineHeightFactor
+      lineHeightFactor,
     )
     if (remainderCell.contentHeight > rowHeight) {
       rowHeight = remainderCell.contentHeight
@@ -238,7 +238,7 @@ function shouldPrintOnCurrentPage(
   doc: DocHandler,
   row: Row,
   remainingPageSpace: number,
-  table: Table
+  table: Table,
 ) {
   const pageHeight = doc.pageSize().height
   const margin = table.settings.margin
@@ -255,7 +255,7 @@ function shouldPrintOnCurrentPage(
   const minRowFits = minRowHeight < remainingPageSpace
   if (minRowHeight > maxRowHeight) {
     console.error(
-      `Will not be able to print row ${row.index} correctly since it's minimum height is larger than page height`
+      `Will not be able to print row ${row.index} correctly since it's minimum height is larger than page height`,
     )
     return true
   }
@@ -269,7 +269,7 @@ function shouldPrintOnCurrentPage(
   if (rowHigherThanPage) {
     if (rowHasRowSpanCell) {
       console.error(
-        `The content of row ${row.index} will not be drawn correctly since drawing rows with a height larger than the page height and has cells with rowspans is not supported.`
+        `The content of row ${row.index} will not be drawn correctly since drawing rows with a height larger than the page height and has cells with rowspans is not supported.`,
       )
     }
     return true
@@ -295,7 +295,7 @@ function printFullRow(
   isLastRow: boolean,
   startPos: Pos,
   cursor: Pos,
-  columns: Column[]
+  columns: Column[],
 ) {
   const remainingSpace = getRemainingPageSpace(doc, table, isLastRow, cursor)
   if (row.canEntireRowFit(remainingSpace, columns)) {
@@ -312,7 +312,7 @@ function printFullRow(
         isLastRow,
         startPos,
         cursor,
-        columns
+        columns,
       )
     } else {
       addPage(doc, table, startPos, cursor, columns)
@@ -326,7 +326,7 @@ function printRow(
   table: Table,
   row: Row,
   cursor: Pos,
-  columns: Column[]
+  columns: Column[],
 ) {
   cursor.x = table.settings.margin.left
   for (const column of columns) {
@@ -346,7 +346,7 @@ function printRow(
       cell,
       row,
       column,
-      cursor
+      cursor,
     )
     if (result === false) {
       cursor.x += column.width
@@ -364,10 +364,10 @@ function printRow(
         halign: cell.styles.halign,
         valign: cell.styles.valign,
         maxWidth: Math.ceil(
-          cell.width - cell.padding('left') - cell.padding('right')
+          cell.width - cell.padding('left') - cell.padding('right'),
         ),
       },
-      doc.getDocument()
+      doc.getDocument(),
     )
 
     table.callCellHooks(doc, table.hooks.didDrawCell, cell, row, column, cursor)
@@ -414,7 +414,7 @@ function drawCellBorders(
   doc: DocHandler,
   cell: Cell,
   cursor: Pos,
-  lineWidth: Partial<LineWidths>
+  lineWidth: Partial<LineWidths>,
 ) {
   let x1, y1, x2, y2
 
@@ -479,7 +479,7 @@ function drawCellBorders(
     x1: number,
     y1: number,
     x2: number,
-    y2: number
+    y2: number,
   ) {
     doc.getDocument().setLineWidth(width)
     doc.getDocument().line(x1, y1, x2, y2, 'S')
@@ -490,7 +490,7 @@ function getRemainingPageSpace(
   doc: DocHandler,
   table: Table,
   isLastRow: boolean,
-  cursor: Pos
+  cursor: Pos,
 ) {
   let bottomContentHeight = table.settings.margin.bottom
   const showFoot = table.settings.showFoot
@@ -505,7 +505,7 @@ export function addPage(
   table: Table,
   startPos: Pos,
   cursor: Pos,
-  columns: Column[] = []
+  columns: Column[] = [],
 ) {
   doc.applyStyles(doc.userStyles)
   if (table.settings.showFoot === 'everyPage') {

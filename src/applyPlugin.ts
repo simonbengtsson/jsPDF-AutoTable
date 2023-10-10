@@ -34,7 +34,7 @@ export default function (jsPDF: jsPDFConstructor) {
     text: string | string[],
     x: number,
     y: number,
-    styles: TextStyles
+    styles: TextStyles,
   ) {
     autoTableText(text, x, y, styles, this)
   }
@@ -50,7 +50,7 @@ export default function (jsPDF: jsPDFConstructor) {
 
   jsPDF.API.autoTableHtmlToJson = function (
     tableElem: HTMLTableElement,
-    includeHiddenElements = false
+    includeHiddenElements = false,
   ) {
     if (typeof window === 'undefined') {
       console.error('Cannot run autoTableHtmlToJson in non browser environment')
@@ -63,7 +63,7 @@ export default function (jsPDF: jsPDFConstructor) {
       tableElem,
       window,
       includeHiddenElements,
-      false
+      false,
     )
     const columns = head[0].map((c) => c.content)
     return { columns, rows: body, data: body }
@@ -74,7 +74,7 @@ export default function (jsPDF: jsPDFConstructor) {
    */
   jsPDF.API.autoTableEndPosY = function () {
     console.error(
-      'Use of deprecated function: autoTableEndPosY. Use doc.lastAutoTable.finalY instead.'
+      'Use of deprecated function: autoTableEndPosY. Use doc.lastAutoTable.finalY instead.',
     )
     const prev: Table = this.lastAutoTable
     if (prev && prev.finalY) {
@@ -89,7 +89,7 @@ export default function (jsPDF: jsPDFConstructor) {
    */
   jsPDF.API.autoTableAddPageContent = function (hook: () => void) {
     console.error(
-      'Use of deprecated function: autoTableAddPageContent. Use jsPDF.autoTableSetDefaults({didDrawPage: () => {}}) instead.'
+      'Use of deprecated function: autoTableAddPageContent. Use jsPDF.autoTableSetDefaults({didDrawPage: () => {}}) instead.',
     )
     if (!jsPDF.API.autoTable.globalDefaults) {
       jsPDF.API.autoTable.globalDefaults = {}
@@ -103,7 +103,7 @@ export default function (jsPDF: jsPDFConstructor) {
    */
   jsPDF.API.autoTableAddPage = function () {
     console.error(
-      'Use of deprecated function: autoTableAddPage. Use doc.addPage()'
+      'Use of deprecated function: autoTableAddPage. Use doc.addPage()',
     )
     this.addPage()
     return this

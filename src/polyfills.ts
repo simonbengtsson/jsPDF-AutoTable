@@ -6,7 +6,7 @@ export function assign<T, U, V, W, X>(
   s: U,
   s1?: V,
   s2?: W,
-  s3?: X
+  s3?: X,
 ): T & U & V & W & X {
   if (target == null) {
     throw new TypeError('Cannot convert undefined or null to object')

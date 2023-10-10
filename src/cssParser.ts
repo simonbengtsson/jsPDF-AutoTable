@@ -9,7 +9,7 @@ export function parseCss(
   element: Element,
   scaleFactor: number,
   style: CSSStyleDeclaration,
-  window: Window
+  window: Window,
 ): Partial<Styles> {
   const result: Partial<Styles> = {}
 
@@ -91,7 +91,7 @@ export function parseCss(
 }
 
 function parseFontStyle(
-  style: CSSStyleDeclaration
+  style: CSSStyleDeclaration,
 ): '' | 'bold' | 'italic' | 'bolditalic' {
   let res = ''
   if (
@@ -110,13 +110,13 @@ function parseFontStyle(
 type RgbColor = [number, number, number]
 function parseColor(
   element: Element,
-  styleGetter: (elem: Element) => string
+  styleGetter: (elem: Element) => string,
 ): RgbColor | null {
   const cssColor = realColor(element, styleGetter)
   if (!cssColor) return null
 
   const rgba = cssColor.match(
-    /^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d*\.?\d*))?\)$/
+    /^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d*\.?\d*))?\)$/,
   )
   if (!rgba || !Array.isArray(rgba)) {
     return null
@@ -138,7 +138,7 @@ function parseColor(
 
 function realColor(
   elem: Element,
-  styleGetter: (elem: Element) => string
+  styleGetter: (elem: Element) => string,
 ): string | null {
   const bg = styleGetter(elem)
   if (
@@ -158,7 +158,7 @@ function realColor(
 
 function parsePadding(
   style: CSSStyleDeclaration,
-  scaleFactor: number
+  scaleFactor: number,
 ): null | MarginPadding {
   const val = [
     style.paddingTop,

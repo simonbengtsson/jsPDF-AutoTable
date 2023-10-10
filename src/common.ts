@@ -6,7 +6,7 @@ type Text = string | string[]
 export function getStringWidth(
   text: Text,
   styles: Partial<Styles>,
-  doc: DocHandler
+  doc: DocHandler,
 ) {
   doc.applyStyles(styles, true)
   const textArr: string[] = Array.isArray(text) ? text : [text]
@@ -22,7 +22,7 @@ export function addTableBorder(
   doc: DocHandler,
   table: Table,
   startPos: Pos,
-  cursor: Pos
+  cursor: Pos,
 ) {
   const lineWidth = table.settings.tableLineWidth
   const lineColor = table.settings.tableLineColor
@@ -35,7 +35,7 @@ export function addTableBorder(
       startPos.y,
       table.getWidth(doc.pageSize().width),
       cursor.y - startPos.y,
-      fillStyle
+      fillStyle,
     )
   }
 }
@@ -63,7 +63,7 @@ export type MarginPadding = {
 
 export function parseSpacing(
   value: MarginPaddingInput | undefined,
-  defaultValue: number
+  defaultValue: number,
 ): MarginPadding {
   value = value || defaultValue
   if (Array.isArray(value)) {

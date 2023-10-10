@@ -7,18 +7,18 @@ export default function (
   doc: DocHandler,
   global: UserOptions,
   document: UserOptions,
-  current: UserOptions
+  current: UserOptions,
 ) {
   for (const options of [global, document, current] as any) {
     if (options && typeof options !== 'object') {
       console.error(
-        'The options parameter should be of type object, is: ' + typeof options
+        'The options parameter should be of type object, is: ' + typeof options,
       )
     }
     if (typeof options.extendWidth !== 'undefined') {
       options.tableWidth = options.extendWidth ? 'auto' : 'wrap'
       console.error(
-        'Use of deprecated option: extendWidth, use tableWidth instead.'
+        'Use of deprecated option: extendWidth, use tableWidth instead.',
       )
     }
     if (typeof options.margins !== 'undefined') {
@@ -38,7 +38,7 @@ export default function (
         options.afterPageAdd)
     ) {
       console.error(
-        'The afterPageContent, beforePageContent and afterPageAdd hooks are deprecated. Use didDrawPage instead'
+        'The afterPageContent, beforePageContent and afterPageAdd hooks are deprecated. Use didDrawPage instead',
       )
       options.didDrawPage = function (data: HookData) {
         doc.applyStyles(doc.userStyles)
@@ -62,7 +62,7 @@ export default function (
     ].forEach((name) => {
       if (options[name]) {
         console.error(
-          `The "${name}" hook has changed in version 3.0, check the changelog for how to migrate.`
+          `The "${name}" hook has changed in version 3.0, check the changelog for how to migrate.`,
         )
       }
     })
@@ -75,7 +75,7 @@ export default function (
     ].forEach(([current, deprecated]) => {
       if (options[deprecated]) {
         console.error(
-          `Use of deprecated option ${deprecated}. Use ${current} instead`
+          `Use of deprecated option ${deprecated}. Use ${current} instead`,
         )
         options[current] = options[deprecated]
       }
@@ -97,7 +97,7 @@ export default function (
             deprecatedOption +
             ', use the style ' +
             style +
-            ' instead.'
+            ' instead.',
         )
       }
     })
@@ -121,14 +121,14 @@ export default function (
 function checkStyles(styles: any) {
   if (styles.rowHeight) {
     console.error(
-      'Use of deprecated style rowHeight. It is renamed to minCellHeight.'
+      'Use of deprecated style rowHeight. It is renamed to minCellHeight.',
     )
     if (!styles.minCellHeight) {
       styles.minCellHeight = styles.rowHeight
     }
   } else if (styles.columnWidth) {
     console.error(
-      'Use of deprecated style columnWidth. It is renamed to cellWidth.'
+      'Use of deprecated style columnWidth. It is renamed to cellWidth.',
     )
     if (!styles.cellWidth) {
       styles.cellWidth = styles.columnWidth

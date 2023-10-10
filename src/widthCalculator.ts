@@ -31,7 +31,7 @@ export function calculateWidths(doc: DocHandler, table: Table) {
   // first resize attempt: with respect to minReadableWidth and minWidth
   if (resizeWidth) {
     resizeWidth = resizeColumns(resizableColumns, resizeWidth, (column) =>
-      Math.max(column.minReadableWidth, column.minWidth)
+      Math.max(column.minReadableWidth, column.minWidth),
     )
   }
 
@@ -40,7 +40,7 @@ export function calculateWidths(doc: DocHandler, table: Table) {
     resizeWidth = resizeColumns(
       resizableColumns,
       resizeWidth,
-      (column) => column.minWidth
+      (column) => column.minWidth,
     )
   }
 
@@ -55,7 +55,7 @@ export function calculateWidths(doc: DocHandler, table: Table) {
     // to allow more columns to be reduced in size
     resizeWidth = resizeWidth < 1 ? resizeWidth : Math.round(resizeWidth)
     console.warn(
-      `Of the table content, ${resizeWidth} units width could not fit page`
+      `Of the table content, ${resizeWidth} units width could not fit page`,
     )
   }
 
@@ -81,7 +81,7 @@ function calculate(doc: DocHandler, table: Table) {
       const longestWordWidth = getStringWidth(
         cell.text.join(' ').split(/\s+/),
         cell.styles,
-        doc
+        doc,
       )
       cell.minReadableWidth = longestWordWidth + cell.padding('horizontal')
 
@@ -123,7 +123,7 @@ function calculate(doc: DocHandler, table: Table) {
         column.minWidth = Math.max(column.minWidth, cell.minWidth)
         column.minReadableWidth = Math.max(
           column.minReadableWidth,
-          cell.minReadableWidth
+          cell.minReadableWidth,
         )
       } else {
         // Respect cellWidth set in columnStyles even if there is no cells for this column
@@ -163,12 +163,12 @@ function calculate(doc: DocHandler, table: Table) {
 export function resizeColumns(
   columns: Column[],
   resizeWidth: number,
-  getMinWidth: (column: Column) => number
+  getMinWidth: (column: Column) => number,
 ) {
   const initialResizeWidth = resizeWidth
   const sumWrappedWidth = columns.reduce(
     (acc, column) => acc + column.wrappedWidth,
-    0
+    0,
   )
 
   for (let i = 0; i < columns.length; i++) {
@@ -296,7 +296,7 @@ function fitContent(table: Table, doc: DocHandler) {
         cell.text = doc.splitTextToSize(
           cell.text,
           textSpace + 1 / doc.scaleFactor(),
-          { fontSize: cell.styles.fontSize }
+          { fontSize: cell.styles.fontSize },
         )
       } else if (cell.styles.overflow === 'ellipsize') {
         cell.text = ellipsize(cell.text, textSpace, cell.styles, doc, '...')
@@ -313,7 +313,7 @@ function fitContent(table: Table, doc: DocHandler) {
 
       cell.contentHeight = cell.getContentHeight(
         doc.scaleFactor(),
-        doc.lineHeightFactor
+        doc.lineHeightFactor,
       )
 
       let realContentHeight = cell.contentHeight / cell.rowSpan
@@ -341,7 +341,7 @@ export function ellipsize(
   width: number,
   styles: Partial<Styles>,
   doc: DocHandler,
-  overflow: string
+  overflow: string,
 ): string[] {
   return text.map((str) => ellipsizeStr(str, width, styles, doc, overflow))
 }
@@ -351,7 +351,7 @@ function ellipsizeStr(
   width: number,
   styles: Partial<Styles>,
   doc: DocHandler,
-  overflow: string
+  overflow: string,
 ): string {
   const precision = 10000 * doc.scaleFactor()
   width = Math.ceil(width * precision) / precision

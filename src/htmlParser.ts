@@ -7,7 +7,7 @@ export function parseHtml(
   input: HTMLTableElement | string,
   window: Window,
   includeHiddenHtml = false,
-  useCss = false
+  useCss = false,
 ): { head: HtmlRowInput[]; body: HtmlRowInput[]; foot: HtmlRowInput[] } {
   let tableElement: HTMLTableElement
   if (typeof input === 'string') {
@@ -37,7 +37,7 @@ export function parseHtml(
       window,
       element,
       includeHiddenHtml,
-      useCss
+      useCss,
     )
     if (!row) continue
 
@@ -59,7 +59,7 @@ function parseRowContent(
   window: Window,
   row: HTMLTableRowElement,
   includeHidden: boolean,
-  useCss: boolean
+  useCss: boolean,
 ) {
   const resultRow = new HtmlRowInput(row)
   for (let i = 0; i < row.cells.length; i++) {
