@@ -25,18 +25,49 @@ export function parseCss(
   })
   if (textColor != null) result.textColor = textColor
 
-  const borderColor = parseColor(element, (elem) => {
-    return window.getComputedStyle(elem)['borderTopColor']
-  })
-  if (borderColor != null) result.lineColor = borderColor
-
   const padding = parsePadding(style, scaleFactor)
   if (padding) result.cellPadding = padding
 
-  // style.borderWidth only works in chrome (borderTopWidth etc works in firefox and ie as well)
-  let bw = parseInt(style.borderTopWidth || '')
-  bw = bw / pxScaleFactor / scaleFactor
-  if (bw) result.lineWidth = bw
+  let borderColorSide:
+    | 'borderTopColor'
+    | 'borderRightColor'
+    | 'borderBottomColor'
+    | 'borderLeftColor' = 'borderTopColor'
+
+  const finalScaleFactor = pxScaleFactor * scaleFactor
+  const btw = style.borderTopWidth
+  if (
+    style.borderBottomWidth === btw &&
+    style.borderRightWidth === btw &&
+    style.borderLeftWidth === btw
+  ) {
+    const borderWidth = (parseFloat(btw) || 0) / finalScaleFactor
+    if (borderWidth) result.lineWidth = borderWidth
+  } else {
+    result.lineWidth = {
+      top: (parseFloat(style.borderTopWidth) || 0) / finalScaleFactor,
+      right: (parseFloat(style.borderRightWidth) || 0) / finalScaleFactor,
+      bottom: (parseFloat(style.borderBottomWidth) || 0) / finalScaleFactor,
+      left: (parseFloat(style.borderLeftWidth) || 0) / finalScaleFactor,
+    }
+    // Choose border color of first available side
+    // could be improved by supporting object as lineColor
+    if (!result.lineWidth.top) {
+      if (result.lineWidth.right) {
+        borderColorSide = 'borderRightColor'
+      } else if (result.lineWidth.bottom) {
+        borderColorSide = 'borderBottomColor'
+      } else if (result.lineWidth.left) {
+        borderColorSide = 'borderLeftColor'
+      }
+    }
+  }
+  console.log(result.lineWidth)
+
+  const borderColor = parseColor(element, (elem) => {
+    return window.getComputedStyle(elem)[borderColorSide]
+  })
+  if (borderColor != null) result.lineColor = borderColor
 
   let accepted = ['left', 'right', 'center', 'justify']
   if (accepted.indexOf(style.textAlign) !== -1) {
