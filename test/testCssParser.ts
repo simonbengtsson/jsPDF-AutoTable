@@ -25,6 +25,9 @@ describe('css parser', () => {
       paddingRight: '5px',
       paddingBottom: '5px',
       borderTopWidth: '2px',
+      borderBottomWidth: '2px',
+      borderLeftWidth: '2px',
+      borderRightWidth: '2px',
     }
     const pxScaleFactor = 96 / 72
     let element = table.insertRow()
@@ -42,8 +45,31 @@ describe('css parser', () => {
       5 / pxScaleFactor,
       'Cell padding'
     )
+    assert.equal(typeof styles.lineWidth, 'number', 'Line width number')
     assert.equal(styles.lineWidth, 2 / pxScaleFactor, 'Line width')
     assert(styles.fontSize === 16 / pxScaleFactor, 'No font size')
+  })
+
+  it('individual border sides', () => {
+    const style = {
+      borderRightWidth: '2px',
+      borderBottomWidth: '3px',
+      borderLeftWidth: '4px',
+    }
+    const pxScaleFactor = 96 / 72
+    const scaleFactor = 2
+    let element = table.insertRow()
+    for (const [prop, value] of Object.entries(style)) {
+      element.style[prop] = value
+    }
+    const styles = parseCss([], element, scaleFactor, element.style, dom.window)
+    assert.equal(typeof styles.lineWidth, 'object', 'Line width object')
+    assert.deepStrictEqual(styles.lineWidth, {
+      top: 0,
+      right: 2 / pxScaleFactor / scaleFactor,
+      bottom: 3 / pxScaleFactor / scaleFactor,
+      left: 4 / pxScaleFactor / scaleFactor,
+    }, 'Line widths')
   })
 
   it('minimal styles', () => {
