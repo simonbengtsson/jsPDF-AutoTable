@@ -111,14 +111,12 @@ export class DocHandler {
    * @param y Coordinate (in units declared at inception of PDF document) against upper edge of the page
    * @param width Width (in units declared at inception of PDF document)
    * @param height Height (in units declared at inception of PDF document)
-   * @param fillStyle A string specifying the painting style or null. Valid styles include: 'S' [default] - stroke, 'F' - fill, and 'DF' (or 'FD') - fill then stroke. In "compat" API mode, a null value postpones setting the style so that a shape may be composed using multiple method calls. The last drawing method call used to define the shape should not have a null style argument. **In "advanced" API mode this parameter is deprecated.**
+   * @param fillStyle A string specifying the painting style or null. Valid styles include: 'S' [default] - stroke, 'F' - fill, and 'DF' (or 'FD') - fill then stroke.
    */
-  rect(x: number, y: number, width: number, height: number, fillStyle: 'S' | 'F' | 'DF' | 'FD' | null) {
-    if (!['S', 'F', 'DF', 'FD', null].some((v) => v === fillStyle)) {
-      throw new TypeError(
-        `Invalid value '${fillStyle}' passed to rect. Allowed values are: 'S', 'F', 'DF', 'FD', null`
-      )
-    }
+  rect(x: number, y: number, width: number, height: number, fillStyle: 'S' | 'F' | 'DF' | 'FD') {
+    // null is excluded from fillStyle possible values because it isn't needed
+    // and is prone to bugs as it's used to postpone setting the style
+    // https://rawgit.com/MrRio/jsPDF/master/docs/jsPDF.html#rect
     return this.jsPDFDocument.rect(x, y, width, height, fillStyle)
   }
 

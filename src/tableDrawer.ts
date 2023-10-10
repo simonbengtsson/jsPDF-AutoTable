@@ -352,7 +352,7 @@ function printRow(
       continue
     }
 
-    drawCellBorders(doc, cell, cursor)
+    drawCellRect(doc, cell, cursor)
 
     const textPos = cell.getTextPos()
     autoTableText(
@@ -377,37 +377,27 @@ function printRow(
   cursor.y += row.height
 }
 
-function drawCellBorders(doc: DocHandler, cell: Cell, cursor: Pos) {
+function drawCellRect(doc: DocHandler, cell: Cell, cursor: Pos) {
   const cellStyles = cell.styles
+
+  // https://github.com/simonbengtsson/jsPDF-AutoTable/issues/774
+  // TODO (v4): better solution?
   doc.getDocument().setFillColor(doc.getDocument().getFillColor())
 
   if (typeof cellStyles.lineWidth === 'number') {
-    // prints normal cell border using rect's stroke
+    // Draw cell background with normal borders
     const fillStyle = getFillStyle(cellStyles.lineWidth, cellStyles.fillColor)
     if (fillStyle) {
       doc.rect(cell.x, cursor.y, cell.width, cell.height, fillStyle)
     }
   } else if (typeof cellStyles.lineWidth === 'object') {
-    drawCellBackground(doc, cell, cursor, cellStyles.fillColor)
-    drawBorders(doc, cell, cursor, cellStyles.fillColor, cellStyles.lineWidth)
+    // Draw cell background
+    if (cellStyles.fillColor) {
+      doc.rect(cell.x, cursor.y, cell.width, cell.height, 'F')
+    }
+    // Draw cell individual borders
+    drawCellBorders(doc, cell, cursor, cellStyles.lineWidth)
   }
-}
-
-/**
- * Prints cell background without borders and allows transparent color.
- * @param doc
- * @param cell
- * @param cursor
- * @param fillColor - passed to getFillStyle; `false` will map to transparent, `truthy` values to 'F' from jsPDF.rect
- */
-function drawCellBackground(
-  doc: DocHandler,
-  cell: Cell,
-  cursor: Pos,
-  fillColor: Color
-) {
-  const fillStyle = getFillStyle(0, fillColor)
-  doc.rect(cell.x, cursor.y, cell.width, cell.height, fillStyle)
 }
 
 /**
@@ -419,11 +409,10 @@ function drawCellBackground(
  * @param fillColor
  * @param lineWidth
  */
-function drawBorders(
+function drawCellBorders(
   doc: DocHandler,
   cell: Cell,
   cursor: Pos,
-  fillColor: Color,
   lineWidth: Partial<LineWidths>
 ) {
   let x1, y1, x2, y2
@@ -439,7 +428,7 @@ function drawBorders(
     if (lineWidth.left) {
       x1 -= 0.5 * lineWidth.left
     }
-    drawLine([x1, y1, x2, y2], lineWidth.top, fillColor)
+    drawLine(lineWidth.top, x1, y1, x2, y2)
   }
 
   if (lineWidth.bottom) {
@@ -453,7 +442,7 @@ function drawBorders(
     if (lineWidth.left) {
       x1 -= 0.5 * lineWidth.left
     }
-    drawLine([x1, y1, x2, y2], lineWidth.bottom, fillColor)
+    drawLine(lineWidth.bottom, x1, y1, x2, y2)
   }
 
   if (lineWidth.left) {
@@ -467,7 +456,7 @@ function drawBorders(
     if (lineWidth.bottom) {
       y2 += 0.5 * lineWidth.bottom
     }
-    drawLine([x1, y1, x2, y2], lineWidth.left, fillColor)
+    drawLine(lineWidth.left, x1, y1, x2, y2)
   }
 
   if (lineWidth.right) {
@@ -481,16 +470,18 @@ function drawBorders(
     if (lineWidth.bottom) {
       y2 += 0.5 * lineWidth.bottom
     }
-    drawLine([x1, y1, x2, y2], lineWidth.right, fillColor)
+    drawLine(lineWidth.right, x1, y1, x2, y2)
   }
 
   function drawLine(
-    coords: [number, number, number, number],
     width: number,
-    color: Color
+    x1: number,
+    y1: number,
+    x2: number,
+    y2: number,
   ) {
     doc.getDocument().setLineWidth(width)
-    doc.getDocument().line(...coords, getFillStyle(width, color))
+    doc.getDocument().line(x1, y1, x2, y2, 'S')
   }
 }
 
