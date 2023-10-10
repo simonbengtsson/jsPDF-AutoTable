@@ -87,6 +87,10 @@ function parseSpacing(value, defaultValue) {
     }
     return { top: value, right: value, bottom: value, left: value };
 }
+function getPageAvailableWidth(doc, table) {
+    var margins = parseSpacing(table.settings.margin, 0);
+    return doc.pageSize().width - (margins.left + margins.right);
+}
 
 // Limitations
 // - No support for border spacing
@@ -104,19 +108,46 @@ function parseCss(supportedFonts, element, scaleFactor, style, window) {
     });
     if (textColor != null)
         result.textColor = textColor;
-    var borderColor = parseColor(element, function (elem) {
-        return window.getComputedStyle(elem)['borderTopColor'];
-    });
-    if (borderColor != null)
-        result.lineColor = borderColor;
     var padding = parsePadding(style, scaleFactor);
     if (padding)
         result.cellPadding = padding;
-    // style.borderWidth only works in chrome (borderTopWidth etc works in firefox and ie as well)
-    var bw = parseInt(style.borderTopWidth || '');
-    bw = bw / pxScaleFactor / scaleFactor;
-    if (bw)
-        result.lineWidth = bw;
+    var borderColorSide = 'borderTopColor';
+    var finalScaleFactor = pxScaleFactor * scaleFactor;
+    var btw = style.borderTopWidth;
+    if (style.borderBottomWidth === btw &&
+        style.borderRightWidth === btw &&
+        style.borderLeftWidth === btw) {
+        var borderWidth = (parseFloat(btw) || 0) / finalScaleFactor;
+        if (borderWidth)
+            result.lineWidth = borderWidth;
+    }
+    else {
+        result.lineWidth = {
+            top: (parseFloat(style.borderTopWidth) || 0) / finalScaleFactor,
+            right: (parseFloat(style.borderRightWidth) || 0) / finalScaleFactor,
+            bottom: (parseFloat(style.borderBottomWidth) || 0) / finalScaleFactor,
+            left: (parseFloat(style.borderLeftWidth) || 0) / finalScaleFactor,
+        };
+        // Choose border color of first available side
+        // could be improved by supporting object as lineColor
+        if (!result.lineWidth.top) {
+            if (result.lineWidth.right) {
+                borderColorSide = 'borderRightColor';
+            }
+            else if (result.lineWidth.bottom) {
+                borderColorSide = 'borderBottomColor';
+            }
+            else if (result.lineWidth.left) {
+                borderColorSide = 'borderLeftColor';
+            }
+        }
+    }
+    console.log(result.lineWidth);
+    var borderColor = parseColor(element, function (elem) {
+        return window.getComputedStyle(elem)[borderColorSide];
+    });
+    if (borderColor != null)
+        result.lineColor = borderColor;
     var accepted = ['left', 'right', 'center', 'justify'];
     if (accepted.indexOf(style.textAlign) !== -1) {
         result.halign = style.textAlign;
@@ -236,25 +267,11 @@ function __extends(d, b) {
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 }
 
-function __spreadArray(to, from, pack) {
-    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
-        if (ar || !(i in from)) {
-            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
-            ar[i] = from[i];
-        }
-    }
-    return to.concat(ar || Array.prototype.slice.call(from));
-}
-
 typeof SuppressedError === "function" ? SuppressedError : function (error, suppressed, message) {
     var e = new Error(message);
     return e.name = "SuppressedError", e.error = error, e.suppressed = suppressed, e;
 };
 
-/**
- * Ratio between font size and font height. The number comes from jspdf's source code
- */
-var FONT_ROW_RATIO = 1.15;
 var HtmlRowInput = /** @class */ (function (_super) {
     __extends(HtmlRowInput, _super);
     function HtmlRowInput(element) {
@@ -391,7 +408,7 @@ function parseCellContent(orgCell) {
     cell.innerHTML = cell.innerHTML.replace(/\n/g, '').replace(/ +/g, ' ');
     // Preserve <br> tags as line breaks in the pdf
     cell.innerHTML = cell.innerHTML
-        .split(/\<br.*?\>/) //start with '<br' and ends with '>'.
+        .split(/<br.*?>/) //start with '<br' and ends with '>'.
         .map(function (part) { return part.trim(); })
         .join('\n');
     // innerText for ie
@@ -404,9 +421,13 @@ function parseCellContent(orgCell) {
  */
 function autoTableText (text, x, y, styles, doc) {
     styles = styles || {};
-    var FONT_ROW_RATIO = 1.15;
+    var PHYSICAL_LINE_HEIGHT = 1.15;
     var k = doc.internal.scaleFactor;
     var fontSize = doc.internal.getFontSize() / k;
+    var lineHeightFactor = doc.getLineHeightFactor
+        ? doc.getLineHeightFactor()
+        : PHYSICAL_LINE_HEIGHT;
+    var lineHeight = fontSize * lineHeightFactor;
     var splitRegex = /\r\n|\r|\n/g;
     var splitText = '';
     var lineCount = 1;
@@ -418,11 +439,11 @@ function autoTableText (text, x, y, styles, doc) {
         lineCount = splitText.length || 1;
     }
     // Align the top
-    y += fontSize * (2 - FONT_ROW_RATIO);
+    y += fontSize * (2 - PHYSICAL_LINE_HEIGHT);
     if (styles.valign === 'middle')
-        y -= (lineCount / 2) * fontSize * FONT_ROW_RATIO;
+        y -= (lineCount / 2) * lineHeight;
     else if (styles.valign === 'bottom')
-        y -= lineCount * fontSize * FONT_ROW_RATIO;
+        y -= lineCount * lineHeight;
     if (styles.halign === 'center' || styles.halign === 'right') {
         var alignSize = fontSize;
         if (styles.halign === 'center')
@@ -430,7 +451,7 @@ function autoTableText (text, x, y, styles, doc) {
         if (splitText && lineCount >= 1) {
             for (var iLine = 0; iLine < splitText.length; iLine++) {
                 doc.text(splitText[iLine], x - doc.getStringUnitWidth(splitText[iLine]) * alignSize, y);
-                y += fontSize * FONT_ROW_RATIO;
+                y += lineHeight;
             }
             return doc;
         }
@@ -545,12 +566,12 @@ var DocHandler = /** @class */ (function () {
      * @param y Coordinate (in units declared at inception of PDF document) against upper edge of the page
      * @param width Width (in units declared at inception of PDF document)
      * @param height Height (in units declared at inception of PDF document)
-     * @param fillStyle A string specifying the painting style or null. Valid styles include: 'S' [default] - stroke, 'F' - fill, and 'DF' (or 'FD') - fill then stroke. In "compat" API mode, a null value postpones setting the style so that a shape may be composed using multiple method calls. The last drawing method call used to define the shape should not have a null style argument. **In "advanced" API mode this parameter is deprecated.**
+     * @param fillStyle A string specifying the painting style or null. Valid styles include: 'S' [default] - stroke, 'F' - fill, and 'DF' (or 'FD') - fill then stroke.
      */
     DocHandler.prototype.rect = function (x, y, width, height, fillStyle) {
-        if (!['S', 'F', 'DF', 'FD', null].some(function (v) { return v === fillStyle; })) {
-            throw new TypeError("Invalid value '".concat(fillStyle, "' passed to rect. Allowed values are: 'S', 'F', 'DF', 'FD', null"));
-        }
+        // null is excluded from fillStyle possible values because it isn't needed
+        // and is prone to bugs as it's used to postpone setting the style
+        // https://rawgit.com/MrRio/jsPDF/master/docs/jsPDF.html#rect
         return this.jsPDFDocument.rect(x, y, width, height, fillStyle);
     };
     DocHandler.prototype.getLastAutoTable = function () {
@@ -590,6 +611,17 @@ var DocHandler = /** @class */ (function () {
     };
     DocHandler.prototype.scaleFactor = function () {
         return this.jsPDFDocument.internal.scaleFactor;
+    };
+    Object.defineProperty(DocHandler.prototype, "lineHeightFactor", {
+        get: function () {
+            var doc = this.jsPDFDocument;
+            return doc.getLineHeightFactor ? doc.getLineHeightFactor() : 1.15;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    DocHandler.prototype.getLineHeight = function (fontSize) {
+        return (fontSize / this.scaleFactor()) * this.lineHeightFactor;
     };
     DocHandler.prototype.pageNumber = function () {
         var pageInfo = this.jsPDFDocument.internal.getCurrentPageInfo();
@@ -1063,9 +1095,9 @@ var Row = /** @class */ (function () {
             var cell = _this.cells[column.index];
             if (!cell)
                 return 0;
-            var fontHeight = (cell.styles.fontSize / doc.scaleFactor()) * FONT_ROW_RATIO;
+            var lineHeight = doc.getLineHeight(cell.styles.fontSize);
             var vPadding = cell.padding('vertical');
-            var oneRowHeight = vPadding + fontHeight;
+            var oneRowHeight = vPadding + lineHeight;
             return oneRowHeight > acc ? oneRowHeight : acc;
         }, 0);
     };
@@ -1129,10 +1161,12 @@ var Cell = /** @class */ (function () {
         }
         return { x: x, y: y };
     };
-    Cell.prototype.getContentHeight = function (scaleFactor) {
+    // TODO (v4): replace parameters with only (lineHeight)
+    Cell.prototype.getContentHeight = function (scaleFactor, lineHeightFactor) {
+        if (lineHeightFactor === void 0) { lineHeightFactor = 1.15; }
         var lineCount = Array.isArray(this.text) ? this.text.length : 1;
-        var fontHeight = (this.styles.fontSize / scaleFactor) * FONT_ROW_RATIO;
-        var height = lineCount * fontHeight + this.padding('vertical');
+        var lineHeight = (this.styles.fontSize / scaleFactor) * lineHeightFactor;
+        var height = lineCount * lineHeight + this.padding('vertical');
         return Math.max(height, this.styles.minCellHeight);
     };
     Cell.prototype.padding = function (name) {
@@ -1173,104 +1207,70 @@ var Column = /** @class */ (function () {
     return Column;
 }());
 
-var getPageAvailableWidth = function (doc, table) {
-    var margins = parseSpacing(table.settings.margin, 0);
-    var availablePageWidth = doc.pageSize().width - (margins.left + margins.right);
-    return availablePageWidth;
-};
 // get columns can be fit into page
-var getColumnsCanFitInPage = function (doc, table, config) {
+function getColumnsCanFitInPage(doc, table, config) {
     var _a;
     if (config === void 0) { config = {}; }
     // Get page width
-    var availablePageWidth = getPageAvailableWidth(doc, table);
-    var remainingWidth = availablePageWidth;
+    var remainingWidth = getPageAvailableWidth(doc, table);
     // Get column data key to repeat
     var repeatColumnsMap = new Map();
-    var repeatColumn = null;
-    var cols = [];
+    var colIndexes = [];
     var columns = [];
-    var len = table.columns.length;
-    var i = (_a = config === null || config === void 0 ? void 0 : config.start) !== null && _a !== void 0 ? _a : 0;
-    var horizontalPageBreakRepeat = table.settings.horizontalPageBreakRepeat;
-    // Code to repeat the given column in split pages
-    if (horizontalPageBreakRepeat !== null && horizontalPageBreakRepeat !== undefined && Array.isArray(horizontalPageBreakRepeat)) {
-        var _loop_1 = function (field) {
-            var col = table.columns.find(function (item) {
-                return item.dataKey === field ||
-                    item.index === field;
-            });
-            if (col) {
-                repeatColumnsMap.set(col.index, col);
-                cols.push(col.index);
-                columns.push(table.columns[col.index]);
-                remainingWidth = remainingWidth - col.wrappedWidth;
-            }
-        };
-        for (var _i = 0, horizontalPageBreakRepeat_1 = horizontalPageBreakRepeat; _i < horizontalPageBreakRepeat_1.length; _i++) {
-            var field = horizontalPageBreakRepeat_1[_i];
-            _loop_1(field);
-        }
+    var horizontalPageBreakRepeat = [];
+    table.settings.horizontalPageBreakRepeat;
+    if (Array.isArray(table.settings.horizontalPageBreakRepeat)) {
+        horizontalPageBreakRepeat = table.settings.horizontalPageBreakRepeat;
         // It can be a single value of type string or number (even number: 0)
     }
-    else if (horizontalPageBreakRepeat !== null && horizontalPageBreakRepeat !== undefined) {
-        repeatColumn = table.columns.find(function (item) {
-            return item.dataKey === horizontalPageBreakRepeat ||
-                item.index === horizontalPageBreakRepeat;
-        });
-        if (repeatColumn) {
-            cols.push(repeatColumn.index);
-            columns.push(table.columns[repeatColumn.index]);
-            remainingWidth = remainingWidth - repeatColumn.wrappedWidth;
-        }
+    else if (typeof table.settings.horizontalPageBreakRepeat === 'string' ||
+        typeof table.settings.horizontalPageBreakRepeat === 'number') {
+        horizontalPageBreakRepeat = [table.settings.horizontalPageBreakRepeat];
     }
-    while (i < len) {
-        // Prevent columnDataKeyToRepeat from being pushed twice on a page
-        if ((Array.isArray(horizontalPageBreakRepeat) && repeatColumnsMap.get(i))
-            || (repeatColumn === null || repeatColumn === void 0 ? void 0 : repeatColumn.index) === i) {
+    // Code to repeat the given column in split pages
+    horizontalPageBreakRepeat.forEach(function (field) {
+        var col = table.columns.find(function (item) { return item.dataKey === field || item.index === field; });
+        if (col && !repeatColumnsMap.has(col.index)) {
+            repeatColumnsMap.set(col.index, true);
+            colIndexes.push(col.index);
+            columns.push(table.columns[col.index]);
+            remainingWidth -= col.wrappedWidth;
+        }
+    });
+    var first = true;
+    var i = (_a = config === null || config === void 0 ? void 0 : config.start) !== null && _a !== void 0 ? _a : 0; // make sure couter is initiated outside the loop
+    while (i < table.columns.length) {
+        // Prevent duplicates
+        if (repeatColumnsMap.has(i)) {
             i++;
             continue;
         }
         var colWidth = table.columns[i].wrappedWidth;
-        if (remainingWidth < colWidth) {
-            if (i === 0 || i === config.start) {
-                cols.push(i);
-                columns.push(table.columns[i]);
-            }
-            break;
-        }
-        cols.push(i);
-        columns.push(table.columns[i]);
-        remainingWidth -= colWidth;
-        i++;
-    }
-    return { colIndexes: cols, columns: columns, lastIndex: i };
-};
-var calculateAllColumnsCanFitInPage = function (doc, table) {
-    // const margins = table.settings.margin;
-    // const availablePageWidth = doc.pageSize().width - (margins.left + margins.right);
-    var allResults = [];
-    var index = 0;
-    var len = table.columns.length;
-    while (index < len) {
-        var result = getColumnsCanFitInPage(doc, table, {
-            start: index === 0 ? 0 : index,
-        });
-        if (result && result.columns && result.columns.length) {
-            index = result.lastIndex;
-            allResults.push(result);
+        // Take at least one column even if it doesn't fit
+        if (first || remainingWidth >= colWidth) {
+            first = false;
+            colIndexes.push(i);
+            columns.push(table.columns[i]);
+            remainingWidth -= colWidth;
         }
         else {
-            index++;
+            break;
+        }
+        i++;
+    }
+    return { colIndexes: colIndexes, columns: columns, lastIndex: i - 1 };
+}
+function calculateAllColumnsCanFitInPage(doc, table) {
+    var allResults = [];
+    for (var i = 0; i < table.columns.length; i++) {
+        var result = getColumnsCanFitInPage(doc, table, { start: i });
+        if (result.columns.length) {
+            allResults.push(result);
+            i = result.lastIndex;
         }
     }
     return allResults;
-};
-var TablePrinter = {
-    getColumnsCanFitInPage: getColumnsCanFitInPage,
-    calculateAllColumnsCanFitInPage: calculateAllColumnsCanFitInPage,
-    getPageAvailableWidth: getPageAvailableWidth,
-};
+}
 
 function drawTable(jsPDFDoc, table) {
     var settings = table.settings;
@@ -1296,7 +1296,7 @@ function drawTable(jsPDFDoc, table) {
     table.callWillDrawPageHooks(doc, cursor);
     var startPos = assign({}, cursor);
     table.startPageNumber = doc.pageNumber();
-    if (settings.horizontalPageBreak === true) {
+    if (settings.horizontalPageBreak) {
         // managed flow for split columns
         printTableWithHorizontalPageBreak(doc, table, startPos, cursor);
     }
@@ -1332,7 +1332,7 @@ function drawTable(jsPDFDoc, table) {
 }
 function printTableWithHorizontalPageBreak(doc, table, startPos, cursor) {
     // calculate width of columns and render only those which can fit into page
-    var allColumnsCanFitResult = TablePrinter.calculateAllColumnsCanFitInPage(doc, table);
+    var allColumnsCanFitResult = calculateAllColumnsCanFitInPage(doc, table);
     allColumnsCanFitResult.map(function (colsAndIndexes, index) {
         doc.applyStyles(doc.userStyles);
         // add page to print next columns in new page
@@ -1343,9 +1343,8 @@ function printTableWithHorizontalPageBreak(doc, table, startPos, cursor) {
             // print head for selected columns
             printHead(doc, table, cursor, colsAndIndexes.columns);
         }
-        // print body for selected columns
+        // print body & footer for selected columns
         printBody(doc, table, startPos, cursor, colsAndIndexes.columns);
-        // print foot for selected columns
         printFoot(doc, table, cursor, colsAndIndexes.columns);
     });
 }
@@ -1371,9 +1370,9 @@ function printFoot(doc, table, cursor, columns) {
     }
 }
 function getRemainingLineCount(cell, remainingPageSpace, doc) {
-    var fontHeight = (cell.styles.fontSize / doc.scaleFactor()) * FONT_ROW_RATIO;
+    var lineHeight = doc.getLineHeight(cell.styles.fontSize);
     var vPadding = cell.padding('vertical');
-    var remainingLines = Math.floor((remainingPageSpace - vPadding) / fontHeight);
+    var remainingLines = Math.floor((remainingPageSpace - vPadding) / lineHeight);
     return Math.max(0, remainingLines);
 }
 function modifyRowToFit(row, remainingPageSpace, table, doc) {
@@ -1397,7 +1396,8 @@ function modifyRowToFit(row, remainingPageSpace, table, doc) {
             remainderCell.text = cell.text.splice(remainingLineCount, cell.text.length);
         }
         var scaleFactor = doc.scaleFactor();
-        cell.contentHeight = cell.getContentHeight(scaleFactor);
+        var lineHeightFactor = doc.lineHeightFactor;
+        cell.contentHeight = cell.getContentHeight(scaleFactor, lineHeightFactor);
         if (cell.contentHeight >= remainingPageSpace) {
             cell.contentHeight = remainingPageSpace;
             remainderCell.styles.minCellHeight -= remainingPageSpace;
@@ -1405,7 +1405,7 @@ function modifyRowToFit(row, remainingPageSpace, table, doc) {
         if (cell.contentHeight > row.height) {
             row.height = cell.contentHeight;
         }
-        remainderCell.contentHeight = remainderCell.getContentHeight(scaleFactor);
+        remainderCell.contentHeight = remainderCell.getContentHeight(scaleFactor, lineHeightFactor);
         if (remainderCell.contentHeight > rowHeight) {
             rowHeight = remainderCell.contentHeight;
         }
@@ -1499,7 +1499,7 @@ function printRow(doc, table, row, cursor, columns) {
             cursor.x += column.width;
             continue;
         }
-        drawCellBorders(doc, cell, cursor);
+        drawCellRect(doc, cell, cursor);
         var textPos = cell.getTextPos();
         autoTableText(cell.text, textPos.x, textPos.y, {
             halign: cell.styles.halign,
@@ -1511,31 +1511,26 @@ function printRow(doc, table, row, cursor, columns) {
     }
     cursor.y += row.height;
 }
-function drawCellBorders(doc, cell, cursor) {
+function drawCellRect(doc, cell, cursor) {
     var cellStyles = cell.styles;
+    // https://github.com/simonbengtsson/jsPDF-AutoTable/issues/774
+    // TODO (v4): better solution?
     doc.getDocument().setFillColor(doc.getDocument().getFillColor());
     if (typeof cellStyles.lineWidth === 'number') {
-        // prints normal cell border using rect's stroke
+        // Draw cell background with normal borders
         var fillStyle = getFillStyle(cellStyles.lineWidth, cellStyles.fillColor);
         if (fillStyle) {
             doc.rect(cell.x, cursor.y, cell.width, cell.height, fillStyle);
         }
     }
     else if (typeof cellStyles.lineWidth === 'object') {
-        drawCellBackground(doc, cell, cursor, cellStyles.fillColor);
-        drawBorders(doc, cell, cursor, cellStyles.fillColor, cellStyles.lineWidth);
+        // Draw cell background
+        if (cellStyles.fillColor) {
+            doc.rect(cell.x, cursor.y, cell.width, cell.height, 'F');
+        }
+        // Draw cell individual borders
+        drawCellBorders(doc, cell, cursor, cellStyles.lineWidth);
     }
-}
-/**
- * Prints cell background without borders and allows transparent color.
- * @param doc
- * @param cell
- * @param cursor
- * @param fillColor - passed to getFillStyle; `false` will map to transparent, `truthy` values to 'F' from jsPDF.rect
- */
-function drawCellBackground(doc, cell, cursor, fillColor) {
-    var fillStyle = getFillStyle(0, fillColor);
-    doc.rect(cell.x, cursor.y, cell.width, cell.height, fillStyle);
 }
 /**
  * Draw all specified borders. Borders are centered on cell's edge and lengthened
@@ -1546,7 +1541,7 @@ function drawCellBackground(doc, cell, cursor, fillColor) {
  * @param fillColor
  * @param lineWidth
  */
-function drawBorders(doc, cell, cursor, fillColor, lineWidth) {
+function drawCellBorders(doc, cell, cursor, lineWidth) {
     var x1, y1, x2, y2;
     if (lineWidth.top) {
         x1 = cursor.x;
@@ -1559,7 +1554,7 @@ function drawBorders(doc, cell, cursor, fillColor, lineWidth) {
         if (lineWidth.left) {
             x1 -= 0.5 * lineWidth.left;
         }
-        drawLine([x1, y1, x2, y2], lineWidth.top, fillColor);
+        drawLine(lineWidth.top, x1, y1, x2, y2);
     }
     if (lineWidth.bottom) {
         x1 = cursor.x;
@@ -1572,7 +1567,7 @@ function drawBorders(doc, cell, cursor, fillColor, lineWidth) {
         if (lineWidth.left) {
             x1 -= 0.5 * lineWidth.left;
         }
-        drawLine([x1, y1, x2, y2], lineWidth.bottom, fillColor);
+        drawLine(lineWidth.bottom, x1, y1, x2, y2);
     }
     if (lineWidth.left) {
         x1 = cursor.x;
@@ -1585,7 +1580,7 @@ function drawBorders(doc, cell, cursor, fillColor, lineWidth) {
         if (lineWidth.bottom) {
             y2 += 0.5 * lineWidth.bottom;
         }
-        drawLine([x1, y1, x2, y2], lineWidth.left, fillColor);
+        drawLine(lineWidth.left, x1, y1, x2, y2);
     }
     if (lineWidth.right) {
         x1 = cursor.x + cell.width;
@@ -1598,12 +1593,11 @@ function drawBorders(doc, cell, cursor, fillColor, lineWidth) {
         if (lineWidth.bottom) {
             y2 += 0.5 * lineWidth.bottom;
         }
-        drawLine([x1, y1, x2, y2], lineWidth.right, fillColor);
+        drawLine(lineWidth.right, x1, y1, x2, y2);
     }
-    function drawLine(coords, width, color) {
-        var _a;
+    function drawLine(width, x1, y1, x2, y2) {
         doc.getDocument().setLineWidth(width);
-        (_a = doc.getDocument()).line.apply(_a, __spreadArray(__spreadArray([], coords, false), [getFillStyle(width, color)], false));
+        doc.getDocument().line(x1, y1, x2, y2, 'S');
     }
 }
 function getRemainingPageSpace(doc, table, isLastRow, cursor) {
@@ -1698,7 +1692,7 @@ function calculateWidths(doc, table) {
 function calculate(doc, table) {
     var sf = doc.scaleFactor();
     var horizontalPageBreak = table.settings.horizontalPageBreak;
-    var availablePageWidth = TablePrinter.getPageAvailableWidth(doc, table);
+    var availablePageWidth = getPageAvailableWidth(doc, table);
     table.allRows().forEach(function (row) {
         for (var _i = 0, _a = table.columns; _i < _a.length; _i++) {
             var column = _a[_i];
@@ -1912,7 +1906,7 @@ function fitContent(table, doc) {
                     cell.text = result;
                 }
             }
-            cell.contentHeight = cell.getContentHeight(doc.scaleFactor());
+            cell.contentHeight = cell.getContentHeight(doc.scaleFactor(), doc.lineHeightFactor);
             var realContentHeight = cell.contentHeight / cell.rowSpan;
             if (cell.rowSpan > 1 &&
                 rowSpanHeight.count * rowSpanHeight.height <
