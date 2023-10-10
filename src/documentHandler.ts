@@ -113,7 +113,13 @@ export class DocHandler {
    * @param height Height (in units declared at inception of PDF document)
    * @param fillStyle A string specifying the painting style or null. Valid styles include: 'S' [default] - stroke, 'F' - fill, and 'DF' (or 'FD') - fill then stroke.
    */
-  rect(x: number, y: number, width: number, height: number, fillStyle: 'S' | 'F' | 'DF' | 'FD') {
+  rect(
+    x: number,
+    y: number,
+    width: number,
+    height: number,
+    fillStyle: 'S' | 'F' | 'DF' | 'FD'
+  ) {
     // null is excluded from fillStyle possible values because it isn't needed
     // and is prone to bugs as it's used to postpone setting the style
     // https://rawgit.com/MrRio/jsPDF/master/docs/jsPDF.html#rect

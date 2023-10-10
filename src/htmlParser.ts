@@ -95,7 +95,7 @@ function parseCellContent(orgCell: HTMLTableCellElement) {
 
   // Preserve <br> tags as line breaks in the pdf
   cell.innerHTML = cell.innerHTML
-    .split(/\<br.*?\>/) //start with '<br' and ends with '>'.
+    .split(/<br.*?>/) //start with '<br' and ends with '>'.
     .map((part: string) => part.trim())
     .join('\n')
 

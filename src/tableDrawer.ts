@@ -1,4 +1,4 @@
-import { Color, LineWidths } from './config'
+import { LineWidths } from './config'
 import { addTableBorder, getFillStyle } from './common'
 import { Cell, Column, Pos, Row, Table } from './models'
 import { DocHandler, jsPDFDocument } from './documentHandler'
@@ -91,21 +91,19 @@ function printTableWithHorizontalPageBreak(
   // calculate width of columns and render only those which can fit into page
   const allColumnsCanFitResult = calculateAllColumnsCanFitInPage(doc, table)
 
-  allColumnsCanFitResult.map(
-    (colsAndIndexes, index: number) => {
-      doc.applyStyles(doc.userStyles)
-      // add page to print next columns in new page
-      if (index > 0) {
-        addPage(doc, table, startPos, cursor, colsAndIndexes.columns)
-      } else {
-        // print head for selected columns
-        printHead(doc, table, cursor, colsAndIndexes.columns)
-      }
-      // print body & footer for selected columns
-      printBody(doc, table, startPos, cursor, colsAndIndexes.columns)
-      printFoot(doc, table, cursor, colsAndIndexes.columns)
+  allColumnsCanFitResult.map((colsAndIndexes, index: number) => {
+    doc.applyStyles(doc.userStyles)
+    // add page to print next columns in new page
+    if (index > 0) {
+      addPage(doc, table, startPos, cursor, colsAndIndexes.columns)
+    } else {
+      // print head for selected columns
+      printHead(doc, table, cursor, colsAndIndexes.columns)
     }
-  )
+    // print body & footer for selected columns
+    printBody(doc, table, startPos, cursor, colsAndIndexes.columns)
+    printFoot(doc, table, cursor, colsAndIndexes.columns)
+  })
 }
 
 function printHead(
@@ -209,7 +207,10 @@ function modifyRowToFit(
       row.height = cell.contentHeight
     }
 
-    remainderCell.contentHeight = remainderCell.getContentHeight(scaleFactor, lineHeightFactor)
+    remainderCell.contentHeight = remainderCell.getContentHeight(
+      scaleFactor,
+      lineHeightFactor
+    )
     if (remainderCell.contentHeight > rowHeight) {
       rowHeight = remainderCell.contentHeight
     }
@@ -478,7 +479,7 @@ function drawCellBorders(
     x1: number,
     y1: number,
     x2: number,
-    y2: number,
+    y2: number
   ) {
     doc.getDocument().setLineWidth(width)
     doc.getDocument().line(x1, y1, x2, y2, 'S')

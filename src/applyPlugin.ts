@@ -87,7 +87,7 @@ export default function (jsPDF: jsPDFConstructor) {
   /**
    * @deprecated
    */
-  jsPDF.API.autoTableAddPageContent = function (hook: Function) {
+  jsPDF.API.autoTableAddPageContent = function (hook: () => void) {
     console.error(
       'Use of deprecated function: autoTableAddPageContent. Use jsPDF.autoTableSetDefaults({didDrawPage: () => {}}) instead.'
     )

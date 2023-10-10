@@ -12,7 +12,7 @@ interface ColumnFitInPageResult {
 function getColumnsCanFitInPage(
   doc: DocHandler,
   table: Table,
-  config: any = {},
+  config: { start?: number } = {},
 ): ColumnFitInPageResult {
   // Get page width
   let remainingWidth = getPageAvailableWidth(doc, table)
@@ -51,9 +51,12 @@ function getColumnsCanFitInPage(
 
   let first = true
   let i = config?.start ?? 0 // make sure couter is initiated outside the loop
-  for (i = i; i < table.columns.length; i++) {
+  while (i < table.columns.length) {
     // Prevent duplicates
-    if (repeatColumnsMap.has(i)) continue
+    if (repeatColumnsMap.has(i)) {
+      i++
+      continue
+    }
 
     const colWidth = table.columns[i].wrappedWidth
 
@@ -66,6 +69,7 @@ function getColumnsCanFitInPage(
     } else {
       break
     }
+    i++
   }
 
   return { colIndexes, columns, lastIndex: i - 1 }
