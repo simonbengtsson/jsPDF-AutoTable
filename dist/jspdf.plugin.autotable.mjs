@@ -612,16 +612,12 @@ var DocHandler = /** @class */ (function () {
     DocHandler.prototype.scaleFactor = function () {
         return this.jsPDFDocument.internal.scaleFactor;
     };
-    Object.defineProperty(DocHandler.prototype, "lineHeightFactor", {
-        get: function () {
-            var doc = this.jsPDFDocument;
-            return doc.getLineHeightFactor ? doc.getLineHeightFactor() : 1.15;
-        },
-        enumerable: false,
-        configurable: true
-    });
+    DocHandler.prototype.getLineHeightFactor = function () {
+        var doc = this.jsPDFDocument;
+        return doc.getLineHeightFactor ? doc.getLineHeightFactor() : 1.15;
+    };
     DocHandler.prototype.getLineHeight = function (fontSize) {
-        return (fontSize / this.scaleFactor()) * this.lineHeightFactor;
+        return (fontSize / this.scaleFactor()) * this.getLineHeightFactor();
     };
     DocHandler.prototype.pageNumber = function () {
         var pageInfo = this.jsPDFDocument.internal.getCurrentPageInfo();
@@ -1396,7 +1392,7 @@ function modifyRowToFit(row, remainingPageSpace, table, doc) {
             remainderCell.text = cell.text.splice(remainingLineCount, cell.text.length);
         }
         var scaleFactor = doc.scaleFactor();
-        var lineHeightFactor = doc.lineHeightFactor;
+        var lineHeightFactor = doc.getLineHeightFactor();
         cell.contentHeight = cell.getContentHeight(scaleFactor, lineHeightFactor);
         if (cell.contentHeight >= remainingPageSpace) {
             cell.contentHeight = remainingPageSpace;
@@ -1906,7 +1902,7 @@ function fitContent(table, doc) {
                     cell.text = result;
                 }
             }
-            cell.contentHeight = cell.getContentHeight(doc.scaleFactor(), doc.lineHeightFactor);
+            cell.contentHeight = cell.getContentHeight(doc.scaleFactor(), doc.getLineHeightFactor());
             var realContentHeight = cell.contentHeight / cell.rowSpan;
             if (cell.rowSpan > 1 &&
                 rowSpanHeight.count * rowSpanHeight.height <

@@ -37,7 +37,7 @@ declare class DocHandler {
 		height: number;
 	};
 	scaleFactor(): number;
-	get lineHeightFactor(): number;
+	getLineHeightFactor(): number;
 	getLineHeight(fontSize: number): number;
 	pageNumber(): number;
 }
