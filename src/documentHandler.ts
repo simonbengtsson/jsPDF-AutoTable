@@ -176,13 +176,13 @@ export class DocHandler {
     return this.jsPDFDocument.internal.scaleFactor
   }
 
-  get lineHeightFactor(): number {
+  getLineHeightFactor(): number {
     const doc = this.jsPDFDocument
     return doc.getLineHeightFactor ? doc.getLineHeightFactor() : 1.15
   }
 
   getLineHeight(fontSize: number): number {
-    return (fontSize / this.scaleFactor()) * this.lineHeightFactor
+    return (fontSize / this.scaleFactor()) * this.getLineHeightFactor()
   }
 
   pageNumber(): number {

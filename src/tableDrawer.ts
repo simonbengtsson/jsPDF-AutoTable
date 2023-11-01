@@ -196,7 +196,7 @@ function modifyRowToFit(
     }
 
     const scaleFactor = doc.scaleFactor()
-    const lineHeightFactor = doc.lineHeightFactor
+    const lineHeightFactor = doc.getLineHeightFactor()
     cell.contentHeight = cell.getContentHeight(scaleFactor, lineHeightFactor)
 
     if (cell.contentHeight >= remainingPageSpace) {

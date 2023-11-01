@@ -313,7 +313,7 @@ function fitContent(table: Table, doc: DocHandler) {
 
       cell.contentHeight = cell.getContentHeight(
         doc.scaleFactor(),
-        doc.lineHeightFactor,
+        doc.getLineHeightFactor(),
       )
 
       let realContentHeight = cell.contentHeight / cell.rowSpan
