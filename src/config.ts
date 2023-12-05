@@ -44,6 +44,7 @@ export type RowPageBreakType = 'auto' | 'avoid'
 export type TableWidthType = 'auto' | 'wrap' | number
 export type ShowHeadType = 'everyPage' | 'firstPage' | 'never' | boolean
 export type ShowFootType = 'everyPage' | 'lastPage' | 'never' | boolean
+export type HorizontalPageBreakBehaviourType = 'immediately' | 'afterAllRows'
 
 export interface UserOptions {
   includeHiddenHtml?: boolean
@@ -67,6 +68,7 @@ export interface UserOptions {
   horizontalPageBreak?: boolean
   // Column data key to repeat if horizontalPageBreak = true
   horizontalPageBreakRepeat?: string[] | number[] | string | number
+  horizontalPageBreakBehaviour?: HorizontalPageBreakBehaviourType
 
   // Styles
   styles?: Partial<Styles>

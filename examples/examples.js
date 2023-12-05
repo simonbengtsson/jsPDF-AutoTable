@@ -701,6 +701,41 @@ examples.horizontalPageBreakRepeat = function () {
   return doc
 }
 
+// Split columns - shows how to alter the behaviour of columns that split into pages
+examples.horizontalPageBreakBehaviour = function () {
+  var doc = new jsPDF('l')
+
+  var head = headRows()
+  head[0].region = 'Region'
+  head[0].country = 'Country'
+  head[0].zipcode = 'Zipcode'
+  head[0].phone = 'Phone'
+  head[0].datetime = 'DateTime'
+  head[0].text = 'Text'
+  var body = bodyRows(50)
+  body.forEach(function (row) {
+    row['text'] = faker.lorem.sentence(10)
+    row['zipcode'] = faker.address.zipCode()
+    row['country'] = faker.address.country()
+    row['region'] = faker.address.state()
+    row['phone'] = faker.phone.phoneNumber()
+    row['datetime'] = faker.date.recent()
+  })
+
+  doc.text('Split columns across pages if not fit in a single page, showing all the columns first', 14, 20)
+  doc.autoTable({
+    head: head,
+    body: body,
+    startY: 25,
+    // split overflowing columns into pages
+    horizontalPageBreak: true,
+    horizontalPageBreakBehaviour: 'immediately',
+    // repeat this column in split pages
+    //horizontalPageBreakRepeat: 'id',
+  })
+  return doc
+}
+
 /*
  |--------------------------------------------------------------------------
  | Below is some helper functions for the examples
