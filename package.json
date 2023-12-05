@@ -57,6 +57,7 @@
   },
   "scripts": {
     "start": "webpack serve --config webpack.config.mjs --mode=development",
+    "checkout-pr": "git fetch origin pull/$PR/head:pr$PR && git checkout pr$PR",
     "start-external": "webpack serve --config webpack.config.mjs --mode=development --host 0.0.0.0",
     "build": "webpack --mode=production && webpack --mode=production --env minified && npm run buildes && npm run types",
     "buildes": "rollup --config rollup.config.mjs",
