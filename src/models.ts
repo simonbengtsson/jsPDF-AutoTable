@@ -37,6 +37,7 @@ export interface Settings {
   tableLineWidth: number
   tableLineColor: Color
   horizontalPageBreak?: boolean
+  horizontalPageBreakBehaviour?: 'immediately' | 'afterAllRows'
   horizontalPageBreakRepeat?: string | number | string[] | number[] | null
 }
 

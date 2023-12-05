@@ -90,20 +90,70 @@ function printTableWithHorizontalPageBreak(
 ) {
   // calculate width of columns and render only those which can fit into page
   const allColumnsCanFitResult = calculateAllColumnsCanFitInPage(doc, table)
+  const settings = table.settings
 
-  allColumnsCanFitResult.map((colsAndIndexes, index: number) => {
-    doc.applyStyles(doc.userStyles)
-    // add page to print next columns in new page
-    if (index > 0) {
-      addPage(doc, table, startPos, cursor, colsAndIndexes.columns)
-    } else {
-      // print head for selected columns
-      printHead(doc, table, cursor, colsAndIndexes.columns)
+  if (settings.horizontalPageBreakBehaviour === 'afterAllRows') {
+    allColumnsCanFitResult.forEach((colsAndIndexes, index: number) => {
+      doc.applyStyles(doc.userStyles)
+      // add page to print next columns in new page
+      if (index > 0) {
+        addPage(doc, table, startPos, cursor, colsAndIndexes.columns)
+      } else {
+        // print head for selected columns
+        printHead(doc, table, cursor, colsAndIndexes.columns)
+      }
+      // print body & footer for selected columns
+      printBody(doc, table, startPos, cursor, colsAndIndexes.columns)
+      printFoot(doc, table, cursor, colsAndIndexes.columns)
+    })
+  } else {
+    let lastRowIndexOfLastPage = -1
+    const firstColumnsToFitResult = allColumnsCanFitResult[0]
+
+    while (lastRowIndexOfLastPage < table.body.length - 1) {
+      // Print the first columns, taking note of the last row printed
+      let lastPrintedRowIndex = lastRowIndexOfLastPage
+
+      if (firstColumnsToFitResult) {
+        doc.applyStyles(doc.userStyles)
+        if (lastRowIndexOfLastPage >= 0) {
+          addPage(doc, table, startPos, cursor, firstColumnsToFitResult.columns)
+        } else {
+          printHead(doc, table, cursor, firstColumnsToFitResult.columns)
+        }
+        lastPrintedRowIndex = printBodyWithoutPageBreaks(
+          doc,
+          table,
+          lastRowIndexOfLastPage + 1,
+          cursor,
+          firstColumnsToFitResult.columns,
+        )
+        printFoot(doc, table, cursor, firstColumnsToFitResult.columns)
+      }
+
+      // Check how many rows were printed, so that the next columns would not print more rows than that
+      const maxNumberOfRows = lastPrintedRowIndex - lastRowIndexOfLastPage
+
+      // Print the next columns, never exceding maxNumberOfRows
+      allColumnsCanFitResult.slice(1).forEach((colsAndIndexes) => {
+        doc.applyStyles(doc.userStyles)
+        addPage(doc, table, startPos, cursor, colsAndIndexes.columns)
+
+        printBodyWithoutPageBreaks(
+          doc,
+          table,
+          lastRowIndexOfLastPage + 1,
+          cursor,
+          colsAndIndexes.columns,
+          maxNumberOfRows,
+        )
+
+        printFoot(doc, table, cursor, colsAndIndexes.columns)
+      })
+
+      lastRowIndexOfLastPage = lastPrintedRowIndex
     }
-    // print body & footer for selected columns
-    printBody(doc, table, startPos, cursor, colsAndIndexes.columns)
-    printFoot(doc, table, cursor, colsAndIndexes.columns)
-  })
+  }
 }
 
 function printHead(
@@ -131,6 +181,34 @@ function printBody(
     const isLastRow = index === table.body.length - 1
     printFullRow(doc, table, row, isLastRow, startPos, cursor, columns)
   })
+}
+
+function printBodyWithoutPageBreaks(
+  doc: DocHandler,
+  table: Table,
+  startRowIndex: number,
+  cursor: Pos,
+  columns: Column[],
+  maxNumberOfRows?: number,
+): number {
+  doc.applyStyles(doc.userStyles)
+  maxNumberOfRows = maxNumberOfRows ?? table.body.length
+  const endRowIndex = Math.min(
+    startRowIndex + maxNumberOfRows,
+    table.body.length,
+  )
+  let lastPrintedRowIndex = -1
+  table.body.slice(startRowIndex, endRowIndex).forEach((row, index) => {
+    const isLastRow = startRowIndex + index === table.body.length - 1
+
+    const remainingSpace = getRemainingPageSpace(doc, table, isLastRow, cursor)
+    if (row.canEntireRowFit(remainingSpace, columns)) {
+      printRow(doc, table, row, cursor, columns)
+      lastPrintedRowIndex = startRowIndex + index
+    }
+  })
+
+  return lastPrintedRowIndex
 }
 
 function printFoot(
@@ -299,25 +377,18 @@ function printFullRow(
 ) {
   const remainingSpace = getRemainingPageSpace(doc, table, isLastRow, cursor)
   if (row.canEntireRowFit(remainingSpace, columns)) {
+    // The row fits in the current page
     printRow(doc, table, row, cursor, columns)
+  } else if (shouldPrintOnCurrentPage(doc, row, remainingSpace, table)) {
+    // The row gets split in two here, each piece in one page
+    const remainderRow = modifyRowToFit(row, remainingSpace, table, doc)
+    printRow(doc, table, row, cursor, columns)
+    addPage(doc, table, startPos, cursor, columns)
+    printFullRow(doc, table, remainderRow, isLastRow, startPos, cursor, columns)
   } else {
-    if (shouldPrintOnCurrentPage(doc, row, remainingSpace, table)) {
-      const remainderRow = modifyRowToFit(row, remainingSpace, table, doc)
-      printRow(doc, table, row, cursor, columns)
-      addPage(doc, table, startPos, cursor, columns)
-      printFullRow(
-        doc,
-        table,
-        remainderRow,
-        isLastRow,
-        startPos,
-        cursor,
-        columns,
-      )
-    } else {
-      addPage(doc, table, startPos, cursor, columns)
-      printFullRow(doc, table, row, isLastRow, startPos, cursor, columns)
-    }
+    // The row get printed entirelly on the next page
+    addPage(doc, table, startPos, cursor, columns)
+    printFullRow(doc, table, row, isLastRow, startPos, cursor, columns)
   }
 }
 
