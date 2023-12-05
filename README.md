@@ -264,8 +264,7 @@ Contributions are always welcome, especially on open issues. If you have somethi
 
 ### Pull requests locally
 
-- `git fetch origin pull/478/head:pr478`
-- `git checkout pr478`
+- `PULL_REQUEST=472 && git fetch origin pull/$PULL_REQUEST/head:pr$PULL_REQUEST && git checkout pr$PULL_REQUEST`
 
 ### Release prerelease
 
