@@ -1,6 +1,6 @@
 /*!
  * 
- *               jsPDF AutoTable plugin v3.7.1
+ *               jsPDF AutoTable plugin v3.8.0
  *
  *               Copyright (c) 2023 Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable
  *               Licensed under the MIT License.
@@ -933,7 +933,7 @@ function parseHooks(global, document, current) {
     return result;
 }
 function parseSettings(doc, options) {
-    var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l;
+    var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m;
     var margin = (0, common_1.parseSpacing)(options.margin, 40 / doc.scaleFactor());
     var startY = (_a = getStartY(doc, options.startY)) !== null && _a !== void 0 ? _a : margin.top;
     var showFoot;
@@ -958,9 +958,7 @@ function parseSettings(doc, options) {
     }
     var useCss = (_d = options.useCss) !== null && _d !== void 0 ? _d : false;
     var theme = options.theme || (useCss ? 'plain' : 'striped');
-    var horizontalPageBreak = options.horizontalPageBreak
-        ? true
-        : false;
+    var horizontalPageBreak = !!options.horizontalPageBreak;
     var horizontalPageBreakRepeat = (_e = options.horizontalPageBreakRepeat) !== null && _e !== void 0 ? _e : null;
     return {
         includeHiddenHtml: (_f = options.includeHiddenHtml) !== null && _f !== void 0 ? _f : false,
@@ -977,6 +975,7 @@ function parseSettings(doc, options) {
         tableLineColor: (_l = options.tableLineColor) !== null && _l !== void 0 ? _l : 200,
         horizontalPageBreak: horizontalPageBreak,
         horizontalPageBreakRepeat: horizontalPageBreakRepeat,
+        horizontalPageBreakBehaviour: (_m = options.horizontalPageBreakBehaviour) !== null && _m !== void 0 ? _m : 'afterAllRows',
     };
 }
 function getStartY(doc, userStartY) {
@@ -1681,20 +1680,55 @@ exports.drawTable = drawTable;
 function printTableWithHorizontalPageBreak(doc, table, startPos, cursor) {
     // calculate width of columns and render only those which can fit into page
     var allColumnsCanFitResult = (0, tablePrinter_1.calculateAllColumnsCanFitInPage)(doc, table);
-    allColumnsCanFitResult.map(function (colsAndIndexes, index) {
-        doc.applyStyles(doc.userStyles);
-        // add page to print next columns in new page
-        if (index > 0) {
-            addPage(doc, table, startPos, cursor, colsAndIndexes.columns);
+    var settings = table.settings;
+    if (settings.horizontalPageBreakBehaviour === 'afterAllRows') {
+        allColumnsCanFitResult.forEach(function (colsAndIndexes, index) {
+            doc.applyStyles(doc.userStyles);
+            // add page to print next columns in new page
+            if (index > 0) {
+                addPage(doc, table, startPos, cursor, colsAndIndexes.columns);
+            }
+            else {
+                // print head for selected columns
+                printHead(doc, table, cursor, colsAndIndexes.columns);
+            }
+            // print body & footer for selected columns
+            printBody(doc, table, startPos, cursor, colsAndIndexes.columns);
+            printFoot(doc, table, cursor, colsAndIndexes.columns);
+        });
+    }
+    else {
+        var lastRowIndexOfLastPage_1 = -1;
+        var firstColumnsToFitResult = allColumnsCanFitResult[0];
+        var _loop_1 = function () {
+            // Print the first columns, taking note of the last row printed
+            var lastPrintedRowIndex = lastRowIndexOfLastPage_1;
+            if (firstColumnsToFitResult) {
+                doc.applyStyles(doc.userStyles);
+                if (lastRowIndexOfLastPage_1 >= 0) {
+                    addPage(doc, table, startPos, cursor, firstColumnsToFitResult.columns);
+                }
+                else {
+                    printHead(doc, table, cursor, firstColumnsToFitResult.columns);
+                }
+                lastPrintedRowIndex = printBodyWithoutPageBreaks(doc, table, lastRowIndexOfLastPage_1 + 1, cursor, firstColumnsToFitResult.columns);
+                printFoot(doc, table, cursor, firstColumnsToFitResult.columns);
+            }
+            // Check how many rows were printed, so that the next columns would not print more rows than that
+            var maxNumberOfRows = lastPrintedRowIndex - lastRowIndexOfLastPage_1;
+            // Print the next columns, never exceding maxNumberOfRows
+            allColumnsCanFitResult.slice(1).forEach(function (colsAndIndexes) {
+                doc.applyStyles(doc.userStyles);
+                addPage(doc, table, startPos, cursor, colsAndIndexes.columns);
+                printBodyWithoutPageBreaks(doc, table, lastRowIndexOfLastPage_1 + 1, cursor, colsAndIndexes.columns, maxNumberOfRows);
+                printFoot(doc, table, cursor, colsAndIndexes.columns);
+            });
+            lastRowIndexOfLastPage_1 = lastPrintedRowIndex;
+        };
+        while (lastRowIndexOfLastPage_1 < table.body.length - 1) {
+            _loop_1();
         }
-        else {
-            // print head for selected columns
-            printHead(doc, table, cursor, colsAndIndexes.columns);
-        }
-        // print body & footer for selected columns
-        printBody(doc, table, startPos, cursor, colsAndIndexes.columns);
-        printFoot(doc, table, cursor, colsAndIndexes.columns);
-    });
+    }
 }
 function printHead(doc, table, cursor, columns) {
     var settings = table.settings;
@@ -1709,6 +1743,21 @@ function printBody(doc, table, startPos, cursor, columns) {
         var isLastRow = index === table.body.length - 1;
         printFullRow(doc, table, row, isLastRow, startPos, cursor, columns);
     });
+}
+function printBodyWithoutPageBreaks(doc, table, startRowIndex, cursor, columns, maxNumberOfRows) {
+    doc.applyStyles(doc.userStyles);
+    maxNumberOfRows = maxNumberOfRows !== null && maxNumberOfRows !== void 0 ? maxNumberOfRows : table.body.length;
+    var endRowIndex = Math.min(startRowIndex + maxNumberOfRows, table.body.length);
+    var lastPrintedRowIndex = -1;
+    table.body.slice(startRowIndex, endRowIndex).forEach(function (row, index) {
+        var isLastRow = startRowIndex + index === table.body.length - 1;
+        var remainingSpace = getRemainingPageSpace(doc, table, isLastRow, cursor);
+        if (row.canEntireRowFit(remainingSpace, columns)) {
+            printRow(doc, table, row, cursor, columns);
+            lastPrintedRowIndex = startRowIndex + index;
+        }
+    });
+    return lastPrintedRowIndex;
 }
 function printFoot(doc, table, cursor, columns) {
     var settings = table.settings;
@@ -1815,19 +1864,20 @@ function shouldPrintOnCurrentPage(doc, row, remainingPageSpace, table) {
 function printFullRow(doc, table, row, isLastRow, startPos, cursor, columns) {
     var remainingSpace = getRemainingPageSpace(doc, table, isLastRow, cursor);
     if (row.canEntireRowFit(remainingSpace, columns)) {
+        // The row fits in the current page
         printRow(doc, table, row, cursor, columns);
     }
+    else if (shouldPrintOnCurrentPage(doc, row, remainingSpace, table)) {
+        // The row gets split in two here, each piece in one page
+        var remainderRow = modifyRowToFit(row, remainingSpace, table, doc);
+        printRow(doc, table, row, cursor, columns);
+        addPage(doc, table, startPos, cursor, columns);
+        printFullRow(doc, table, remainderRow, isLastRow, startPos, cursor, columns);
+    }
     else {
-        if (shouldPrintOnCurrentPage(doc, row, remainingSpace, table)) {
-            var remainderRow = modifyRowToFit(row, remainingSpace, table, doc);
-            printRow(doc, table, row, cursor, columns);
-            addPage(doc, table, startPos, cursor, columns);
-            printFullRow(doc, table, remainderRow, isLastRow, startPos, cursor, columns);
-        }
-        else {
-            addPage(doc, table, startPos, cursor, columns);
-            printFullRow(doc, table, row, isLastRow, startPos, cursor, columns);
-        }
+        // The row get printed entirelly on the next page
+        addPage(doc, table, startPos, cursor, columns);
+        printFullRow(doc, table, row, isLastRow, startPos, cursor, columns);
     }
 }
 function printRow(doc, table, row, cursor, columns) {

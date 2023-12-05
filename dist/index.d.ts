@@ -103,6 +103,7 @@ export interface Settings {
 	tableLineWidth: number;
 	tableLineColor: Color;
 	horizontalPageBreak?: boolean;
+	horizontalPageBreakBehaviour?: "immediately" | "afterAllRows";
 	horizontalPageBreakRepeat?: string | number | string[] | number[] | null;
 }
 export interface StylesProps {
@@ -239,6 +240,7 @@ export type RowPageBreakType = "auto" | "avoid";
 export type TableWidthType = "auto" | "wrap" | number;
 export type ShowHeadType = "everyPage" | "firstPage" | "never" | boolean;
 export type ShowFootType = "everyPage" | "lastPage" | "never" | boolean;
+export type HorizontalPageBreakBehaviourType = "immediately" | "afterAllRows";
 export interface UserOptions {
 	includeHiddenHtml?: boolean;
 	useCss?: boolean;
@@ -260,6 +262,7 @@ export interface UserOptions {
 	columns?: ColumnInput[];
 	horizontalPageBreak?: boolean;
 	horizontalPageBreakRepeat?: string[] | number[] | string | number;
+	horizontalPageBreakBehaviour?: HorizontalPageBreakBehaviourType;
 	styles?: Partial<Styles>;
 	bodyStyles?: Partial<Styles>;
 	headStyles?: Partial<Styles>;
