@@ -97,7 +97,9 @@ function printTableWithHorizontalPageBreak(
       doc.applyStyles(doc.userStyles)
       // add page to print next columns in new page
       if (index > 0) {
-        addPage(doc, table, startPos, cursor, colsAndIndexes.columns)
+        // When adding a page here, make sure not to print the footers
+        // because they were already printed before on this same loop
+        addPage(doc, table, startPos, cursor, colsAndIndexes.columns, true)
       } else {
         // print head for selected columns
         printHead(doc, table, cursor, colsAndIndexes.columns)
@@ -116,19 +118,22 @@ function printTableWithHorizontalPageBreak(
 
       if (firstColumnsToFitResult) {
         doc.applyStyles(doc.userStyles)
+        const firstColumnsToFit = firstColumnsToFitResult.columns
         if (lastRowIndexOfLastPage >= 0) {
-          addPage(doc, table, startPos, cursor, firstColumnsToFitResult.columns)
+          // When adding a page here, make sure not to print the footers
+          // because they were already printed before on this same loop
+          addPage(doc, table, startPos, cursor, firstColumnsToFit, true)
         } else {
-          printHead(doc, table, cursor, firstColumnsToFitResult.columns)
+          printHead(doc, table, cursor, firstColumnsToFit)
         }
         lastPrintedRowIndex = printBodyWithoutPageBreaks(
           doc,
           table,
           lastRowIndexOfLastPage + 1,
           cursor,
-          firstColumnsToFitResult.columns,
+          firstColumnsToFit,
         )
-        printFoot(doc, table, cursor, firstColumnsToFitResult.columns)
+        printFoot(doc, table, cursor, firstColumnsToFit)
       }
 
       // Check how many rows were printed, so that the next columns would not print more rows than that
@@ -137,7 +142,9 @@ function printTableWithHorizontalPageBreak(
       // Print the next columns, never exceding maxNumberOfRows
       allColumnsCanFitResult.slice(1).forEach((colsAndIndexes) => {
         doc.applyStyles(doc.userStyles)
-        addPage(doc, table, startPos, cursor, colsAndIndexes.columns)
+        // When adding a page here, make sure not to print the footers
+        // because they were already printed before on this same loop
+        addPage(doc, table, startPos, cursor, colsAndIndexes.columns, true)
 
         printBodyWithoutPageBreaks(
           doc,
@@ -577,9 +584,10 @@ export function addPage(
   startPos: Pos,
   cursor: Pos,
   columns: Column[] = [],
+  suppressFooter: boolean = false,
 ) {
   doc.applyStyles(doc.userStyles)
-  if (table.settings.showFoot === 'everyPage') {
+  if (table.settings.showFoot === 'everyPage' && !suppressFooter) {
     table.foot.forEach((row: Row) => printRow(doc, table, row, cursor, columns))
   }
 
