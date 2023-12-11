@@ -1,6 +1,6 @@
 /*!
  * 
- *               jsPDF AutoTable plugin v3.8.0
+ *               jsPDF AutoTable plugin v3.8.1
  *
  *               Copyright (c) 2023 Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable
  *               Licensed under the MIT License.
@@ -1686,7 +1686,9 @@ function printTableWithHorizontalPageBreak(doc, table, startPos, cursor) {
             doc.applyStyles(doc.userStyles);
             // add page to print next columns in new page
             if (index > 0) {
-                addPage(doc, table, startPos, cursor, colsAndIndexes.columns);
+                // When adding a page here, make sure not to print the footers
+                // because they were already printed before on this same loop
+                addPage(doc, table, startPos, cursor, colsAndIndexes.columns, true);
             }
             else {
                 // print head for selected columns
@@ -1705,21 +1707,26 @@ function printTableWithHorizontalPageBreak(doc, table, startPos, cursor) {
             var lastPrintedRowIndex = lastRowIndexOfLastPage_1;
             if (firstColumnsToFitResult) {
                 doc.applyStyles(doc.userStyles);
+                var firstColumnsToFit = firstColumnsToFitResult.columns;
                 if (lastRowIndexOfLastPage_1 >= 0) {
-                    addPage(doc, table, startPos, cursor, firstColumnsToFitResult.columns);
+                    // When adding a page here, make sure not to print the footers
+                    // because they were already printed before on this same loop
+                    addPage(doc, table, startPos, cursor, firstColumnsToFit, true);
                 }
                 else {
-                    printHead(doc, table, cursor, firstColumnsToFitResult.columns);
+                    printHead(doc, table, cursor, firstColumnsToFit);
                 }
-                lastPrintedRowIndex = printBodyWithoutPageBreaks(doc, table, lastRowIndexOfLastPage_1 + 1, cursor, firstColumnsToFitResult.columns);
-                printFoot(doc, table, cursor, firstColumnsToFitResult.columns);
+                lastPrintedRowIndex = printBodyWithoutPageBreaks(doc, table, lastRowIndexOfLastPage_1 + 1, cursor, firstColumnsToFit);
+                printFoot(doc, table, cursor, firstColumnsToFit);
             }
             // Check how many rows were printed, so that the next columns would not print more rows than that
             var maxNumberOfRows = lastPrintedRowIndex - lastRowIndexOfLastPage_1;
             // Print the next columns, never exceding maxNumberOfRows
             allColumnsCanFitResult.slice(1).forEach(function (colsAndIndexes) {
                 doc.applyStyles(doc.userStyles);
-                addPage(doc, table, startPos, cursor, colsAndIndexes.columns);
+                // When adding a page here, make sure not to print the footers
+                // because they were already printed before on this same loop
+                addPage(doc, table, startPos, cursor, colsAndIndexes.columns, true);
                 printBodyWithoutPageBreaks(doc, table, lastRowIndexOfLastPage_1 + 1, cursor, colsAndIndexes.columns, maxNumberOfRows);
                 printFoot(doc, table, cursor, colsAndIndexes.columns);
             });
@@ -2006,10 +2013,11 @@ function getRemainingPageSpace(doc, table, isLastRow, cursor) {
     }
     return doc.pageSize().height - cursor.y - bottomContentHeight;
 }
-function addPage(doc, table, startPos, cursor, columns) {
+function addPage(doc, table, startPos, cursor, columns, suppressFooter) {
     if (columns === void 0) { columns = []; }
+    if (suppressFooter === void 0) { suppressFooter = false; }
     doc.applyStyles(doc.userStyles);
-    if (table.settings.showFoot === 'everyPage') {
+    if (table.settings.showFoot === 'everyPage' && !suppressFooter) {
         table.foot.forEach(function (row) { return printRow(doc, table, row, cursor, columns); });
     }
     // Add user content just before adding new page ensure it will
