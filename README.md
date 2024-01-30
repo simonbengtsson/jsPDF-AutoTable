@@ -36,6 +36,9 @@ autoTable(doc, {
   ],
 })
 
+// Sometimes you might have to call the default function on the export (for example in Deno)
+autoTable.default(doc, { html: '#my-table' })
+
 doc.save('table.pdf')
 ```
 
