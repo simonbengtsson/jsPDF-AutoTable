@@ -7,6 +7,7 @@
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
+      "import": "./dist/jspdf.plugin.autotable.mjs",
       "default": "./dist/jspdf.plugin.autotable.js"
     },
     "./es": {
