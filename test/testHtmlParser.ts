@@ -1,14 +1,13 @@
 // Fix for https://github.com/simonbengtsson/jsPDF-AutoTable/runs/3567913815
-global.TextEncoder = require("util").TextEncoder; 
-global.TextDecoder = require("util").TextDecoder; 
+global.TextEncoder = require('util').TextEncoder
+global.TextDecoder = require('util').TextDecoder
 
 import { parseHtml } from '../src/htmlParser'
 import { DocHandler } from '../src/documentHandler'
-import { loadJspdf } from './common'
+import { jsPDF } from 'jspdf'
 const assert = require('assert')
 const jsdom = require('jsdom')
 const dom = new jsdom.JSDOM('')
-const jsPDF = loadJspdf()
 
 describe('html parser', () => {
   it('full table', () => {
@@ -117,10 +116,10 @@ describe('html parser', () => {
     let hrow = head.insertRow()
     hrow.insertCell().textContent = 'head'
     hrow.insertCell().outerHTML = '<th>th</th>'
-    const doc = new jsPDF()
+    const doc: any = new jsPDF()
     const res = doc.autoTableHtmlToJson(table)
     assert.equal(res.data[0].length, 2, 'Should have body cell')
-    assert.equal(res.columns.length,  2, 'Should have columns cell')
+    assert.equal(res.columns.length, 2, 'Should have columns cell')
     assert.equal(res.data[0][0].content, 'body', 'Should have body content')
     assert.equal(res.columns[0], 'head', 'Should have head content')
   })

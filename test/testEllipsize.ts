@@ -1,8 +1,7 @@
 const assert = require('assert')
 import { ellipsize } from '../src/widthCalculator'
 import { DocHandler } from '../src/documentHandler'
-import { loadJspdf } from './common'
-const jsPDF = loadJspdf()
+import { jsPDF } from 'jspdf'
 
 describe('ellipsize', () => {
   it('ellipsize string', () => {

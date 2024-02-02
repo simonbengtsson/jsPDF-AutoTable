@@ -1,9 +1,7 @@
-import { loadJspdf } from './common'
 import { createTable } from '../src/tableCalculator'
 import { parseInput } from '../src/inputParser'
-
-const assert = require('assert')
-const jsPDF = loadJspdf()
+import { jsPDF } from 'jspdf'
+import * as assert from 'assert'
 
 describe('input parser', () => {
   it('non browser', () => {

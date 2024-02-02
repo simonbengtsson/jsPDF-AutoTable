@@ -1,11 +1,10 @@
-import { loadJspdf } from './common'
-const jsPDF = loadJspdf()
+import { jsPDF } from 'jspdf'
 import autoTable, { autoTable as autoTableType } from '../src/main'
 const assert = require('assert')
 
 describe('runner', () => {
   it('prototype', () => {
-    const doc = new jsPDF()
+    const doc: any = new jsPDF()
     doc.autoTable({ body: [['cell']] })
     assert(true)
   })
@@ -17,7 +16,7 @@ describe('runner', () => {
   })
 
   it('nodejs', () => {
-    (global as any).window = {}
+    ;(global as any).window = {}
     const jsPDFNode = require('jspdf/dist/jspdf.node').jsPDF
     delete (global as any).window
 
@@ -34,7 +33,7 @@ describe('runner', () => {
         doc.addPage()
       },
     })
-    assert.equal(doc.internal.getCurrentPageInfo().pageNumber, 2)
+    assert.equal(doc.getCurrentPageInfo().pageNumber, 2)
   })
 
   it('previous typing', () => {
