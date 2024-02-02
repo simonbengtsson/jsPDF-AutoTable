@@ -1,14 +1,8 @@
 import { jsPDF } from 'jspdf'
-import autoTable, { autoTable as autoTableType } from '../src/main'
-const assert = require('assert')
+import { autoTable } from '../src/main'
+import * as assert from 'assert'
 
 describe('runner', () => {
-  it('prototype', () => {
-    const doc: any = new jsPDF()
-    doc.autoTable({ body: [['cell']] })
-    assert(true)
-  })
-
   it('export', () => {
     const doc = new jsPDF()
     autoTable(doc, { body: [['cell']] })
@@ -34,13 +28,5 @@ describe('runner', () => {
       },
     })
     assert.equal(doc.getCurrentPageInfo().pageNumber, 2)
-  })
-
-  it('previous typing', () => {
-    const doc = new jsPDF()
-    ;((doc as any).autoTable as autoTableType)({
-      body: [['test']],
-    })
-    assert(true)
   })
 })

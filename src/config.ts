@@ -98,10 +98,8 @@ export type ColumnInput =
   | number
   | {
       header?: CellInput
-      title?: CellInput // deprecated (same as header)
       footer?: CellInput
       dataKey?: string | number
-      key?: string | number // deprecated (same as dataKey)
     }
 
 export type Color = [number, number, number] | number | string | false
@@ -122,7 +120,6 @@ export interface CellDef {
   colSpan?: number
   styles?: Partial<Styles>
   content?: string | string[] | number
-  title?: string // Deprecated, same as content
   _element?: HTMLTableCellElement
 }
 

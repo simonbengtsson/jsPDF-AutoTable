@@ -284,18 +284,18 @@ var HtmlRowInput = /** @class */ (function (_super) {
 // Base style for all themes
 function defaultStyles(scaleFactor) {
     return {
-        font: 'helvetica',
-        fontStyle: 'normal',
-        overflow: 'linebreak',
-        fillColor: false,
+        font: 'helvetica', // helvetica, times, courier
+        fontStyle: 'normal', // normal, bold, italic, bolditalic
+        overflow: 'linebreak', // linebreak, ellipsize, visible or hidden
+        fillColor: false, // Either false for transparent, rbg array e.g. [255, 255, 255] or gray level e.g 200
         textColor: 20,
-        halign: 'left',
-        valign: 'top',
+        halign: 'left', // left, center, right, justify
+        valign: 'top', // top, middle, bottom
         fontSize: 10,
-        cellPadding: 5 / scaleFactor,
+        cellPadding: 5 / scaleFactor, // number or {top,left,right,left,vertical,horizontal}
         lineColor: 200,
         lineWidth: 0,
-        cellWidth: 'auto',
+        cellWidth: 'auto', // 'auto'|'wrap'|number
         minCellHeight: 0,
         minCellWidth: 0,
     };
@@ -339,7 +339,9 @@ function getTheme(name) {
     return themes[name];
 }
 
-function parseHtml(doc, input, window, includeHiddenHtml, useCss) {
+function parseHtml(doc, input, 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+window, includeHiddenHtml, useCss) {
     var _a, _b;
     if (includeHiddenHtml === void 0) { includeHiddenHtml = false; }
     if (useCss === void 0) { useCss = false; }
@@ -415,58 +417,27 @@ function parseCellContent(orgCell) {
     return cell.innerText || cell.textContent || '';
 }
 
-/**
- * Improved text function with halign and valign support
- * Inspiration from: http://stackoverflow.com/questions/28327510/align-text-right-using-jspdf/28433113#28433113
- */
-function autoTableText (text, x, y, styles, doc) {
-    styles = styles || {};
-    var PHYSICAL_LINE_HEIGHT = 1.15;
-    var k = doc.internal.scaleFactor;
-    var fontSize = doc.internal.getFontSize() / k;
-    var lineHeightFactor = doc.getLineHeightFactor
-        ? doc.getLineHeightFactor()
-        : PHYSICAL_LINE_HEIGHT;
-    var lineHeight = fontSize * lineHeightFactor;
-    var splitRegex = /\r\n|\r|\n/g;
-    var splitText = '';
-    var lineCount = 1;
-    if (styles.valign === 'middle' ||
-        styles.valign === 'bottom' ||
-        styles.halign === 'center' ||
-        styles.halign === 'right') {
-        splitText = typeof text === 'string' ? text.split(splitRegex) : text;
-        lineCount = splitText.length || 1;
+/* eslint-disable @typescript-eslint/no-unused-vars */
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/assign
+function assign(target, s, s1, s2, s3) {
+    if (target == null) {
+        throw new TypeError('Cannot convert undefined or null to object');
     }
-    // Align the top
-    y += fontSize * (2 - PHYSICAL_LINE_HEIGHT);
-    if (styles.valign === 'middle')
-        y -= (lineCount / 2) * lineHeight;
-    else if (styles.valign === 'bottom')
-        y -= lineCount * lineHeight;
-    if (styles.halign === 'center' || styles.halign === 'right') {
-        var alignSize = fontSize;
-        if (styles.halign === 'center')
-            alignSize *= 0.5;
-        if (splitText && lineCount >= 1) {
-            for (var iLine = 0; iLine < splitText.length; iLine++) {
-                doc.text(splitText[iLine], x - doc.getStringUnitWidth(splitText[iLine]) * alignSize, y);
-                y += lineHeight;
+    var to = Object(target);
+    for (var index = 1; index < arguments.length; index++) {
+        // eslint-disable-next-line prefer-rest-params
+        var nextSource = arguments[index];
+        if (nextSource != null) {
+            // Skip over if undefined or null
+            for (var nextKey in nextSource) {
+                // Avoid bugs when hasOwnProperty is shadowed
+                if (Object.prototype.hasOwnProperty.call(nextSource, nextKey)) {
+                    to[nextKey] = nextSource[nextKey];
+                }
             }
-            return doc;
         }
-        x -= doc.getStringUnitWidth(text) * alignSize;
     }
-    if (styles.halign === 'justify') {
-        doc.text(text, x, y, {
-            maxWidth: styles.maxWidth || 100,
-            align: 'justify',
-        });
-    }
-    else {
-        doc.text(text, x, y);
-    }
-    return doc;
+    return to;
 }
 
 var globalDefaults = {};
@@ -491,15 +462,6 @@ var DocHandler = /** @class */ (function () {
                 : 0,
         };
     }
-    DocHandler.setDefaults = function (defaults, doc) {
-        if (doc === void 0) { doc = null; }
-        if (doc) {
-            doc.__autoTableDocumentDefaults = defaults;
-        }
-        else {
-            globalDefaults = defaults;
-        }
-    };
     DocHandler.unifyColor = function (c) {
         if (Array.isArray(c)) {
             return c;
@@ -630,139 +592,15 @@ var DocHandler = /** @class */ (function () {
     return DocHandler;
 }());
 
-/* eslint-disable @typescript-eslint/no-unused-vars */
-// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/assign
-function assign(target, s, s1, s2, s3) {
-    if (target == null) {
-        throw new TypeError('Cannot convert undefined or null to object');
-    }
-    var to = Object(target);
-    for (var index = 1; index < arguments.length; index++) {
-        // eslint-disable-next-line prefer-rest-params
-        var nextSource = arguments[index];
-        if (nextSource != null) {
-            // Skip over if undefined or null
-            for (var nextKey in nextSource) {
-                // Avoid bugs when hasOwnProperty is shadowed
-                if (Object.prototype.hasOwnProperty.call(nextSource, nextKey)) {
-                    to[nextKey] = nextSource[nextKey];
-                }
-            }
-        }
-    }
-    return to;
-}
-
-function validateOptions (doc, global, document, current) {
-    var _loop_1 = function (options) {
+function validateOptions (global, document, current) {
+    for (var _i = 0, _a = [global, document, current]; _i < _a.length; _i++) {
+        var options = _a[_i];
         if (options && typeof options !== 'object') {
             console.error('The options parameter should be of type object, is: ' + typeof options);
-        }
-        if (typeof options.extendWidth !== 'undefined') {
-            options.tableWidth = options.extendWidth ? 'auto' : 'wrap';
-            console.error('Use of deprecated option: extendWidth, use tableWidth instead.');
-        }
-        if (typeof options.margins !== 'undefined') {
-            if (typeof options.margin === 'undefined')
-                options.margin = options.margins;
-            console.error('Use of deprecated option: margins, use margin instead.');
         }
         if (options.startY && typeof options.startY !== 'number') {
             console.error('Invalid value for startY option', options.startY);
             delete options.startY;
-        }
-        if (!options.didDrawPage &&
-            (options.afterPageContent ||
-                options.beforePageContent ||
-                options.afterPageAdd)) {
-            console.error('The afterPageContent, beforePageContent and afterPageAdd hooks are deprecated. Use didDrawPage instead');
-            options.didDrawPage = function (data) {
-                doc.applyStyles(doc.userStyles);
-                if (options.beforePageContent)
-                    options.beforePageContent(data);
-                doc.applyStyles(doc.userStyles);
-                if (options.afterPageContent)
-                    options.afterPageContent(data);
-                doc.applyStyles(doc.userStyles);
-                if (options.afterPageAdd && data.pageNumber > 1) {
-                    data.afterPageAdd(data);
-                }
-                doc.applyStyles(doc.userStyles);
-            };
-        }
-        [
-            'createdHeaderCell',
-            'drawHeaderRow',
-            'drawRow',
-            'drawHeaderCell',
-        ].forEach(function (name) {
-            if (options[name]) {
-                console.error("The \"".concat(name, "\" hook has changed in version 3.0, check the changelog for how to migrate."));
-            }
-        });
-        [
-            ['showFoot', 'showFooter'],
-            ['showHead', 'showHeader'],
-            ['didDrawPage', 'addPageContent'],
-            ['didParseCell', 'createdCell'],
-            ['headStyles', 'headerStyles'],
-        ].forEach(function (_a) {
-            var current = _a[0], deprecated = _a[1];
-            if (options[deprecated]) {
-                console.error("Use of deprecated option ".concat(deprecated, ". Use ").concat(current, " instead"));
-                options[current] = options[deprecated];
-            }
-        });
-        [
-            ['padding', 'cellPadding'],
-            ['lineHeight', 'rowHeight'],
-            'fontSize',
-            'overflow',
-        ].forEach(function (o) {
-            var deprecatedOption = typeof o === 'string' ? o : o[0];
-            var style = typeof o === 'string' ? o : o[1];
-            if (typeof options[deprecatedOption] !== 'undefined') {
-                if (typeof options.styles[style] === 'undefined') {
-                    options.styles[style] = options[deprecatedOption];
-                }
-                console.error('Use of deprecated option: ' +
-                    deprecatedOption +
-                    ', use the style ' +
-                    style +
-                    ' instead.');
-            }
-        });
-        for (var _b = 0, _c = [
-            'styles',
-            'bodyStyles',
-            'headStyles',
-            'footStyles',
-        ]; _b < _c.length; _b++) {
-            var styleProp = _c[_b];
-            checkStyles(options[styleProp] || {});
-        }
-        var columnStyles = options['columnStyles'] || {};
-        for (var _d = 0, _e = Object.keys(columnStyles); _d < _e.length; _d++) {
-            var key = _e[_d];
-            checkStyles(columnStyles[key] || {});
-        }
-    };
-    for (var _i = 0, _a = [global, document, current]; _i < _a.length; _i++) {
-        var options = _a[_i];
-        _loop_1(options);
-    }
-}
-function checkStyles(styles) {
-    if (styles.rowHeight) {
-        console.error('Use of deprecated style rowHeight. It is renamed to minCellHeight.');
-        if (!styles.minCellHeight) {
-            styles.minCellHeight = styles.rowHeight;
-        }
-    }
-    else if (styles.columnWidth) {
-        console.error('Use of deprecated style columnWidth. It is renamed to cellWidth.');
-        if (!styles.cellWidth) {
-            styles.cellWidth = styles.columnWidth;
         }
     }
 }
@@ -771,7 +609,7 @@ function parseInput(d, current) {
     var doc = new DocHandler(d);
     var document = doc.getDocumentOptions();
     var global = doc.getGlobalOptions();
-    validateOptions(doc, global, document, current);
+    validateOptions(global, document, current);
     var options = assign({}, global, document, current);
     var win;
     if (typeof window !== 'undefined') {
@@ -968,7 +806,6 @@ var HookData = /** @class */ (function () {
     function HookData(doc, table, cursor) {
         this.table = table;
         this.pageNumber = table.pageNumber;
-        this.pageCount = this.pageNumber;
         this.settings = table.settings;
         this.cursor = cursor;
         this.doc = doc.getDocument();
@@ -991,10 +828,6 @@ var CellHookData = /** @class */ (function (_super) {
 var Table = /** @class */ (function () {
     function Table(input, content) {
         this.pageNumber = 1;
-        // Deprecated, use pageNumber instead
-        // Not using getter since:
-        // https://github.com/simonbengtsson/jsPDF-AutoTable/issues/596
-        this.pageCount = 1;
         this.id = input.id;
         this.settings = input.settings;
         this.styles = input.styles;
@@ -1100,7 +933,7 @@ var Row = /** @class */ (function () {
 }());
 var Cell = /** @class */ (function () {
     function Cell(raw, styles, section) {
-        var _a, _b;
+        var _a;
         this.contentHeight = 0;
         this.contentWidth = 0;
         this.wrappedWidth = 0;
@@ -1117,7 +950,7 @@ var Cell = /** @class */ (function () {
         if (raw != null && typeof raw === 'object' && !Array.isArray(raw)) {
             this.rowSpan = raw.rowSpan || 1;
             this.colSpan = raw.colSpan || 1;
-            content = (_b = (_a = raw.content) !== null && _a !== void 0 ? _a : raw.title) !== null && _b !== void 0 ? _b : raw;
+            content = (_a = raw.content) !== null && _a !== void 0 ? _a : raw;
             if (raw._element) {
                 this.raw = raw._element;
             }
@@ -1156,7 +989,6 @@ var Cell = /** @class */ (function () {
         }
         return { x: x, y: y };
     };
-    // TODO (v4): replace parameters with only (lineHeight)
     Cell.prototype.getContentHeight = function (scaleFactor, lineHeightFactor) {
         if (lineHeightFactor === void 0) { lineHeightFactor = 1.15; }
         var lineCount = Array.isArray(this.text) ? this.text.length : 1;
@@ -1201,6 +1033,60 @@ var Column = /** @class */ (function () {
     };
     return Column;
 }());
+
+/**
+ * Improved text function with halign and valign support
+ * Inspiration from: http://stackoverflow.com/questions/28327510/align-text-right-using-jspdf/28433113#28433113
+ */
+function autoTableText (text, x, y, styles, doc) {
+    styles = styles || {};
+    var PHYSICAL_LINE_HEIGHT = 1.15;
+    var k = doc.internal.scaleFactor;
+    var fontSize = doc.internal.getFontSize() / k;
+    var lineHeightFactor = doc.getLineHeightFactor
+        ? doc.getLineHeightFactor()
+        : PHYSICAL_LINE_HEIGHT;
+    var lineHeight = fontSize * lineHeightFactor;
+    var splitRegex = /\r\n|\r|\n/g;
+    var splitText = '';
+    var lineCount = 1;
+    if (styles.valign === 'middle' ||
+        styles.valign === 'bottom' ||
+        styles.halign === 'center' ||
+        styles.halign === 'right') {
+        splitText = typeof text === 'string' ? text.split(splitRegex) : text;
+        lineCount = splitText.length || 1;
+    }
+    // Align the top
+    y += fontSize * (2 - PHYSICAL_LINE_HEIGHT);
+    if (styles.valign === 'middle')
+        y -= (lineCount / 2) * lineHeight;
+    else if (styles.valign === 'bottom')
+        y -= lineCount * lineHeight;
+    if (styles.halign === 'center' || styles.halign === 'right') {
+        var alignSize = fontSize;
+        if (styles.halign === 'center')
+            alignSize *= 0.5;
+        if (splitText && lineCount >= 1) {
+            for (var iLine = 0; iLine < splitText.length; iLine++) {
+                doc.text(splitText[iLine], x - doc.getStringUnitWidth(splitText[iLine]) * alignSize, y);
+                y += lineHeight;
+            }
+            return doc;
+        }
+        x -= doc.getStringUnitWidth(text) * alignSize;
+    }
+    if (styles.halign === 'justify') {
+        doc.text(text, x, y, {
+            maxWidth: styles.maxWidth || 100,
+            align: 'justify',
+        });
+    }
+    else {
+        doc.text(text, x, y);
+    }
+    return doc;
+}
 
 // get columns can be fit into page
 function getColumnsCanFitInPage(doc, table, config) {
@@ -1320,9 +1206,6 @@ function drawTable(jsPDFDoc, table) {
     table.callEndPageHooks(doc, cursor);
     table.finalY = cursor.y;
     jsPDFDoc.lastAutoTable = table;
-    jsPDFDoc.previousAutoTable = table; // Deprecated
-    if (jsPDFDoc.autoTable)
-        jsPDFDoc.autoTable.previous = table; // Deprecated
     doc.applyStyles(doc.userStyles);
 }
 function printTableWithHorizontalPageBreak(doc, table, startPos, cursor) {
@@ -1567,7 +1450,6 @@ function printRow(doc, table, row, cursor, columns) {
 function drawCellRect(doc, cell, cursor) {
     var cellStyles = cell.styles;
     // https://github.com/simonbengtsson/jsPDF-AutoTable/issues/774
-    // TODO (v4): better solution?
     doc.getDocument().setFillColor(doc.getDocument().getFillColor());
     if (typeof cellStyles.lineWidth === 'number') {
         // Draw cell background with normal borders
@@ -1675,7 +1557,6 @@ function addPage(doc, table, startPos, cursor, columns, suppressFooter) {
     addTableBorder(doc, table, startPos, cursor);
     nextPage(doc);
     table.pageNumber++;
-    table.pageCount++;
     cursor.x = margin.left;
     cursor.y = margin.top;
     startPos.y = margin.top;
@@ -2093,7 +1974,7 @@ function generateSectionRow(columns, section) {
 function getSectionTitle(section, column) {
     if (section === 'head') {
         if (typeof column === 'object') {
-            return column.header || column.title || null;
+            return column.header || null;
         }
         else if (typeof column === 'string' || typeof column === 'number') {
             return column;
@@ -2106,10 +1987,10 @@ function getSectionTitle(section, column) {
 }
 function createColumns(columns) {
     return columns.map(function (input, index) {
-        var _a, _b;
+        var _a;
         var key;
         if (typeof input === 'object') {
-            key = (_b = (_a = input.dataKey) !== null && _a !== void 0 ? _a : input.key) !== null && _b !== void 0 ? _b : index;
+            key = (_a = input.dataKey) !== null && _a !== void 0 ? _a : index;
         }
         else {
             key = index;
@@ -2142,118 +2023,10 @@ function cellStyles(sectionName, column, rowIndex, themeName, styles, scaleFacto
     return assign(themeStyles, cellInputStyles);
 }
 
-function _applyPlugin (jsPDF) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    jsPDF.API.autoTable = function () {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var options;
-        if (args.length === 1) {
-            options = args[0];
-        }
-        else {
-            console.error('Use of deprecated autoTable initiation');
-            options = args[2] || {};
-            options.columns = args[0];
-            options.body = args[1];
-        }
-        var input = parseInput(this, options);
-        var table = createTable(this, input);
-        drawTable(this, table);
-        return this;
-    };
-    // Assign false to enable `doc.lastAutoTable.finalY || 40` sugar
-    jsPDF.API.lastAutoTable = false;
-    jsPDF.API.previousAutoTable = false; // deprecated in v3
-    jsPDF.API.autoTable.previous = false; // deprecated in v3
-    jsPDF.API.autoTableText = function (text, x, y, styles) {
-        autoTableText(text, x, y, styles, this);
-    };
-    jsPDF.API.autoTableSetDefaults = function (defaults) {
-        DocHandler.setDefaults(defaults, this);
-        return this;
-    };
-    jsPDF.autoTableSetDefaults = function (defaults, doc) {
-        DocHandler.setDefaults(defaults, doc);
-    };
-    jsPDF.API.autoTableHtmlToJson = function (tableElem, includeHiddenElements) {
-        if (includeHiddenElements === void 0) { includeHiddenElements = false; }
-        if (typeof window === 'undefined') {
-            console.error('Cannot run autoTableHtmlToJson in non browser environment');
-            return null;
-        }
-        var doc = new DocHandler(this);
-        var _a = parseHtml(doc, tableElem, window, includeHiddenElements, false), head = _a.head, body = _a.body;
-        var columns = head[0].map(function (c) { return c.content; });
-        return { columns: columns, rows: body, data: body };
-    };
-    /**
-     * @deprecated
-     */
-    jsPDF.API.autoTableEndPosY = function () {
-        console.error('Use of deprecated function: autoTableEndPosY. Use doc.lastAutoTable.finalY instead.');
-        var prev = this.lastAutoTable;
-        if (prev && prev.finalY) {
-            return prev.finalY;
-        }
-        else {
-            return 0;
-        }
-    };
-    /**
-     * @deprecated
-     */
-    jsPDF.API.autoTableAddPageContent = function (hook) {
-        console.error('Use of deprecated function: autoTableAddPageContent. Use jsPDF.autoTableSetDefaults({didDrawPage: () => {}}) instead.');
-        if (!jsPDF.API.autoTable.globalDefaults) {
-            jsPDF.API.autoTable.globalDefaults = {};
-        }
-        jsPDF.API.autoTable.globalDefaults.addPageContent = hook;
-        return this;
-    };
-    /**
-     * @deprecated
-     */
-    jsPDF.API.autoTableAddPage = function () {
-        console.error('Use of deprecated function: autoTableAddPage. Use doc.addPage()');
-        this.addPage();
-        return this;
-    };
-}
-
-// export { applyPlugin } didn't export applyPlugin
-// to index.d.ts for some reason
-function applyPlugin(jsPDF) {
-    _applyPlugin(jsPDF);
-}
 function autoTable(d, options) {
     var input = parseInput(d, options);
     var table = createTable(d, input);
     drawTable(d, table);
 }
-// Experimental export
-function __createTable(d, options) {
-    var input = parseInput(d, options);
-    return createTable(d, input);
-}
-function __drawTable(d, table) {
-    drawTable(d, table);
-}
-try {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    var jsPDF = require('jspdf');
-    // Webpack imported jspdf instead of jsPDF for some reason
-    // while it seemed to work everywhere else.
-    if (jsPDF.jsPDF)
-        jsPDF = jsPDF.jsPDF;
-    applyPlugin(jsPDF);
-}
-catch (error) {
-    // Importing jspdf in nodejs environments does not work as of jspdf
-    // 1.5.3 so we need to silence potential errors to support using for example
-    // the nodejs jspdf dist files with the exported applyPlugin
-}
 
-export { Cell, CellHookData, Column, Row, Table, __createTable, __drawTable, applyPlugin, autoTable as default };
+export { Cell, CellHookData, Column, Row, Table, autoTable };

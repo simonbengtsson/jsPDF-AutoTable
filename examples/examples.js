@@ -12,22 +12,24 @@
  | for a minimal example.
  */
 
-var faker = window.faker
+const faker = window.faker
 
-var examples = {}
+const examples = {}
 window.examples = examples
+
+const { autoTable } = window['jspdf-autotable']
 
 // Basic - shows what a default table looks like
 examples.basic = function () {
-  var doc = new jsPDF()
+  const doc = new jsPDF()
 
   // From HTML
-  doc.autoTable({ html: '.table' })
+  autoTable(doc, { html: '.table' })
 
   // From Javascript
-  var finalY = doc.lastAutoTable.finalY || 10
+  let finalY = doc.lastAutoTable.finalY || 10
   doc.text('From javascript arrays', 14, finalY + 15)
-  doc.autoTable({
+  autoTable(doc, {
     startY: finalY + 20,
     head: [['ID', 'Name', 'Email', 'Country', 'IP-address']],
     body: [
@@ -48,7 +50,7 @@ examples.basic = function () {
 
   finalY = doc.lastAutoTable.finalY
   doc.text('From HTML with CSS', 14, finalY + 15)
-  doc.autoTable({
+  autoTable(doc, {
     startY: finalY + 20,
     html: '.table',
     useCss: true,
@@ -59,8 +61,8 @@ examples.basic = function () {
 
 // Minimal - shows how compact tables can be drawn
 examples.minimal = function () {
-  var doc = new jsPDF()
-  doc.autoTable({
+  const doc = new jsPDF()
+  autoTable(doc, {
     html: '.table',
     tableWidth: 'wrap',
     styles: { cellPadding: 0.5, fontSize: 8 },
@@ -70,17 +72,17 @@ examples.minimal = function () {
 
 // Long data - shows how the overflow features looks and can be used
 examples.long = function () {
-  var doc = new jsPDF('l')
+  const doc = new jsPDF('l')
 
-  var head = headRows()
+  const head = headRows()
   head[0]['text'] = 'Text'
-  var body = bodyRows(4)
+  const body = bodyRows(4)
   body.forEach(function (row) {
     row['text'] = faker.lorem.sentence(100)
   })
 
   doc.text("Overflow 'ellipsize' with one column with long content", 14, 20)
-  doc.autoTable({
+  autoTable(doc, {
     head: head,
     body: body,
     startY: 25,
@@ -92,9 +94,9 @@ examples.long = function () {
   doc.text(
     "Overflow 'linebreak' (default) with one column with long content",
     14,
-    doc.lastAutoTable.finalY + 10
+    doc.lastAutoTable.finalY + 10,
   )
-  doc.autoTable({
+  autoTable(doc, {
     head: head,
     body: body,
     startY: doc.lastAutoTable.finalY + 15,
@@ -107,7 +109,7 @@ examples.long = function () {
 
 // Content - shows how tables can be integrated with any other pdf content
 examples.content = function () {
-  var doc = new jsPDF()
+  const doc = new jsPDF()
 
   doc.setFontSize(18)
   doc.text('With content', 14, 22)
@@ -115,12 +117,12 @@ examples.content = function () {
   doc.setTextColor(100)
 
   // jsPDF 1.4+ uses getWidth, <1.4 uses .width
-  var pageSize = doc.internal.pageSize
-  var pageWidth = pageSize.width ? pageSize.width : pageSize.getWidth()
-  var text = doc.splitTextToSize(faker.lorem.sentence(45), pageWidth - 35, {})
+  const pageSize = doc.internal.pageSize
+  const pageWidth = pageSize.width ? pageSize.width : pageSize.getWidth()
+  const text = doc.splitTextToSize(faker.lorem.sentence(45), pageWidth - 35, {})
   doc.text(text, 14, 30)
 
-  doc.autoTable({
+  autoTable(doc, {
     head: headRows(),
     body: bodyRows(40),
     startY: 50,
@@ -134,14 +136,14 @@ examples.content = function () {
 
 // Multiple - shows how multiple tables can be drawn both horizontally and vertically
 examples.multiple = function () {
-  var doc = new jsPDF()
+  const doc = new jsPDF()
   doc.text('Multiple tables', 14, 20)
 
-  doc.autoTable({ startY: 30, head: headRows(), body: bodyRows(25) })
+  autoTable(doc, { startY: 30, head: headRows(), body: bodyRows(25) })
 
-  var pageNumber = doc.internal.getNumberOfPages()
+  const pageNumber = doc.internal.getNumberOfPages()
 
-  doc.autoTable({
+  autoTable(doc, {
     columns: [
       { dataKey: 'id', header: 'ID' },
       { dataKey: 'name', header: 'Name' },
@@ -156,7 +158,7 @@ examples.multiple = function () {
 
   doc.setPage(pageNumber)
 
-  doc.autoTable({
+  autoTable(doc, {
     columns: [
       { dataKey: 'id', header: 'ID' },
       { dataKey: 'name', header: 'Name' },
@@ -169,8 +171,8 @@ examples.multiple = function () {
     margin: { left: 107 },
   })
 
-  for (var j = 0; j < 3; j++) {
-    doc.autoTable({
+  for (let j = 0; j < 3; j++) {
+    autoTable(doc, {
       head: headRows(),
       body: bodyRows(),
       startY: doc.lastAutoTable.finalY + 10,
@@ -183,10 +185,10 @@ examples.multiple = function () {
 
 // Header and footers - shows how header and footers can be drawn
 examples['header-footer'] = function () {
-  var doc = new jsPDF()
-  var totalPagesExp = '{total_pages_count_string}'
+  const doc = new jsPDF()
+  const totalPagesExp = '{total_pages_count_string}'
 
-  doc.autoTable({
+  autoTable(doc, {
     head: headRows(),
     body: bodyRows(40),
     willDrawPage: function (data) {
@@ -200,7 +202,7 @@ examples['header-footer'] = function () {
     },
     didDrawPage: function (data) {
       // Footer
-      var str = 'Page ' + doc.internal.getNumberOfPages()
+      let str = 'Page ' + doc.internal.getNumberOfPages()
       // Total page number plugin only available in jspdf v1.0+
       if (typeof doc.putTotalPages === 'function') {
         str = str + ' of ' + totalPagesExp
@@ -208,8 +210,10 @@ examples['header-footer'] = function () {
       doc.setFontSize(10)
 
       // jsPDF 1.4+ uses getHeight, <1.4 uses .height
-      var pageSize = doc.internal.pageSize
-      var pageHeight = pageSize.height ? pageSize.height : pageSize.getHeight()
+      const pageSize = doc.internal.pageSize
+      const pageHeight = pageSize.height
+        ? pageSize.height
+        : pageSize.getHeight()
       doc.text(str, data.settings.margin.left, pageHeight - 10)
     },
     margin: { top: 30 },
@@ -223,50 +227,10 @@ examples['header-footer'] = function () {
   return doc
 }
 
-// Minimal - shows how compact tables can be drawn
-examples.defaults = function () {
-  // Global defaults
-  // (would apply to all documents if more than one were created)
-  jsPDF.autoTableSetDefaults({
-    headStyles: { fillColor: 0 },
-  })
-
-  var doc = new jsPDF()
-
-  doc.text('Global options (black header)', 15, 20)
-  doc.autoTable({ head: headRows(), body: bodyRows(5), startY: 25 })
-
-  // Document defaults
-  jsPDF.autoTableSetDefaults(
-    {
-      headStyles: { fillColor: [155, 89, 182] }, // Purple
-      didDrawPage: function (data) {
-        var finalY = doc.lastAutoTable.finalY + 15
-        var leftMargin = data.settings.margin.left
-        doc.text('Default options (purple header)', leftMargin, finalY)
-      },
-    },
-    doc
-  )
-
-  var startY = doc.lastAutoTable.finalY + 20
-  doc.autoTable({ head: headRows(), body: bodyRows(5), startY: startY })
-
-  // Reset defaults
-  doc.autoTableSetDefaults(null)
-  jsPDF.autoTableSetDefaults(null)
-
-  var finalY = doc.lastAutoTable.finalY
-  doc.text('After reset (blue header)', 15, finalY + 15)
-  doc.autoTable({ head: headRows(), body: bodyRows(5), startY: finalY + 20 })
-
-  return doc
-}
-
 // Column styles - shows how tables can be drawn with specific column styles
 examples.colstyles = function () {
-  var doc = new jsPDF()
-  doc.autoTable({
+  const doc = new jsPDF()
+  autoTable(doc, {
     head: headRows(),
     body: bodyRows(),
     showHead: false,
@@ -283,15 +247,15 @@ examples.colstyles = function () {
 
 // Col spans and row spans
 examples.spans = function () {
-  var doc = new jsPDF('p', 'pt')
+  const doc = new jsPDF('p', 'pt')
   doc.text('Rowspan and colspan', 40, 50)
 
-  var raw = bodyRows(40)
-  var body = []
+  const raw = bodyRows(40)
+  const body = []
 
-  for (var i = 0; i < raw.length; i++) {
-    var row = []
-    for (var key in raw[i]) {
+  for (let i = 0; i < raw.length; i++) {
+    const row = []
+    for (let key in raw[i]) {
       row.push(raw[i][key])
     }
     if (i % 5 === 0) {
@@ -304,7 +268,7 @@ examples.spans = function () {
     body.push(row)
   }
 
-  doc.autoTable({
+  autoTable(doc, {
     startY: 60,
     head: [
       [
@@ -323,13 +287,13 @@ examples.spans = function () {
 
 // Themes - shows how the different themes looks
 examples.themes = function () {
-  var doc = new jsPDF()
+  const doc = new jsPDF()
 
   doc.text('Theme "striped"', 14, 16)
-  doc.autoTable({ head: headRows(), body: bodyRows(5), startY: 20 })
+  autoTable(doc, { head: headRows(), body: bodyRows(5), startY: 20 })
 
   doc.text('Theme "grid"', 14, doc.lastAutoTable.finalY + 10)
-  doc.autoTable({
+  autoTable(doc, {
     head: headRows(),
     body: bodyRows(5),
     startY: doc.lastAutoTable.finalY + 14,
@@ -337,7 +301,7 @@ examples.themes = function () {
   })
 
   doc.text('Theme "plain"', 14, doc.lastAutoTable.finalY + 10)
-  doc.autoTable({
+  autoTable(doc, {
     head: headRows(),
     body: bodyRows(5),
     startY: doc.lastAutoTable.finalY + 14,
@@ -349,17 +313,17 @@ examples.themes = function () {
 
 // Nested tables
 examples.nested = function () {
-  var doc = new jsPDF()
+  const doc = new jsPDF()
   doc.text('Nested tables', 14, 16)
 
-  var nestedTableHeight = 100
-  var nestedTableCell = {
+  const nestedTableHeight = 100
+  const nestedTableCell = {
     content: '',
     // Dynamic height of nested tables are not supported right now
     // so we need to define height of the parent cell
     styles: { minCellHeight: 100 },
   }
-  doc.autoTable({
+  autoTable(doc, {
     theme: 'grid',
     head: [['2019', '2020']],
     body: [[nestedTableCell]],
@@ -367,7 +331,7 @@ examples.nested = function () {
     startY: 20,
     didDrawCell: function (data) {
       if (data.row.index === 0 && data.row.section === 'body') {
-        doc.autoTable({
+        autoTable(doc, {
           startY: data.cell.y + 2,
           margin: { left: data.cell.x + 2 },
           tableWidth: data.cell.width - 4,
@@ -390,8 +354,8 @@ examples.nested = function () {
 
 // Custom style - shows how custom styles can be applied
 examples.custom = function () {
-  var doc = new jsPDF()
-  doc.autoTable({
+  const doc = new jsPDF()
+  autoTable(doc, {
     head: headRows(),
     body: bodyRows(),
     foot: headRows(),
@@ -483,7 +447,7 @@ examples.custom = function () {
           data.cell.x + 5,
           data.cell.y + 2,
           5,
-          5
+          5,
         )
       }
     },
@@ -496,7 +460,7 @@ examples.custom = function () {
       doc.text(
         'Conditional styling of cells, rows and columns, cell and table borders, custom font, image in cell',
         data.settings.margin.left,
-        30
+        30,
       )
     },
   })
@@ -505,8 +469,8 @@ examples.custom = function () {
 
 // Custom style - shows how custom styles can be applied
 examples.borders = function () {
-  var doc = new jsPDF()
-  doc.autoTable({
+  const doc = new jsPDF()
+  autoTable(doc, {
     head: headRows(),
     body: bodyRows(3),
     foot: [
@@ -567,8 +531,8 @@ examples.borders = function () {
       fillColor: '#f1c40f',
       fontSize: 15,
       lineWidth: {
-        top: 1
-      }
+        top: 1,
+      },
     },
     footStyles: {
       fillColor: [241, 196, 15],
@@ -604,7 +568,11 @@ examples.borders = function () {
           bottom: 1,
         }
       }
-      if (data.row.section === "body" && data.row.index === 1 && data.cell === data.row.cells[1]) {
+      if (
+        data.row.section === 'body' &&
+        data.row.index === 1 &&
+        data.cell === data.row.cells[1]
+      ) {
         data.cell.styles.fillColor = '#f1c40f' // cell background color
         data.cell.styles.lineColor = 'red' // cell border color
         data.cell.styles.lineWidth = {
@@ -622,7 +590,7 @@ examples.borders = function () {
         'Borders are drawn just at the edge of the cell, which means that half of the border is in the cell and the other half is outside.',
         data.settings.margin.left,
         30,
-        { maxWidth: 180 }
+        { maxWidth: 180 },
       )
     },
   })
@@ -631,16 +599,16 @@ examples.borders = function () {
 
 // Split columns - shows how the overflowed columns split into pages
 examples.horizontalPageBreak = function () {
-  var doc = new jsPDF('l')
+  const doc = new jsPDF('l')
 
-  var head = headRows()
+  const head = headRows()
   head[0].region = 'Region'
   head[0].country = 'Country'
   head[0].zipcode = 'Zipcode'
   head[0].phone = 'Phone'
   // head[0].timeZone = 'Timezone';
   head[0]['text'] = 'Text'
-  var body = bodyRows(4)
+  const body = bodyRows(4)
   body.forEach(function (row) {
     row['text'] = faker.lorem.sentence(100)
     row['zipcode'] = faker.address.zipCode()
@@ -651,7 +619,7 @@ examples.horizontalPageBreak = function () {
   })
 
   doc.text('Split columns across pages if not fit in a single page', 14, 20)
-  doc.autoTable({
+  autoTable(doc, {
     head: head,
     body: body,
     startY: 25,
@@ -665,16 +633,16 @@ examples.horizontalPageBreak = function () {
 
 // Split columns - shows how the overflowed columns split into pages with a given column repeated
 examples.horizontalPageBreakRepeat = function () {
-  var doc = new jsPDF('l')
+  const doc = new jsPDF('l')
 
-  var head = headRows()
+  const head = headRows()
   head[0].region = 'Region'
   head[0].country = 'Country'
   head[0].zipcode = 'Zipcode'
   head[0].phone = 'Phone'
   // head[0].timeZone = 'Timezone';
   head[0]['text'] = 'Text'
-  var body = bodyRows(4)
+  const body = bodyRows(4)
   body.forEach(function (row) {
     row['text'] = faker.lorem.sentence(15)
     row['zipcode'] = faker.address.zipCode()
@@ -687,9 +655,9 @@ examples.horizontalPageBreakRepeat = function () {
   doc.text(
     'Split columns across pages if not fit in a single page with a column repeated.',
     14,
-    20
+    20,
   )
-  doc.autoTable({
+  autoTable(doc, {
     head: head,
     body: body,
     startY: 25,
@@ -703,16 +671,16 @@ examples.horizontalPageBreakRepeat = function () {
 
 // Split columns - shows how to alter the behaviour of columns that split into pages
 examples.horizontalPageBreakBehaviour = function () {
-  var doc = new jsPDF('l')
+  const doc = new jsPDF('l')
 
-  var head = headRows()
+  const head = headRows()
   head[0].region = 'Region'
   head[0].country = 'Country'
   head[0].zipcode = 'Zipcode'
   head[0].phone = 'Phone'
   head[0].datetime = 'DateTime'
   head[0].text = 'Text'
-  var body = bodyRows(50)
+  const body = bodyRows(50)
   body.forEach(function (row) {
     row['text'] = faker.lorem.sentence(10)
     row['zipcode'] = faker.address.zipCode()
@@ -722,8 +690,12 @@ examples.horizontalPageBreakBehaviour = function () {
     row['datetime'] = faker.date.recent()
   })
 
-  doc.text('Split columns across pages if not fit in a single page, showing all the columns first', 14, 20)
-  doc.autoTable({
+  doc.text(
+    'Split columns across pages if not fit in a single page, showing all the columns first',
+    14,
+    20,
+  )
+  autoTable(doc, {
     head: head,
     body: body,
     startY: 25,
@@ -766,8 +738,8 @@ function columns() {
 
 function data(rowCount) {
   rowCount = rowCount || 10
-  var body = []
-  for (var j = 1; j <= rowCount; j++) {
+  const body = []
+  for (let j = 1; j <= rowCount; j++) {
     body.push({
       id: j,
       name: faker.name.findName(),
@@ -781,8 +753,8 @@ function data(rowCount) {
 
 function bodyRows(rowCount) {
   rowCount = rowCount || 10
-  var body = []
-  for (var j = 1; j <= rowCount; j++) {
+  const body = []
+  for (let j = 1; j <= rowCount; j++) {
     body.push({
       id: j,
       name: faker.name.findName(),

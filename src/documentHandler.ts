@@ -35,14 +35,6 @@ export class DocHandler {
     }
   }
 
-  static setDefaults(defaults: UserOptions, doc: jsPDFDocument | null = null) {
-    if (doc) {
-      doc.__autoTableDocumentDefaults = defaults
-    } else {
-      globalDefaults = defaults
-    }
-  }
-
   private static unifyColor(c: Color | undefined): number[] | string[] | null {
     if (Array.isArray(c)) {
       return c

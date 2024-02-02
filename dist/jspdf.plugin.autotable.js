@@ -2,26 +2,26 @@
  * 
  *               jsPDF AutoTable plugin v3.8.1
  *
- *               Copyright (c) 2023 Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable
+ *               Copyright (c) 2024 Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable
  *               Licensed under the MIT License.
  *               http://opensource.org/licenses/mit-license
  *
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
-		module.exports = factory((function webpackLoadOptionalExternalModule() { try { return require("jspdf"); } catch(e) {} }()));
+		module.exports = factory();
 	else if(typeof define === 'function' && define.amd)
-		define(["jspdf"], factory);
-	else {
-		var a = typeof exports === 'object' ? factory((function webpackLoadOptionalExternalModule() { try { return require("jspdf"); } catch(e) {} }())) : factory(root["jspdf"]);
-		for(var i in a) (typeof exports === 'object' ? exports : root)[i] = a[i];
-	}
-})(typeof globalThis !== 'undefined' ? globalThis : typeof this !== 'undefined' ? this : typeof window !== 'undefined' ? window : typeof self !== 'undefined' ? self : global , function(__WEBPACK_EXTERNAL_MODULE__84__) {
+		define([], factory);
+	else if(typeof exports === 'object')
+		exports["jspdf-autotable"] = factory();
+	else
+		root["jspdf-autotable"] = factory();
+})(typeof self !== 'undefined' ? self : this, function() {
 return /******/ (function() { // webpackBootstrap
 /******/ 	"use strict";
 /******/ 	var __webpack_modules__ = ({
 
-/***/ 662:
+/***/ 172:
 /***/ (function(__unused_webpack_module, exports) {
 
 
@@ -46,7 +46,6 @@ var HookData = /** @class */ (function () {
     function HookData(doc, table, cursor) {
         this.table = table;
         this.pageNumber = table.pageNumber;
-        this.pageCount = this.pageNumber;
         this.settings = table.settings;
         this.cursor = cursor;
         this.doc = doc.getDocument();
@@ -71,103 +70,7 @@ exports.CellHookData = CellHookData;
 
 /***/ }),
 
-/***/ 790:
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-var htmlParser_1 = __webpack_require__(148);
-var autoTableText_1 = __webpack_require__(938);
-var documentHandler_1 = __webpack_require__(323);
-var inputParser_1 = __webpack_require__(587);
-var tableDrawer_1 = __webpack_require__(49);
-var tableCalculator_1 = __webpack_require__(858);
-function default_1(jsPDF) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    jsPDF.API.autoTable = function () {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var options;
-        if (args.length === 1) {
-            options = args[0];
-        }
-        else {
-            console.error('Use of deprecated autoTable initiation');
-            options = args[2] || {};
-            options.columns = args[0];
-            options.body = args[1];
-        }
-        var input = (0, inputParser_1.parseInput)(this, options);
-        var table = (0, tableCalculator_1.createTable)(this, input);
-        (0, tableDrawer_1.drawTable)(this, table);
-        return this;
-    };
-    // Assign false to enable `doc.lastAutoTable.finalY || 40` sugar
-    jsPDF.API.lastAutoTable = false;
-    jsPDF.API.previousAutoTable = false; // deprecated in v3
-    jsPDF.API.autoTable.previous = false; // deprecated in v3
-    jsPDF.API.autoTableText = function (text, x, y, styles) {
-        (0, autoTableText_1.default)(text, x, y, styles, this);
-    };
-    jsPDF.API.autoTableSetDefaults = function (defaults) {
-        documentHandler_1.DocHandler.setDefaults(defaults, this);
-        return this;
-    };
-    jsPDF.autoTableSetDefaults = function (defaults, doc) {
-        documentHandler_1.DocHandler.setDefaults(defaults, doc);
-    };
-    jsPDF.API.autoTableHtmlToJson = function (tableElem, includeHiddenElements) {
-        if (includeHiddenElements === void 0) { includeHiddenElements = false; }
-        if (typeof window === 'undefined') {
-            console.error('Cannot run autoTableHtmlToJson in non browser environment');
-            return null;
-        }
-        var doc = new documentHandler_1.DocHandler(this);
-        var _a = (0, htmlParser_1.parseHtml)(doc, tableElem, window, includeHiddenElements, false), head = _a.head, body = _a.body;
-        var columns = head[0].map(function (c) { return c.content; });
-        return { columns: columns, rows: body, data: body };
-    };
-    /**
-     * @deprecated
-     */
-    jsPDF.API.autoTableEndPosY = function () {
-        console.error('Use of deprecated function: autoTableEndPosY. Use doc.lastAutoTable.finalY instead.');
-        var prev = this.lastAutoTable;
-        if (prev && prev.finalY) {
-            return prev.finalY;
-        }
-        else {
-            return 0;
-        }
-    };
-    /**
-     * @deprecated
-     */
-    jsPDF.API.autoTableAddPageContent = function (hook) {
-        console.error('Use of deprecated function: autoTableAddPageContent. Use jsPDF.autoTableSetDefaults({didDrawPage: () => {}}) instead.');
-        if (!jsPDF.API.autoTable.globalDefaults) {
-            jsPDF.API.autoTable.globalDefaults = {};
-        }
-        jsPDF.API.autoTable.globalDefaults.addPageContent = hook;
-        return this;
-    };
-    /**
-     * @deprecated
-     */
-    jsPDF.API.autoTableAddPage = function () {
-        console.error('Use of deprecated function: autoTableAddPage. Use doc.addPage()');
-        this.addPage();
-        return this;
-    };
-}
-exports["default"] = default_1;
-
-
-/***/ }),
-
-/***/ 938:
+/***/ 136:
 /***/ (function(__unused_webpack_module, exports) {
 
 
@@ -230,7 +133,7 @@ exports["default"] = default_1;
 
 /***/ }),
 
-/***/ 200:
+/***/ 420:
 /***/ (function(__unused_webpack_module, exports) {
 
 
@@ -338,7 +241,7 @@ exports.getPageAvailableWidth = getPageAvailableWidth;
 
 /***/ }),
 
-/***/ 913:
+/***/ 796:
 /***/ (function(__unused_webpack_module, exports) {
 
 
@@ -372,18 +275,18 @@ exports.HtmlRowInput = HtmlRowInput;
 // Base style for all themes
 function defaultStyles(scaleFactor) {
     return {
-        font: 'helvetica',
-        fontStyle: 'normal',
-        overflow: 'linebreak',
-        fillColor: false,
+        font: 'helvetica', // helvetica, times, courier
+        fontStyle: 'normal', // normal, bold, italic, bolditalic
+        overflow: 'linebreak', // linebreak, ellipsize, visible or hidden
+        fillColor: false, // Either false for transparent, rbg array e.g. [255, 255, 255] or gray level e.g 200
         textColor: 20,
-        halign: 'left',
-        valign: 'top',
+        halign: 'left', // left, center, right, justify
+        valign: 'top', // top, middle, bottom
         fontSize: 10,
-        cellPadding: 5 / scaleFactor,
+        cellPadding: 5 / scaleFactor, // number or {top,left,right,left,vertical,horizontal}
         lineColor: 200,
         lineWidth: 0,
-        cellWidth: 'auto',
+        cellWidth: 'auto', // 'auto'|'wrap'|number
         minCellHeight: 0,
         minCellWidth: 0,
     };
@@ -432,7 +335,7 @@ exports.getTheme = getTheme;
 
 /***/ }),
 
-/***/ 259:
+/***/ 903:
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -441,7 +344,7 @@ exports.parseCss = void 0;
 // Limitations
 // - No support for border spacing
 // - No support for transparency
-var common_1 = __webpack_require__(200);
+var common_1 = __webpack_require__(420);
 function parseCss(supportedFonts, element, scaleFactor, style, window) {
     var result = {};
     var pxScaleFactor = 96 / 72;
@@ -587,7 +490,7 @@ function parsePadding(style, scaleFactor) {
 
 /***/ }),
 
-/***/ 323:
+/***/ 744:
 /***/ (function(__unused_webpack_module, exports) {
 
 
@@ -615,15 +518,6 @@ var DocHandler = /** @class */ (function () {
                 : 0,
         };
     }
-    DocHandler.setDefaults = function (defaults, doc) {
-        if (doc === void 0) { doc = null; }
-        if (doc) {
-            doc.__autoTableDocumentDefaults = defaults;
-        }
-        else {
-            globalDefaults = defaults;
-        }
-    };
     DocHandler.unifyColor = function (c) {
         if (Array.isArray(c)) {
             return c;
@@ -758,15 +652,17 @@ exports.DocHandler = DocHandler;
 
 /***/ }),
 
-/***/ 148:
+/***/ 4:
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.parseHtml = void 0;
-var cssParser_1 = __webpack_require__(259);
-var config_1 = __webpack_require__(913);
-function parseHtml(doc, input, window, includeHiddenHtml, useCss) {
+var cssParser_1 = __webpack_require__(903);
+var config_1 = __webpack_require__(796);
+function parseHtml(doc, input, 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+window, includeHiddenHtml, useCss) {
     var _a, _b;
     if (includeHiddenHtml === void 0) { includeHiddenHtml = false; }
     if (useCss === void 0) { useCss = false; }
@@ -846,22 +742,22 @@ function parseCellContent(orgCell) {
 
 /***/ }),
 
-/***/ 587:
+/***/ 776:
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.parseInput = void 0;
-var htmlParser_1 = __webpack_require__(148);
-var polyfills_1 = __webpack_require__(360);
-var common_1 = __webpack_require__(200);
-var documentHandler_1 = __webpack_require__(323);
-var inputValidator_1 = __webpack_require__(291);
+var htmlParser_1 = __webpack_require__(4);
+var polyfills_1 = __webpack_require__(356);
+var common_1 = __webpack_require__(420);
+var documentHandler_1 = __webpack_require__(744);
+var inputValidator_1 = __webpack_require__(792);
 function parseInput(d, current) {
     var doc = new documentHandler_1.DocHandler(d);
     var document = doc.getDocumentOptions();
     var global = doc.getGlobalOptions();
-    (0, inputValidator_1.default)(doc, global, document, current);
+    (0, inputValidator_1.default)(global, document, current);
     var options = (0, polyfills_1.assign)({}, global, document, current);
     var win;
     if (typeof window !== 'undefined') {
@@ -1058,147 +954,40 @@ function parseColumns(head, body, foot) {
 
 /***/ }),
 
-/***/ 291:
+/***/ 792:
 /***/ (function(__unused_webpack_module, exports) {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-function default_1(doc, global, document, current) {
-    var _loop_1 = function (options) {
+function default_1(global, document, current) {
+    for (var _i = 0, _a = [global, document, current]; _i < _a.length; _i++) {
+        var options = _a[_i];
         if (options && typeof options !== 'object') {
             console.error('The options parameter should be of type object, is: ' + typeof options);
-        }
-        if (typeof options.extendWidth !== 'undefined') {
-            options.tableWidth = options.extendWidth ? 'auto' : 'wrap';
-            console.error('Use of deprecated option: extendWidth, use tableWidth instead.');
-        }
-        if (typeof options.margins !== 'undefined') {
-            if (typeof options.margin === 'undefined')
-                options.margin = options.margins;
-            console.error('Use of deprecated option: margins, use margin instead.');
         }
         if (options.startY && typeof options.startY !== 'number') {
             console.error('Invalid value for startY option', options.startY);
             delete options.startY;
         }
-        if (!options.didDrawPage &&
-            (options.afterPageContent ||
-                options.beforePageContent ||
-                options.afterPageAdd)) {
-            console.error('The afterPageContent, beforePageContent and afterPageAdd hooks are deprecated. Use didDrawPage instead');
-            options.didDrawPage = function (data) {
-                doc.applyStyles(doc.userStyles);
-                if (options.beforePageContent)
-                    options.beforePageContent(data);
-                doc.applyStyles(doc.userStyles);
-                if (options.afterPageContent)
-                    options.afterPageContent(data);
-                doc.applyStyles(doc.userStyles);
-                if (options.afterPageAdd && data.pageNumber > 1) {
-                    ;
-                    data.afterPageAdd(data);
-                }
-                doc.applyStyles(doc.userStyles);
-            };
-        }
-        ;
-        [
-            'createdHeaderCell',
-            'drawHeaderRow',
-            'drawRow',
-            'drawHeaderCell',
-        ].forEach(function (name) {
-            if (options[name]) {
-                console.error("The \"".concat(name, "\" hook has changed in version 3.0, check the changelog for how to migrate."));
-            }
-        });
-        [
-            ['showFoot', 'showFooter'],
-            ['showHead', 'showHeader'],
-            ['didDrawPage', 'addPageContent'],
-            ['didParseCell', 'createdCell'],
-            ['headStyles', 'headerStyles'],
-        ].forEach(function (_a) {
-            var current = _a[0], deprecated = _a[1];
-            if (options[deprecated]) {
-                console.error("Use of deprecated option ".concat(deprecated, ". Use ").concat(current, " instead"));
-                options[current] = options[deprecated];
-            }
-        });
-        [
-            ['padding', 'cellPadding'],
-            ['lineHeight', 'rowHeight'],
-            'fontSize',
-            'overflow',
-        ].forEach(function (o) {
-            var deprecatedOption = typeof o === 'string' ? o : o[0];
-            var style = typeof o === 'string' ? o : o[1];
-            if (typeof options[deprecatedOption] !== 'undefined') {
-                if (typeof options.styles[style] === 'undefined') {
-                    options.styles[style] = options[deprecatedOption];
-                }
-                console.error('Use of deprecated option: ' +
-                    deprecatedOption +
-                    ', use the style ' +
-                    style +
-                    ' instead.');
-            }
-        });
-        for (var _b = 0, _c = [
-            'styles',
-            'bodyStyles',
-            'headStyles',
-            'footStyles',
-        ]; _b < _c.length; _b++) {
-            var styleProp = _c[_b];
-            checkStyles(options[styleProp] || {});
-        }
-        var columnStyles = options['columnStyles'] || {};
-        for (var _d = 0, _e = Object.keys(columnStyles); _d < _e.length; _d++) {
-            var key = _e[_d];
-            checkStyles(columnStyles[key] || {});
-        }
-    };
-    for (var _i = 0, _a = [global, document, current]; _i < _a.length; _i++) {
-        var options = _a[_i];
-        _loop_1(options);
     }
 }
 exports["default"] = default_1;
-function checkStyles(styles) {
-    if (styles.rowHeight) {
-        console.error('Use of deprecated style rowHeight. It is renamed to minCellHeight.');
-        if (!styles.minCellHeight) {
-            styles.minCellHeight = styles.rowHeight;
-        }
-    }
-    else if (styles.columnWidth) {
-        console.error('Use of deprecated style columnWidth. It is renamed to cellWidth.');
-        if (!styles.cellWidth) {
-            styles.cellWidth = styles.columnWidth;
-        }
-    }
-}
 
 
 /***/ }),
 
-/***/ 287:
+/***/ 260:
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Column = exports.Cell = exports.Row = exports.Table = void 0;
-var config_1 = __webpack_require__(913);
-var HookData_1 = __webpack_require__(662);
-var common_1 = __webpack_require__(200);
+var config_1 = __webpack_require__(796);
+var HookData_1 = __webpack_require__(172);
+var common_1 = __webpack_require__(420);
 var Table = /** @class */ (function () {
     function Table(input, content) {
         this.pageNumber = 1;
-        // Deprecated, use pageNumber instead
-        // Not using getter since:
-        // https://github.com/simonbengtsson/jsPDF-AutoTable/issues/596
-        this.pageCount = 1;
         this.id = input.id;
         this.settings = input.settings;
         this.styles = input.styles;
@@ -1306,7 +1095,7 @@ var Row = /** @class */ (function () {
 exports.Row = Row;
 var Cell = /** @class */ (function () {
     function Cell(raw, styles, section) {
-        var _a, _b;
+        var _a;
         this.contentHeight = 0;
         this.contentWidth = 0;
         this.wrappedWidth = 0;
@@ -1323,7 +1112,7 @@ var Cell = /** @class */ (function () {
         if (raw != null && typeof raw === 'object' && !Array.isArray(raw)) {
             this.rowSpan = raw.rowSpan || 1;
             this.colSpan = raw.colSpan || 1;
-            content = (_b = (_a = raw.content) !== null && _a !== void 0 ? _a : raw.title) !== null && _b !== void 0 ? _b : raw;
+            content = (_a = raw.content) !== null && _a !== void 0 ? _a : raw;
             if (raw._element) {
                 this.raw = raw._element;
             }
@@ -1362,7 +1151,6 @@ var Cell = /** @class */ (function () {
         }
         return { x: x, y: y };
     };
-    // TODO (v4): replace parameters with only (lineHeight)
     Cell.prototype.getContentHeight = function (scaleFactor, lineHeightFactor) {
         if (lineHeightFactor === void 0) { lineHeightFactor = 1.15; }
         var lineCount = Array.isArray(this.text) ? this.text.length : 1;
@@ -1413,7 +1201,7 @@ exports.Column = Column;
 
 /***/ }),
 
-/***/ 360:
+/***/ 356:
 /***/ (function(__unused_webpack_module, exports) {
 
 
@@ -1446,17 +1234,17 @@ exports.assign = assign;
 
 /***/ }),
 
-/***/ 858:
+/***/ 972:
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.createTable = void 0;
-var documentHandler_1 = __webpack_require__(323);
-var models_1 = __webpack_require__(287);
-var widthCalculator_1 = __webpack_require__(189);
-var config_1 = __webpack_require__(913);
-var polyfills_1 = __webpack_require__(360);
+var documentHandler_1 = __webpack_require__(744);
+var models_1 = __webpack_require__(260);
+var widthCalculator_1 = __webpack_require__(324);
+var config_1 = __webpack_require__(796);
+var polyfills_1 = __webpack_require__(356);
 function createTable(jsPDFDoc, input) {
     var doc = new documentHandler_1.DocHandler(jsPDFDoc);
     var content = parseContent(input, doc.scaleFactor());
@@ -1554,7 +1342,7 @@ function generateSectionRow(columns, section) {
 function getSectionTitle(section, column) {
     if (section === 'head') {
         if (typeof column === 'object') {
-            return column.header || column.title || null;
+            return column.header || null;
         }
         else if (typeof column === 'string' || typeof column === 'number') {
             return column;
@@ -1567,10 +1355,10 @@ function getSectionTitle(section, column) {
 }
 function createColumns(columns) {
     return columns.map(function (input, index) {
-        var _a, _b;
+        var _a;
         var key;
         if (typeof input === 'object') {
-            key = (_b = (_a = input.dataKey) !== null && _a !== void 0 ? _a : input.key) !== null && _b !== void 0 ? _b : index;
+            key = (_a = input.dataKey) !== null && _a !== void 0 ? _a : index;
         }
         else {
             key = index;
@@ -1606,18 +1394,18 @@ function cellStyles(sectionName, column, rowIndex, themeName, styles, scaleFacto
 
 /***/ }),
 
-/***/ 49:
+/***/ 664:
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.addPage = exports.drawTable = void 0;
-var common_1 = __webpack_require__(200);
-var models_1 = __webpack_require__(287);
-var documentHandler_1 = __webpack_require__(323);
-var polyfills_1 = __webpack_require__(360);
-var autoTableText_1 = __webpack_require__(938);
-var tablePrinter_1 = __webpack_require__(435);
+var common_1 = __webpack_require__(420);
+var models_1 = __webpack_require__(260);
+var documentHandler_1 = __webpack_require__(744);
+var polyfills_1 = __webpack_require__(356);
+var autoTableText_1 = __webpack_require__(136);
+var tablePrinter_1 = __webpack_require__(224);
 function drawTable(jsPDFDoc, table) {
     var settings = table.settings;
     var startY = settings.startY;
@@ -1671,9 +1459,6 @@ function drawTable(jsPDFDoc, table) {
     table.callEndPageHooks(doc, cursor);
     table.finalY = cursor.y;
     jsPDFDoc.lastAutoTable = table;
-    jsPDFDoc.previousAutoTable = table; // Deprecated
-    if (jsPDFDoc.autoTable)
-        jsPDFDoc.autoTable.previous = table; // Deprecated
     doc.applyStyles(doc.userStyles);
 }
 exports.drawTable = drawTable;
@@ -1919,7 +1704,6 @@ function printRow(doc, table, row, cursor, columns) {
 function drawCellRect(doc, cell, cursor) {
     var cellStyles = cell.styles;
     // https://github.com/simonbengtsson/jsPDF-AutoTable/issues/774
-    // TODO (v4): better solution?
     doc.getDocument().setFillColor(doc.getDocument().getFillColor());
     if (typeof cellStyles.lineWidth === 'number') {
         // Draw cell background with normal borders
@@ -2027,7 +1811,6 @@ function addPage(doc, table, startPos, cursor, columns, suppressFooter) {
     (0, common_1.addTableBorder)(doc, table, startPos, cursor);
     nextPage(doc);
     table.pageNumber++;
-    table.pageCount++;
     cursor.x = margin.left;
     cursor.y = margin.top;
     startPos.y = margin.top;
@@ -2053,13 +1836,13 @@ function nextPage(doc) {
 
 /***/ }),
 
-/***/ 435:
+/***/ 224:
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.calculateAllColumnsCanFitInPage = void 0;
-var common_1 = __webpack_require__(200);
+var common_1 = __webpack_require__(420);
 // get columns can be fit into page
 function getColumnsCanFitInPage(doc, table, config) {
     var _a;
@@ -2129,13 +1912,13 @@ exports.calculateAllColumnsCanFitInPage = calculateAllColumnsCanFitInPage;
 
 /***/ }),
 
-/***/ 189:
+/***/ 324:
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ellipsize = exports.resizeColumns = exports.calculateWidths = void 0;
-var common_1 = __webpack_require__(200);
+var common_1 = __webpack_require__(420);
 /**
  * Calculate the column widths
  */
@@ -2440,15 +2223,6 @@ function ellipsizeStr(text, width, styles, doc, overflow) {
 }
 
 
-/***/ }),
-
-/***/ 84:
-/***/ (function(module) {
-
-if(typeof __WEBPACK_EXTERNAL_MODULE__84__ === 'undefined') { var e = new Error("Cannot find module 'undefined'"); e.code = 'MODULE_NOT_FOUND'; throw e; }
-
-module.exports = __WEBPACK_EXTERNAL_MODULE__84__;
-
 /***/ })
 
 /******/ 	});
@@ -2484,55 +2258,24 @@ var __webpack_exports__ = {};
 var exports = __webpack_exports__;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.Cell = exports.Column = exports.Row = exports.Table = exports.CellHookData = exports.__drawTable = exports.__createTable = exports.applyPlugin = void 0;
-var applyPlugin_1 = __webpack_require__(790);
-var inputParser_1 = __webpack_require__(587);
-var tableDrawer_1 = __webpack_require__(49);
-var tableCalculator_1 = __webpack_require__(858);
-var models_1 = __webpack_require__(287);
+exports.Cell = exports.Column = exports.Row = exports.Table = exports.CellHookData = exports.autoTable = void 0;
+var inputParser_1 = __webpack_require__(776);
+var tableDrawer_1 = __webpack_require__(664);
+var tableCalculator_1 = __webpack_require__(972);
+var models_1 = __webpack_require__(260);
 Object.defineProperty(exports, "Table", ({ enumerable: true, get: function () { return models_1.Table; } }));
-var HookData_1 = __webpack_require__(662);
+var HookData_1 = __webpack_require__(172);
 Object.defineProperty(exports, "CellHookData", ({ enumerable: true, get: function () { return HookData_1.CellHookData; } }));
-var models_2 = __webpack_require__(287);
+var models_2 = __webpack_require__(260);
 Object.defineProperty(exports, "Cell", ({ enumerable: true, get: function () { return models_2.Cell; } }));
 Object.defineProperty(exports, "Column", ({ enumerable: true, get: function () { return models_2.Column; } }));
 Object.defineProperty(exports, "Row", ({ enumerable: true, get: function () { return models_2.Row; } }));
-// export { applyPlugin } didn't export applyPlugin
-// to index.d.ts for some reason
-function applyPlugin(jsPDF) {
-    (0, applyPlugin_1.default)(jsPDF);
-}
-exports.applyPlugin = applyPlugin;
 function autoTable(d, options) {
     var input = (0, inputParser_1.parseInput)(d, options);
     var table = (0, tableCalculator_1.createTable)(d, input);
     (0, tableDrawer_1.drawTable)(d, table);
 }
-// Experimental export
-function __createTable(d, options) {
-    var input = (0, inputParser_1.parseInput)(d, options);
-    return (0, tableCalculator_1.createTable)(d, input);
-}
-exports.__createTable = __createTable;
-function __drawTable(d, table) {
-    (0, tableDrawer_1.drawTable)(d, table);
-}
-exports.__drawTable = __drawTable;
-try {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    var jsPDF = __webpack_require__(84);
-    // Webpack imported jspdf instead of jsPDF for some reason
-    // while it seemed to work everywhere else.
-    if (jsPDF.jsPDF)
-        jsPDF = jsPDF.jsPDF;
-    applyPlugin(jsPDF);
-}
-catch (error) {
-    // Importing jspdf in nodejs environments does not work as of jspdf
-    // 1.5.3 so we need to silence potential errors to support using for example
-    // the nodejs jspdf dist files with the exported applyPlugin
-}
-exports["default"] = autoTable;
+exports.autoTable = autoTable;
 
 }();
 /******/ 	return __webpack_exports__;

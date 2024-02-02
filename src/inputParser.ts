@@ -33,7 +33,7 @@ export function parseInput(d: jsPDFDocument, current: UserOptions): TableInput {
 
   const document = doc.getDocumentOptions()
   const global = doc.getGlobalOptions()
-  validateOptions(doc, global, document, current)
+  validateOptions(global, document, current)
   const options = assign({}, global, document, current)
 
   let win: Window | undefined

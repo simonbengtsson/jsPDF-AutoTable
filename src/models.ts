@@ -80,11 +80,6 @@ export class Table {
   finalY?: number
   startPageNumber?: number
 
-  // Deprecated, use pageNumber instead
-  // Not using getter since:
-  // https://github.com/simonbengtsson/jsPDF-AutoTable/issues/596
-  pageCount = 1
-
   constructor(input: TableInput, content: ContentSettings) {
     this.id = input.id
     this.settings = input.settings
@@ -253,7 +248,7 @@ export class Cell {
     if (raw != null && typeof raw === 'object' && !Array.isArray(raw)) {
       this.rowSpan = raw.rowSpan || 1
       this.colSpan = raw.colSpan || 1
-      content = raw.content ?? raw.title ?? raw
+      content = raw.content ?? raw
       if (raw._element) {
         this.raw = raw._element
       }
@@ -291,7 +286,6 @@ export class Cell {
     return { x, y }
   }
 
-  // TODO (v4): replace parameters with only (lineHeight)
   getContentHeight(scaleFactor: number, lineHeightFactor: number = 1.15) {
     const lineCount = Array.isArray(this.text) ? this.text.length : 1
     const lineHeight = (this.styles.fontSize / scaleFactor) * lineHeightFactor

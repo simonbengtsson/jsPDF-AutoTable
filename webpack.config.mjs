@@ -21,22 +21,16 @@ export default (env) => {
       extensions: ['.ts', '.js'],
     },
     output: {
+      library: {
+        name: 'jspdf-autotable',
+        type: 'umd',
+      },
       path: outputPath,
       filename: '[name].js',
-      libraryTarget: 'umd',
-      globalObject:
-        "typeof globalThis !== 'undefined' ? globalThis : typeof this !== 'undefined' ? this : typeof window !== 'undefined' ? window : typeof self !== 'undefined' ? self : global ",
+      globalObject: "typeof self !== 'undefined' ? self : this",
     },
     module: {
       rules: [{ test: /\.ts$/, use: [{ loader: 'ts-loader' }] }],
-    },
-    externals: {
-      jspdf: {
-        commonjs: 'jspdf',
-        commonjs2: 'jspdf',
-        amd: 'jspdf',
-        root: 'jspdf',
-      },
     },
     performance: { hints: false },
     devServer: {

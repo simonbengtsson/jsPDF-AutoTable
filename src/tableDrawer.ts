@@ -75,9 +75,6 @@ export function drawTable(jsPDFDoc: jsPDFDocument, table: Table): void {
 
   table.finalY = cursor.y
   jsPDFDoc.lastAutoTable = table
-  jsPDFDoc.previousAutoTable = table // Deprecated
-
-  if (jsPDFDoc.autoTable) jsPDFDoc.autoTable.previous = table // Deprecated
 
   doc.applyStyles(doc.userStyles)
 }
@@ -460,7 +457,6 @@ function drawCellRect(doc: DocHandler, cell: Cell, cursor: Pos) {
   const cellStyles = cell.styles
 
   // https://github.com/simonbengtsson/jsPDF-AutoTable/issues/774
-  // TODO (v4): better solution?
   doc.getDocument().setFillColor(doc.getDocument().getFillColor())
 
   if (typeof cellStyles.lineWidth === 'number') {
@@ -599,7 +595,6 @@ export function addPage(
   addTableBorder(doc, table, startPos, cursor)
   nextPage(doc)
   table.pageNumber++
-  table.pageCount++
   cursor.x = margin.left
   cursor.y = margin.top
   startPos.y = margin.top

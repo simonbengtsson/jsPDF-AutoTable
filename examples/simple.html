@@ -1,75 +1,79 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Simple example</title>
-  </head>
-  <style>
-    html {
-      box-sizing: border-box;
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Simple example</title>
+</head>
+<style>
+  html {
+    box-sizing: border-box;
+  }
+
+  *,
+  *:before,
+  *:after {
+    box-sizing: inherit;
+  }
+</style>
+
+<body>
+  <button onclick="generate()">Generate pdf</button>
+
+  <script src="libs/jspdf.umd.js"></script>
+  <script src="../dist/jspdf.plugin.autotable.js"></script>
+
+  <table id="table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>First name</th>
+        <th>Last name</th>
+        <th>Email</th>
+        <th>Country</th>
+        <th>IP-address</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>1</td>
+        <td>Donna</td>
+        <td>Moore</td>
+        <td>dmoore0@furl.net</td>
+        <td>China</td>
+        <td>211.56.242.221</td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td>Janice</td>
+        <td>Henry</td>
+        <td>jhenry1@theatlantic.com</td>
+        <td>Ukraine</td>
+        <td>38.36.7.199</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <script>
+    function generate() {
+      const doc = new window.jspdf.jsPDF()
+      const { autoTable } = window['jspdf-autotable']
+
+      // Simple data example
+      const head = [['ID', 'Country', 'Rank', 'Capital']]
+      const body = [
+        [1, 'Denmark', 7.526, 'Copenhagen'],
+        [2, 'Switzerland', 7.509, 'Bern'],
+        [3, 'Iceland', 7.501, 'Reykjavík'],
+      ]
+      autoTable(doc, { head: head, body: body })
+
+      // Simple html example
+      autoTable(doc, { html: '#table' })
+
+      doc.save('table.pdf')
     }
+  </script>
+</body>
 
-    *,
-    *:before,
-    *:after {
-      box-sizing: inherit;
-    }
-  </style>
-  <body>
-    <button onclick="generate()">Generate pdf</button>
-
-    <script src="libs/jspdf.umd.js"></script>
-    <script src="../dist/jspdf.plugin.autotable.js"></script>
-
-    <table id="table">
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>First name</th>
-          <th>Last name</th>
-          <th>Email</th>
-          <th>Country</th>
-          <th>IP-address</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>1</td>
-          <td>Donna</td>
-          <td>Moore</td>
-          <td>dmoore0@furl.net</td>
-          <td>China</td>
-          <td>211.56.242.221</td>
-        </tr>
-        <tr>
-          <td>2</td>
-          <td>Janice</td>
-          <td>Henry</td>
-          <td>jhenry1@theatlantic.com</td>
-          <td>Ukraine</td>
-          <td>38.36.7.199</td>
-        </tr>
-      </tbody>
-    </table>
-
-    <script>
-      function generate() {
-        var doc = new jspdf.jsPDF()
-
-        // Simple data example
-        var head = [['ID', 'Country', 'Rank', 'Capital']]
-        var body = [
-          [1, 'Denmark', 7.526, 'Copenhagen'],
-          [2, 'Switzerland', 7.509, 'Bern'],
-          [3, 'Iceland', 7.501, 'Reykjavík'],
-        ]
-        doc.autoTable({ head: head, body: body })
-
-        // Simple html example
-        doc.autoTable({ html: '#table' })
-
-        doc.save('table.pdf')
-      }
-    </script>
-  </body>
 </html>

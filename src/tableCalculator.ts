@@ -137,7 +137,7 @@ function generateSectionRow(
 function getSectionTitle(section: Section, column: ColumnInput) {
   if (section === 'head') {
     if (typeof column === 'object') {
-      return column.header || column.title || null
+      return column.header || null
     } else if (typeof column === 'string' || typeof column === 'number') {
       return column
     }
@@ -151,7 +151,7 @@ function createColumns(columns: ColumnInput[]) {
   return columns.map((input, index) => {
     let key
     if (typeof input === 'object') {
-      key = input.dataKey ?? input.key ?? index
+      key = input.dataKey ?? index
     } else {
       key = index
     }

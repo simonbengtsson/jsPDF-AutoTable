@@ -3,6 +3,7 @@
   "version": "3.8.1",
   "description": "Generate pdf tables with javascript (jsPDF plugin)",
   "main": "dist/jspdf.plugin.autotable.js",
+  "module": "dist/jspdf.plugin.autotable.mjs",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -34,6 +35,7 @@
   },
   "devDependencies": {
     "@rollup/plugin-typescript": "^11.1.5",
+    "@types/jsdom": "^21.1.6",
     "@types/mocha": "^10.0.2",
     "@typescript-eslint/eslint-plugin": "^6.7.5",
     "@typescript-eslint/parser": "^6.7.5",

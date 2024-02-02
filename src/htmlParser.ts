@@ -5,7 +5,8 @@ import { HtmlRowInput } from './config'
 export function parseHtml(
   doc: DocHandler,
   input: HTMLTableElement | string,
-  window: Window,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  window: any,
   includeHiddenHtml = false,
   useCss = false,
 ): { head: HtmlRowInput[]; body: HtmlRowInput[]; foot: HtmlRowInput[] } {
