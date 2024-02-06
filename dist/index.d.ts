@@ -158,11 +158,14 @@ export declare class Row {
 		[key: string]: Cell;
 	};
 	spansMultiplePages: boolean;
+	isBreakPage: boolean;
+	keepPage: boolean;
 	height: number;
 	constructor(raw: RowInput | HTMLTableRowElement, index: number, section: Section, cells: {
 		[key: string]: Cell;
 	}, spansMultiplePages?: boolean);
 	getMaxCellHeight(columns: Column[]): number;
+	getMaxCellHeightNoRowSpan(columns: Column[]): number;
 	hasRowSpan(columns: Column[]): boolean;
 	canEntireRowFit(height: number, columns: Column[]): boolean;
 	getMinimumRowHeight(columns: Column[], doc: DocHandler): number;

@@ -166,6 +166,8 @@ export class Row {
   readonly cells: { [key: string]: Cell }
   spansMultiplePages: boolean
 
+  isBreakPage = false;
+  keepPage = false;
   height = 0
 
   constructor(
@@ -189,6 +191,13 @@ export class Row {
   getMaxCellHeight(columns: Column[]) {
     return columns.reduce(
       (acc, column) => Math.max(acc, this.cells[column.index]?.height || 0),
+      0,
+    )
+  }
+
+  getMaxCellHeightNoRowSpan(columns: Column[]) {
+    return columns.reduce(
+      (acc, column) => Math.max(acc, this.cells[column.index]?.rowSpan > 1 ? 0 : (this.cells[column.index]?.height || 0)),
       0,
     )
   }

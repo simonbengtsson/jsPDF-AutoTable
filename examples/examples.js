@@ -708,6 +708,132 @@ examples.horizontalPageBreakBehaviour = function () {
   return doc
 }
 
+
+
+examples.complexData = function () {
+    var doc = new jsPDF('l', 'px', 'a4', true)
+      doc.addFileToVFS('TimeNewRomanN.ttf', Font.TimeNewRomanNomal);
+      doc.addFileToVFS('TimeNewRomanB.ttf', Font.TimeNewRomanBold);
+      doc.addFileToVFS('TimeNewRomanI.ttf', Font.TimeNewRomanItalic);
+      doc.addFileToVFS('TimeNewRomanBI.ttf', Font.TimeNewRomanBoldItalic);
+
+      doc.addFont('TimeNewRomanN.ttf', 'TimeNewRomanN', 'normal');
+      doc.addFont('TimeNewRomanB.ttf', 'TimeNewRomanB', 'normal');
+      doc.addFont('TimeNewRomanI.ttf', 'TimeNewRomanI', 'normal');
+      doc.addFont('TimeNewRomanBI.ttf', 'TimeNewRomanBI', 'normal');
+    doc.setFontSize(11)
+    var fontSize = 8;
+    var obj = {
+        ...complexData,
+        didParseCell: (table) => {
+            table.cell.styles.textColor = '#000000';
+            if (!table.cell.styles.cellPadding)
+                table.cell.styles.cellPadding = { top: 1.5, right: 3, left: 3, bottom: 1.5 };
+            if (!table.cell.styles.fontSize)
+                table.cell.styles.fontSize = fontSize ? fontSize : 8;
+            table.cell.styles.lineColor = [0, 0, 0];
+            table.cell.styles.font = table.cell.styles.font ? table.cell.styles.font : 'TimeNewRomanN';
+
+            if (table.section === 'head' || table.section === 'foot') {
+                if ((table.cell.raw)?.styles?.cellWidth && Number((table.cell.raw)?.styles?.cellWidth) > 5) {
+                    table.cell.width = Number((table.cell.raw)?.styles?.cellWidth);
+                }
+                table.cell.styles.font = 'TimeNewRomanB';
+                table.cell.styles.fillColor = '#e9eff6';
+                table.cell.styles.lineWidth = 0.2;
+            }
+
+            if (table.cell.styles?.fontStyle === 'bold') {
+                table.cell.styles.font = 'TimeNewRomanB'
+            }
+            if (table.cell.styles?.fontStyle === 'italic') {
+                table.cell.styles.font = 'TimeNewRomanI'
+            }
+            if (table.cell.styles?.fontStyle === 'bolditalic') {
+                table.cell.styles.font = 'TimeNewRomanBI'
+            }
+
+            if (table.section === 'body') {
+                table.cell.styles.lineWidth = 0;
+            }
+
+
+        },
+        didDrawCell(data) {
+            //data.cell.width
+            let { x, y } = data.cursor;
+            let h = data.cell.height;
+            let w = data.cell.width;
+
+            const cell = data.cell.raw;
+
+
+
+            if (data.section == 'body') {
+
+                const doc = (data.doc);
+                doc.setLineWidth(0.2);
+                doc.line(x, y, x, y + h);//left
+                doc.line(x + w, y, x + w, y + h);//right
+                const isLastRow = data.row.index == data.table.allRows()?.length - 1;
+
+                if (!isLastRow) {
+                    doc.setLineDashPattern([1, 1], 0);
+                }
+
+                if (isLastRow) {
+                    debugger
+                }
+                if (!isLastRow || !foot.length)
+                    doc.line(x, y + h, x + w, y + h);//bottom
+                doc.setLineDashPattern([], 0);
+            }
+        }
+    }
+    autoTable(doc,obj)
+    return doc
+}
+
+
+examples.breakRowData = function () {
+    var doc = new jsPDF('p', 'px', 'a4', true)
+      doc.addFileToVFS('TimeNewRomanN.ttf', Font.TimeNewRomanNomal);
+      doc.addFileToVFS('TimeNewRomanB.ttf', Font.TimeNewRomanBold);
+      doc.addFileToVFS('TimeNewRomanI.ttf', Font.TimeNewRomanItalic);
+      doc.addFileToVFS('TimeNewRomanBI.ttf', Font.TimeNewRomanBoldItalic);
+
+      doc.addFont('TimeNewRomanN.ttf', 'TimeNewRomanN', 'normal');
+      doc.addFont('TimeNewRomanB.ttf', 'TimeNewRomanB', 'normal');
+      doc.addFont('TimeNewRomanI.ttf', 'TimeNewRomanI', 'normal');
+      doc.addFont('TimeNewRomanBI.ttf', 'TimeNewRomanBI', 'normal');
+    doc.setFontSize(11)
+    var fontSize = 9;
+    var obj = {
+        ...breakRowData,
+        didParseCell: (table) => {
+            table.cell.styles.textColor = '#000000';
+            table.cell.styles.cellPadding = { top: 1.5, right: 1.5, left: 1.5, bottom: 1.5 };
+            table.cell.styles.fontSize = fontSize;
+            table.cell.styles.font = 'TimeNewRomanN';
+
+            if (table.section === 'head' || table.section === 'foot') {
+                if ((table.cell.raw)?.width && Number((table.cell.raw)?.width) > 2) {
+                    table.cell.width = Number((table.cell.raw).width);
+                    table.cell.styles.cellWidth = Number((table.cell.raw).width);
+                }
+                table.cell.styles.font = 'TimeNewRomanB';
+                table.cell.styles.fillColor = '#e9eff6';
+                table.cell.styles.lineWidth = 0.2;
+            }
+            if (table.cell.styles?.fontStyle === 'bold') {
+                table.cell.styles.font = 'TimeNewRomanB'
+            }
+        }        
+    }
+    autoTable(doc,obj)
+    return doc
+}
+
 /*
  |--------------------------------------------------------------------------
  | Below is some helper functions for the examples
