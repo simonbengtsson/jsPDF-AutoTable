@@ -123,4 +123,19 @@ describe('html parser', () => {
     assert.equal(res.data[0][0].content, 'body', 'Should have body content')
     assert.equal(res.columns[0], 'head', 'Should have head content')
   })
+
+  it('autoTableHtmlToJson should work with tables without head', () => {
+    ;(global as any).window = dom.window
+    ;(global as any).HTMLTableElement = dom.window.HTMLTableElement
+    const table = dom.window.document.createElement('table')
+    let body = table.createTBody()
+    let brow = body.insertRow()
+    brow.insertCell().textContent = 'body'
+    brow.insertCell().textContent = 'body 2'
+    const doc: any = new jsPDF()
+    const res = doc.autoTableHtmlToJson(table)
+    assert.equal(res.data[0].length, 2, 'Should have body cell')
+    assert.equal(res.data[0][0].content, 'body', 'Should have body content')
+    assert.equal(res.columns.length, 0, 'Should have empty head columns array')
+  })
 })
