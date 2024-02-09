@@ -65,7 +65,7 @@ export default function (jsPDF: jsPDFConstructor) {
       includeHiddenElements,
       false,
     )
-    const columns = head[0].map((c) => c.content)
+    const columns = head[0]?.map((c) => c.content) || []
     return { columns, rows: body, data: body }
   }
 
