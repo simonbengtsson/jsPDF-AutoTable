@@ -7,7 +7,7 @@ jobs:
   stale:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/stale@v3
+      - uses: actions/stale@v4
         with:
           stale-issue-message: 'This issue will soon be closed since issues in this project are mainly meant to be bugs or feature requests. Questions are directed to stackoverflow.'
           stale-issue-label: 'stale'
