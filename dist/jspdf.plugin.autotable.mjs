@@ -284,18 +284,18 @@ var HtmlRowInput = /** @class */ (function (_super) {
 // Base style for all themes
 function defaultStyles(scaleFactor) {
     return {
-        font: 'helvetica',
-        fontStyle: 'normal',
-        overflow: 'linebreak',
-        fillColor: false,
+        font: 'helvetica', // helvetica, times, courier
+        fontStyle: 'normal', // normal, bold, italic, bolditalic
+        overflow: 'linebreak', // linebreak, ellipsize, visible or hidden
+        fillColor: false, // Either false for transparent, rbg array e.g. [255, 255, 255] or gray level e.g 200
         textColor: 20,
-        halign: 'left',
-        valign: 'top',
+        halign: 'left', // left, center, right, justify
+        valign: 'top', // top, middle, bottom
         fontSize: 10,
-        cellPadding: 5 / scaleFactor,
+        cellPadding: 5 / scaleFactor, // number or {top,left,right,left,vertical,horizontal}
         lineColor: 200,
         lineWidth: 0,
-        cellWidth: 'auto',
+        cellWidth: 'auto', // 'auto'|'wrap'|number
         minCellHeight: 0,
         minCellWidth: 0,
     };
@@ -2179,14 +2179,15 @@ function _applyPlugin (jsPDF) {
         DocHandler.setDefaults(defaults, doc);
     };
     jsPDF.API.autoTableHtmlToJson = function (tableElem, includeHiddenElements) {
+        var _a;
         if (includeHiddenElements === void 0) { includeHiddenElements = false; }
         if (typeof window === 'undefined') {
             console.error('Cannot run autoTableHtmlToJson in non browser environment');
             return null;
         }
         var doc = new DocHandler(this);
-        var _a = parseHtml(doc, tableElem, window, includeHiddenElements, false), head = _a.head, body = _a.body;
-        var columns = head[0].map(function (c) { return c.content; });
+        var _b = parseHtml(doc, tableElem, window, includeHiddenElements, false), head = _b.head, body = _b.body;
+        var columns = ((_a = head[0]) === null || _a === void 0 ? void 0 : _a.map(function (c) { return c.content; })) || [];
         return { columns: columns, rows: body, data: body };
     };
     /**
