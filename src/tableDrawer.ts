@@ -379,7 +379,7 @@ function splitRowSpan(
 ) {
   const pageHeight = doc.pageSize().height
   const margin = table.settings.margin
-  const marginHeight = margin.top + margin.bottom
+  const marginHeight = margin.top + Math.max(5, margin.bottom)
   let maxRowHeight = pageHeight - marginHeight
   if (row.section === 'body') {
     // Should also take into account that head and foot is not
@@ -402,12 +402,11 @@ function splitRowSpan(
   }
 
   const rowHasRowSpanCell = row.hasRowSpan(table.columns)
-  //const rowHeight = row.getMaxCellHeight(table.columns);
-  //console.log('rowHeight: ' + rowHeight, row)
-  //console.log('maxRowHeight: ' + maxRowHeight, row)
   const minRemaining = Math.min(remainingPageSpace, maxRowHeight);
   const rowHigherThanPage = row.getMaxCellHeight(table.columns) > minRemaining;
-  
+  const rowHeightWithoutRowSpan = row.getMaxCellHeightNoRowSpan(table.columns);
+  if (rowHeightWithoutRowSpan >= minRemaining) return false;
+
   if (rowHigherThanPage) {
     if (rowHasRowSpanCell) {
       let idx = table.body.indexOf(row);
@@ -423,16 +422,11 @@ function splitRowSpan(
           let nextRowIdx = idx;
 
           if (idx >= 0) {
-
-
             for (let v = idx + 1; v < table.body.length; v++) {
-
               if (currentHeight < minRemaining) {
-
                 nextRowIdx = v;
                 currentHeight += table.body[v].getMaxCellHeightNoRowSpan(table.columns);
               }
-
             }
             if (nextRowIdx - 1 <= idx) {
               nextRowIdx = idx + 1;
@@ -456,8 +450,7 @@ function splitRowSpan(
           cloneCell.height = cellHeight - height;
           nextRow!.cells[c.index] = cloneCell;
 
-          cell.height = height;
-          //row.height = maxRowHeight;
+          cell.height = height;          
         }
       })
 
