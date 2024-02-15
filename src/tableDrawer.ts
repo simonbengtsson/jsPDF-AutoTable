@@ -370,6 +370,105 @@ function shouldPrintOnCurrentPage(
   return true
 }
 
+
+function splitRowSpan(
+  doc: DocHandler,
+  row: Row,
+  remainingPageSpace: number,
+  table: Table,
+) {
+  const pageHeight = doc.pageSize().height
+  const margin = table.settings.margin
+  const marginHeight = margin.top + margin.bottom
+  let maxRowHeight = pageHeight - marginHeight
+  if (row.section === 'body') {
+    // Should also take into account that head and foot is not
+    // on every page with some settings
+    maxRowHeight -=
+      table.getHeadHeight(table.columns) + table.getFootHeight(table.columns)
+  }
+
+  const minRowHeight = row.getMinimumRowHeight(table.columns, doc)
+  const minRowFits = minRowHeight < remainingPageSpace
+  if (minRowHeight > maxRowHeight) {
+    console.error(
+      `Will not be able to print row ${row.index} correctly since it's minimum height is larger than page height`,
+    )
+    return true
+  }
+
+  if (!minRowFits) {
+    return false
+  }
+
+  const rowHasRowSpanCell = row.hasRowSpan(table.columns)
+  //const rowHeight = row.getMaxCellHeight(table.columns);
+  //console.log('rowHeight: ' + rowHeight, row)
+  //console.log('maxRowHeight: ' + maxRowHeight, row)
+  const minRemaining = Math.min(remainingPageSpace, maxRowHeight);
+  const rowHigherThanPage = row.getMaxCellHeight(table.columns) > minRemaining;
+  
+  if (rowHigherThanPage) {
+    if (rowHasRowSpanCell) {
+      let idx = table.body.indexOf(row);
+
+      row.keepPage = true;
+
+      table.columns.forEach(c => {
+        let cell = row.cells[c.index];
+        let cellHeight = cell?.height || 0;
+        if (cellHeight > minRemaining) {
+          let nextRow: Row | null = null;
+          var currentHeight = row.height;
+          let nextRowIdx = idx;
+
+          if (idx >= 0) {
+
+
+            for (let v = idx + 1; v < table.body.length; v++) {
+
+              if (currentHeight < minRemaining) {
+
+                nextRowIdx = v;
+                currentHeight += table.body[v].getMaxCellHeightNoRowSpan(table.columns);
+              }
+
+            }
+            if (nextRowIdx - 1 <= idx) {
+              nextRowIdx = idx + 1;
+            } else {
+              nextRowIdx = nextRowIdx - 1;
+            }
+            nextRow = table.body[nextRowIdx];
+          }
+          if (!nextRow) return false;
+          nextRow.isBreakPage = true;
+          var height = 0;
+          for (let v = idx; v <= nextRowIdx - 1; v++) {
+            height += table.body[v].getMaxCellHeightNoRowSpan(table.columns);
+            table.body[v].keepPage = true;
+          }
+
+          let cloneCell = new Cell(cell.raw, cell.styles, cell.section)
+          cloneCell = assign(cloneCell, cell)
+          cloneCell.text = cell.text;
+
+          cloneCell.height = cellHeight - height;
+          nextRow!.cells[c.index] = cloneCell;
+
+          cell.height = height;
+          //row.height = maxRowHeight;
+        }
+      })
+
+      return true
+    }
+
+  }
+
+  return false;
+}
+
 function printFullRow(
   doc: DocHandler,
   table: Table,
@@ -380,8 +479,15 @@ function printFullRow(
   columns: Column[],
 ) {
   const remainingSpace = getRemainingPageSpace(doc, table, isLastRow, cursor)
-  if (row.canEntireRowFit(remainingSpace, columns)) {
+  if (row.isBreakPage) {
+    addPage(doc, table, startPos, cursor, columns)
+    row.isBreakPage = false;
+    printFullRow(doc, table, row, isLastRow, startPos, cursor, columns)
+  } else if (splitRowSpan(doc, row, remainingSpace, table)) {
+    //console.log('splitRowSpan', row)
     // The row fits in the current page
+    printRow(doc, table, row, cursor, columns)
+  } else if (row.canEntireRowFit(remainingSpace, columns) || row.keepPage) {
     printRow(doc, table, row, cursor, columns)
   } else if (shouldPrintOnCurrentPage(doc, row, remainingSpace, table)) {
     // The row gets split in two here, each piece in one page
