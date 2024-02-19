@@ -1,7 +1,5 @@
 import { Table } from './models'
-import { Color, Styles, UserOptions } from './config'
-
-let globalDefaults: UserOptions = {}
+import { Color, Styles } from './config'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type jsPDFConstructor = any
@@ -140,14 +138,6 @@ export class DocHandler {
 
   getFontList(): { [key: string]: string[] | undefined } {
     return this.jsPDFDocument.getFontList()
-  }
-
-  getGlobalOptions(): UserOptions {
-    return globalDefaults || {}
-  }
-
-  getDocumentOptions(): UserOptions {
-    return this.jsPDFDocument.__autoTableDocumentDefaults || {}
   }
 
   pageSize(): { width: number; height: number } {

@@ -240,6 +240,8 @@ autoTable(doc, {
 })
 ```
 
+If `willDrawCell` explicitly returned `false`, cell will be skipped and it won't be drawn, do this when you handle drawing the cell's border & content yourself inside `willDrawCell`.
+
 ## API
 
 - `const table = autoTable(doc, { /* options */ })`

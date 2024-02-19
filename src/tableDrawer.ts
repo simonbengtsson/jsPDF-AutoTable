@@ -34,7 +34,7 @@ export function drawTable(jsPDFDoc: jsPDFDocument, table: Table): void {
     nextPage(doc)
     cursor.y = margin.top
   }
-  table.callWillDrawPageHooks(doc, cursor)
+  table.callWillDrawPageHook(doc, cursor)
 
   const startPos = assign({}, cursor)
 
@@ -71,7 +71,7 @@ export function drawTable(jsPDFDoc: jsPDFDocument, table: Table): void {
   }
 
   addTableBorder(doc, table, startPos, cursor)
-  table.callEndPageHooks(doc, cursor)
+  table.callEndPageHook(doc, cursor)
 
   table.finalY = cursor.y
 
@@ -414,7 +414,7 @@ function printRow(
     cell.x = cursor.x
     cell.y = cursor.y
 
-    const result = table.callCellHooks(
+    const result = table.callCellHook(
       doc,
       table.hooks.willDrawCell,
       cell,
@@ -422,6 +422,7 @@ function printRow(
       column,
       cursor,
     )
+    // Skip cell if hook explicitly returned false
     if (result === false) {
       cursor.x += column.width
       continue
@@ -444,7 +445,7 @@ function printRow(
       doc.getDocument(),
     )
 
-    table.callCellHooks(doc, table.hooks.didDrawCell, cell, row, column, cursor)
+    table.callCellHook(doc, table.hooks.didDrawCell, cell, row, column, cursor)
 
     cursor.x += column.width
   }
@@ -588,7 +589,7 @@ export function addPage(
 
   // Add user content just before adding new page ensure it will
   // be drawn above other things on the page
-  table.callEndPageHooks(doc, cursor)
+  table.callEndPageHook(doc, cursor)
 
   const margin = table.settings.margin
   addTableBorder(doc, table, startPos, cursor)
@@ -598,8 +599,8 @@ export function addPage(
   cursor.y = margin.top
   startPos.y = margin.top
 
-  // call didAddPage hooks before any content is added to the page
-  table.callWillDrawPageHooks(doc, cursor)
+  // call didAddPage hook before any content is added to the page
+  table.callWillDrawPageHook(doc, cursor)
 
   if (table.settings.showHead === 'everyPage') {
     table.head.forEach((row: Row) => printRow(doc, table, row, cursor, columns))
