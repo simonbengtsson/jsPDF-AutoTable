@@ -29,4 +29,12 @@ describe('runner', () => {
     })
     assert.equal(doc.getCurrentPageInfo().pageNumber, 2)
   })
+
+  it('return table', () => {
+    const doc = new jsPDF()
+    const table = autoTable(doc, {
+      body: [['test']],
+    })
+    assert(table.finalY)
+  })
 })
