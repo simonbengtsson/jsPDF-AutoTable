@@ -240,18 +240,9 @@ autoTable(doc, {
 
 ## API
 
-- `doc.autoTable({ /* options */ })`
-- `autoTable(doc, { /* options */ })`
+- `const table = autoTable(doc, { /* options */ })`
 
-If you want to know something about the last table that was drawn you can use `doc.lastAutoTable`. It has a `doc.lastAutoTable.finalY` property among other things that has the value of the last printed y coordinate on a page. This can be used to draw text, multiple tables or other content after a table.
-
-In addition to the exported autoTable(doc, options) method you can also use applyPlugin to add the autoTable api to any jsPDF instance.
-
-```
-import jsPDF from 'jspdf/dist/jspdf.node.debug'
-import { applyPlugin } from 'jspdf-autotable'
-applyPlugin(jsPDF)
-```
+If you want to know something about the table that was drawn you can get the returned table. It has a `table.finalY` property among other things that has the value of the last printed y coordinate on a page. This can be used to draw text, multiple tables or other content after a table.
 
 ## Contributions
 

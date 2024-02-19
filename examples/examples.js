@@ -24,12 +24,12 @@ examples.basic = function () {
   const doc = new jsPDF()
 
   // From HTML
-  autoTable(doc, { html: '.table' })
+  const table1 = autoTable(doc, { html: '.table' })
 
   // From Javascript
-  let finalY = doc.lastAutoTable.finalY || 10
+  let finalY = table1.finalY || 10
   doc.text('From javascript arrays', 14, finalY + 15)
-  autoTable(doc, {
+  const table2 = autoTable(doc, {
     startY: finalY + 20,
     head: [['ID', 'Name', 'Email', 'Country', 'IP-address']],
     body: [
@@ -48,7 +48,7 @@ examples.basic = function () {
     ],
   })
 
-  finalY = doc.lastAutoTable.finalY
+  finalY = table2.finalY
   doc.text('From HTML with CSS', 14, finalY + 15)
   autoTable(doc, {
     startY: finalY + 20,
@@ -82,7 +82,7 @@ examples.long = function () {
   })
 
   doc.text("Overflow 'ellipsize' with one column with long content", 14, 20)
-  autoTable(doc, {
+  const table = autoTable(doc, {
     head: head,
     body: body,
     startY: 25,
@@ -94,12 +94,12 @@ examples.long = function () {
   doc.text(
     "Overflow 'linebreak' (default) with one column with long content",
     14,
-    doc.lastAutoTable.finalY + 10,
+    table.finalY + 10,
   )
   autoTable(doc, {
     head: head,
     body: body,
-    startY: doc.lastAutoTable.finalY + 15,
+    startY: table.finalY + 15,
     rowPageBreak: 'auto',
     bodyStyles: { valign: 'top' },
   })
@@ -122,14 +122,14 @@ examples.content = function () {
   const text = doc.splitTextToSize(faker.lorem.sentence(45), pageWidth - 35, {})
   doc.text(text, 14, 30)
 
-  autoTable(doc, {
+  const table = autoTable(doc, {
     head: headRows(),
     body: bodyRows(40),
     startY: 50,
     showHead: 'firstPage',
   })
 
-  doc.text(text, 14, doc.lastAutoTable.finalY + 10)
+  doc.text(text, 14, table.finalY + 10)
 
   return doc
 }
@@ -139,7 +139,7 @@ examples.multiple = function () {
   const doc = new jsPDF()
   doc.text('Multiple tables', 14, 20)
 
-  autoTable(doc, { startY: 30, head: headRows(), body: bodyRows(25) })
+  const table1 = autoTable(doc, { startY: 30, head: headRows(), body: bodyRows(25) })
 
   const pageNumber = doc.internal.getNumberOfPages()
 
@@ -150,7 +150,7 @@ examples.multiple = function () {
       { dataKey: 'expenses', header: 'Sum' },
     ],
     body: bodyRows(15),
-    startY: 240,
+    startY: table1.finalY + 10,
     showHead: 'firstPage',
     styles: { overflow: 'hidden' },
     margin: { right: 107 },
@@ -158,26 +158,29 @@ examples.multiple = function () {
 
   doc.setPage(pageNumber)
 
-  autoTable(doc, {
+  const table2 = autoTable(doc, {
     columns: [
       { dataKey: 'id', header: 'ID' },
       { dataKey: 'name', header: 'Name' },
       { dataKey: 'expenses', header: 'Sum' },
     ],
     body: bodyRows(15),
-    startY: 240,
+    startY: table1.finalY + 10,
     showHead: 'firstPage',
     styles: { overflow: 'hidden' },
     margin: { left: 107 },
   })
 
+  let finalY = table2.finalY
+
   for (let j = 0; j < 3; j++) {
-    autoTable(doc, {
+    const table = autoTable(doc, {
       head: headRows(),
       body: bodyRows(),
-      startY: doc.lastAutoTable.finalY + 10,
+      startY: finalY + 10,
       pageBreak: 'avoid',
     })
+    finalY = table.finalY
   }
 
   return doc
@@ -290,21 +293,21 @@ examples.themes = function () {
   const doc = new jsPDF()
 
   doc.text('Theme "striped"', 14, 16)
-  autoTable(doc, { head: headRows(), body: bodyRows(5), startY: 20 })
+  const table1 = autoTable(doc, { head: headRows(), body: bodyRows(5), startY: 20 })
 
-  doc.text('Theme "grid"', 14, doc.lastAutoTable.finalY + 10)
-  autoTable(doc, {
+  doc.text('Theme "grid"', 14, table1.finalY + 10)
+  const table2 = autoTable(doc, {
     head: headRows(),
     body: bodyRows(5),
-    startY: doc.lastAutoTable.finalY + 14,
+    startY: table1.finalY + 14,
     theme: 'grid',
   })
 
-  doc.text('Theme "plain"', 14, doc.lastAutoTable.finalY + 10)
+  doc.text('Theme "plain"', 14, table2.finalY + 10)
   autoTable(doc, {
     head: headRows(),
     body: bodyRows(5),
-    startY: doc.lastAutoTable.finalY + 14,
+    startY: table2.finalY + 14,
     theme: 'plain',
   })
 

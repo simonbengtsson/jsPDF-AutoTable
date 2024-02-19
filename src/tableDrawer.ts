@@ -74,7 +74,6 @@ export function drawTable(jsPDFDoc: jsPDFDocument, table: Table): void {
   table.callEndPageHooks(doc, cursor)
 
   table.finalY = cursor.y
-  jsPDFDoc.lastAutoTable = table
 
   doc.applyStyles(doc.userStyles)
 }
