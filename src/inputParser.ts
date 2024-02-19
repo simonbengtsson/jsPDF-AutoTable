@@ -1,17 +1,9 @@
 import { UserOptions, ColumnInput, RowInput, CellInput } from './config'
 import { parseHtml } from './htmlParser'
-import { assign } from './polyfills'
 import { parseSpacing } from './common'
 import { DocHandler, jsPDFDocument } from './documentHandler'
-import validateOptions from './inputValidator'
-import {
-  StyleProp,
-  StylesProps,
-  CellHook,
-  PageHook,
-  Settings,
-  HookProps,
-} from './models'
+import { validateOptions } from './inputValidator'
+import { StylesProps, HookProps, Settings } from './models'
 
 interface ContentInput {
   body: RowInput[]
@@ -28,26 +20,26 @@ export interface TableInput {
   content: ContentInput
 }
 
-export function parseInput(d: jsPDFDocument, current: UserOptions): TableInput {
-  const doc = new DocHandler(d)
+export function parseInput(
+  jsPDFDoc: jsPDFDocument,
+  options: UserOptions,
+): TableInput {
+  const doc = new DocHandler(jsPDFDoc)
 
-  const document = doc.getDocumentOptions()
-  const global = doc.getGlobalOptions()
-  validateOptions(global, document, current)
-  const options = assign({}, global, document, current)
+  validateOptions(options)
 
   let win: Window | undefined
   if (typeof window !== 'undefined') {
     win = window
   }
 
-  const styles = parseStyles(global, document, current)
-  const hooks = parseHooks(global, document, current)
+  const styles = parseStyles(options)
+  const hooks = parseHooks(options)
   const settings = parseSettings(doc, options)
   const content = parseContent(doc, options, win)
 
   return {
-    id: current.tableId,
+    id: options.tableId,
     content,
     hooks,
     styles,
@@ -55,11 +47,7 @@ export function parseInput(d: jsPDFDocument, current: UserOptions): TableInput {
   }
 }
 
-function parseStyles(
-  gInput: UserOptions,
-  dInput: UserOptions,
-  cInput: UserOptions,
-) {
+function parseStyles(options: UserOptions) {
   const styleOptions: StylesProps = {
     styles: {},
     headStyles: {},
@@ -68,43 +56,21 @@ function parseStyles(
     alternateRowStyles: {},
     columnStyles: {},
   }
-  for (const prop of Object.keys(styleOptions) as StyleProp[]) {
-    if (prop === 'columnStyles') {
-      const global = gInput[prop]
-      const document = dInput[prop]
-      const current = cInput[prop]
-      styleOptions.columnStyles = assign({}, global, document, current)
-    } else {
-      const allOptions = [gInput, dInput, cInput]
-      const styles = allOptions.map((opts) => opts[prop] || {})
-      styleOptions[prop] = assign({}, styles[0], styles[1], styles[2])
-    }
+  type Prop = keyof typeof styleOptions
+  for (const prop of Object.keys(styleOptions) as Prop[]) {
+    styleOptions[prop] = options[prop] ?? {}
   }
   return styleOptions
 }
 
-function parseHooks(
-  global: UserOptions,
-  document: UserOptions,
-  current: UserOptions,
-) {
-  const allOptions = [global, document, current]
-  const result = {
-    didParseCell: [] as CellHook[],
-    willDrawCell: [] as CellHook[],
-    didDrawCell: [] as CellHook[],
-    willDrawPage: [] as PageHook[],
-    didDrawPage: [] as PageHook[],
+function parseHooks(options: UserOptions): HookProps {
+  return {
+    didParseCell: options.didParseCell,
+    willDrawCell: options.willDrawCell,
+    didDrawCell: options.didDrawCell,
+    willDrawPage: options.willDrawPage,
+    didDrawPage: options.didDrawPage,
   }
-  for (const options of allOptions) {
-    if (options.didParseCell) result.didParseCell.push(options.didParseCell)
-    if (options.willDrawCell) result.willDrawCell.push(options.willDrawCell)
-    if (options.didDrawCell) result.didDrawCell.push(options.didDrawCell)
-    if (options.willDrawPage) result.willDrawPage.push(options.willDrawPage)
-    if (options.didDrawPage) result.didDrawPage.push(options.didDrawPage)
-  }
-
-  return result
 }
 
 function parseSettings(doc: DocHandler, options: UserOptions): Settings {

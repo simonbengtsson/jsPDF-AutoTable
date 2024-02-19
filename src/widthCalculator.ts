@@ -72,8 +72,7 @@ function calculate(doc: DocHandler, table: Table) {
     for (const column of table.columns) {
       const cell = row.cells[column.index]
       if (!cell) continue
-      const hooks = table.hooks.didParseCell
-      table.callCellHooks(doc, hooks, cell, row, column, null)
+      table.callCellHook(doc, table.hooks.didParseCell, cell, row, column, null)
 
       const padding = cell.padding('horizontal')
       cell.contentWidth = getStringWidth(cell.text, cell.styles, doc) + padding

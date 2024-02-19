@@ -16,11 +16,13 @@ export type PageHook = (data: HookData) => void | boolean
 export type CellHook = (data: CellHookData) => void | boolean
 
 export interface HookProps {
-  didParseCell: CellHook[]
-  willDrawCell: CellHook[]
-  didDrawCell: CellHook[]
-  willDrawPage: PageHook[]
-  didDrawPage: PageHook[]
+  // Make sure to use undefined union and not optional "?"
+  // so that all the keys are always present
+  didParseCell: CellHook | undefined
+  willDrawCell: CellHook | undefined
+  didDrawCell: CellHook | undefined
+  willDrawPage: PageHook | undefined
+  didDrawPage: PageHook | undefined
 }
 
 export interface Settings {
@@ -40,14 +42,6 @@ export interface Settings {
   horizontalPageBreakBehaviour?: 'immediately' | 'afterAllRows'
   horizontalPageBreakRepeat?: string | number | string[] | number[] | null
 }
-
-export type StyleProp =
-  | 'styles'
-  | 'headStyles'
-  | 'bodyStyles'
-  | 'footStyles'
-  | 'alternateRowStyles'
-  | 'columnStyles'
 
 export interface StylesProps {
   styles: Partial<Styles>
@@ -110,35 +104,32 @@ export class Table {
     return this.head.concat(this.body).concat(this.foot)
   }
 
-  callCellHooks(
+  callCellHook(
     doc: DocHandler,
-    handlers: CellHook[],
+    handler: CellHook | undefined,
     cell: Cell,
     row: Row,
     column: Column,
     cursor: { x: number; y: number } | null,
-  ): boolean {
-    for (const handler of handlers) {
+  ): void | boolean {
+    if (handler) {
       const data = new CellHookData(doc, this, cell, row, column, cursor)
-      const result = handler(data) === false
+      const result = handler(data)
       // Make sure text is always string[] since user can assign string
       cell.text = Array.isArray(cell.text) ? cell.text : [cell.text]
-      if (result) {
-        return false
-      }
+      return result
     }
-    return true
   }
 
-  callEndPageHooks(doc: DocHandler, cursor: { x: number; y: number }) {
+  callEndPageHook(doc: DocHandler, cursor: { x: number; y: number }) {
     doc.applyStyles(doc.userStyles)
-    for (const handler of this.hooks.didDrawPage) {
-      handler(new HookData(doc, this, cursor))
+    if (this.hooks.didDrawPage) {
+      this.hooks.didDrawPage(new HookData(doc, this, cursor))
     }
   }
-  callWillDrawPageHooks(doc: DocHandler, cursor: { x: number; y: number }) {
-    for (const handler of this.hooks.willDrawPage) {
-      handler(new HookData(doc, this, cursor))
+  callWillDrawPageHook(doc: DocHandler, cursor: { x: number; y: number }) {
+    if (this.hooks.willDrawPage) {
+      this.hooks.willDrawPage(new HookData(doc, this, cursor))
     }
   }
 

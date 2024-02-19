@@ -401,7 +401,6 @@ examples.custom = function () {
         halign: 'right',
       },
     },
-    allSectionHooks: true,
     // Use for customizing texts or styles of specific cells after they have been formatted by this plugin.
     // This hook is called just before the column width and other features are computed.
     didParseCell: function (data) {
@@ -558,7 +557,6 @@ examples.borders = function () {
         halign: 'right',
       },
     },
-    allSectionHooks: true,
     // Use for customizing texts or styles of specific cells after they have been formatted by this plugin.
     // This hook is called just before the column width and other features are computed.
     didParseCell: function (data) {
