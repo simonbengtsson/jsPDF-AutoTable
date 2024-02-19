@@ -13,11 +13,11 @@
  */
 
 const faker = window.faker
+const { jsPDF } = window.jspdf
+const { autoTable } = window['jspdf-autotable']
 
 const examples = {}
 window.examples = examples
-
-const { autoTable } = window['jspdf-autotable']
 
 // Basic - shows what a default table looks like
 examples.basic = function () {

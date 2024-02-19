@@ -39,14 +39,14 @@ autoTable(doc, {
 doc.save('table.pdf')
 ```
 
-You can also use the plugin methods directly on the jsPDF documents:
+CommonJS (require):
 
 ```js
-import jsPDF from 'jspdf'
-import 'jspdf-autotable'
+const { jsPDF } = require('jspdf')
+const { autoTable } = require('jspdf-autotable')
 
 const doc = new jsPDF()
-doc.autoTable({ html: '#my-table' })
+autoTable(doc, { /* ... */ })
 doc.save('table.pdf')
 ```
 
@@ -56,8 +56,10 @@ The third usage option is with downloaded or CDN dist files
 <script src="jspdf.min.js"></script>
 <script src="jspdf.plugin.autotable.min.js"></script>
 <script>
-  const doc = new jsPDF()
+  const { jsPDF } = window.jspdf
   const { autoTable } = window['jspdf-autotable']
+
+  const doc = new jsPDF()
   autoTable(doc, { html: '#my-table' })
   doc.save('table.pdf')
 </script>
@@ -68,7 +70,7 @@ Checkout more examples in [examples.js](examples) which is also the source code 
 ## Migrating to v4
 
 - Major: Only the `autoTable(doc, {...})` usage style is now supported and `doc.autoTable({...})` has been removed (see usage section above. Read more: #997)
-- Setting default options has been removed and can be replaced by keeping keeping track of this state yourself
+- Setting default options has been removed and can be replaced by keeping track of this state yourself
 - Removed old deprecations
 
 ## Options

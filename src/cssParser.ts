@@ -62,7 +62,6 @@ export function parseCss(
       }
     }
   }
-  console.log(result.lineWidth)
 
   const borderColor = parseColor(element, (elem) => {
     return window.getComputedStyle(elem)[borderColorSide]
