@@ -56,8 +56,10 @@
 
   <script>
     function generate() {
-      const doc = new window.jspdf.jsPDF()
+      const { jsPDF } = window.jspdf
       const { autoTable } = window['jspdf-autotable']
+
+      const doc = new jsPDF()
 
       // Simple data example
       const head = [['ID', 'Country', 'Rank', 'Capital']]
