@@ -6,10 +6,6 @@ import * as url from 'url'
 
 export default (env) => {
   const minified = !!env.minified
-  const packageJsonStr = fs.readFileSync('package.json')
-  const packageJson = JSON.parse(packageJsonStr)
-  const newVersion = packageJson.version
-  const currentYear = new Date().getFullYear()
   const __dirname = url.fileURLToPath(new url.URL('.', import.meta.url))
   const outputPath = path.join(__dirname, './')
 
@@ -40,17 +36,33 @@ export default (env) => {
       port: 9000,
     },
     plugins: [
-      new webpack.BannerPlugin(`
-              jsPDF AutoTable plugin v${newVersion}
-
-              Copyright (c) ${currentYear} Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable
-              Licensed under the MIT License.
-              http://opensource.org/licenses/mit-license
-          `),
+      new webpack.BannerPlugin({
+        banner: bannerString(),
+        raw: true,
+      }),
     ],
     optimization: {
       minimizer: [new TerserPlugin({ extractComments: false })],
       minimize: !!minified,
     },
   }
+}
+
+export function bannerString() {
+  const packageJsonStr = fs.readFileSync('package.json')
+  const packageJson = JSON.parse(packageJsonStr)
+  const version = packageJson.version
+  const currentYear = new Date().getFullYear()
+
+  const banner = `
+/**
+ *    jsPDF AutoTable plugin v${version}
+ *
+ *    Copyright (c) ${currentYear} Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable
+ *    Licensed under the MIT License.
+ *    http://opensource.org/licenses/mit-license
+ *
+ */
+  `
+  return banner.trim()
 }
