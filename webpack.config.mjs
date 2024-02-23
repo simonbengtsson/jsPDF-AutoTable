@@ -35,15 +35,9 @@ export default (env) => {
     performance: { hints: false },
     devServer: {
       static: {
-        directory: '.',
+        directory: './examples',
       },
       port: 9000,
-      proxy: {
-        '/libs/jspdf.plugin.autotable.js': {
-          target: 'http://localhost:9000/dist/',
-          pathRewrite: { '^/libs': '' },
-        },
-      },
     },
     plugins: [
       new webpack.BannerPlugin(`
