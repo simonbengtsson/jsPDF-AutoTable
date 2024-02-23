@@ -1,7 +1,8 @@
 {
   "compilerOptions": {
     "strict": true,
-    "target": "ES5"
+    "target": "ES6",
+    "moduleResolution": "bundler"
   },
   "include": ["src/**/*"]
 }

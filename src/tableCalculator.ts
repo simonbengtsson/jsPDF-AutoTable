@@ -10,7 +10,6 @@ import {
   Styles,
   ThemeName,
 } from './config'
-import { assign } from './polyfills'
 import { TableInput } from './inputParser'
 
 export function createTable(jsPDFDoc: jsPDFDocument, input: TableInput) {
@@ -177,7 +176,7 @@ function cellStyles(
   } else if (sectionName === 'foot') {
     sectionStyles = styles.footStyles
   }
-  const otherStyles = assign(
+  const otherStyles = Object.assign(
     {},
     theme.table,
     theme[sectionName],
@@ -191,15 +190,15 @@ function cellStyles(
   const colStyles = sectionName === 'body' ? columnStyles : {}
   const rowStyles =
     sectionName === 'body' && rowIndex % 2 === 0
-      ? assign({}, theme.alternateRow, styles.alternateRowStyles)
+      ? Object.assign({}, theme.alternateRow, styles.alternateRowStyles)
       : {}
   const defaultStyle = defaultStyles(scaleFactor)
-  const themeStyles = assign(
+  const themeStyles = Object.assign(
     {},
     defaultStyle,
     otherStyles,
     rowStyles,
     colStyles,
   )
-  return assign(themeStyles, cellInputStyles)
+  return Object.assign(themeStyles, cellInputStyles)
 }

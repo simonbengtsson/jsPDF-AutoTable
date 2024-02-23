@@ -2,7 +2,6 @@ import { LineWidths } from './config'
 import { addTableBorder, getFillStyle } from './common'
 import { Cell, Column, Pos, Row, Table } from './models'
 import { DocHandler, jsPDFDocument } from './documentHandler'
-import { assign } from './polyfills'
 import autoTableText from './autoTableText'
 import { calculateAllColumnsCanFitInPage } from './tablePrinter'
 
@@ -36,7 +35,7 @@ export function drawTable(jsPDFDoc: jsPDFDocument, table: Table): void {
   }
   table.callWillDrawPageHook(doc, cursor)
 
-  const startPos = assign({}, cursor)
+  const startPos = Object.assign({}, cursor)
 
   table.startPageNumber = doc.pageNumber()
 
@@ -261,7 +260,7 @@ function modifyRowToFit(
     }
 
     let remainderCell = new Cell(cell.raw, cell.styles, cell.section)
-    remainderCell = assign(remainderCell, cell)
+    remainderCell = Object.assign(remainderCell, cell)
     remainderCell.text = []
 
     const remainingLineCount = getRemainingLineCount(
