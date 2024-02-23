@@ -5,17 +5,11 @@
   "main": "dist/jspdf.plugin.autotable.js",
   "module": "dist/jspdf.plugin.autotable.mjs",
   "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/jspdf.plugin.autotable.mjs",
-      "default": "./dist/jspdf.plugin.autotable.js"
-    },
-    "./es": {
-      "types": "./dist/index.d.ts",
-      "default": "./dist/jspdf.plugin.autotable.mjs"
-    }
+    "types": "./dist/index.d.ts",
+    "import": "./dist/jspdf.plugin.autotable.mjs",
+    "default": "./dist/jspdf.plugin.autotable.js"
   },
-  "types": "dist/index",
+  "types": "./dist/index.d.ts",
   "files": [
     "dist/*"
   ],
@@ -62,16 +56,16 @@
     "start": "webpack serve --config webpack.config.mjs --mode=development",
     "checkout-pr": "git fetch origin pull/$PR/head:pr$PR && git checkout pr$PR",
     "start-external": "webpack serve --config webpack.config.mjs --mode=development --host 0.0.0.0",
-    "build": "webpack --mode=production && webpack --mode=production --env minified && npm run buildes && npm run types",
-    "buildes": "rollup --config rollup.config.mjs",
+    "build": "webpack --mode=production && webpack --mode=production --env minified && npm run build-es && npm run types",
+    "build-es": "rollup --config rollup.config.mjs",
+    "types": "dts-bundle-generator src/main.ts -o ./dist/index.d.ts",
     "lint": "eslint . --ext .ts",
     "test": "mocha -r ts-node/register test/test*.ts",
     "format": "prettier --write src",
     "version": "npm test && npm run build && git add -A dist",
     "hosting": "git push origin master:gh-pages -f",
     "deploy": "git push --follow-tags && npm run hosting && npm publish",
-    "update-libs": "cd examples/nodejs && ncu -u && npm i && cd ../typescript && ncu -u && npm i && cd ../webpack && ncu -u && npm i",
-    "types": "dts-bundle-generator src/main.ts -o ./dist/index.d.ts"
+    "update-libs": "cd examples/nodejs && ncu -u && npm i && cd ../typescript && ncu -u && npm i && cd ../webpack && ncu -u && npm i"
   },
   "repository": {
     "type": "git",
