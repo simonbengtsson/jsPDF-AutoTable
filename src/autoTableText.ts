@@ -55,7 +55,7 @@ export default function (
             isInputVisual: true,
             isOutputVisual: false,
             isInputRtl: false,
-            isOutputRtl: true,
+            isOutputRtl: styles.dir === 'rtl',
           },
         )
         y += lineHeight
@@ -73,7 +73,7 @@ export default function (
       isInputVisual: true,
       isOutputVisual: false,
       isInputRtl: false,
-      isOutputRtl: true,
+      isOutputRtl: styles.dir === 'rtl',
     })
   } else {
     doc.text(text, x, y, {
@@ -81,7 +81,7 @@ export default function (
       isInputVisual: true,
       isOutputVisual: false,
       isInputRtl: false,
-      isOutputRtl: true,
+      isOutputRtl: styles.dir === 'rtl',
     })
   }
 

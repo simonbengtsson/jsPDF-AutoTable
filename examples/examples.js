@@ -21,8 +21,16 @@ window.examples = examples
 examples.basic = function () {
   var doc = new jsPDF()
 
+  
+  doc.addFileToVFS("Default.ttf", PdfPrinterFont);
+
+  doc.addFont("Default.ttf", "Default", "normal");
+  doc.setFont("Default");
+
+  doc.text("ِسيشسيسشي", 10, 10)
+
   // From HTML
-  doc.autoTable({ html: '.table' })
+  // doc.autoTable({ html: '.table' })
 
   // From Javascript
   var finalY = doc.lastAutoTable.finalY || 10
@@ -31,7 +39,7 @@ examples.basic = function () {
     startY: finalY + 20,
     head: [['ID', 'Name', 'Email', 'Country', 'IP-address']],
     body: [
-      ['1', 'Donna', 'dmoore0@furl.net', 'China', '211.56.242.221'],
+      ['1', 'ونش شوكه ديزل حموله3طن ماركه tcmموديل 2014 /استيراد ياباني /ماست حاويه عدد ساعات التشغيل 1900 ساعه /كاوتش صب امامي وخلفي /محرك ايسوزو c240', 'dmoore0@furl.net', 'China', '211.56.242.221'],
       ['2', 'Janice', 'jhenry1@theatlantic.com', 'Ukraine', '38.36.7.199'],
       [
         '3',
@@ -44,7 +52,12 @@ examples.basic = function () {
       ['5', 'Jane', 'jstephens4@go.com', 'United States', '47.32.129.71'],
       ['6', 'Adam', 'anichols5@com.com', 'Canada', '18.186.38.37'],
     ],
+    styles: {
+      font: "Default",
+      dir: 'rtl',
+    }
   })
+
 
   finalY = doc.lastAutoTable.finalY
   doc.text('From HTML with CSS', 14, finalY + 15)
@@ -52,6 +65,7 @@ examples.basic = function () {
     startY: finalY + 20,
     html: '.table',
     useCss: true,
+
   })
 
   return doc
@@ -60,6 +74,10 @@ examples.basic = function () {
 // Minimal - shows how compact tables can be drawn
 examples.minimal = function () {
   var doc = new jsPDF()
+  doc.addFileToVFS("Default.ttf", PdfPrinterFont);
+
+  doc.addFont("Default.ttf", "Default", "normal");
+  doc.setFont("Default");
   doc.autoTable({
     html: '.table',
     tableWidth: 'wrap',
@@ -108,6 +126,10 @@ examples.long = function () {
 // Content - shows how tables can be integrated with any other pdf content
 examples.content = function () {
   var doc = new jsPDF()
+  doc.addFileToVFS("Default.ttf", PdfPrinterFont);
+
+  doc.addFont("Default.ttf", "Default", "normal");
+  doc.setFont("Default");
 
   doc.setFontSize(18)
   doc.text('With content', 14, 22)
@@ -135,6 +157,10 @@ examples.content = function () {
 // Multiple - shows how multiple tables can be drawn both horizontally and vertically
 examples.multiple = function () {
   var doc = new jsPDF()
+  doc.addFileToVFS("Default.ttf", PdfPrinterFont);
+
+  doc.addFont("Default.ttf", "Default", "normal");
+  doc.setFont("Default");
   doc.text('Multiple tables', 14, 20)
 
   doc.autoTable({ startY: 30, head: headRows(), body: bodyRows(25) })
@@ -184,6 +210,10 @@ examples.multiple = function () {
 // Header and footers - shows how header and footers can be drawn
 examples['header-footer'] = function () {
   var doc = new jsPDF()
+  doc.addFileToVFS("Default.ttf", PdfPrinterFont);
+
+  doc.addFont("Default.ttf", "Default", "normal");
+  doc.setFont("Default");
   var totalPagesExp = '{total_pages_count_string}'
 
   doc.autoTable({
@@ -232,6 +262,10 @@ examples.defaults = function () {
   })
 
   var doc = new jsPDF()
+  doc.addFileToVFS("Default.ttf", PdfPrinterFont);
+
+  doc.addFont("Default.ttf", "Default", "normal");
+  doc.setFont("Default");
 
   doc.text('Global options (black header)', 15, 20)
   doc.autoTable({ head: headRows(), body: bodyRows(5), startY: 25 })
@@ -266,6 +300,10 @@ examples.defaults = function () {
 // Column styles - shows how tables can be drawn with specific column styles
 examples.colstyles = function () {
   var doc = new jsPDF()
+  doc.addFileToVFS("Default.ttf", PdfPrinterFont);
+
+  doc.addFont("Default.ttf", "Default", "normal");
+  doc.setFont("Default");
   doc.autoTable({
     head: headRows(),
     body: bodyRows(),
@@ -324,6 +362,10 @@ examples.spans = function () {
 // Themes - shows how the different themes looks
 examples.themes = function () {
   var doc = new jsPDF()
+  doc.addFileToVFS("Default.ttf", PdfPrinterFont);
+
+  doc.addFont("Default.ttf", "Default", "normal");
+  doc.setFont("Default");
 
   doc.text('Theme "striped"', 14, 16)
   doc.autoTable({ head: headRows(), body: bodyRows(5), startY: 20 })
@@ -350,6 +392,10 @@ examples.themes = function () {
 // Nested tables
 examples.nested = function () {
   var doc = new jsPDF()
+  doc.addFileToVFS("Default.ttf", PdfPrinterFont);
+
+  doc.addFont("Default.ttf", "Default", "normal");
+  doc.setFont("Default");
   doc.text('Nested tables', 14, 16)
 
   var nestedTableHeight = 100
@@ -391,6 +437,10 @@ examples.nested = function () {
 // Custom style - shows how custom styles can be applied
 examples.custom = function () {
   var doc = new jsPDF()
+  doc.addFileToVFS("Default.ttf", PdfPrinterFont);
+
+  doc.addFont("Default.ttf", "Default", "normal");
+  doc.setFont("Default");
   doc.autoTable({
     head: headRows(),
     body: bodyRows(),
