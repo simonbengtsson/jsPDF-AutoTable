@@ -2,7 +2,7 @@
 
 ### Default examples
 
-Open `index.html` in your browser to familiarize yourself with the examples or go to the hosted [examples page](https://simonbengtsson.github.io/jsPDF-AutoTable/). Then you can check the source code of all examples in `examples.js`.
+Open `index.html` at the repository root in your browser to familiar yourself with the examples or go to the hosted [examples page](https://simonbengtsson.github.io/jsPDF-AutoTable/). Then you can check the source code of all examples in `examples.js`.
 
 Check `simple.html` for the most basic usage example of the plugin.
 
