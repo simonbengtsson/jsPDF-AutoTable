@@ -32,14 +32,10 @@ export default (env) => {
     devServer: {
       static: {
         directory: '.',
+        watch: false,
       },
+      watchFiles: ['index.html', 'examples/**/*'],
       port: 9000,
-      proxy: {
-        '/libs/jspdf.plugin.autotable.js': {
-          target: 'http://localhost:9000/dist/',
-          pathRewrite: { '^/libs': '' },
-        },
-      },
     },
     plugins: [
       new webpack.BannerPlugin({
