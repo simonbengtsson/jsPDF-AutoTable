@@ -444,7 +444,7 @@ function printRow(
         maxWidth: Math.ceil(
           cell.width - cell.padding('left') - cell.padding('right'),
         ),
-        dir: cell.styles.dir
+        dir: table.styles.styles.dir
       },
       doc.getDocument(),
     )
