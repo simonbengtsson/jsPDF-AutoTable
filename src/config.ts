@@ -29,6 +29,7 @@ export interface Styles {
   textColor: Color
   halign: HAlignType
   valign: VAlignType
+  dir?: "rtl" | "ltr",
   fontSize: number
   cellPadding: MarginPaddingInput
   lineColor: Color

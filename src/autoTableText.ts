@@ -50,6 +50,13 @@ export default function (
           splitText[iLine],
           x - doc.getStringUnitWidth(splitText[iLine]) * alignSize,
           y,
+          {
+            isSymmetricSwapping: true,
+            isInputVisual: true,
+            isOutputVisual: false,
+            isInputRtl: false,
+            isOutputRtl: styles.dir === 'rtl',
+          },
         )
         y += lineHeight
       }
@@ -62,9 +69,20 @@ export default function (
     doc.text(text, x, y, {
       maxWidth: styles.maxWidth || 100,
       align: 'justify',
+      isSymmetricSwapping: true,
+      isInputVisual: true,
+      isOutputVisual: false,
+      isInputRtl: false,
+      isOutputRtl: styles.dir === 'rtl',
     })
   } else {
-    doc.text(text, x, y)
+    doc.text(text, x, y, {
+      isSymmetricSwapping: true,
+      isInputVisual: true,
+      isOutputVisual: false,
+      isInputRtl: false,
+      isOutputRtl: styles.dir === 'rtl',
+    })
   }
 
   return doc
@@ -74,4 +92,5 @@ export interface TextStyles {
   valign?: 'middle' | 'bottom' | 'top'
   halign?: 'justify' | 'center' | 'right' | 'left'
   maxWidth?: number
+  dir?: "rtl" | "ltr",
 }
