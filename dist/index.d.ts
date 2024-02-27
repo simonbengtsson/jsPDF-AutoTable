@@ -226,6 +226,7 @@ export interface Styles {
 	textColor: Color;
 	halign: HAlignType;
 	valign: VAlignType;
+	dir?: "rtl" | "ltr";
 	fontSize: number;
 	cellPadding: MarginPaddingInput;
 	lineColor: Color;
@@ -233,7 +234,6 @@ export interface Styles {
 	cellWidth: CellWidthType;
 	minCellHeight: number;
 	minCellWidth: number;
-	dir?: "rtl" | "ltr",
 }
 export type ThemeType = "striped" | "grid" | "plain" | null;
 export type PageBreakType = "auto" | "avoid" | "always";

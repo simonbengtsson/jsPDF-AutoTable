@@ -449,7 +449,13 @@ function autoTableText (text, x, y, styles, doc) {
             alignSize *= 0.5;
         if (splitText && lineCount >= 1) {
             for (var iLine = 0; iLine < splitText.length; iLine++) {
-                doc.text(splitText[iLine], x - doc.getStringUnitWidth(splitText[iLine]) * alignSize, y);
+                doc.text(splitText[iLine], x - doc.getStringUnitWidth(splitText[iLine]) * alignSize, y, {
+                    isSymmetricSwapping: true,
+                    isInputVisual: true,
+                    isOutputVisual: false,
+                    isInputRtl: false,
+                    isOutputRtl: styles.dir === 'rtl',
+                });
                 y += lineHeight;
             }
             return doc;
@@ -460,10 +466,21 @@ function autoTableText (text, x, y, styles, doc) {
         doc.text(text, x, y, {
             maxWidth: styles.maxWidth || 100,
             align: 'justify',
+            isSymmetricSwapping: true,
+            isInputVisual: true,
+            isOutputVisual: false,
+            isInputRtl: false,
+            isOutputRtl: styles.dir === 'rtl',
         });
     }
     else {
-        doc.text(text, x, y);
+        doc.text(text, x, y, {
+            isSymmetricSwapping: true,
+            isInputVisual: true,
+            isOutputVisual: false,
+            isInputRtl: false,
+            isOutputRtl: styles.dir === 'rtl',
+        });
     }
     return doc;
 }
@@ -1557,6 +1574,7 @@ function printRow(doc, table, row, cursor, columns) {
             halign: cell.styles.halign,
             valign: cell.styles.valign,
             maxWidth: Math.ceil(cell.width - cell.padding('left') - cell.padding('right')),
+            dir: table.styles.styles.dir
         }, doc.getDocument());
         table.callCellHooks(doc, table.hooks.didDrawCell, cell, row, column, cursor);
         cursor.x += column.width;
