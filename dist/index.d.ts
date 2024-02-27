@@ -233,6 +233,7 @@ export interface Styles {
 	cellWidth: CellWidthType;
 	minCellHeight: number;
 	minCellWidth: number;
+	dir?: "rlt" | "ltr",
 }
 export type ThemeType = "striped" | "grid" | "plain" | null;
 export type PageBreakType = "auto" | "avoid" | "always";
