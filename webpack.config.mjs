@@ -45,7 +45,7 @@ export default (env) => {
     ],
     optimization: {
       minimizer: [new TerserPlugin({ extractComments: false })],
-      minimize: !!minified,
+      minimize: minified,
     },
   }
 }
@@ -57,7 +57,7 @@ export function bannerString() {
   const currentYear = new Date().getFullYear()
 
   const banner = `
-/**
+/*!
  *    jsPDF AutoTable plugin v${version}
  *
  *    Copyright (c) ${currentYear} Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable
