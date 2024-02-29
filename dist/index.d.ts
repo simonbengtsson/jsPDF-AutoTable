@@ -28,8 +28,6 @@ declare class DocHandler {
 	getFontList(): {
 		[key: string]: string[] | undefined;
 	};
-	getGlobalOptions(): UserOptions;
-	getDocumentOptions(): UserOptions;
 	pageSize(): {
 		width: number;
 		height: number;
@@ -80,11 +78,11 @@ export type Pos = {
 export type PageHook = (data: HookData) => void | boolean;
 export type CellHook = (data: CellHookData) => void | boolean;
 export interface HookProps {
-	didParseCell: CellHook[];
-	willDrawCell: CellHook[];
-	didDrawCell: CellHook[];
-	willDrawPage: PageHook[];
-	didDrawPage: PageHook[];
+	didParseCell: CellHook | undefined;
+	willDrawCell: CellHook | undefined;
+	didDrawCell: CellHook | undefined;
+	willDrawPage: PageHook | undefined;
+	didDrawPage: PageHook | undefined;
 }
 export interface Settings {
 	includeHiddenHtml: boolean;
@@ -135,15 +133,15 @@ export declare class Table {
 	getHeadHeight(columns: Column[]): number;
 	getFootHeight(columns: Column[]): number;
 	allRows(): Row[];
-	callCellHooks(doc: DocHandler, handlers: CellHook[], cell: Cell, row: Row, column: Column, cursor: {
+	callCellHook(doc: DocHandler, handler: CellHook | undefined, cell: Cell, row: Row, column: Column, cursor: {
 		x: number;
 		y: number;
-	} | null): boolean;
-	callEndPageHooks(doc: DocHandler, cursor: {
+	} | null): void | boolean;
+	callEndPageHook(doc: DocHandler, cursor: {
 		x: number;
 		y: number;
 	}): void;
-	callWillDrawPageHooks(doc: DocHandler, cursor: {
+	callWillDrawPageHook(doc: DocHandler, cursor: {
 		x: number;
 		y: number;
 	}): void;
@@ -311,6 +309,6 @@ export type CellInput = null | string | string[] | number | boolean | CellDef;
 export type RowInput = {
 	[key: string]: CellInput;
 } | HtmlRowInput | CellInput[];
-export declare function autoTable(d: jsPDFDocument, options: UserOptions): void;
+export declare function autoTable(doc: jsPDFDocument, options: UserOptions): Table;
 
 export {};
