@@ -64,7 +64,7 @@ examples.minimal = function () {
   const doc = new jsPDF()
   autoTable(doc, {
     html: '.table',
-    tableWidth: 'wrap',
+    tableWidth: 'fit-content',
     styles: { cellPadding: 0.5, fontSize: 8 },
   })
   return doc
@@ -87,7 +87,7 @@ examples.long = function () {
     body: body,
     startY: 25,
     // Default for all columns
-    styles: { overflow: 'ellipsize', cellWidth: 'wrap' },
+    styles: { overflow: 'ellipsize', cellWidth: 'max-content' },
     // Override the default above for the text column
     columnStyles: { text: { cellWidth: 'auto' } },
   })

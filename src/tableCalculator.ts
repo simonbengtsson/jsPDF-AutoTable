@@ -167,6 +167,7 @@ function cellStyles(
   scaleFactor: number,
   cellInputStyles: Partial<Styles>,
 ) {
+  const defaultStyle = defaultStyles(scaleFactor)
   const theme = getTheme(themeName)
   let sectionStyles
   if (sectionName === 'head') {
@@ -176,29 +177,38 @@ function cellStyles(
   } else if (sectionName === 'foot') {
     sectionStyles = styles.footStyles
   }
-  const otherStyles = Object.assign(
-    {},
-    theme.table,
-    theme[sectionName],
-    styles.styles,
-    sectionStyles,
-  )
-  const columnStyles =
-    styles.columnStyles[column.dataKey] ||
-    styles.columnStyles[column.index] ||
-    {}
-  const colStyles = sectionName === 'body' ? columnStyles : {}
   const rowStyles =
     sectionName === 'body' && rowIndex % 2 === 0
       ? Object.assign({}, theme.alternateRow, styles.alternateRowStyles)
       : {}
-  const defaultStyle = defaultStyles(scaleFactor)
-  const themeStyles = Object.assign(
+
+  const columnStyles = column.getStyles(styles)
+  let colStyles: typeof columnStyles
+  if (sectionName === 'body') {
+    colStyles = columnStyles
+  } else {
+    // For head & foot cells, only inherit width styles from columnStyles (if any)
+    // If we didn't do that, head & foot cells would inherit width from styles but not columnStyles
+    // which would prevent us from resetting width styles for columns in certain situations
+    // (check testcase : testWidthCalculator > 'reset column width')
+    colStyles = {}
+    if ('cellWidth' in columnStyles)
+      colStyles.cellWidth = columnStyles.cellWidth
+    if ('minCellWidth' in columnStyles)
+      colStyles.minCellWidth = columnStyles.minCellWidth
+    if ('maxCellWidth' in columnStyles)
+      colStyles.maxCellWidth = columnStyles.maxCellWidth
+  }
+
+  return Object.assign(
     {},
     defaultStyle,
-    otherStyles,
+    theme.table,
+    theme[sectionName],
+    styles.styles,
+    sectionStyles,
     rowStyles,
     colStyles,
+    cellInputStyles,
   )
-  return Object.assign(themeStyles, cellInputStyles)
 }

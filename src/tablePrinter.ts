@@ -1,4 +1,4 @@
-import { getPageAvailableWidth } from './common'
+import { getPageNetWidth } from './common'
 import { DocHandler } from './documentHandler'
 import { Column, Table } from './models'
 
@@ -14,8 +14,8 @@ function getColumnsCanFitInPage(
   table: Table,
   config: { start?: number } = {},
 ): ColumnFitInPageResult {
-  // Get page width
-  let remainingWidth = getPageAvailableWidth(doc, table)
+  // Get page width (allow for small tolerance to prevent unwanted page breaks)
+  let remainingWidth = getPageNetWidth(doc, table) + 1e-10
 
   // Get column data key to repeat
   const repeatColumnsMap = new Map<number, boolean>()
@@ -45,12 +45,12 @@ function getColumnsCanFitInPage(
       repeatColumnsMap.set(col.index, true)
       colIndexes.push(col.index)
       columns.push(table.columns[col.index])
-      remainingWidth -= col.wrappedWidth
+      remainingWidth -= col.width
     }
   })
 
   let first = true
-  let i = config?.start ?? 0 // make sure couter is initiated outside the loop
+  let i = config?.start ?? 0
   while (i < table.columns.length) {
     // Prevent duplicates
     if (repeatColumnsMap.has(i)) {
@@ -58,9 +58,9 @@ function getColumnsCanFitInPage(
       continue
     }
 
-    const colWidth = table.columns[i].wrappedWidth
+    const colWidth = table.columns[i].width
 
-    // Take at least one column even if it doesn't fit
+    // Take at least one column even if it doesn't fit to prevent infinite loops
     if (first || remainingWidth >= colWidth) {
       first = false
       colIndexes.push(i)

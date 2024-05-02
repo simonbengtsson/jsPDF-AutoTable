@@ -5,6 +5,7 @@ import {
   HtmlRowInput,
   RowInput,
   Styles,
+  TableWidthType,
 } from './config'
 import { DocHandler } from './documentHandler'
 import { CellHookData, HookData } from './HookData'
@@ -16,8 +17,8 @@ export type PageHook = (data: HookData) => void | boolean
 export type CellHook = (data: CellHookData) => void | boolean
 
 export interface HookProps {
-  // Make sure to use undefined union and not optional "?"
-  // so that all the keys are always present
+  // Note: Make sure to use undefined union here rather than the optional operator ("?")
+  // to ensure that all the keys are always present
   didParseCell: CellHook | undefined
   willDrawCell: CellHook | undefined
   didDrawCell: CellHook | undefined
@@ -33,7 +34,7 @@ export interface Settings {
   margin: MarginPadding
   pageBreak: 'auto' | 'avoid' | 'always'
   rowPageBreak: 'auto' | 'avoid'
-  tableWidth: 'auto' | 'wrap' | number
+  tableWidth: TableWidthType
   showHead: 'everyPage' | 'firstPage' | 'never'
   showFoot: 'everyPage' | 'lastPage' | 'never'
   tableLineWidth: number
@@ -70,9 +71,10 @@ export class Table {
   readonly body: Row[]
   readonly foot: Row[]
 
-  pageNumber = 1
-  finalY?: number
   startPageNumber?: number
+  pageNumber = 1
+  finalY = 0
+  width = 0
 
   constructor(input: TableInput, content: ContentSettings) {
     this.id = input.id
@@ -130,21 +132,6 @@ export class Table {
   callWillDrawPageHook(doc: DocHandler, cursor: { x: number; y: number }) {
     if (this.hooks.willDrawPage) {
       this.hooks.willDrawPage(new HookData(doc, this, cursor))
-    }
-  }
-
-  getWidth(pageWidth: number) {
-    if (typeof this.settings.tableWidth === 'number') {
-      return this.settings.tableWidth
-    } else if (this.settings.tableWidth === 'wrap') {
-      const wrappedWidth = this.columns.reduce(
-        (total, col) => total + col.wrappedWidth,
-        0,
-      )
-      return wrappedWidth
-    } else {
-      const margin = this.settings.margin
-      return pageWidth - margin.left - margin.right
     }
   }
 }
@@ -221,9 +208,7 @@ export class Cell {
 
   contentHeight = 0
   contentWidth = 0
-  wrappedWidth = 0
-  minReadableWidth = 0
-  minWidth = 0
+  minContentWidth = 0
 
   width = 0
   height = 0
@@ -303,10 +288,23 @@ export class Column {
   dataKey: string | number
   index: number
 
-  wrappedWidth = 0
-  minReadableWidth = 0
+  /** The calculated full-width required to fit the content without introducing new line-breaks */
+  maxContentWidth = 0
+
+  /** The minimum calculated width required to fit the content in a readable manner (with no word-breaking) */
+  minContentWidth = 0
+
+  /** The minimum width allowed for the column based on all cells and the constrains */
   minWidth = 0
+
+  /** The maximum width allowed for the column based on all cells and the constrains */
+  maxWidth = Infinity
+
+  /** The final used width */
   width = 0
+
+  /** If the column or any of its cells has a fixed width */
+  isFixed = false
 
   constructor(
     dataKey: string | number,
@@ -318,14 +316,11 @@ export class Column {
     this.index = index
   }
 
-  getMaxCustomCellWidth(table: Table) {
-    let max = 0
-    for (const row of table.allRows()) {
-      const cell: Cell = row.cells[this.index]
-      if (cell && typeof cell.styles.cellWidth === 'number') {
-        max = Math.max(max, cell.styles.cellWidth)
-      }
-    }
-    return max
+  getStyles(tableStyles: StylesProps) {
+    return (
+      tableStyles.columnStyles[this.dataKey] ||
+      tableStyles.columnStyles[this.index] ||
+      {}
+    )
   }
 }

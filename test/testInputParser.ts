@@ -27,20 +27,7 @@ describe('input parser', () => {
     assert.equal(table.foot.length, 0)
     assert.equal(Object.keys(table.head[0].cells).length, 2)
     assert.equal(table.head[0].cells[0].text, 'test')
-    assert(table.head[0].cells[0].minWidth > 0)
-  })
-
-  it('minReadableWidth', () => {
-    const d = new jsPDF()
-    const input = parseInput(d, {
-      head: [['aaaa', 'aa', 'aaa']],
-      body: [['a', 'a', 'a']],
-    })
-    const table = createTable(d, input)
-    const cols = table.columns
-    assert(table.body[0].cells[0].minReadableWidth > 0)
-    assert(cols[0].minReadableWidth > cols[1].minReadableWidth)
-    assert(cols[1].minReadableWidth < cols[2].minReadableWidth)
+    assert(table.head[0].cells[0].contentWidth > 0)
   })
 
   it('object input', () => {
@@ -61,7 +48,7 @@ describe('input parser', () => {
     assert.equal(table.head[0].cells[0].text, 'ID')
   })
 
-  it('object input', () => {
+  it('object input two', () => {
     const d = new jsPDF()
     const input = parseInput(d, {
       head: [[{ content: 'test' }, 'test 2']],

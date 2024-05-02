@@ -72,6 +72,7 @@ Checkout more examples in [examples.js](examples) which is also the source code 
 - Major: Only the `autoTable(doc, {...})` usage style is now supported and `doc.autoTable({...})` has been removed (see usage section above. Read more: #997)
 - Setting default options has been removed and can be replaced by keeping track of this state yourself
 - Removed old deprecations
+- The value `'wrap'` of `cellWidth` and `tableWidth` has been renamed to `'max-content'`
 
 ## Options
 
@@ -121,8 +122,9 @@ autoTable(doc, {
 - `overflow: 'linebreak'|'ellipsize'|'visible'|'hidden' = 'linebreak'`
 - `fillColor: Color? = null`
 - `textColor: Color? = 20`
-- `cellWidth: 'auto'|'wrap'|number = 'auto'`
-- `minCellWidth: number? = 10`
+- `cellWidth: 'auto'|'min-content'|'max-content'|number = 'auto'`
+- `minCellWidth: 'auto'|'min-content'|'max-content'|number = 'auto'` (`'auto'` = 10pt for columns with `'auto'` cellWidth, 0 otherwise)
+- `maxCellWidth: 'auto'|'min-content'|'max-content'|number = 'auto'`
 - `minCellHeight: number = 0`
 - `halign: 'left'|'center'|'right' = 'left'`
 - `valign: 'top'|'middle'|'bottom' = 'top'`
@@ -187,9 +189,9 @@ autoTable(doc, {
 - `margin: Margin = 40`
 - `pageBreak: 'auto'|'avoid'|'always'` If set to `avoid` the plugin will only split a table onto multiple pages if table height is larger than page height.
 - `rowPageBreak: 'auto'|'avoid' = 'auto'` If set to `avoid` the plugin will only split a row onto multiple pages if row height is larger than page height.
-- `tableWidth: 'auto'|'wrap'|number = 'auto'`
-- `showHead: 'everyPage'|'firstPage'|'never' = 'everyPage''`
-- `showFoot: 'everyPage'|'lastPage'|'never' = 'everyPage''`
+- `tableWidth: 'auto'|'min-content'|'max-content'|'fit-content'|number = 'auto'` Option `'fit-content'` is similar to `'max-content'` but limited to the page width.
+- `showHead: 'everyPage'|'firstPage'|'never' = 'everyPage'`
+- `showFoot: 'everyPage'|'lastPage'|'never' = 'everyPage'`
 - `tableLineWidth: number = 0`
 - `tableLineColor: Color = 200` The table line/border color
 - `horizontalPageBreak: boolean = false` To split/break the table into multiple pages if the given table width exceeds the page width

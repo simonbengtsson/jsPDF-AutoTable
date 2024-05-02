@@ -19,7 +19,7 @@ export type OverflowType =
   | 'visible'
   | 'hidden'
   | ((text: string | string[], width: number) => string | string[])
-export type CellWidthType = 'auto' | 'wrap' | number
+export type CellWidthType = 'auto' | 'min-content' | 'max-content' | number
 
 export interface Styles {
   font: FontType
@@ -34,14 +34,15 @@ export interface Styles {
   lineColor: Color
   lineWidth: number | Partial<LineWidths>
   cellWidth: CellWidthType
+  minCellWidth: CellWidthType
+  maxCellWidth: CellWidthType
   minCellHeight: number
-  minCellWidth: number
 }
 
 export type ThemeType = 'striped' | 'grid' | 'plain' | null
 export type PageBreakType = 'auto' | 'avoid' | 'always'
 export type RowPageBreakType = 'auto' | 'avoid'
-export type TableWidthType = 'auto' | 'wrap' | number
+export type TableWidthType = CellWidthType | 'fit-content'
 export type ShowHeadType = 'everyPage' | 'firstPage' | 'never' | boolean
 export type ShowFootType = 'everyPage' | 'lastPage' | 'never' | boolean
 export type HorizontalPageBreakBehaviourType = 'immediately' | 'afterAllRows'
@@ -149,9 +150,10 @@ export function defaultStyles(scaleFactor: number): Styles {
     cellPadding: 5 / scaleFactor, // number or {top,left,right,left,vertical,horizontal}
     lineColor: 200,
     lineWidth: 0,
-    cellWidth: 'auto', // 'auto'|'wrap'|number
+    cellWidth: 'auto', // 'auto' | 'min-content' | 'max-content' | number
+    minCellWidth: 'auto', // 'auto' | 'min-content' | 'max-content' | number
+    maxCellWidth: 'auto', // 'auto' | 'min-content' | 'max-content' | number
     minCellHeight: 0,
-    minCellWidth: 0,
   }
 }
 
