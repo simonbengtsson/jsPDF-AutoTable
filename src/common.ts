@@ -33,7 +33,7 @@ export function addTableBorder(
     doc.rect(
       startPos.x,
       startPos.y,
-      table.getWidth(doc.pageSize().width),
+      cursor.x - startPos.x,
       cursor.y - startPos.y,
       fillStyle,
     )
@@ -119,7 +119,7 @@ export function parseSpacing(
   return { top: value, right: value, bottom: value, left: value }
 }
 
-export function getPageAvailableWidth(doc: DocHandler, table: Table) {
-  const margins = parseSpacing(table.settings.margin, 0)
+export function getPageNetWidth(doc: DocHandler, table: Table) {
+  const margins = table.settings.margin
   return doc.pageSize().width - (margins.left + margins.right)
 }

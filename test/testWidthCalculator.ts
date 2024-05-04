@@ -1,159 +1,242 @@
-const assert = require('assert')
-import { resizeColumns } from '../src/widthCalculator'
-import { Column } from '../src/models'
+import { jsPDF } from 'jspdf'
+import { parseInput } from '../src/inputParser';
+import { createTable } from '../src/tableCalculator';
+import * as assert from 'assert'
 
-describe('calculator', () => {
-  describe('columns resizer', () => {
-    it('shrink: one column - no min', () => {
-      const col1 = new Column('col1', null, 0)
-      col1.width = 700
-      col1.wrappedWidth = 700
-      const resizeWidth = resizeColumns([col1], -700, () => 0)
-      assert.equal(col1.width, 0, 'width')
-      assert.equal(resizeWidth, 0, 'resizeWidth')
+function round(val: number) {
+  return Math.round(val * 1000) / 1000
+}
+
+describe('width calculator', () => {
+
+  it('minContentWidth & maxContentWidth', () => {
+    const d = new jsPDF()
+    const input = parseInput(d, {
+      head: [['abcd', 'ab cd', 'abc']],
+      body: [
+        ['ab cd', 'a', 'a'],
+        ['a', 'a', 'a'],
+      ],
+      styles: {fontSize: 10, fontStyle: 'normal'},
     })
+    const table = createTable(d, input)
+    const cols = table.columns
+    assert(cols[0].minContentWidth > 0)
+    assert(cols[0].minContentWidth > cols[1].minContentWidth)
+    assert(cols[1].minContentWidth < cols[2].minContentWidth)
+    assert(cols[0].maxContentWidth > 0)
+    assert(cols[0].minContentWidth < cols[0].maxContentWidth)
+    assert.equal(cols[0].maxContentWidth, cols[1].maxContentWidth)
+    assert(cols[1].maxContentWidth > cols[2].maxContentWidth)
+    assert.equal(cols[2].minContentWidth, cols[2].maxContentWidth)
+  })
 
-    it('shrink: one column - min', () => {
-      const col1 = new Column('col1', null, 0)
-      col1.width = 700
-      col1.wrappedWidth = 700
-      col1.minWidth = 200
-      const resizeWidth = resizeColumns([col1], -600, (col) => col.minWidth)
-      assert.equal(col1.width, 200, 'width')
-      assert.equal(resizeWidth, -100, 'resizeWidth')
+  it('grow relative to content', () => {
+    const doc = new jsPDF()
+    const row = ['abc', 'a', '', 'ab', 'abcd', 'ab', 'abc', 'ab cd']
+    const input = parseInput(doc, {
+      body: [row],
     })
+    const table = createTable(doc, input)
+    const cols = table.columns
+    for (let i = 0; i < cols.length; i++) {
+      for (let j = i+1; j < cols.length; j++) {
+        const w1 = cols[i].width
+        const w2 = cols[j].width
+        if (row[i].length === row[j].length) {
+          assert.equal(w1, w2, `equal width ${i}, ${j}`)
+        } else {
+          assert(row[i].length > row[j].length ? w1 > w2 : w1 < w2, `compare width ${i}, ${j}`)
+        }
+      }
+    }
+  })
 
-    it('shrink: two columns - no min', () => {
-      const w1 = 1200,
-        w2 = 400,
-        r = -500
-      const col1 = new Column('col1', null, 0)
-      col1.width = w1
-      col1.wrappedWidth = w1
-      const col2 = new Column('col2', null, 1)
-      col2.width = w2
-      col2.wrappedWidth = w2
-      const resizeWidth = resizeColumns([col1, col2], r, () => 0)
-      assert.equal(col1.width, w1 + r * (w1 / (w1 + w2)), 'col1 width')
-      assert.equal(col2.width, w2 + r * (w2 / (w1 + w2)), 'col2 width')
-      assert.equal(resizeWidth, 0, 'resizeWidth')
+  it('width options', () => {
+    const doc = new jsPDF()
+    const input = parseInput(doc, {
+      body: [Array(4).fill('abc def')],
+      columnStyles: {
+        0: {cellWidth: 10},
+        1: {cellWidth: 'min-content'},
+        2: {cellWidth: 'max-content'},
+      }
     })
+    const table = createTable(doc, input)
+    const cols = table.columns
+    assert.equal(cols[0].width, 10, 'fixed width')
+    assert.equal(cols[1].width, cols[1].minContentWidth, 'min-content')
+    assert(cols[1].minContentWidth > 0)
+    assert.equal(cols[2].width, cols[2].maxContentWidth, 'max-content')
+    assert(cols[2].maxContentWidth > 0)
+    assert(cols[2].maxContentWidth > cols[2].minContentWidth)
+    assert.equal(round(cols[3].width), round(table.width - (cols[0].width + cols[1].width + cols[2].width)), 'auto width')
+  })
 
-    it('shrink: two columns - min', () => {
-      const w1 = 1200,
-        w2 = 400,
-        r = -500
-      const col1 = new Column('col1', null, 0)
-      col1.width = w1
-      col1.wrappedWidth = w1
-      col1.minWidth = 900
-      const col2 = new Column('col2', null, 1)
-      col2.width = w2
-      col2.wrappedWidth = w2
-      col2.minWidth = 100
-      const resizeWidth = resizeColumns([col1, col2], r, (col) => col.minWidth)
-      assert.equal(col1.width, 900, 'col1 width')
-      assert.equal(col2.width, 200, 'col2 width')
-      assert.equal(resizeWidth, 0, 'resizeWidth')
+  it('minCellWidth & maxCellWidth', () => {
+    const doc = new jsPDF()
+    const input = parseInput(doc, {
+      body: [Array(6).fill('abc def')],
+      styles: {cellWidth: 50},
+      columnStyles: {
+        0: {},
+        1: {minCellWidth: 60},
+        2: {maxCellWidth: 40},
+        3: {minCellWidth: 60, maxCellWidth: 55},
+        4: {maxCellWidth: 'max-content'},
+        5: {cellWidth: 1, minCellWidth: 'min-content'},
+      }
     })
+    const table = createTable(doc, input)
+    const cols = table.columns
+    assert.equal(cols[0].width, 50, 'auto')
+    assert.equal(cols[1].width, 60, 'minCellWidth')
+    assert.equal(cols[2].width, 40, 'maxCellWidth')
+    assert.equal(cols[3].width, 60, 'minCellWidth should override maxCellWidth')
+    assert.equal(cols[4].width, cols[4].maxContentWidth, 'maxCellWidth max-content')
+    assert.equal(cols[5].width, cols[5].minContentWidth, 'minCellWidth min-content')
+  })
 
-    // this case will test if the space distribution is consistent for equal columns (important)
-    it('shrink: consistent distribution', () => {
-      const w1 = 1200,
-        w2 = 400,
-        r = -500
-      const col1 = new Column('col1', null, 0)
-      col1.width = w1
-      col1.wrappedWidth = w1
-      col1.minWidth = 350
-      const col2 = new Column('col2', null, 0)
-      col2.width = w2
-      col2.wrappedWidth = w2
-      col2.minWidth = 350
-      const col3 = new Column('col3', null, 0)
-      col3.width = w1
-      col3.wrappedWidth = w1
-      col3.minWidth = 350
-      const col4 = new Column('col4', null, 0)
-      col4.width = w2
-      col4.wrappedWidth = w2
-      col4.minWidth = 350
-
-      let resizeWidth = resizeColumns(
-        [col1, col2, col3, col4],
-        r,
-        (col) => col.minWidth
-      )
-      assert.equal(resizeWidth, 0, 'resizeWidth')
-      assert.equal(col1.width, col3.width, 'col1 = col3')
-      assert.equal(col2.width, col4.width, 'col2 = col4')
-
-      resizeWidth = resizeColumns(
-        [col1, col2, col4, col3],
-        r,
-        (col) => col.minWidth
-      )
-      assert.equal(resizeWidth, 0, 'resizeWidth')
-      assert.equal(col1.width, col3.width, 'col1 = col3')
-      assert.equal(col2.width, col4.width, 'col2 = col4')
+  it('aggregated min & max width', () => {
+    const doc = new jsPDF()
+    const input = parseInput(doc, {
+      body: [
+        ['a', 'a', 'a', 'a'],
+        ['ab cd', 'ab cd', 'ab cd', 'ab cd'],
+        ['', '', '', ''],
+      ],
+      columnStyles: {
+        0: {},
+        1: {minCellWidth: 'min-content', maxCellWidth: 'max-content'},
+        2: {minCellWidth: 'max-content'},
+        3: {maxCellWidth: 'min-content'},
+      }
     })
+    const table = createTable(doc, input)
+    const cols = table.columns
+    assert(cols[0].minWidth < cols[0].minContentWidth, 'minCellWidth auto')
+    assert.equal(cols[0].maxWidth, Infinity, 'maxCellWidth auto')
+    assert.equal(cols[1].minWidth, cols[1].minContentWidth, 'minCellWidth min-content')
+    assert.equal(cols[1].maxWidth, cols[1].maxContentWidth, 'maxCellWidth max-content')
+    assert.equal(cols[2].minWidth, cols[2].maxContentWidth, 'minCellWidth max-content')
+    assert.equal(cols[2].maxWidth, Infinity, 'maxCellWidth auto')
+    assert.equal(cols[3].maxWidth, cols[3].minContentWidth, 'maxCellWidth min-content')
+    assert(cols[3].minWidth < cols[3].minContentWidth, 'minCellWidth auto')
 
-    it('grow: two columns - no min', () => {
-      const w1 = 50,
-        w2 = 60,
-        r = 1000
-      const col1 = new Column('col1', null, 0)
-      col1.width = w1
-      col1.wrappedWidth = w1
-      const col2 = new Column('col2', null, 1)
-      col2.width = w2
-      col2.wrappedWidth = w2
-      const resizeWidth = resizeColumns([col1, col2], r, () => 0)
-      assert.equal(
-        Math.round(col1.width),
-        Math.round(w1 + r * (w1 / (w1 + w2))),
-        'col3 width'
-      )
-      assert.equal(
-        Math.round(col2.width),
-        Math.round(w2 + r * (w2 / (w1 + w2))),
-        'col2 width'
-      )
-      assert.equal(resizeWidth, 0, 'resizeWidth')
-    })
+    for (const col of cols) {
+      assert(col.minContentWidth > 0 && col.maxContentWidth > col.minContentWidth)
+      assert.equal(col.minContentWidth, table.body[1].cells[col.index].minContentWidth)
+      assert.equal(col.maxContentWidth, table.body[1].cells[col.index].contentWidth)
+      assert(col.width >= col.minWidth && col.width <= col.maxWidth)
+    }
+  })
 
-    it('grow: three columns - col1 min', () => {
-      const w1 = 50,
-        w2 = 60,
-        w3 = 70,
-        r = 1000
-      const col1 = new Column('col1', null, 0)
-      col1.width = w1
-      col1.wrappedWidth = w1
-      col1.minWidth = 500
-      const col2 = new Column('col2', null, 1)
-      col2.width = w2
-      col2.wrappedWidth = w2
-      const col3 = new Column('col3', null, 1)
-      col3.width = w3
-      col3.wrappedWidth = w3
-      const resizeWidth = resizeColumns(
-        [col1, col2, col3],
-        r,
-        (col) => col.minWidth
-      )
-      assert.equal(col1.width, 500, 'col1 width')
-      assert.equal(
-        Math.round(col2.width),
-        Math.round(w2 + (r - col1.minWidth + w1) * (w2 / (w2 + w3))),
-        'col2 width'
-      )
-      assert.equal(
-        Math.round(col3.width),
-        Math.round(w3 + (r - col1.minWidth + w1) * (w3 / (w2 + w3))),
-        'col3 width'
-      )
-      assert.equal(resizeWidth, 0, 'resizeWidth')
+  it('aggregated min & max width - with styles', () => {
+    const doc = new jsPDF()
+    const input = parseInput(doc, {
+      head: [['a', 'a', 'ab cd']],
+      body: [
+        ['a', 'a', 'a'],
+        ['ab cd', 'ab cd', 'a'],
+        ['', '', ''],
+      ],
+      styles: {minCellWidth: 'min-content', maxCellWidth: 'max-content'},
+      columnStyles: {
+        0: {minCellWidth: 'auto', maxCellWidth: 'auto'},
+      }
     })
+    const table = createTable(doc, input)
+    const cols = table.columns
+    for (const col of cols) {
+      assert(col.minContentWidth > 0 && col.maxContentWidth > col.minContentWidth)
+      if (col.index === 0) {
+        assert(col.minWidth < col.minContentWidth, 'minCellWidth auto')
+        assert.equal(col.maxWidth, Infinity, 'maxCellWidth auto')
+      } else {
+        assert.equal(col.minWidth, col.minContentWidth, 'minCellWidth min-content')
+        assert.equal(col.maxWidth, col.maxContentWidth, 'maxCellWidth max-content')
+      }
+      assert(col.width >= col.minWidth && col.width <= col.maxWidth)
+    }
+  })
+
+  it('minimize word-break', () => {
+    const doc = new jsPDF()
+    const input = parseInput(doc, {
+      body: [['abc', 'abc def', 'abcdef'.repeat(10), 'abc def'.repeat(10)]],
+      tableWidth: 50,
+    })
+    const table = createTable(doc, input)
+    for (const col of table.columns) {
+      assert(col.minContentWidth > 0)
+      if (col.index === 2) {
+        assert(col.width < col.minContentWidth, 'shrink beyond minContentWidth')
+      } else {
+        assert.equal(col.width, col.minContentWidth, `minContentWidth ${col.index}`)
+      }
+    }
+  })
+
+  it('aggregate width styles', () => {
+    const doc = new jsPDF()
+    const input = parseInput(doc, {
+      head: [['0', '1', {content: '2', styles: {cellWidth: 10}}, '3', '4']],
+      body: [
+        [{content: '0', styles: {cellWidth: 10}}, {content: '1', styles: {minCellWidth: 100}}, '2', '3', '4'],
+        [{content: '0', styles: {cellWidth: 20}}, {content: '1', styles: {minCellWidth: 110}}, '2', '3', '4'],
+        ['0', '1', {content: '2', styles: {cellWidth: 5}}, {content: '3', styles: {maxCellWidth: 10}}, '4'],
+        ['0', '1', '2', {content: '3', styles: {maxCellWidth: 20}}, '4'],
+        ['0', '1', '2', '3', {content: '4', styles: {maxCellWidth: 20}}],
+      ],
+      columnStyles: {
+        0: {cellWidth: 15},
+        1: {minCellWidth: 105},
+        2: {minCellWidth: 100},
+        4: {maxCellWidth: 10},
+      },
+      tableWidth: 260,
+    })
+    const table = createTable(doc, input)
+    const cols = table.columns
+    assert.equal(table.width, 260, 'tableWidth')
+    assert.equal(cols[0].width, 20, 'cellWidth')
+    assert.equal(cols[1].width, 110, 'minCellWidth')
+    assert.equal(cols[2].width, 100, 'cellWidth on head')
+    assert.equal(cols[3].width, 20, 'maxCellWidth')
+    assert.equal(cols[4].width, 10, 'maxCellWidth on columnStyles should override cells')
+  })
+
+  it('reset column width', () => {
+    // Make sure width styles can be reset in columnStyles after been set in styles
+    const doc = new jsPDF()
+    const input = parseInput(doc, {
+      head: [{id: 'ID', name: 'Name', empty: '', info: 'Info'}],
+      body: [
+        {id: 'ID', name: 'Name', empty: '', info: 'Info'},
+      ],
+      foot: [{id: 'ID', name: 'Name', empty: '', info: 'Info'}],
+      styles: {
+        cellWidth: 'max-content',
+        minCellWidth: 10,
+        maxCellWidth: 20,
+        cellPadding: 0,
+      },
+      columnStyles: {
+        info: {cellWidth: 'auto', maxCellWidth: 'auto'},
+        empty: {minCellWidth: 0},
+      },
+      tableWidth: 200,
+    })
+    const table = createTable(doc, input)
+    for (const col of table.columns) {
+      if (col.dataKey === 'empty') {
+        assert.equal(col.width, 0, 'empty col should have 0 width (minCellWidth: 0)')
+      } else if (col.dataKey === 'info') {
+        assert(col.width > 100, 'col should have auto width and grow to fill remaining width')
+      } else {
+        assert(col.width >= 10, 'minCellWidth')
+        assert(col.width <= 20, 'maxCellWidth')
+      }
+    }
   })
 })

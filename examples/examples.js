@@ -64,9 +64,102 @@ examples.minimal = function () {
   const doc = new jsPDF()
   autoTable(doc, {
     html: '.table',
-    tableWidth: 'wrap',
+    tableWidth: 'fit-content',
     styles: { cellPadding: 0.5, fontSize: 8 },
   })
+  return doc
+}
+
+// Width options - shows how to use the different width options
+examples.width = function () {
+  const doc = new jsPDF()
+
+  const head = headRows()
+  head[0]['text'] = 'Text'
+  const body = bodyRows(2)
+  body.forEach(function (row) {
+    row['text'] = faker.lorem.sentence(10)
+  })
+
+  let table
+
+  doc.text("Auto width (default)", 14, 20)
+  table = autoTable(doc, {
+    head: head,
+    body: body,
+    startY: 25,
+  })
+  doc.text(
+    "cellWidth: 'max-content' except for the text column",
+    14,
+    table.finalY + 10,
+  )
+  table = autoTable(doc, {
+    head: head,
+    body: body,
+    startY: table.finalY + 15,
+    // Default for all columns
+    styles: { cellWidth: 'max-content' },
+    // Override the default above for the text column
+    columnStyles: { text: { cellWidth: 'auto' } },
+  })
+  doc.text(
+    "tableWidth: 'min-content'",
+    14,
+    table.finalY + 10,
+  )
+  table = autoTable(doc, {
+    head: head,
+    body: body,
+    startY: table.finalY + 15,
+    tableWidth: 'min-content',
+  })
+  doc.text(
+    "tableWidth: 'max-content'",
+    14,
+    table.finalY + 10,
+  )
+  table = autoTable(doc, {
+    head: head,
+    body: body,
+    startY: table.finalY + 15,
+    tableWidth: 'max-content',
+  })
+  doc.addPage()
+  doc.text(
+    "Limit maxCellWidth to 'max-content' except for the email column",
+    14,
+    20,
+  )
+  const columnsWithoutText = table.columns.slice(0, -1).map(c => c.raw)
+  for (let i = 0; i < 3; i++) {
+    table = autoTable(doc, {
+      head: head,
+      body: body,
+      columns: columnsWithoutText,
+      startY: (i ? table.finalY : 25),
+      styles: { maxCellWidth: 'max-content' },
+      columnStyles: { email: { maxCellWidth: 'auto' } },
+      tableWidth: ['auto', 150, 100][i],
+    })
+  }
+  doc.text(
+    "Limit minCellWidth to 'max-content' except for the email column",
+    14,
+    table.finalY + 10,
+  )
+  for (let i = 0; i < 3; i++) {
+    table = autoTable(doc, {
+      head: head,
+      body: body,
+      columns: columnsWithoutText,
+      startY: table.finalY + (i ? 0 : 15),
+      styles: { minCellWidth: 'max-content' },
+      columnStyles: { email: { minCellWidth: 'auto' } },
+      tableWidth: ['auto', 150, 100][i],
+    })
+  }
+
   return doc
 }
 
@@ -87,7 +180,7 @@ examples.long = function () {
     body: body,
     startY: 25,
     // Default for all columns
-    styles: { overflow: 'ellipsize', cellWidth: 'wrap' },
+    styles: { overflow: 'ellipsize', cellWidth: 'max-content' },
     // Override the default above for the text column
     columnStyles: { text: { cellWidth: 'auto' } },
   })

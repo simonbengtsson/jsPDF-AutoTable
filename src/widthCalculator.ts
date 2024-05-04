@@ -1,206 +1,390 @@
-import { getStringWidth, getPageAvailableWidth } from './common'
-import { Table, Cell, Column, Row } from './models'
+import { getStringWidth, getPageNetWidth } from './common'
+import { Table, Column, Row, Cell } from './models'
 import { DocHandler } from './documentHandler'
-import { Styles } from './config'
+import { TableWidthType, CellWidthType, Styles } from './config'
 
 /**
  * Calculate the column widths
  */
 export function calculateWidths(doc: DocHandler, table: Table) {
-  calculate(doc, table)
+  // Stage-1: Calculate and distribute the initial column widths
+  let excessWidth = distributeInitialWidth(doc, table)
+  const resizableColumns = table.columns.filter((column) => !column.isFixed)
 
-  const resizableColumns: Column[] = []
-  let initialTableWidth = 0
-
-  table.columns.forEach((column) => {
-    const customWidth = column.getMaxCustomCellWidth(table)
-    if (customWidth) {
-      // final column width
-      column.width = customWidth
-    } else {
-      // initial column width (will be resized)
-      column.width = column.wrappedWidth
-      resizableColumns.push(column)
-    }
-    initialTableWidth += column.width
-  })
-
-  // width difference that needs to be distributed
-  let resizeWidth = table.getWidth(doc.pageSize().width) - initialTableWidth
-
-  // first resize attempt: with respect to minReadableWidth and minWidth
-  if (resizeWidth) {
-    resizeWidth = resizeColumns(resizableColumns, resizeWidth, (column) =>
-      Math.max(column.minReadableWidth, column.minWidth),
-    )
+  // Stage-2: Distribute excess width on resizable columns with respect to minContentWidth and minWidth
+  if (excessWidth) {
+    excessWidth = distributeExcessWidth(resizableColumns, excessWidth)
   }
 
-  // second resize attempt: ignore minReadableWidth but respect minWidth
-  if (resizeWidth) {
-    resizeWidth = resizeColumns(
-      resizableColumns,
-      resizeWidth,
-      (column) => column.minWidth,
-    )
+  // Stage-3: Distribute any remaining negative excess width by ignoring minContentWidth
+  //          but respecting minWidth while trying to minimize word-breaking in columns
+  if (excessWidth < 0) {
+    excessWidth = shrinkColumnsBeyondMinContent(resizableColumns, excessWidth)
   }
 
-  resizeWidth = Math.abs(resizeWidth)
-  if (
-    !table.settings.horizontalPageBreak &&
-    resizeWidth > 0.1 / doc.scaleFactor()
-  ) {
+  // Report any remaining excess width (only when negative)
+  if (excessWidth < -1 / doc.scaleFactor() /* 1pt */) {
     // Table can't get smaller due to custom-width or minWidth restrictions
     // We can't really do much here. Up to user to for example
     // reduce font size, increase page size or remove custom cell widths
     // to allow more columns to be reduced in size
-    resizeWidth = resizeWidth < 1 ? resizeWidth : Math.round(resizeWidth)
+    excessWidth = Math.abs(excessWidth)
+    excessWidth = excessWidth < 1 ? excessWidth : Math.round(excessWidth)
     console.warn(
-      `Of the table content, ${resizeWidth} units width could not fit page`,
+      `[AutoTable] The table exceeds the allowed width by ${excessWidth} units, columns cannot get any smaller due to set restrictions.`,
     )
   }
+
+  // Calculate the final table width
+  const totalWidth = table.columns.reduce(
+    (total, column) => total + column.width,
+    0,
+  )
+
+  // Round floating-point summing inaccuracies to better reflect the defined tableWidth
+  table.width = Math.round(totalWidth * 1e10) / 1e10
 
   applyColSpans(table)
   fitContent(table, doc)
   applyRowSpans(table)
 }
 
-function calculate(doc: DocHandler, table: Table) {
-  const sf = doc.scaleFactor()
-  const horizontalPageBreak = table.settings.horizontalPageBreak
-  const availablePageWidth = getPageAvailableWidth(doc, table)
-  table.allRows().forEach((row) => {
+function distributeInitialWidth(doc: DocHandler, table: Table): number {
+  const pageNetWidth = getPageNetWidth(doc, table)
+  let sumInitialWidth = 0
+
+  // Start by processing cells Width styles, which are inherited from the columns if not set
+  for (const row of table.allRows()) {
     for (const column of table.columns) {
       const cell = row.cells[column.index]
       if (!cell) continue
+
       table.callCellHook(doc, table.hooks.didParseCell, cell, row, column, null)
 
       const padding = cell.padding('horizontal')
       cell.contentWidth = getStringWidth(cell.text, cell.styles, doc) + padding
 
+      // Calculate the minimum width required to fit the content in a readable manner
+      // (in which there's no word-breaking)
       const longestWordWidth = getStringWidth(
         cell.text.join(' ').split(/\s+/),
         cell.styles,
         doc,
       )
-      cell.minReadableWidth = longestWordWidth + cell.padding('horizontal')
+      cell.minContentWidth = longestWordWidth + padding
 
-      if (typeof cell.styles.cellWidth === 'number') {
-        cell.minWidth = cell.styles.cellWidth
-        cell.wrappedWidth = cell.styles.cellWidth
-      } else if (
-        cell.styles.cellWidth === 'wrap' ||
-        horizontalPageBreak === true
-      ) {
-        // cell width should not be more than available page width
-        if (cell.contentWidth > availablePageWidth) {
-          cell.minWidth = availablePageWidth
-          cell.wrappedWidth = availablePageWidth
-        } else {
-          cell.minWidth = cell.contentWidth
-          cell.wrappedWidth = cell.contentWidth
-        }
-      } else {
-        // auto
-        const defaultMinWidth = 10 / sf
-        cell.minWidth = cell.styles.minCellWidth || defaultMinWidth
-        cell.wrappedWidth = cell.contentWidth
-        if (cell.minWidth > cell.wrappedWidth) {
-          cell.wrappedWidth = cell.minWidth
-        }
-      }
-    }
-  })
+      const minCellWidth = resolveWidthStyle(
+        cell.styles.minCellWidth,
+        cell.minContentWidth,
+        cell.contentWidth,
+      )
+      const maxCellWidth = resolveWidthStyle(
+        cell.styles.maxCellWidth,
+        cell.minContentWidth,
+        cell.contentWidth,
+      )
 
-  table.allRows().forEach((row) => {
-    for (const column of table.columns) {
-      const cell = row.cells[column.index]
+      const cellWidth = resolveWidthStyle(
+        cell.styles.cellWidth,
+        cell.minContentWidth,
+        cell.contentWidth,
+      )
 
-      // For now we ignore the minWidth and wrappedWidth of colspan cells when calculating colspan widths.
-      // Could probably be improved upon however.
-      if (cell && cell.colSpan === 1) {
-        column.wrappedWidth = Math.max(column.wrappedWidth, cell.wrappedWidth)
-        column.minWidth = Math.max(column.minWidth, cell.minWidth)
-        column.minReadableWidth = Math.max(
-          column.minReadableWidth,
-          cell.minReadableWidth,
+      // TODO: colSpan
+      // For now we only aggregate widths of non colSpan cells
+      // This will change when colSpan width algorithm is implemented.
+      if (cell.colSpan === 1) {
+        column.minWidth = Math.max(column.minWidth, minCellWidth ?? 0)
+        column.maxWidth = Math.max(column.maxWidth, maxCellWidth ?? -1)
+
+        column.minContentWidth = Math.max(
+          column.minContentWidth,
+          cell.minContentWidth,
         )
-      } else {
-        // Respect cellWidth set in columnStyles even if there is no cells for this column
-        // or if the column only have colspan cells. Since the width of colspan cells
-        // does not affect the width of columns, setting columnStyles cellWidth enables the
-        // user to at least do it manually.
+        column.maxContentWidth = Math.max(
+          column.maxContentWidth,
+          cell.contentWidth,
+        )
 
-        // Note that this is not perfect for now since for example row and table styles are
-        // not accounted for
-        const columnStyles =
-          table.styles.columnStyles[column.dataKey] ||
-          table.styles.columnStyles[column.index] ||
-          {}
-        const cellWidth = columnStyles.cellWidth || columnStyles.minCellWidth
-        if (cellWidth && typeof cellWidth === 'number') {
-          column.minWidth = cellWidth
-          column.wrappedWidth = cellWidth
-        }
-      }
-
-      if (cell) {
-        // Make sure all columns get at least min width even though width calculations are not based on them
-        if (cell.colSpan > 1 && !column.minWidth) {
-          column.minWidth = cell.minWidth
-        }
-        if (cell.colSpan > 1 && !column.wrappedWidth) {
-          column.wrappedWidth = cell.minWidth
+        // Aggregate the width and mark the column as fixed if any of the non-colSpan cells has a defined width
+        if (cellWidth !== undefined) {
+          column.width = Math.max(column.width, cellWidth)
+          column.isFixed = true
         }
       }
     }
-  })
+  }
+
+  // Process columns styles last to take into account aggregated cells content widths
+  for (const column of table.columns) {
+    // TODO: Process colSpan cells here? <<
+
+    const columnStyles = column.getStyles(table.styles)
+
+    const minWidth = resolveWidthStyle(
+      columnStyles.minCellWidth,
+      column.minContentWidth,
+      column.maxContentWidth,
+    )
+    column.minWidth = Math.max(column.minWidth, minWidth ?? 0)
+
+    const maxWidth = resolveWidthStyle(
+      columnStyles.maxCellWidth,
+      column.minContentWidth,
+      column.maxContentWidth,
+    )
+
+    // Column maxCellWidth (if set) overrides any maxCellWidth set on the cells
+    if (maxWidth !== undefined) {
+      column.maxWidth = maxWidth
+    }
+
+    if (column.maxWidth < 0) {
+      column.maxWidth = Infinity
+    }
+
+    let width = resolveWidthStyle(
+      columnStyles.cellWidth,
+      column.minContentWidth,
+      column.maxContentWidth,
+    )
+
+    // Fixed column (column width is set)
+    if (width !== undefined) {
+      column.isFixed = true
+    }
+
+    // If column is still not fixed, inherit tableWidth if it's content-based
+    // this includes 'fit-content' which is similar to 'max-content' but limited to page width
+    if (!column.isFixed && typeof table.settings.tableWidth !== 'number') {
+      width = resolveWidthStyle(
+        table.settings.tableWidth,
+        column.minContentWidth,
+        column.maxContentWidth,
+      )
+    }
+
+    // In horizontalPageBreak mode, assign maxContentWidth (clamped to page width) to auto columns with no width
+    if (
+      table.settings.horizontalPageBreak &&
+      !column.isFixed &&
+      width === undefined
+    ) {
+      width = Math.min(column.maxContentWidth, pageNetWidth)
+    }
+
+    // Final clamped column width before excess width distribution
+    if (column.isFixed || width !== undefined) {
+      column.width = clampMinMax(
+        Math.max(column.width, width ?? 0),
+        column.minWidth,
+        column.maxWidth,
+      )
+    }
+
+    // Set default minCellWidth if not set (only for auto columns)
+    // this is to prevent shrinking auto columns to zero width later
+    if (
+      !(
+        column.isFixed ||
+        column.minWidth ||
+        typeof columnStyles.minCellWidth === 'number' ||
+        typeof table.styles.styles.minCellWidth === 'number'
+      )
+    ) {
+      column.minWidth = 10 / doc.scaleFactor() // 10pt
+    }
+
+    sumInitialWidth += column.width
+  }
+
+  // At this point we have :
+  // - Fixed columns that have received their final clamped width, as defined on the column or any of its cells.
+  // - Auto columns that have either:
+  //   - Inherited the tableWidth if it's content-based and received the appropriate clamped width.
+  //   - Received their clamped maxContentWidth when in horizontalPageBreak mode.
+  //   - If none of the above, they have not yet been assigned a width, which will happen in the next stage.
+
+  // Next we calculate the target table width and the excess width that will be distributed on auto columns
+  let targetWidth = 0
+
+  if (typeof table.settings.tableWidth === 'number') {
+    // Fixed table width
+    targetWidth = table.settings.tableWidth
+  } else if (table.settings.tableWidth === 'auto') {
+    if (table.settings.horizontalPageBreak) {
+      // In horizontalPageBreak mode, width should already be distributed
+      // just make sure it's not shorter than the page in 'auto' tableWidth mode
+      targetWidth = Math.max(sumInitialWidth, pageNetWidth)
+    } else {
+      // Table is stretched (or shrunk) to fit the page
+      targetWidth = pageNetWidth
+    }
+  } else if (table.settings.tableWidth === 'fit-content') {
+    if (table.settings.horizontalPageBreak) {
+      // In horizontalPageBreak mode, content width should already be distributed
+      targetWidth = sumInitialWidth
+    } else {
+      // Table width is the minimum of maxContentWidth and page width
+      targetWidth = Math.min(sumInitialWidth, pageNetWidth)
+    }
+  } else {
+    // Content-based table width should already be distributed on auto columns
+    // when they inherited tableWidth (min-content, max-content)
+    targetWidth = sumInitialWidth
+  }
+
+  // Excess width available for distribution, which could be:
+  // (+) positive (columns need to grow)
+  // (-) negative (columns need to shrink)
+  // (0) zero (table already has the desired width)
+  return targetWidth - sumInitialWidth
 }
 
 /**
- * Distribute resizeWidth on passed resizable columns
+ * Resolve width style to a value
  */
-export function resizeColumns(
-  columns: Column[],
-  resizeWidth: number,
-  getMinWidth: (column: Column) => number,
+function resolveWidthStyle(
+  WidthStyle: CellWidthType | TableWidthType | undefined,
+  minContentWidth: number,
+  maxContentWidth: number,
 ) {
-  const initialResizeWidth = resizeWidth
-  const sumWrappedWidth = columns.reduce(
-    (acc, column) => acc + column.wrappedWidth,
+  if (typeof WidthStyle === 'number') {
+    return WidthStyle
+  } else if (WidthStyle === 'min-content') {
+    return minContentWidth
+  } else if (WidthStyle === 'max-content' || WidthStyle === 'fit-content') {
+    return maxContentWidth
+  } else {
+    // auto
+    return undefined
+  }
+}
+
+/**
+ * Clamp a value by a minimum and a maximum limits
+ * (min overrides max)
+ */
+function clampMinMax(value: number, min = 0, max = Infinity): number {
+  // Process max first to ensure min overrides max (To be consistent with CSS)
+  return Math.max(Math.min(value, max), min)
+}
+
+/**
+ * Distribute excessWidth on given resizable columns based on maxContentWidth ratio
+ * with respect to minContentWidth and minWidth of each of the columns
+ */
+function distributeExcessWidth(columns: Column[], excessWidth: number): number {
+  const initialExcessWidth = excessWidth
+  const sumMaxContentWidth = columns.reduce(
+    (total, column) => total + column.maxContentWidth,
     0,
   )
 
-  for (let i = 0; i < columns.length; i++) {
-    const column = columns[i]
+  // Cannot distribute any width if there's no maxContentWidth to calculate the base ratio
+  if (sumMaxContentWidth === 0) return excessWidth
 
-    const ratio = column.wrappedWidth / sumWrappedWidth
-    const suggestedChange = initialResizeWidth * ratio
+  for (const column of columns) {
+    const ratio = column.maxContentWidth / sumMaxContentWidth
+    const suggestedChange = initialExcessWidth * ratio
     const suggestedWidth = column.width + suggestedChange
 
-    const minWidth = getMinWidth(column)
-    const newWidth = suggestedWidth < minWidth ? minWidth : suggestedWidth
+    const newWidth = clampMinMax(
+      Math.max(suggestedWidth, column.minContentWidth),
+      column.minWidth,
+      column.maxWidth,
+    )
 
-    resizeWidth -= newWidth - column.width
+    excessWidth -= newWidth - column.width
     column.width = newWidth
   }
 
-  resizeWidth = Math.round(resizeWidth * 1e10) / 1e10
-
-  // Run the resizer again if there's remaining width needs
-  // to be distributed and there're columns that can be resized
-  if (resizeWidth) {
+  // Continue running recursively until all the excess width has been distributed
+  // or there are no more columns that can be resized any further
+  if (Math.abs(excessWidth) > 1e-10) {
     const resizableColumns = columns.filter((column) => {
-      return resizeWidth < 0
-        ? column.width > getMinWidth(column) // check if column can shrink
-        : true // check if column can grow
+      return excessWidth < 0
+        ? column.width > Math.max(column.minWidth, column.minContentWidth) // check if column can shrink
+        : column.width < column.maxWidth // check if column can grow
     })
 
     if (resizableColumns.length) {
-      resizeWidth = resizeColumns(resizableColumns, resizeWidth, getMinWidth)
+      excessWidth = distributeExcessWidth(resizableColumns, excessWidth)
     }
   }
 
-  return resizeWidth
+  return excessWidth
+}
+
+/**
+ * Distribute negative excessWidth on given resizable columns when they're at their minContentWidth limit.
+ * Doing so will cause the columns to shrink beyond their minContentWidth causing definite word-break so this
+ * algorithm helps minimizing that by first shrinking the longest column and then moving to the next in size-order.
+ */
+function shrinkColumnsBeyondMinContent(
+  columns: Column[],
+  excessWidth: number,
+): number {
+  // Make sure this is used only for shrinking
+  if (excessWidth >= 0) return excessWidth
+
+  // Sort columns by width, from longest to shortest
+  columns.sort((a, b) => {
+    return a.width < b.width ? 1 : -1
+  })
+
+  // equalColumns will hold grouped columns that will shrink together to the same width.
+  // They will shrink down to the next column in queue then it will join them in the next round
+  const equalColumns: Column[] = []
+  distribute(true)
+
+  function distribute(pushNextColumn: boolean) {
+    const column = pushNextColumn ? columns.shift() : equalColumns[0]
+
+    // End the recursion when there're no more columns to work on
+    if (!column) return
+
+    if (pushNextColumn) equalColumns.push(column)
+
+    // Distribute the excess width on the grouped columns equally
+    const equalShare = excessWidth / equalColumns.length
+    let suggestedWidth = column.width + equalShare
+
+    // Limit shrinking to the width of the next column in queue
+    let nextLimitReached = false
+    if (columns.length) {
+      if (suggestedWidth < columns[0].width) {
+        suggestedWidth = columns[0].width
+        nextLimitReached = true
+      }
+    }
+
+    const constrainedColumns: number[] = []
+
+    // Shrink the grouped columns to the same width with respect to each minWidth
+    equalColumns.forEach((column, i) => {
+      const constrained = suggestedWidth < column.minWidth
+      const newWidth = constrained ? column.minWidth : suggestedWidth
+      excessWidth -= newWidth - column.width
+      column.width = newWidth
+      if (constrained) constrainedColumns.push(i)
+    })
+
+    // Removed any columns that reached their minWidth limit
+    if (constrainedColumns.length) {
+      for (const i of constrainedColumns.reverse()) {
+        equalColumns.splice(i, 1)
+      }
+      // Redistribute the excess width that was supposed to be given to the constrained columns
+      // before adding the next column in the queue as long as there're still columns in the group
+      return distribute(equalColumns.length == 0)
+    }
+
+    // Recursively run until all the excess width has been distributed (or there're no more columns)
+    if (nextLimitReached) distribute(true)
+  }
+
+  return excessWidth
 }
 
 function applyRowSpans(table: Table) {
@@ -290,24 +474,30 @@ function fitContent(table: Table, doc: DocHandler) {
 
       doc.applyStyles(cell.styles, true)
       const textSpace = cell.width - cell.padding('horizontal')
-      if (cell.styles.overflow === 'linebreak') {
-        // Add one pt to textSpace to fix rounding error
-        cell.text = doc.splitTextToSize(
-          cell.text,
-          textSpace + 1 / doc.scaleFactor(),
-          { fontSize: cell.styles.fontSize },
-        )
-      } else if (cell.styles.overflow === 'ellipsize') {
-        cell.text = ellipsize(cell.text, textSpace, cell.styles, doc, '...')
-      } else if (cell.styles.overflow === 'hidden') {
-        cell.text = ellipsize(cell.text, textSpace, cell.styles, doc, '')
-      } else if (typeof cell.styles.overflow === 'function') {
-        const result = cell.styles.overflow(cell.text, textSpace)
-        if (typeof result === 'string') {
-          cell.text = [result]
-        } else {
-          cell.text = result
+      if (cell.width) {
+        if (cell.styles.overflow === 'linebreak') {
+          // Add one pt to textSpace to fix rounding error
+          cell.text = doc.splitTextToSize(
+            cell.text,
+            textSpace + 1 / doc.scaleFactor(),
+            { fontSize: cell.styles.fontSize },
+          )
+        } else if (cell.styles.overflow === 'ellipsize') {
+          cell.text = ellipsize(cell.text, textSpace, cell.styles, doc, '...')
+        } else if (cell.styles.overflow === 'hidden') {
+          cell.text = ellipsize(cell.text, textSpace, cell.styles, doc, '')
+        } else if (typeof cell.styles.overflow === 'function') {
+          const result = cell.styles.overflow(cell.text, textSpace)
+          if (typeof result === 'string') {
+            cell.text = [result]
+          } else {
+            cell.text = result
+          }
         }
+      } else {
+        // Empty the cell if it has no width to prevent unwanted extra height
+        // otherwise it would require a line-height for each character in the cell
+        cell.text = ['']
       }
 
       cell.contentHeight = cell.getContentHeight(
