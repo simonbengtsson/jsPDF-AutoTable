@@ -70,6 +70,99 @@ examples.minimal = function () {
   return doc
 }
 
+// Width options - shows how to use the different width options
+examples.width = function () {
+  const doc = new jsPDF()
+
+  const head = headRows()
+  head[0]['text'] = 'Text'
+  const body = bodyRows(2)
+  body.forEach(function (row) {
+    row['text'] = faker.lorem.sentence(10)
+  })
+
+  let table
+
+  doc.text("Auto width (default)", 14, 20)
+  table = autoTable(doc, {
+    head: head,
+    body: body,
+    startY: 25,
+  })
+  doc.text(
+    "cellWidth: 'max-content' except for the text column",
+    14,
+    table.finalY + 10,
+  )
+  table = autoTable(doc, {
+    head: head,
+    body: body,
+    startY: table.finalY + 15,
+    // Default for all columns
+    styles: { cellWidth: 'max-content' },
+    // Override the default above for the text column
+    columnStyles: { text: { cellWidth: 'auto' } },
+  })
+  doc.text(
+    "tableWidth: 'min-content'",
+    14,
+    table.finalY + 10,
+  )
+  table = autoTable(doc, {
+    head: head,
+    body: body,
+    startY: table.finalY + 15,
+    tableWidth: 'min-content',
+  })
+  doc.text(
+    "tableWidth: 'max-content'",
+    14,
+    table.finalY + 10,
+  )
+  table = autoTable(doc, {
+    head: head,
+    body: body,
+    startY: table.finalY + 15,
+    tableWidth: 'max-content',
+  })
+  doc.addPage()
+  doc.text(
+    "Limit maxCellWidth to 'max-content' except for the email column",
+    14,
+    20,
+  )
+  const columnsWithoutText = table.columns.slice(0, -1).map(c => c.raw)
+  for (let i = 0; i < 3; i++) {
+    table = autoTable(doc, {
+      head: head,
+      body: body,
+      columns: columnsWithoutText,
+      startY: (i ? table.finalY : 25),
+      styles: { maxCellWidth: 'max-content' },
+      columnStyles: { email: { maxCellWidth: 'auto' } },
+      tableWidth: ['auto', 150, 100][i],
+    })
+  }
+  doc.text(
+    "Limit minCellWidth to 'max-content' except for the email column",
+    14,
+    table.finalY + 10,
+  )
+  for (let i = 0; i < 3; i++) {
+    table = autoTable(doc, {
+      head: head,
+      body: body,
+      columns: columnsWithoutText,
+      startY: table.finalY + (i ? 0 : 15),
+      styles: { minCellWidth: 'max-content' },
+      columnStyles: { email: { minCellWidth: 'auto' } },
+      tableWidth: ['auto', 150, 100][i],
+    })
+  }
+
+  return doc
+}
+
 // Long data - shows how the overflow features looks and can be used
 examples.long = function () {
   const doc = new jsPDF('l')
