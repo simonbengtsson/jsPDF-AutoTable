@@ -298,7 +298,8 @@ export class Column {
   minWidth = 0
 
   /** The maximum width allowed for the column based on all cells and the constrains */
-  maxWidth = Infinity
+  // -1 will be converted to Infinity later
+  maxWidth = -1
 
   /** The final used width */
   width = 0

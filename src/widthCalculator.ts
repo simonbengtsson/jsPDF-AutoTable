@@ -95,7 +95,7 @@ function distributeInitialWidth(doc: DocHandler, table: Table): number {
       // This will change when colSpan width algorithm is implemented.
       if (cell.colSpan === 1) {
         column.minWidth = Math.max(column.minWidth, minCellWidth ?? 0)
-        column.maxWidth = Math.min(column.maxWidth, maxCellWidth ?? Infinity)
+        column.maxWidth = Math.max(column.maxWidth, maxCellWidth ?? -1)
 
         column.minContentWidth = Math.max(
           column.minContentWidth,
@@ -137,6 +137,10 @@ function distributeInitialWidth(doc: DocHandler, table: Table): number {
     // Column maxCellWidth (if set) overrides any maxCellWidth set on the cells
     if (maxWidth !== undefined) {
       column.maxWidth = maxWidth
+    }
+
+    if (column.maxWidth < 0) {
+      column.maxWidth = Infinity
     }
 
     let width = resolveWidthStyle(
