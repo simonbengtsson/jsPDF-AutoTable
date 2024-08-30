@@ -1,6 +1,6 @@
 /*!
  * 
- *               jsPDF AutoTable plugin v3.8.2
+ *               jsPDF AutoTable plugin v3.8.3
  *
  *               Copyright (c) 2024 Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable
  *               Licensed under the MIT License.
@@ -490,7 +490,6 @@ function parseCss(supportedFonts, element, scaleFactor, style, window) {
             }
         }
     }
-    console.log(result.lineWidth);
     var borderColor = parseColor(element, function (elem) {
         return window.getComputedStyle(elem)[borderColorSide];
     });
