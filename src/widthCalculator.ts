@@ -79,7 +79,7 @@ function calculate(doc: DocHandler, table: Table) {
       cell.contentWidth = getStringWidth(cell.text, cell.styles, doc) + padding
 
       const longestWordWidth = getStringWidth(
-        cell.text.join(' ').split(/\s+/),
+        cell.text.join(' ').split(/[^\S\u00A0]+/),
         cell.styles,
         doc,
       )
