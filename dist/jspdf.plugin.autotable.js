@@ -1,6 +1,6 @@
 /*!
  * 
- *               jsPDF AutoTable plugin v3.8.3
+ *               jsPDF AutoTable plugin v3.8.4
  *
  *               Copyright (c) 2024 Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable
  *               Licensed under the MIT License.
@@ -2197,7 +2197,11 @@ function calculate(doc, table) {
             table.callCellHooks(doc, hooks, cell, row, column, null);
             var padding = cell.padding('horizontal');
             cell.contentWidth = (0, common_1.getStringWidth)(cell.text, cell.styles, doc) + padding;
-            var longestWordWidth = (0, common_1.getStringWidth)(cell.text.join(' ').split(/\s+/), cell.styles, doc);
+            // Using [^\S\u00A0] instead of \s ensures that we split the text on all
+            // whitespace except non-breaking spaces (\u00A0). We need to preserve
+            // them in the split process to ensure correct word separation and width
+            // calculation.
+            var longestWordWidth = (0, common_1.getStringWidth)(cell.text.join(' ').split(/[^\S\u00A0]+/), cell.styles, doc);
             cell.minReadableWidth = longestWordWidth + cell.padding('horizontal');
             if (typeof cell.styles.cellWidth === 'number') {
                 cell.minWidth = cell.styles.cellWidth;

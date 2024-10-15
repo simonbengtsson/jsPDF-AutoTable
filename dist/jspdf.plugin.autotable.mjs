@@ -1756,7 +1756,11 @@ function calculate(doc, table) {
             table.callCellHooks(doc, hooks, cell, row, column, null);
             var padding = cell.padding('horizontal');
             cell.contentWidth = getStringWidth(cell.text, cell.styles, doc) + padding;
-            var longestWordWidth = getStringWidth(cell.text.join(' ').split(/\s+/), cell.styles, doc);
+            // Using [^\S\u00A0] instead of \s ensures that we split the text on all
+            // whitespace except non-breaking spaces (\u00A0). We need to preserve
+            // them in the split process to ensure correct word separation and width
+            // calculation.
+            var longestWordWidth = getStringWidth(cell.text.join(' ').split(/[^\S\u00A0]+/), cell.styles, doc);
             cell.minReadableWidth = longestWordWidth + cell.padding('horizontal');
             if (typeof cell.styles.cellWidth === 'number') {
                 cell.minWidth = cell.styles.cellWidth;
