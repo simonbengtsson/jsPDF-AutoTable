@@ -26,7 +26,7 @@
     "example": "examples"
   },
   "peerDependencies": {
-    "jspdf": "^2.5.1"
+    "jspdf": "^3.0.0"
   },
   "prettier": {
     "semi": false,
@@ -42,7 +42,7 @@
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-prettier": "^5.0.0",
     "jsdom": "^22.1.0",
-    "jspdf": "^2.5.1",
+    "jspdf": "^3.0.0",
     "mocha": "^10.2.0",
     "npm-check-updates": "^16.14.5",
     "prettier": "^3.0.3",
