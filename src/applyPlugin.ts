@@ -1,24 +1,15 @@
-import { parseHtml } from './htmlParser'
 import autoTableText, { TextStyles } from './autoTableText'
-import { DocHandler, jsPDFConstructor, jsPDFDocument } from './documentHandler'
 import { UserOptions } from './config'
+import { DocHandler, jsPDFConstructor, jsPDFDocument } from './documentHandler'
+import { parseHtml } from './htmlParser'
 import { parseInput } from './inputParser'
-import { drawTable } from './tableDrawer'
 import { createTable } from './tableCalculator'
-import { Table } from './models'
+import { drawTable } from './tableDrawer'
 
 export default function (jsPDF: jsPDFConstructor) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   jsPDF.API.autoTable = function (this: jsPDFDocument, ...args: any[]) {
-    let options: UserOptions
-    if (args.length === 1) {
-      options = args[0]
-    } else {
-      console.error('Use of deprecated autoTable initiation')
-      options = args[2] || {}
-      options.columns = args[0]
-      options.body = args[1]
-    }
+    const options: UserOptions = args[0]
     const input = parseInput(this, options)
     const table = createTable(this, input)
     drawTable(this, table)
@@ -27,8 +18,6 @@ export default function (jsPDF: jsPDFConstructor) {
 
   // Assign false to enable `doc.lastAutoTable.finalY || 40` sugar
   jsPDF.API.lastAutoTable = false
-  jsPDF.API.previousAutoTable = false // deprecated in v3
-  jsPDF.API.autoTable.previous = false // deprecated in v3
 
   jsPDF.API.autoTableText = function (
     text: string | string[],
@@ -67,45 +56,5 @@ export default function (jsPDF: jsPDFConstructor) {
     )
     const columns = head[0]?.map((c) => c.content) || []
     return { columns, rows: body, data: body }
-  }
-
-  /**
-   * @deprecated
-   */
-  jsPDF.API.autoTableEndPosY = function () {
-    console.error(
-      'Use of deprecated function: autoTableEndPosY. Use doc.lastAutoTable.finalY instead.',
-    )
-    const prev: Table = this.lastAutoTable
-    if (prev && prev.finalY) {
-      return prev.finalY
-    } else {
-      return 0
-    }
-  }
-
-  /**
-   * @deprecated
-   */
-  jsPDF.API.autoTableAddPageContent = function (hook: () => void) {
-    console.error(
-      'Use of deprecated function: autoTableAddPageContent. Use jsPDF.autoTableSetDefaults({didDrawPage: () => {}}) instead.',
-    )
-    if (!jsPDF.API.autoTable.globalDefaults) {
-      jsPDF.API.autoTable.globalDefaults = {}
-    }
-    jsPDF.API.autoTable.globalDefaults.addPageContent = hook
-    return this
-  }
-
-  /**
-   * @deprecated
-   */
-  jsPDF.API.autoTableAddPage = function () {
-    console.error(
-      'Use of deprecated function: autoTableAddPage. Use doc.addPage()',
-    )
-    this.addPage()
-    return this
   }
 }

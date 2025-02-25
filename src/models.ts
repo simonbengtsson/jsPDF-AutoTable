@@ -1,3 +1,4 @@
+import { MarginPadding, parseSpacing } from './common'
 import {
   CellInput,
   Color,
@@ -8,7 +9,6 @@ import {
 } from './config'
 import { DocHandler } from './documentHandler'
 import { CellHookData, HookData } from './HookData'
-import { parseSpacing, MarginPadding } from './common'
 import { TableInput } from './inputParser'
 
 export type Pos = { x: number; y: number }
@@ -79,11 +79,6 @@ export class Table {
   pageNumber = 1
   finalY?: number
   startPageNumber?: number
-
-  // Deprecated, use pageNumber instead
-  // Not using getter since:
-  // https://github.com/simonbengtsson/jsPDF-AutoTable/issues/596
-  pageCount = 1
 
   constructor(input: TableInput, content: ContentSettings) {
     this.id = input.id

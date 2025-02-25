@@ -1,5 +1,5 @@
 import { jsPDF } from 'jspdf'
-import autoTable, { autoTable as autoTableType } from '../src/main'
+import autoTable, { autoTableInstanceType } from '../src/main'
 const assert = require('assert')
 
 describe('runner', () => {
@@ -38,9 +38,7 @@ describe('runner', () => {
 
   it('previous typing', () => {
     const doc = new jsPDF()
-    ;((doc as any).autoTable as autoTableType)({
-      body: [['test']],
-    })
+    ;((doc as any).autoTable as autoTableInstanceType)({ body: [['test']] })
     assert(true)
   })
 })

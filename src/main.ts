@@ -3,14 +3,13 @@
 import _applyPlugin from './applyPlugin'
 import { UserOptions } from './config'
 import { jsPDFConstructor, jsPDFDocument } from './documentHandler'
-import { parseInput } from './inputParser'
-import { drawTable as _drawTable } from './tableDrawer'
-import { createTable as _createTable } from './tableCalculator'
-import { Table } from './models'
 import { CellHookData } from './HookData'
-import { Cell, Column, Row } from './models'
+import { parseInput } from './inputParser'
+import { Cell, Column, Row, Table } from './models'
+import { createTable as _createTable } from './tableCalculator'
+import { drawTable as _drawTable } from './tableDrawer'
 
-export type autoTable = (options: UserOptions) => void
+export type autoTableInstanceType = (options: UserOptions) => void
 
 // export { applyPlugin } didn't export applyPlugin
 // to index.d.ts for some reason
@@ -18,7 +17,7 @@ export function applyPlugin(jsPDF: jsPDFConstructor) {
   _applyPlugin(jsPDF)
 }
 
-function autoTable(d: jsPDFDocument, options: UserOptions) {
+export function autoTable(d: jsPDFDocument, options: UserOptions) {
   const input = parseInput(d, options)
   const table = _createTable(d, input)
   _drawTable(d, table)
@@ -48,8 +47,4 @@ try {
 }
 
 export default autoTable
-export { CellHookData }
-export { Table }
-export { Row }
-export { Column }
-export { Cell }
+export { Cell, CellHookData, Column, Row, Table }

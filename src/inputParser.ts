@@ -1,17 +1,17 @@
-import { UserOptions, ColumnInput, RowInput, CellInput } from './config'
-import { parseHtml } from './htmlParser'
-import { assign } from './polyfills'
 import { parseSpacing } from './common'
+import { CellInput, ColumnInput, RowInput, UserOptions } from './config'
 import { DocHandler, jsPDFDocument } from './documentHandler'
-import validateOptions from './inputValidator'
+import { parseHtml } from './htmlParser'
+import { validateInput } from './inputValidator'
 import {
-  StyleProp,
-  StylesProps,
   CellHook,
+  HookProps,
   PageHook,
   Settings,
-  HookProps,
+  StyleProp,
+  StylesProps,
 } from './models'
+import { assign } from './polyfills'
 
 interface ContentInput {
   body: RowInput[]
@@ -33,7 +33,7 @@ export function parseInput(d: jsPDFDocument, current: UserOptions): TableInput {
 
   const document = doc.getDocumentOptions()
   const global = doc.getGlobalOptions()
-  validateOptions(doc, global, document, current)
+  validateInput(global, document, current)
   const options = assign({}, global, document, current)
 
   let win: Window | undefined
@@ -46,13 +46,7 @@ export function parseInput(d: jsPDFDocument, current: UserOptions): TableInput {
   const settings = parseSettings(doc, options)
   const content = parseContent(doc, options, win)
 
-  return {
-    id: current.tableId,
-    content,
-    hooks,
-    styles,
-    settings,
-  }
+  return { id: current.tableId, content, hooks, styles, settings }
 }
 
 function parseStyles(
@@ -197,12 +191,7 @@ function parseContent(doc: DocHandler, options: UserOptions, window?: Window) {
   }
 
   const columns = options.columns || parseColumns(head, body, foot)
-  return {
-    columns,
-    head,
-    body,
-    foot,
-  }
+  return { columns, head, body, foot }
 }
 
 function parseColumns(head: RowInput[], body: RowInput[], foot: RowInput[]) {

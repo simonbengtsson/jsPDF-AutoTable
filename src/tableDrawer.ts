@@ -1,19 +1,16 @@
-import { LineWidths } from './config'
-import { addTableBorder, getFillStyle } from './common'
-import { Cell, Column, Pos, Row, Table } from './models'
-import { DocHandler, jsPDFDocument } from './documentHandler'
-import { assign } from './polyfills'
 import autoTableText from './autoTableText'
+import { addTableBorder, getFillStyle } from './common'
+import { LineWidths } from './config'
+import { DocHandler, jsPDFDocument } from './documentHandler'
+import { Cell, Column, Pos, Row, Table } from './models'
+import { assign } from './polyfills'
 import { calculateAllColumnsCanFitInPage } from './tablePrinter'
 
 export function drawTable(jsPDFDoc: jsPDFDocument, table: Table): void {
   const settings = table.settings
   const startY = settings.startY
   const margin = settings.margin
-  const cursor = {
-    x: margin.left,
-    y: startY,
-  }
+  const cursor = { x: margin.left, y: startY }
   const sectionsHeight =
     table.getHeadHeight(table.columns) + table.getFootHeight(table.columns)
   let minTableBottomPos = startY + margin.bottom + sectionsHeight
@@ -75,10 +72,6 @@ export function drawTable(jsPDFDoc: jsPDFDocument, table: Table): void {
 
   table.finalY = cursor.y
   jsPDFDoc.lastAutoTable = table
-  jsPDFDoc.previousAutoTable = table // Deprecated
-
-  if (jsPDFDoc.autoTable) jsPDFDoc.autoTable.previous = table // Deprecated
-
   doc.applyStyles(doc.userStyles)
 }
 
@@ -599,7 +592,6 @@ export function addPage(
   addTableBorder(doc, table, startPos, cursor)
   nextPage(doc)
   table.pageNumber++
-  table.pageCount++
   cursor.x = margin.left
   cursor.y = margin.top
   startPos.y = margin.top
