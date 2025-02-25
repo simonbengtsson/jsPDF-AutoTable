@@ -1,6 +1,6 @@
 const assert = require('assert')
-import { resizeColumns } from '../src/widthCalculator'
 import { Column } from '../src/models'
+import { resizeColumns } from '../src/widthCalculator'
 
 describe('calculator', () => {
   describe('columns resizer', () => {
@@ -82,7 +82,7 @@ describe('calculator', () => {
       let resizeWidth = resizeColumns(
         [col1, col2, col3, col4],
         r,
-        (col) => col.minWidth
+        (col) => col.minWidth,
       )
       assert.equal(resizeWidth, 0, 'resizeWidth')
       assert.equal(col1.width, col3.width, 'col1 = col3')
@@ -91,7 +91,7 @@ describe('calculator', () => {
       resizeWidth = resizeColumns(
         [col1, col2, col4, col3],
         r,
-        (col) => col.minWidth
+        (col) => col.minWidth,
       )
       assert.equal(resizeWidth, 0, 'resizeWidth')
       assert.equal(col1.width, col3.width, 'col1 = col3')
@@ -112,12 +112,12 @@ describe('calculator', () => {
       assert.equal(
         Math.round(col1.width),
         Math.round(w1 + r * (w1 / (w1 + w2))),
-        'col3 width'
+        'col3 width',
       )
       assert.equal(
         Math.round(col2.width),
         Math.round(w2 + r * (w2 / (w1 + w2))),
-        'col2 width'
+        'col2 width',
       )
       assert.equal(resizeWidth, 0, 'resizeWidth')
     })
@@ -140,18 +140,18 @@ describe('calculator', () => {
       const resizeWidth = resizeColumns(
         [col1, col2, col3],
         r,
-        (col) => col.minWidth
+        (col) => col.minWidth,
       )
       assert.equal(col1.width, 500, 'col1 width')
       assert.equal(
         Math.round(col2.width),
         Math.round(w2 + (r - col1.minWidth + w1) * (w2 / (w2 + w3))),
-        'col2 width'
+        'col2 width',
       )
       assert.equal(
         Math.round(col3.width),
         Math.round(w3 + (r - col1.minWidth + w1) * (w3 / (w2 + w3))),
-        'col3 width'
+        'col3 width',
       )
       assert.equal(resizeWidth, 0, 'resizeWidth')
     })

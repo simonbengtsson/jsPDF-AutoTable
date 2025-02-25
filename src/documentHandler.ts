@@ -1,5 +1,5 @@
-import { Table } from './models'
 import { Color, Styles, UserOptions } from './config'
+import { Table } from './models'
 
 let globalDefaults: UserOptions = {}
 
@@ -163,10 +163,7 @@ export class DocHandler {
 
     // JSPDF 1.4 uses get functions instead of properties on pageSize
     if (pageSize.width == null) {
-      pageSize = {
-        width: pageSize.getWidth(),
-        height: pageSize.getHeight(),
-      }
+      pageSize = { width: pageSize.getWidth(), height: pageSize.getHeight() }
     }
 
     return pageSize

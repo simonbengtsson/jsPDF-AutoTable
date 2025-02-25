@@ -1,7 +1,7 @@
 // Limitations
 // - No support for border spacing
 // - No support for transparency
-import { parseSpacing, MarginPadding } from './common'
+import { MarginPadding, parseSpacing } from './common'
 import { Styles } from './config'
 
 export function parseCss(

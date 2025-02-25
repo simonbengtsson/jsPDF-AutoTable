@@ -1,7 +1,7 @@
-import { getStringWidth, getPageAvailableWidth } from './common'
-import { Table, Cell, Column, Row } from './models'
-import { DocHandler } from './documentHandler'
+import { getPageAvailableWidth, getStringWidth } from './common'
 import { Styles } from './config'
+import { DocHandler } from './documentHandler'
+import { Cell, Column, Row, Table } from './models'
 
 /**
  * Calculate the column widths

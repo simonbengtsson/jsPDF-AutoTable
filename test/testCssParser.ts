@@ -1,6 +1,6 @@
 // Fix for https://github.com/simonbengtsson/jsPDF-AutoTable/runs/3567913815
-global.TextEncoder = require("util").TextEncoder;
-global.TextDecoder = require("util").TextDecoder;
+global.TextEncoder = require('util').TextEncoder
+global.TextDecoder = require('util').TextDecoder
 
 import { parseCss } from '../src/cssParser'
 const assert = require('assert')
@@ -43,7 +43,7 @@ describe('css parser', () => {
     assert.equal(
       (styles as any).cellPadding.top,
       5 / pxScaleFactor,
-      'Cell padding'
+      'Cell padding',
     )
     assert.equal(typeof styles.lineWidth, 'number', 'Line width number')
     assert.equal(styles.lineWidth, 2 / pxScaleFactor, 'Line width')
@@ -64,12 +64,16 @@ describe('css parser', () => {
     }
     const styles = parseCss([], element, scaleFactor, element.style, dom.window)
     assert.equal(typeof styles.lineWidth, 'object', 'Line width object')
-    assert.deepStrictEqual(styles.lineWidth, {
-      top: 0,
-      right: 2 / pxScaleFactor / scaleFactor,
-      bottom: 3 / pxScaleFactor / scaleFactor,
-      left: 4 / pxScaleFactor / scaleFactor,
-    }, 'Line widths')
+    assert.deepStrictEqual(
+      styles.lineWidth,
+      {
+        top: 0,
+        right: 2 / pxScaleFactor / scaleFactor,
+        bottom: 3 / pxScaleFactor / scaleFactor,
+        left: 4 / pxScaleFactor / scaleFactor,
+      },
+      'Line widths',
+    )
   })
 
   it('minimal styles', () => {

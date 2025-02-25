@@ -2,9 +2,9 @@
 global.TextEncoder = require('util').TextEncoder
 global.TextDecoder = require('util').TextDecoder
 
-import { parseHtml } from '../src/htmlParser'
-import { DocHandler } from '../src/documentHandler'
 import { jsPDF } from 'jspdf'
+import { DocHandler } from '../src/documentHandler'
+import { parseHtml } from '../src/htmlParser'
 const assert = require('assert')
 const jsdom = require('jsdom')
 const dom = new jsdom.JSDOM('')

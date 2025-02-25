@@ -1,6 +1,6 @@
+import { Color, MarginPaddingInput, Styles } from './config'
 import { DocHandler } from './documentHandler'
 import { Pos, Table } from './models'
-import { Color, MarginPaddingInput, Styles } from './config'
 
 type Text = string | string[]
 export function getStringWidth(

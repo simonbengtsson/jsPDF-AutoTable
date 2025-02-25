@@ -1,7 +1,7 @@
-import { createTable } from '../src/tableCalculator'
-import { parseInput } from '../src/inputParser'
-import { jsPDF } from 'jspdf'
 import * as assert from 'assert'
+import { jsPDF } from 'jspdf'
+import { parseInput } from '../src/inputParser'
+import { createTable } from '../src/tableCalculator'
 
 describe('input parser', () => {
   it('non browser', () => {

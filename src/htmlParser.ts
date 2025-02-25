@@ -1,6 +1,6 @@
+import { HtmlRowInput } from './config'
 import { parseCss } from './cssParser'
 import { DocHandler } from './documentHandler'
-import { HtmlRowInput } from './config'
 
 export function parseHtml(
   doc: DocHandler,

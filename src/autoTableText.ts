@@ -59,10 +59,7 @@ export default function (
   }
 
   if (styles.halign === 'justify') {
-    doc.text(text, x, y, {
-      maxWidth: styles.maxWidth || 100,
-      align: 'justify',
-    })
+    doc.text(text, x, y, { maxWidth: styles.maxWidth || 100, align: 'justify' })
   } else {
     doc.text(text, x, y)
   }
