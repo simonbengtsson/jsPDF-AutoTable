@@ -23,7 +23,6 @@ function getColumnsCanFitInPage(
   const columns: Column[] = []
 
   let horizontalPageBreakRepeat: (number | string)[] = []
-  table.settings.horizontalPageBreakRepeat
 
   if (Array.isArray(table.settings.horizontalPageBreakRepeat)) {
     horizontalPageBreakRepeat = table.settings.horizontalPageBreakRepeat

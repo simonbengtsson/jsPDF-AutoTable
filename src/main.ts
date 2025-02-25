@@ -34,12 +34,13 @@ export function __drawTable(d: jsPDFDocument, table: Table) {
 }
 
 try {
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   let jsPDF = require('jspdf')
   // Webpack imported jspdf instead of jsPDF for some reason
   // while it seemed to work everywhere else.
   if (jsPDF.jsPDF) jsPDF = jsPDF.jsPDF
   applyPlugin(jsPDF)
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
 } catch (error) {
   // Importing jspdf in nodejs environments does not work as of jspdf
   // 1.5.3 so we need to silence potential errors to support using for example

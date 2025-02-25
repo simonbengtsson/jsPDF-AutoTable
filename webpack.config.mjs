@@ -1,8 +1,8 @@
-import webpack from 'webpack'
-import path from 'path'
 import fs from 'fs'
+import path from 'path'
 import TerserPlugin from 'terser-webpack-plugin'
 import * as url from 'url'
+import webpack from 'webpack'
 
 export default (env) => {
   const minified = !!env.minified
@@ -17,9 +17,7 @@ export default (env) => {
     entry: {
       [`dist/jspdf.plugin.autotable${minified ? '.min' : ''}`]: './src/main.ts',
     },
-    resolve: {
-      extensions: ['.ts', '.js'],
-    },
+    resolve: { extensions: ['.ts', '.js'] },
     output: {
       path: outputPath,
       filename: '[name].js',
@@ -27,9 +25,7 @@ export default (env) => {
       globalObject:
         "typeof globalThis !== 'undefined' ? globalThis : typeof this !== 'undefined' ? this : typeof window !== 'undefined' ? window : typeof self !== 'undefined' ? self : global ",
     },
-    module: {
-      rules: [{ test: /\.ts$/, use: [{ loader: 'ts-loader' }] }],
-    },
+    module: { rules: [{ test: /\.ts$/, use: [{ loader: 'ts-loader' }] }] },
     externals: {
       jspdf: {
         commonjs: 'jspdf',
@@ -40,16 +36,15 @@ export default (env) => {
     },
     performance: { hints: false },
     devServer: {
-      static: {
-        directory: '.',
-      },
+      static: { directory: '.' },
       port: 9000,
-      proxy: {
-        '/libs/jspdf.plugin.autotable.js': {
+      proxy: [
+        {
+          context: ['/libs/jspdf.plugin.autotable.js'],
           target: 'http://localhost:9000/dist/',
-          pathRewrite: { '^/libs': '' },
+          changeOrigin: true,
         },
-      },
+      ],
     },
     plugins: [
       new webpack.BannerPlugin(`
