@@ -248,7 +248,7 @@ export class Cell {
     if (raw != null && typeof raw === 'object' && !Array.isArray(raw)) {
       this.rowSpan = raw.rowSpan || 1
       this.colSpan = raw.colSpan || 1
-      content = raw.content ?? raw.title ?? raw
+      content = raw.content ?? raw
       if (raw._element) {
         this.raw = raw._element
       }

@@ -76,9 +76,7 @@ export interface UserOptions {
   headStyles?: Partial<Styles>
   footStyles?: Partial<Styles>
   alternateRowStyles?: Partial<Styles>
-  columnStyles?: {
-    [key: string]: Partial<Styles>
-  }
+  columnStyles?: { [key: string]: Partial<Styles> }
 
   // Hooks
   /** Called when the plugin finished parsing cell content. Can be used to override content or styles for a specific cell. */
@@ -96,13 +94,7 @@ export interface UserOptions {
 export type ColumnInput =
   | string
   | number
-  | {
-      header?: CellInput
-      title?: CellInput // deprecated (same as header)
-      footer?: CellInput
-      dataKey?: string | number
-      key?: string | number // deprecated (same as dataKey)
-    }
+  | { header?: CellInput; footer?: CellInput; dataKey?: string | number }
 
 export type Color = [number, number, number] | number | string | false
 export type MarginPaddingInput =
@@ -122,7 +114,6 @@ export interface CellDef {
   colSpan?: number
   styles?: Partial<Styles>
   content?: string | string[] | number
-  title?: string // Deprecated, same as content
   _element?: HTMLTableCellElement
 }
 
@@ -193,10 +184,7 @@ export function getTheme(name: ThemeName): { [key: string]: Partial<Styles> } {
       },
       alternateRow: {},
     },
-    plain: {
-      head: { fontStyle: 'bold' },
-      foot: { fontStyle: 'bold' },
-    },
+    plain: { head: { fontStyle: 'bold' }, foot: { fontStyle: 'bold' } },
   }
   return themes[name]
 }

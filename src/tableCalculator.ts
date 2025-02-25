@@ -1,6 +1,3 @@
-import { DocHandler, jsPDFDocument } from './documentHandler'
-import { Cell, Column, Row, Section, StylesProps, Table } from './models'
-import { calculateWidths } from './widthCalculator'
 import {
   CellInput,
   ColumnInput,
@@ -10,8 +7,11 @@ import {
   Styles,
   ThemeName,
 } from './config'
-import { assign } from './polyfills'
+import { DocHandler, jsPDFDocument } from './documentHandler'
 import { TableInput } from './inputParser'
+import { Cell, Column, Row, Section, StylesProps, Table } from './models'
+import { assign } from './polyfills'
+import { calculateWidths } from './widthCalculator'
 
 export function createTable(jsPDFDoc: jsPDFDocument, input: TableInput) {
   const doc = new DocHandler(jsPDFDoc)
@@ -137,7 +137,7 @@ function generateSectionRow(
 function getSectionTitle(section: Section, column: ColumnInput) {
   if (section === 'head') {
     if (typeof column === 'object') {
-      return column.header || column.title || null
+      return column.header || null
     } else if (typeof column === 'string' || typeof column === 'number') {
       return column
     }
@@ -151,7 +151,7 @@ function createColumns(columns: ColumnInput[]) {
   return columns.map((input, index) => {
     let key
     if (typeof input === 'object') {
-      key = input.dataKey ?? input.key ?? index
+      key = input.dataKey ?? index
     } else {
       key = index
     }
