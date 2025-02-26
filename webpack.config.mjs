@@ -26,14 +26,6 @@ export default (env) => {
         "typeof globalThis !== 'undefined' ? globalThis : typeof this !== 'undefined' ? this : typeof window !== 'undefined' ? window : typeof self !== 'undefined' ? self : global ",
     },
     module: { rules: [{ test: /\.ts$/, use: [{ loader: 'ts-loader' }] }] },
-    externals: {
-      jspdf: {
-        commonjs: 'jspdf',
-        commonjs2: 'jspdf',
-        amd: 'jspdf',
-        root: 'jspdf',
-      },
-    },
     performance: { hints: false },
     devServer: {
       static: { directory: '.' },

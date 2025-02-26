@@ -1,8 +1,8 @@
 'use strict'
 
-import _applyPlugin from './applyPlugin'
+import { applyPlugin } from './applyPlugin'
 import { UserOptions } from './config'
-import { jsPDFConstructor, jsPDFDocument } from './documentHandler'
+import { jsPDFDocument } from './documentHandler'
 import { CellHookData } from './HookData'
 import { parseInput } from './inputParser'
 import { Cell, Column, Row, Table } from './models'
@@ -10,12 +10,7 @@ import { createTable as _createTable } from './tableCalculator'
 import { drawTable as _drawTable } from './tableDrawer'
 
 export type autoTableInstanceType = (options: UserOptions) => void
-
-// export { applyPlugin } didn't export applyPlugin
-// to index.d.ts for some reason
-export function applyPlugin(jsPDF: jsPDFConstructor) {
-  _applyPlugin(jsPDF)
-}
+export { applyPlugin }
 
 export function autoTable(d: jsPDFDocument, options: UserOptions) {
   const input = parseInput(d, options)
@@ -34,17 +29,16 @@ export function __drawTable(d: jsPDFDocument, table: Table) {
 }
 
 try {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  let jsPDF = require('jspdf')
-  // Webpack imported jspdf instead of jsPDF for some reason
-  // while it seemed to work everywhere else.
-  if (jsPDF.jsPDF) jsPDF = jsPDF.jsPDF
-  applyPlugin(jsPDF)
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  if (typeof window !== 'undefined' && window) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const anyWindow = window as any
+    const jsPDF = anyWindow.jsPDF || anyWindow.jspdf?.jsPDF
+    if (jsPDF) {
+      applyPlugin(jsPDF)
+    }
+  }
 } catch (error) {
-  // Importing jspdf in nodejs environments does not work as of jspdf
-  // 1.5.3 so we need to silence potential errors to support using for example
-  // the nodejs jspdf dist files with the exported applyPlugin
+  console.error('Could not apply autoTable plugin', error)
 }
 
 export default autoTable

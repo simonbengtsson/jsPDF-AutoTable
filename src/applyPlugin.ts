@@ -6,7 +6,7 @@ import { parseInput } from './inputParser'
 import { createTable } from './tableCalculator'
 import { drawTable } from './tableDrawer'
 
-export default function (jsPDF: jsPDFConstructor) {
+export function applyPlugin(jsPDF: jsPDFConstructor) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   jsPDF.API.autoTable = function (this: jsPDFDocument, ...args: any[]) {
     const options: UserOptions = args[0]
