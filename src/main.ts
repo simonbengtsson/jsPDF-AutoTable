@@ -3,7 +3,7 @@
 import { applyPlugin } from './applyPlugin'
 import { UserOptions } from './config'
 import { jsPDFDocument } from './documentHandler'
-import { CellHookData } from './HookData'
+import { CellHookData, HookData } from './HookData'
 import { parseInput } from './inputParser'
 import { Cell, Column, Row, Table } from './models'
 import { createTable as _createTable } from './tableCalculator'
@@ -42,4 +42,4 @@ try {
 }
 
 export default autoTable
-export { Cell, CellHookData, Column, Row, Table }
+export { Cell, CellHookData, Column, HookData, Row, Table }
