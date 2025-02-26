@@ -26,7 +26,7 @@
     "example": "examples"
   },
   "peerDependencies": {
-    "jspdf": ">=3.0.0"
+    "jspdf": "^2 || ^3"
   },
   "prettier": {
     "semi": false,
