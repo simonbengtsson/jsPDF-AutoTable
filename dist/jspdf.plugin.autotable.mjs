@@ -2011,7 +2011,7 @@ function nextPage(doc) {
     return false;
 }
 
-function _applyPlugin (jsPDF) {
+function applyPlugin(jsPDF) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     jsPDF.API.autoTable = function () {
         var args = [];
@@ -2050,11 +2050,7 @@ function _applyPlugin (jsPDF) {
     };
 }
 
-// export { applyPlugin } didn't export applyPlugin
-// to index.d.ts for some reason
-function applyPlugin(jsPDF) {
-    _applyPlugin(jsPDF);
-}
+var _a;
 function autoTable(d, options) {
     var input = parseInput(d, options);
     var table = createTable(d, input);
@@ -2069,19 +2065,17 @@ function __drawTable(d, table) {
     drawTable(d, table);
 }
 try {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    var jsPDF = require('jspdf');
-    // Webpack imported jspdf instead of jsPDF for some reason
-    // while it seemed to work everywhere else.
-    if (jsPDF.jsPDF)
-        jsPDF = jsPDF.jsPDF;
-    applyPlugin(jsPDF);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    if (typeof window !== 'undefined' && window) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        var anyWindow = window;
+        var jsPDF = anyWindow.jsPDF || ((_a = anyWindow.jspdf) === null || _a === void 0 ? void 0 : _a.jsPDF);
+        if (jsPDF) {
+            applyPlugin(jsPDF);
+        }
+    }
 }
 catch (error) {
-    // Importing jspdf in nodejs environments does not work as of jspdf
-    // 1.5.3 so we need to silence potential errors to support using for example
-    // the nodejs jspdf dist files with the exported applyPlugin
+    console.error('Could not apply autoTable plugin', error);
 }
 
 export { Cell, CellHookData, Column, Row, Table, __createTable, __drawTable, applyPlugin, autoTable, autoTable as default };

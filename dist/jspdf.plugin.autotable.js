@@ -1,6 +1,6 @@
 /*!
  * 
- *               jsPDF AutoTable plugin v4.0.0
+ *               jsPDF AutoTable plugin v5.0.0
  *
  *               Copyright (c) 2025 Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable
  *               Licensed under the MIT License.
@@ -9,14 +9,14 @@
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
-		module.exports = factory((function webpackLoadOptionalExternalModule() { try { return require("jspdf"); } catch(e) {} }()));
+		module.exports = factory();
 	else if(typeof define === 'function' && define.amd)
-		define(["jspdf"], factory);
+		define([], factory);
 	else {
-		var a = typeof exports === 'object' ? factory((function webpackLoadOptionalExternalModule() { try { return require("jspdf"); } catch(e) {} }())) : factory(root["jspdf"]);
+		var a = factory();
 		for(var i in a) (typeof exports === 'object' ? exports : root)[i] = a[i];
 	}
-})(typeof globalThis !== 'undefined' ? globalThis : typeof this !== 'undefined' ? this : typeof window !== 'undefined' ? window : typeof self !== 'undefined' ? self : global , function(__WEBPACK_EXTERNAL_MODULE__396__) {
+})(typeof globalThis !== 'undefined' ? globalThis : typeof this !== 'undefined' ? this : typeof window !== 'undefined' ? window : typeof self !== 'undefined' ? self : global , function() {
 return /******/ (function() { // webpackBootstrap
 /******/ 	"use strict";
 /******/ 	var __webpack_modules__ = ({
@@ -901,15 +901,6 @@ function cellStyles(sectionName, column, rowIndex, themeName, styles, scaleFacto
 
 /***/ }),
 
-/***/ 396:
-/***/ (function(module) {
-
-if(typeof __WEBPACK_EXTERNAL_MODULE__396__ === 'undefined') { var e = new Error("Cannot find module 'undefined'"); e.code = 'MODULE_NOT_FOUND'; throw e; }
-
-module.exports = __WEBPACK_EXTERNAL_MODULE__396__;
-
-/***/ }),
-
 /***/ 460:
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
@@ -1417,14 +1408,14 @@ function calculateAllColumnsCanFitInPage(doc, table) {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports["default"] = default_1;
+exports.applyPlugin = applyPlugin;
 var autoTableText_1 = __webpack_require__(150);
 var documentHandler_1 = __webpack_require__(643);
 var htmlParser_1 = __webpack_require__(660);
 var inputParser_1 = __webpack_require__(371);
 var tableCalculator_1 = __webpack_require__(376);
 var tableDrawer_1 = __webpack_require__(789);
-function default_1(jsPDF) {
+function applyPlugin(jsPDF) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     jsPDF.API.autoTable = function () {
         var args = [];
@@ -2299,13 +2290,14 @@ var __webpack_exports__ = {};
 !function() {
 var exports = __webpack_exports__;
 
+var _a;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.Table = exports.Row = exports.Column = exports.CellHookData = exports.Cell = void 0;
-exports.applyPlugin = applyPlugin;
+exports.Table = exports.Row = exports.Column = exports.CellHookData = exports.Cell = exports.applyPlugin = void 0;
 exports.autoTable = autoTable;
 exports.__createTable = __createTable;
 exports.__drawTable = __drawTable;
 var applyPlugin_1 = __webpack_require__(639);
+Object.defineProperty(exports, "applyPlugin", ({ enumerable: true, get: function () { return applyPlugin_1.applyPlugin; } }));
 var HookData_1 = __webpack_require__(601);
 Object.defineProperty(exports, "CellHookData", ({ enumerable: true, get: function () { return HookData_1.CellHookData; } }));
 var inputParser_1 = __webpack_require__(371);
@@ -2316,11 +2308,6 @@ Object.defineProperty(exports, "Row", ({ enumerable: true, get: function () { re
 Object.defineProperty(exports, "Table", ({ enumerable: true, get: function () { return models_1.Table; } }));
 var tableCalculator_1 = __webpack_require__(376);
 var tableDrawer_1 = __webpack_require__(789);
-// export { applyPlugin } didn't export applyPlugin
-// to index.d.ts for some reason
-function applyPlugin(jsPDF) {
-    (0, applyPlugin_1.default)(jsPDF);
-}
 function autoTable(d, options) {
     var input = (0, inputParser_1.parseInput)(d, options);
     var table = (0, tableCalculator_1.createTable)(d, input);
@@ -2335,19 +2322,17 @@ function __drawTable(d, table) {
     (0, tableDrawer_1.drawTable)(d, table);
 }
 try {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    var jsPDF = __webpack_require__(396);
-    // Webpack imported jspdf instead of jsPDF for some reason
-    // while it seemed to work everywhere else.
-    if (jsPDF.jsPDF)
-        jsPDF = jsPDF.jsPDF;
-    applyPlugin(jsPDF);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    if (typeof window !== 'undefined' && window) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        var anyWindow = window;
+        var jsPDF = anyWindow.jsPDF || ((_a = anyWindow.jspdf) === null || _a === void 0 ? void 0 : _a.jsPDF);
+        if (jsPDF) {
+            (0, applyPlugin_1.applyPlugin)(jsPDF);
+        }
+    }
 }
 catch (error) {
-    // Importing jspdf in nodejs environments does not work as of jspdf
-    // 1.5.3 so we need to silence potential errors to support using for example
-    // the nodejs jspdf dist files with the exported applyPlugin
+    console.error('Could not apply autoTable plugin', error);
 }
 exports["default"] = autoTable;
 
