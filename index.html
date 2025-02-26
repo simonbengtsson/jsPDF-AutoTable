@@ -4,12 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width">
-    <!--<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pure/0.6.0/pure-min.css">-->
     <link rel="stylesheet" href="examples/assets/pure-min.css">
-
-    <!--<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pure/0.6.0/grids-responsive-min.css">-->
     <link rel="stylesheet" href="examples/assets/grids-responsive-min.css">
-
     <title>AutoTable sample</title>
 
     <style>
@@ -116,12 +112,9 @@
             </ul>
 
             <button id="download-btn" class="pure-button">Download PDF</button>
-            <!--<div class="editor">
-        <pre><code class="javascript">var test = "hey!";</code></pre></div>-->
         </div>
 
         <div id="wrapper" class="pure-u-1 pure-u-md-4-5">
-            <!--<iframe id="output"></iframe>-->
             <object id="output" type="application/pdf">
                 <p>It appears you don't have PDF support in this web browser. <a href="#" id="download-link">Click here
                         to download the PDF</a>.</p>
@@ -226,8 +219,8 @@
         };
 
         function update(shouldDownload) {
-            var funcStr = window.location.hash.replace(/#/g, '') || 'basic';
-            var doc = window.examples[funcStr]();
+            const funcStr = window.location.hash.replace(/#/g, '') || 'basic';
+            const doc = window.examples[funcStr]();
 
             doc.setProperties({
                 title: 'Example: ' + funcStr,
@@ -242,7 +235,7 @@
             }
         }
 
-        var base64Img, coinBase64Img;
+        let base64Img, coinBase64Img;
         imgToBase64('examples/assets/document.jpg', function (base64) {
             base64Img = base64;
             imgToBase64('examples/assets/coin.png', function (base64) {
@@ -254,13 +247,13 @@
         // You could either use a function similar to this or pre convert an image with for example http://dopiaza.org/tools/datauri
         // https://stackoverflow.com/a/20285053/827047
         function imgToBase64(src, callback) {
-            var outputFormat = src.substr(-3) === 'png' ? 'image/png' : 'image/jpeg';
-            var img = new Image();
+            const outputFormat = src.substr(-3) === 'png' ? 'image/png' : 'image/jpeg';
+            const img = new Image();
             img.crossOrigin = 'Anonymous';
             img.onload = function () {
-                var canvas = document.createElement('CANVAS');
-                var ctx = canvas.getContext('2d');
-                var dataURL;
+                const canvas = document.createElement('CANVAS');
+                const ctx = canvas.getContext('2d');
+                let dataURL;
                 canvas.height = this.naturalHeight;
                 canvas.width = this.naturalWidth;
                 ctx.drawImage(this, 0, 0);

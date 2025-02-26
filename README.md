@@ -58,7 +58,7 @@ The third usage option is with downloaded or CDN dist files
 <script src="jspdf.min.js"></script>
 <script src="jspdf.plugin.autotable.min.js"></script>
 <script>
-  var doc = new jsPDF()
+  const doc = new jsPDF()
   doc.autoTable({ html: '#my-table' })
   doc.save('table.pdf')
 </script>
@@ -226,7 +226,7 @@ To see what is included in the `Table`, `Row`, `Column` and `Cell` types, either
 autoTable(doc, {
   didDrawCell: (data) => {
     if (data.section === 'body' && data.column.index === 0) {
-      var base64Img = 'data:image/jpeg;base64,iVBORw0KGgoAAAANS...'
+      const base64Img = 'data:image/jpeg;base64,iVBORw0KGgoAAAANS...'
       doc.addImage(base64Img, 'JPEG', data.cell.x + 2, data.cell.y + 2, 10, 10)
     }
   },
