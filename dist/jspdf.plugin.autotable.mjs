@@ -1,3 +1,312 @@
+/**
+ * Improved text function with halign and valign support
+ * Inspiration from: http://stackoverflow.com/questions/28327510/align-text-right-using-jspdf/28433113#28433113
+ */
+function autoTableText (text, x, y, styles, doc) {
+    styles = styles || {};
+    var PHYSICAL_LINE_HEIGHT = 1.15;
+    var k = doc.internal.scaleFactor;
+    var fontSize = doc.internal.getFontSize() / k;
+    var lineHeightFactor = doc.getLineHeightFactor
+        ? doc.getLineHeightFactor()
+        : PHYSICAL_LINE_HEIGHT;
+    var lineHeight = fontSize * lineHeightFactor;
+    var splitRegex = /\r\n|\r|\n/g;
+    var splitText = '';
+    var lineCount = 1;
+    if (styles.valign === 'middle' ||
+        styles.valign === 'bottom' ||
+        styles.halign === 'center' ||
+        styles.halign === 'right') {
+        splitText = typeof text === 'string' ? text.split(splitRegex) : text;
+        lineCount = splitText.length || 1;
+    }
+    // Align the top
+    y += fontSize * (2 - PHYSICAL_LINE_HEIGHT);
+    if (styles.valign === 'middle')
+        y -= (lineCount / 2) * lineHeight;
+    else if (styles.valign === 'bottom')
+        y -= lineCount * lineHeight;
+    if (styles.halign === 'center' || styles.halign === 'right') {
+        var alignSize = fontSize;
+        if (styles.halign === 'center')
+            alignSize *= 0.5;
+        if (splitText && lineCount >= 1) {
+            for (var iLine = 0; iLine < splitText.length; iLine++) {
+                doc.text(splitText[iLine], x - doc.getStringUnitWidth(splitText[iLine]) * alignSize, y);
+                y += lineHeight;
+            }
+            return doc;
+        }
+        x -= doc.getStringUnitWidth(text) * alignSize;
+    }
+    if (styles.halign === 'justify') {
+        doc.text(text, x, y, { maxWidth: styles.maxWidth || 100, align: 'justify' });
+    }
+    else {
+        doc.text(text, x, y);
+    }
+    return doc;
+}
+
+var globalDefaults = {};
+var DocHandler = /** @class */ (function () {
+    function DocHandler(jsPDFDocument) {
+        this.jsPDFDocument = jsPDFDocument;
+        this.userStyles = {
+            // Black for versions of jspdf without getTextColor
+            textColor: jsPDFDocument.getTextColor
+                ? this.jsPDFDocument.getTextColor()
+                : 0,
+            fontSize: jsPDFDocument.internal.getFontSize(),
+            fontStyle: jsPDFDocument.internal.getFont().fontStyle,
+            font: jsPDFDocument.internal.getFont().fontName,
+            // 0 for versions of jspdf without getLineWidth
+            lineWidth: jsPDFDocument.getLineWidth
+                ? this.jsPDFDocument.getLineWidth()
+                : 0,
+            // Black for versions of jspdf without getDrawColor
+            lineColor: jsPDFDocument.getDrawColor
+                ? this.jsPDFDocument.getDrawColor()
+                : 0,
+        };
+    }
+    DocHandler.setDefaults = function (defaults, doc) {
+        if (doc === void 0) { doc = null; }
+        if (doc) {
+            doc.__autoTableDocumentDefaults = defaults;
+        }
+        else {
+            globalDefaults = defaults;
+        }
+    };
+    DocHandler.unifyColor = function (c) {
+        if (Array.isArray(c)) {
+            return c;
+        }
+        else if (typeof c === 'number') {
+            return [c, c, c];
+        }
+        else if (typeof c === 'string') {
+            return [c];
+        }
+        else {
+            return null;
+        }
+    };
+    DocHandler.prototype.applyStyles = function (styles, fontOnly) {
+        // Font style needs to be applied before font
+        // https://github.com/simonbengtsson/jsPDF-AutoTable/issues/632
+        var _a, _b, _c;
+        if (fontOnly === void 0) { fontOnly = false; }
+        if (styles.fontStyle && this.jsPDFDocument.setFontStyle) {
+            this.jsPDFDocument.setFontStyle(styles.fontStyle);
+        }
+        var _d = this.jsPDFDocument.internal.getFont(), fontStyle = _d.fontStyle, fontName = _d.fontName;
+        if (styles.font)
+            fontName = styles.font;
+        if (styles.fontStyle) {
+            fontStyle = styles.fontStyle;
+            var availableFontStyles = this.getFontList()[fontName];
+            if (availableFontStyles &&
+                availableFontStyles.indexOf(fontStyle) === -1 &&
+                this.jsPDFDocument.setFontStyle) {
+                // Common issue was that the default bold in headers
+                // made custom fonts not work. For example:
+                // https://github.com/simonbengtsson/jsPDF-AutoTable/issues/653
+                this.jsPDFDocument.setFontStyle(availableFontStyles[0]);
+                fontStyle = availableFontStyles[0];
+            }
+        }
+        this.jsPDFDocument.setFont(fontName, fontStyle);
+        if (styles.fontSize)
+            this.jsPDFDocument.setFontSize(styles.fontSize);
+        if (fontOnly) {
+            return; // Performance improvement
+        }
+        var color = DocHandler.unifyColor(styles.fillColor);
+        if (color)
+            (_a = this.jsPDFDocument).setFillColor.apply(_a, color);
+        color = DocHandler.unifyColor(styles.textColor);
+        if (color)
+            (_b = this.jsPDFDocument).setTextColor.apply(_b, color);
+        color = DocHandler.unifyColor(styles.lineColor);
+        if (color)
+            (_c = this.jsPDFDocument).setDrawColor.apply(_c, color);
+        if (typeof styles.lineWidth === 'number') {
+            this.jsPDFDocument.setLineWidth(styles.lineWidth);
+        }
+    };
+    DocHandler.prototype.splitTextToSize = function (text, size, opts) {
+        return this.jsPDFDocument.splitTextToSize(text, size, opts);
+    };
+    /**
+     * Adds a rectangle to the PDF
+     * @param x Coordinate (in units declared at inception of PDF document) against left edge of the page
+     * @param y Coordinate (in units declared at inception of PDF document) against upper edge of the page
+     * @param width Width (in units declared at inception of PDF document)
+     * @param height Height (in units declared at inception of PDF document)
+     * @param fillStyle A string specifying the painting style or null. Valid styles include: 'S' [default] - stroke, 'F' - fill, and 'DF' (or 'FD') - fill then stroke.
+     */
+    DocHandler.prototype.rect = function (x, y, width, height, fillStyle) {
+        // null is excluded from fillStyle possible values because it isn't needed
+        // and is prone to bugs as it's used to postpone setting the style
+        // https://rawgit.com/MrRio/jsPDF/master/docs/jsPDF.html#rect
+        return this.jsPDFDocument.rect(x, y, width, height, fillStyle);
+    };
+    DocHandler.prototype.getLastAutoTable = function () {
+        return this.jsPDFDocument.lastAutoTable || null;
+    };
+    DocHandler.prototype.getTextWidth = function (text) {
+        return this.jsPDFDocument.getTextWidth(text);
+    };
+    DocHandler.prototype.getDocument = function () {
+        return this.jsPDFDocument;
+    };
+    DocHandler.prototype.setPage = function (page) {
+        this.jsPDFDocument.setPage(page);
+    };
+    DocHandler.prototype.addPage = function () {
+        return this.jsPDFDocument.addPage();
+    };
+    DocHandler.prototype.getFontList = function () {
+        return this.jsPDFDocument.getFontList();
+    };
+    DocHandler.prototype.getGlobalOptions = function () {
+        return globalDefaults || {};
+    };
+    DocHandler.prototype.getDocumentOptions = function () {
+        return this.jsPDFDocument.__autoTableDocumentDefaults || {};
+    };
+    DocHandler.prototype.pageSize = function () {
+        var pageSize = this.jsPDFDocument.internal.pageSize;
+        // JSPDF 1.4 uses get functions instead of properties on pageSize
+        if (pageSize.width == null) {
+            pageSize = { width: pageSize.getWidth(), height: pageSize.getHeight() };
+        }
+        return pageSize;
+    };
+    DocHandler.prototype.scaleFactor = function () {
+        return this.jsPDFDocument.internal.scaleFactor;
+    };
+    DocHandler.prototype.getLineHeightFactor = function () {
+        var doc = this.jsPDFDocument;
+        return doc.getLineHeightFactor ? doc.getLineHeightFactor() : 1.15;
+    };
+    DocHandler.prototype.getLineHeight = function (fontSize) {
+        return (fontSize / this.scaleFactor()) * this.getLineHeightFactor();
+    };
+    DocHandler.prototype.pageNumber = function () {
+        var pageInfo = this.jsPDFDocument.internal.getCurrentPageInfo();
+        if (!pageInfo) {
+            // Only recent versions of jspdf has pageInfo
+            return this.jsPDFDocument.internal.getNumberOfPages();
+        }
+        return pageInfo.pageNumber;
+    };
+    return DocHandler;
+}());
+
+/******************************************************************************
+Copyright (c) Microsoft Corporation.
+
+Permission to use, copy, modify, and/or distribute this software for any
+purpose with or without fee is hereby granted.
+
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
+AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
+OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+PERFORMANCE OF THIS SOFTWARE.
+***************************************************************************** */
+/* global Reflect, Promise, SuppressedError, Symbol, Iterator */
+
+var extendStatics = function(d, b) {
+    extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+    return extendStatics(d, b);
+};
+
+function __extends(d, b) {
+    if (typeof b !== "function" && b !== null)
+        throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+    extendStatics(d, b);
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+}
+
+typeof SuppressedError === "function" ? SuppressedError : function (error, suppressed, message) {
+    var e = new Error(message);
+    return e.name = "SuppressedError", e.error = error, e.suppressed = suppressed, e;
+};
+
+var HtmlRowInput = /** @class */ (function (_super) {
+    __extends(HtmlRowInput, _super);
+    function HtmlRowInput(element) {
+        var _this = _super.call(this) || this;
+        _this._element = element;
+        return _this;
+    }
+    return HtmlRowInput;
+}(Array));
+// Base style for all themes
+function defaultStyles(scaleFactor) {
+    return {
+        font: 'helvetica', // helvetica, times, courier
+        fontStyle: 'normal', // normal, bold, italic, bolditalic
+        overflow: 'linebreak', // linebreak, ellipsize, visible or hidden
+        fillColor: false, // Either false for transparent, rbg array e.g. [255, 255, 255] or gray level e.g 200
+        textColor: 20,
+        halign: 'left', // left, center, right, justify
+        valign: 'top', // top, middle, bottom
+        fontSize: 10,
+        cellPadding: 5 / scaleFactor, // number or {top,left,right,left,vertical,horizontal}
+        lineColor: 200,
+        lineWidth: 0,
+        cellWidth: 'auto', // 'auto'|'wrap'|number
+        minCellHeight: 0,
+        minCellWidth: 0,
+    };
+}
+function getTheme(name) {
+    var themes = {
+        striped: {
+            table: { fillColor: 255, textColor: 80, fontStyle: 'normal' },
+            head: { textColor: 255, fillColor: [41, 128, 185], fontStyle: 'bold' },
+            body: {},
+            foot: { textColor: 255, fillColor: [41, 128, 185], fontStyle: 'bold' },
+            alternateRow: { fillColor: 245 },
+        },
+        grid: {
+            table: {
+                fillColor: 255,
+                textColor: 80,
+                fontStyle: 'normal',
+                lineWidth: 0.1,
+            },
+            head: {
+                textColor: 255,
+                fillColor: [26, 188, 156],
+                fontStyle: 'bold',
+                lineWidth: 0,
+            },
+            body: {},
+            foot: {
+                textColor: 255,
+                fillColor: [26, 188, 156],
+                fontStyle: 'bold',
+                lineWidth: 0,
+            },
+            alternateRow: {},
+        },
+        plain: { head: { fontStyle: 'bold' }, foot: { fontStyle: 'bold' } },
+    };
+    return themes[name];
+}
+
 function getStringWidth(text, styles, doc) {
     doc.applyStyles(styles, true);
     var textArr = Array.isArray(text) ? text : [text];
@@ -235,109 +544,6 @@ function parsePadding(style, scaleFactor) {
     return padding;
 }
 
-/******************************************************************************
-Copyright (c) Microsoft Corporation.
-
-Permission to use, copy, modify, and/or distribute this software for any
-purpose with or without fee is hereby granted.
-
-THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
-REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
-AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
-INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
-LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
-OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
-PERFORMANCE OF THIS SOFTWARE.
-***************************************************************************** */
-/* global Reflect, Promise, SuppressedError, Symbol */
-
-var extendStatics = function(d, b) {
-    extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-    return extendStatics(d, b);
-};
-
-function __extends(d, b) {
-    if (typeof b !== "function" && b !== null)
-        throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
-    extendStatics(d, b);
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-}
-
-typeof SuppressedError === "function" ? SuppressedError : function (error, suppressed, message) {
-    var e = new Error(message);
-    return e.name = "SuppressedError", e.error = error, e.suppressed = suppressed, e;
-};
-
-var HtmlRowInput = /** @class */ (function (_super) {
-    __extends(HtmlRowInput, _super);
-    function HtmlRowInput(element) {
-        var _this = _super.call(this) || this;
-        _this._element = element;
-        return _this;
-    }
-    return HtmlRowInput;
-}(Array));
-// Base style for all themes
-function defaultStyles(scaleFactor) {
-    return {
-        font: 'helvetica', // helvetica, times, courier
-        fontStyle: 'normal', // normal, bold, italic, bolditalic
-        overflow: 'linebreak', // linebreak, ellipsize, visible or hidden
-        fillColor: false, // Either false for transparent, rbg array e.g. [255, 255, 255] or gray level e.g 200
-        textColor: 20,
-        halign: 'left', // left, center, right, justify
-        valign: 'top', // top, middle, bottom
-        fontSize: 10,
-        cellPadding: 5 / scaleFactor, // number or {top,left,right,left,vertical,horizontal}
-        lineColor: 200,
-        lineWidth: 0,
-        cellWidth: 'auto', // 'auto'|'wrap'|number
-        minCellHeight: 0,
-        minCellWidth: 0,
-    };
-}
-function getTheme(name) {
-    var themes = {
-        striped: {
-            table: { fillColor: 255, textColor: 80, fontStyle: 'normal' },
-            head: { textColor: 255, fillColor: [41, 128, 185], fontStyle: 'bold' },
-            body: {},
-            foot: { textColor: 255, fillColor: [41, 128, 185], fontStyle: 'bold' },
-            alternateRow: { fillColor: 245 },
-        },
-        grid: {
-            table: {
-                fillColor: 255,
-                textColor: 80,
-                fontStyle: 'normal',
-                lineWidth: 0.1,
-            },
-            head: {
-                textColor: 255,
-                fillColor: [26, 188, 156],
-                fontStyle: 'bold',
-                lineWidth: 0,
-            },
-            body: {},
-            foot: {
-                textColor: 255,
-                fillColor: [26, 188, 156],
-                fontStyle: 'bold',
-                lineWidth: 0,
-            },
-            alternateRow: {},
-        },
-        plain: {
-            head: { fontStyle: 'bold' },
-            foot: { fontStyle: 'bold' },
-        },
-    };
-    return themes[name];
-}
-
 function parseHtml(doc, input, window, includeHiddenHtml, useCss) {
     var _a, _b;
     if (includeHiddenHtml === void 0) { includeHiddenHtml = false; }
@@ -414,220 +620,18 @@ function parseCellContent(orgCell) {
     return cell.innerText || cell.textContent || '';
 }
 
-/**
- * Improved text function with halign and valign support
- * Inspiration from: http://stackoverflow.com/questions/28327510/align-text-right-using-jspdf/28433113#28433113
- */
-function autoTableText (text, x, y, styles, doc) {
-    styles = styles || {};
-    var PHYSICAL_LINE_HEIGHT = 1.15;
-    var k = doc.internal.scaleFactor;
-    var fontSize = doc.internal.getFontSize() / k;
-    var lineHeightFactor = doc.getLineHeightFactor
-        ? doc.getLineHeightFactor()
-        : PHYSICAL_LINE_HEIGHT;
-    var lineHeight = fontSize * lineHeightFactor;
-    var splitRegex = /\r\n|\r|\n/g;
-    var splitText = '';
-    var lineCount = 1;
-    if (styles.valign === 'middle' ||
-        styles.valign === 'bottom' ||
-        styles.halign === 'center' ||
-        styles.halign === 'right') {
-        splitText = typeof text === 'string' ? text.split(splitRegex) : text;
-        lineCount = splitText.length || 1;
-    }
-    // Align the top
-    y += fontSize * (2 - PHYSICAL_LINE_HEIGHT);
-    if (styles.valign === 'middle')
-        y -= (lineCount / 2) * lineHeight;
-    else if (styles.valign === 'bottom')
-        y -= lineCount * lineHeight;
-    if (styles.halign === 'center' || styles.halign === 'right') {
-        var alignSize = fontSize;
-        if (styles.halign === 'center')
-            alignSize *= 0.5;
-        if (splitText && lineCount >= 1) {
-            for (var iLine = 0; iLine < splitText.length; iLine++) {
-                doc.text(splitText[iLine], x - doc.getStringUnitWidth(splitText[iLine]) * alignSize, y);
-                y += lineHeight;
-            }
-            return doc;
+function validateInput(global, document, current) {
+    for (var _i = 0, _a = [global, document, current]; _i < _a.length; _i++) {
+        var options = _a[_i];
+        if (options && typeof options !== 'object') {
+            console.error('The options parameter should be of type object, is: ' + typeof options);
         }
-        x -= doc.getStringUnitWidth(text) * alignSize;
+        if (options.startY && typeof options.startY !== 'number') {
+            console.error('Invalid value for startY option', options.startY);
+            delete options.startY;
+        }
     }
-    if (styles.halign === 'justify') {
-        doc.text(text, x, y, {
-            maxWidth: styles.maxWidth || 100,
-            align: 'justify',
-        });
-    }
-    else {
-        doc.text(text, x, y);
-    }
-    return doc;
 }
-
-var globalDefaults = {};
-var DocHandler = /** @class */ (function () {
-    function DocHandler(jsPDFDocument) {
-        this.jsPDFDocument = jsPDFDocument;
-        this.userStyles = {
-            // Black for versions of jspdf without getTextColor
-            textColor: jsPDFDocument.getTextColor
-                ? this.jsPDFDocument.getTextColor()
-                : 0,
-            fontSize: jsPDFDocument.internal.getFontSize(),
-            fontStyle: jsPDFDocument.internal.getFont().fontStyle,
-            font: jsPDFDocument.internal.getFont().fontName,
-            // 0 for versions of jspdf without getLineWidth
-            lineWidth: jsPDFDocument.getLineWidth
-                ? this.jsPDFDocument.getLineWidth()
-                : 0,
-            // Black for versions of jspdf without getDrawColor
-            lineColor: jsPDFDocument.getDrawColor
-                ? this.jsPDFDocument.getDrawColor()
-                : 0,
-        };
-    }
-    DocHandler.setDefaults = function (defaults, doc) {
-        if (doc === void 0) { doc = null; }
-        if (doc) {
-            doc.__autoTableDocumentDefaults = defaults;
-        }
-        else {
-            globalDefaults = defaults;
-        }
-    };
-    DocHandler.unifyColor = function (c) {
-        if (Array.isArray(c)) {
-            return c;
-        }
-        else if (typeof c === 'number') {
-            return [c, c, c];
-        }
-        else if (typeof c === 'string') {
-            return [c];
-        }
-        else {
-            return null;
-        }
-    };
-    DocHandler.prototype.applyStyles = function (styles, fontOnly) {
-        // Font style needs to be applied before font
-        // https://github.com/simonbengtsson/jsPDF-AutoTable/issues/632
-        var _a, _b, _c;
-        if (fontOnly === void 0) { fontOnly = false; }
-        if (styles.fontStyle)
-            this.jsPDFDocument.setFontStyle &&
-                this.jsPDFDocument.setFontStyle(styles.fontStyle);
-        var _d = this.jsPDFDocument.internal.getFont(), fontStyle = _d.fontStyle, fontName = _d.fontName;
-        if (styles.font)
-            fontName = styles.font;
-        if (styles.fontStyle) {
-            fontStyle = styles.fontStyle;
-            var availableFontStyles = this.getFontList()[fontName];
-            if (availableFontStyles &&
-                availableFontStyles.indexOf(fontStyle) === -1) {
-                // Common issue was that the default bold in headers
-                // made custom fonts not work. For example:
-                // https://github.com/simonbengtsson/jsPDF-AutoTable/issues/653
-                this.jsPDFDocument.setFontStyle &&
-                    this.jsPDFDocument.setFontStyle(availableFontStyles[0]);
-                fontStyle = availableFontStyles[0];
-            }
-        }
-        this.jsPDFDocument.setFont(fontName, fontStyle);
-        if (styles.fontSize)
-            this.jsPDFDocument.setFontSize(styles.fontSize);
-        if (fontOnly) {
-            return; // Performance improvement
-        }
-        var color = DocHandler.unifyColor(styles.fillColor);
-        if (color)
-            (_a = this.jsPDFDocument).setFillColor.apply(_a, color);
-        color = DocHandler.unifyColor(styles.textColor);
-        if (color)
-            (_b = this.jsPDFDocument).setTextColor.apply(_b, color);
-        color = DocHandler.unifyColor(styles.lineColor);
-        if (color)
-            (_c = this.jsPDFDocument).setDrawColor.apply(_c, color);
-        if (typeof styles.lineWidth === 'number') {
-            this.jsPDFDocument.setLineWidth(styles.lineWidth);
-        }
-    };
-    DocHandler.prototype.splitTextToSize = function (text, size, opts) {
-        return this.jsPDFDocument.splitTextToSize(text, size, opts);
-    };
-    /**
-     * Adds a rectangle to the PDF
-     * @param x Coordinate (in units declared at inception of PDF document) against left edge of the page
-     * @param y Coordinate (in units declared at inception of PDF document) against upper edge of the page
-     * @param width Width (in units declared at inception of PDF document)
-     * @param height Height (in units declared at inception of PDF document)
-     * @param fillStyle A string specifying the painting style or null. Valid styles include: 'S' [default] - stroke, 'F' - fill, and 'DF' (or 'FD') - fill then stroke.
-     */
-    DocHandler.prototype.rect = function (x, y, width, height, fillStyle) {
-        // null is excluded from fillStyle possible values because it isn't needed
-        // and is prone to bugs as it's used to postpone setting the style
-        // https://rawgit.com/MrRio/jsPDF/master/docs/jsPDF.html#rect
-        return this.jsPDFDocument.rect(x, y, width, height, fillStyle);
-    };
-    DocHandler.prototype.getLastAutoTable = function () {
-        return this.jsPDFDocument.lastAutoTable || null;
-    };
-    DocHandler.prototype.getTextWidth = function (text) {
-        return this.jsPDFDocument.getTextWidth(text);
-    };
-    DocHandler.prototype.getDocument = function () {
-        return this.jsPDFDocument;
-    };
-    DocHandler.prototype.setPage = function (page) {
-        this.jsPDFDocument.setPage(page);
-    };
-    DocHandler.prototype.addPage = function () {
-        return this.jsPDFDocument.addPage();
-    };
-    DocHandler.prototype.getFontList = function () {
-        return this.jsPDFDocument.getFontList();
-    };
-    DocHandler.prototype.getGlobalOptions = function () {
-        return globalDefaults || {};
-    };
-    DocHandler.prototype.getDocumentOptions = function () {
-        return this.jsPDFDocument.__autoTableDocumentDefaults || {};
-    };
-    DocHandler.prototype.pageSize = function () {
-        var pageSize = this.jsPDFDocument.internal.pageSize;
-        // JSPDF 1.4 uses get functions instead of properties on pageSize
-        if (pageSize.width == null) {
-            pageSize = {
-                width: pageSize.getWidth(),
-                height: pageSize.getHeight(),
-            };
-        }
-        return pageSize;
-    };
-    DocHandler.prototype.scaleFactor = function () {
-        return this.jsPDFDocument.internal.scaleFactor;
-    };
-    DocHandler.prototype.getLineHeightFactor = function () {
-        var doc = this.jsPDFDocument;
-        return doc.getLineHeightFactor ? doc.getLineHeightFactor() : 1.15;
-    };
-    DocHandler.prototype.getLineHeight = function (fontSize) {
-        return (fontSize / this.scaleFactor()) * this.getLineHeightFactor();
-    };
-    DocHandler.prototype.pageNumber = function () {
-        var pageInfo = this.jsPDFDocument.internal.getCurrentPageInfo();
-        if (!pageInfo) {
-            // Only recent versions of jspdf has pageInfo
-            return this.jsPDFDocument.internal.getNumberOfPages();
-        }
-        return pageInfo.pageNumber;
-    };
-    return DocHandler;
-}());
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/assign
@@ -652,125 +656,11 @@ function assign(target, s, s1, s2, s3) {
     return to;
 }
 
-function validateOptions (doc, global, document, current) {
-    var _loop_1 = function (options) {
-        if (options && typeof options !== 'object') {
-            console.error('The options parameter should be of type object, is: ' + typeof options);
-        }
-        if (typeof options.extendWidth !== 'undefined') {
-            options.tableWidth = options.extendWidth ? 'auto' : 'wrap';
-            console.error('Use of deprecated option: extendWidth, use tableWidth instead.');
-        }
-        if (typeof options.margins !== 'undefined') {
-            if (typeof options.margin === 'undefined')
-                options.margin = options.margins;
-            console.error('Use of deprecated option: margins, use margin instead.');
-        }
-        if (options.startY && typeof options.startY !== 'number') {
-            console.error('Invalid value for startY option', options.startY);
-            delete options.startY;
-        }
-        if (!options.didDrawPage &&
-            (options.afterPageContent ||
-                options.beforePageContent ||
-                options.afterPageAdd)) {
-            console.error('The afterPageContent, beforePageContent and afterPageAdd hooks are deprecated. Use didDrawPage instead');
-            options.didDrawPage = function (data) {
-                doc.applyStyles(doc.userStyles);
-                if (options.beforePageContent)
-                    options.beforePageContent(data);
-                doc.applyStyles(doc.userStyles);
-                if (options.afterPageContent)
-                    options.afterPageContent(data);
-                doc.applyStyles(doc.userStyles);
-                if (options.afterPageAdd && data.pageNumber > 1) {
-                    data.afterPageAdd(data);
-                }
-                doc.applyStyles(doc.userStyles);
-            };
-        }
-        [
-            'createdHeaderCell',
-            'drawHeaderRow',
-            'drawRow',
-            'drawHeaderCell',
-        ].forEach(function (name) {
-            if (options[name]) {
-                console.error("The \"".concat(name, "\" hook has changed in version 3.0, check the changelog for how to migrate."));
-            }
-        });
-        [
-            ['showFoot', 'showFooter'],
-            ['showHead', 'showHeader'],
-            ['didDrawPage', 'addPageContent'],
-            ['didParseCell', 'createdCell'],
-            ['headStyles', 'headerStyles'],
-        ].forEach(function (_a) {
-            var current = _a[0], deprecated = _a[1];
-            if (options[deprecated]) {
-                console.error("Use of deprecated option ".concat(deprecated, ". Use ").concat(current, " instead"));
-                options[current] = options[deprecated];
-            }
-        });
-        [
-            ['padding', 'cellPadding'],
-            ['lineHeight', 'rowHeight'],
-            'fontSize',
-            'overflow',
-        ].forEach(function (o) {
-            var deprecatedOption = typeof o === 'string' ? o : o[0];
-            var style = typeof o === 'string' ? o : o[1];
-            if (typeof options[deprecatedOption] !== 'undefined') {
-                if (typeof options.styles[style] === 'undefined') {
-                    options.styles[style] = options[deprecatedOption];
-                }
-                console.error('Use of deprecated option: ' +
-                    deprecatedOption +
-                    ', use the style ' +
-                    style +
-                    ' instead.');
-            }
-        });
-        for (var _b = 0, _c = [
-            'styles',
-            'bodyStyles',
-            'headStyles',
-            'footStyles',
-        ]; _b < _c.length; _b++) {
-            var styleProp = _c[_b];
-            checkStyles(options[styleProp] || {});
-        }
-        var columnStyles = options['columnStyles'] || {};
-        for (var _d = 0, _e = Object.keys(columnStyles); _d < _e.length; _d++) {
-            var key = _e[_d];
-            checkStyles(columnStyles[key] || {});
-        }
-    };
-    for (var _i = 0, _a = [global, document, current]; _i < _a.length; _i++) {
-        var options = _a[_i];
-        _loop_1(options);
-    }
-}
-function checkStyles(styles) {
-    if (styles.rowHeight) {
-        console.error('Use of deprecated style rowHeight. It is renamed to minCellHeight.');
-        if (!styles.minCellHeight) {
-            styles.minCellHeight = styles.rowHeight;
-        }
-    }
-    else if (styles.columnWidth) {
-        console.error('Use of deprecated style columnWidth. It is renamed to cellWidth.');
-        if (!styles.cellWidth) {
-            styles.cellWidth = styles.columnWidth;
-        }
-    }
-}
-
 function parseInput(d, current) {
     var doc = new DocHandler(d);
     var document = doc.getDocumentOptions();
     var global = doc.getGlobalOptions();
-    validateOptions(doc, global, document, current);
+    validateInput(global, document, current);
     var options = assign({}, global, document, current);
     var win;
     if (typeof window !== 'undefined') {
@@ -780,13 +670,7 @@ function parseInput(d, current) {
     var hooks = parseHooks(global, document, current);
     var settings = parseSettings(doc, options);
     var content = parseContent$1(doc, options, win);
-    return {
-        id: current.tableId,
-        content: content,
-        hooks: hooks,
-        styles: styles,
-        settings: settings,
-    };
+    return { id: current.tableId, content: content, hooks: hooks, styles: styles, settings: settings };
 }
 function parseStyles(gInput, dInput, cInput) {
     var styleOptions = {
@@ -924,12 +808,7 @@ function parseContent$1(doc, options, window) {
         }
     }
     var columns = options.columns || parseColumns(head, body, foot);
-    return {
-        columns: columns,
-        head: head,
-        body: body,
-        foot: foot,
-    };
+    return { columns: columns, head: head, body: body, foot: foot };
 }
 function parseColumns(head, body, foot) {
     var firstRow = head[0] || body[0] || foot[0] || [];
@@ -967,7 +846,6 @@ var HookData = /** @class */ (function () {
     function HookData(doc, table, cursor) {
         this.table = table;
         this.pageNumber = table.pageNumber;
-        this.pageCount = this.pageNumber;
         this.settings = table.settings;
         this.cursor = cursor;
         this.doc = doc.getDocument();
@@ -990,10 +868,6 @@ var CellHookData = /** @class */ (function (_super) {
 var Table = /** @class */ (function () {
     function Table(input, content) {
         this.pageNumber = 1;
-        // Deprecated, use pageNumber instead
-        // Not using getter since:
-        // https://github.com/simonbengtsson/jsPDF-AutoTable/issues/596
-        this.pageCount = 1;
         this.id = input.id;
         this.settings = input.settings;
         this.styles = input.styles;
@@ -1099,7 +973,7 @@ var Row = /** @class */ (function () {
 }());
 var Cell = /** @class */ (function () {
     function Cell(raw, styles, section) {
-        var _a, _b;
+        var _a;
         this.contentHeight = 0;
         this.contentWidth = 0;
         this.wrappedWidth = 0;
@@ -1116,7 +990,7 @@ var Cell = /** @class */ (function () {
         if (raw != null && typeof raw === 'object' && !Array.isArray(raw)) {
             this.rowSpan = raw.rowSpan || 1;
             this.colSpan = raw.colSpan || 1;
-            content = (_b = (_a = raw.content) !== null && _a !== void 0 ? _a : raw.title) !== null && _b !== void 0 ? _b : raw;
+            content = (_a = raw.content) !== null && _a !== void 0 ? _a : raw;
             if (raw._element) {
                 this.raw = raw._element;
             }
@@ -1200,501 +1074,6 @@ var Column = /** @class */ (function () {
     };
     return Column;
 }());
-
-// get columns can be fit into page
-function getColumnsCanFitInPage(doc, table, config) {
-    var _a;
-    if (config === void 0) { config = {}; }
-    // Get page width
-    var remainingWidth = getPageAvailableWidth(doc, table);
-    // Get column data key to repeat
-    var repeatColumnsMap = new Map();
-    var colIndexes = [];
-    var columns = [];
-    var horizontalPageBreakRepeat = [];
-    table.settings.horizontalPageBreakRepeat;
-    if (Array.isArray(table.settings.horizontalPageBreakRepeat)) {
-        horizontalPageBreakRepeat = table.settings.horizontalPageBreakRepeat;
-        // It can be a single value of type string or number (even number: 0)
-    }
-    else if (typeof table.settings.horizontalPageBreakRepeat === 'string' ||
-        typeof table.settings.horizontalPageBreakRepeat === 'number') {
-        horizontalPageBreakRepeat = [table.settings.horizontalPageBreakRepeat];
-    }
-    // Code to repeat the given column in split pages
-    horizontalPageBreakRepeat.forEach(function (field) {
-        var col = table.columns.find(function (item) { return item.dataKey === field || item.index === field; });
-        if (col && !repeatColumnsMap.has(col.index)) {
-            repeatColumnsMap.set(col.index, true);
-            colIndexes.push(col.index);
-            columns.push(table.columns[col.index]);
-            remainingWidth -= col.wrappedWidth;
-        }
-    });
-    var first = true;
-    var i = (_a = config === null || config === void 0 ? void 0 : config.start) !== null && _a !== void 0 ? _a : 0; // make sure couter is initiated outside the loop
-    while (i < table.columns.length) {
-        // Prevent duplicates
-        if (repeatColumnsMap.has(i)) {
-            i++;
-            continue;
-        }
-        var colWidth = table.columns[i].wrappedWidth;
-        // Take at least one column even if it doesn't fit
-        if (first || remainingWidth >= colWidth) {
-            first = false;
-            colIndexes.push(i);
-            columns.push(table.columns[i]);
-            remainingWidth -= colWidth;
-        }
-        else {
-            break;
-        }
-        i++;
-    }
-    return { colIndexes: colIndexes, columns: columns, lastIndex: i - 1 };
-}
-function calculateAllColumnsCanFitInPage(doc, table) {
-    var allResults = [];
-    for (var i = 0; i < table.columns.length; i++) {
-        var result = getColumnsCanFitInPage(doc, table, { start: i });
-        if (result.columns.length) {
-            allResults.push(result);
-            i = result.lastIndex;
-        }
-    }
-    return allResults;
-}
-
-function drawTable(jsPDFDoc, table) {
-    var settings = table.settings;
-    var startY = settings.startY;
-    var margin = settings.margin;
-    var cursor = {
-        x: margin.left,
-        y: startY,
-    };
-    var sectionsHeight = table.getHeadHeight(table.columns) + table.getFootHeight(table.columns);
-    var minTableBottomPos = startY + margin.bottom + sectionsHeight;
-    if (settings.pageBreak === 'avoid') {
-        var rows = table.body;
-        var tableHeight = rows.reduce(function (acc, row) { return acc + row.height; }, 0);
-        minTableBottomPos += tableHeight;
-    }
-    var doc = new DocHandler(jsPDFDoc);
-    if (settings.pageBreak === 'always' ||
-        (settings.startY != null && minTableBottomPos > doc.pageSize().height)) {
-        nextPage(doc);
-        cursor.y = margin.top;
-    }
-    table.callWillDrawPageHooks(doc, cursor);
-    var startPos = assign({}, cursor);
-    table.startPageNumber = doc.pageNumber();
-    if (settings.horizontalPageBreak) {
-        // managed flow for split columns
-        printTableWithHorizontalPageBreak(doc, table, startPos, cursor);
-    }
-    else {
-        // normal flow
-        doc.applyStyles(doc.userStyles);
-        if (settings.showHead === 'firstPage' ||
-            settings.showHead === 'everyPage') {
-            table.head.forEach(function (row) {
-                return printRow(doc, table, row, cursor, table.columns);
-            });
-        }
-        doc.applyStyles(doc.userStyles);
-        table.body.forEach(function (row, index) {
-            var isLastRow = index === table.body.length - 1;
-            printFullRow(doc, table, row, isLastRow, startPos, cursor, table.columns);
-        });
-        doc.applyStyles(doc.userStyles);
-        if (settings.showFoot === 'lastPage' || settings.showFoot === 'everyPage') {
-            table.foot.forEach(function (row) {
-                return printRow(doc, table, row, cursor, table.columns);
-            });
-        }
-    }
-    addTableBorder(doc, table, startPos, cursor);
-    table.callEndPageHooks(doc, cursor);
-    table.finalY = cursor.y;
-    jsPDFDoc.lastAutoTable = table;
-    jsPDFDoc.previousAutoTable = table; // Deprecated
-    if (jsPDFDoc.autoTable)
-        jsPDFDoc.autoTable.previous = table; // Deprecated
-    doc.applyStyles(doc.userStyles);
-}
-function printTableWithHorizontalPageBreak(doc, table, startPos, cursor) {
-    // calculate width of columns and render only those which can fit into page
-    var allColumnsCanFitResult = calculateAllColumnsCanFitInPage(doc, table);
-    var settings = table.settings;
-    if (settings.horizontalPageBreakBehaviour === 'afterAllRows') {
-        allColumnsCanFitResult.forEach(function (colsAndIndexes, index) {
-            doc.applyStyles(doc.userStyles);
-            // add page to print next columns in new page
-            if (index > 0) {
-                // When adding a page here, make sure not to print the footers
-                // because they were already printed before on this same loop
-                addPage(doc, table, startPos, cursor, colsAndIndexes.columns, true);
-            }
-            else {
-                // print head for selected columns
-                printHead(doc, table, cursor, colsAndIndexes.columns);
-            }
-            // print body & footer for selected columns
-            printBody(doc, table, startPos, cursor, colsAndIndexes.columns);
-            printFoot(doc, table, cursor, colsAndIndexes.columns);
-        });
-    }
-    else {
-        var lastRowIndexOfLastPage_1 = -1;
-        var firstColumnsToFitResult = allColumnsCanFitResult[0];
-        var _loop_1 = function () {
-            // Print the first columns, taking note of the last row printed
-            var lastPrintedRowIndex = lastRowIndexOfLastPage_1;
-            if (firstColumnsToFitResult) {
-                doc.applyStyles(doc.userStyles);
-                var firstColumnsToFit = firstColumnsToFitResult.columns;
-                if (lastRowIndexOfLastPage_1 >= 0) {
-                    // When adding a page here, make sure not to print the footers
-                    // because they were already printed before on this same loop
-                    addPage(doc, table, startPos, cursor, firstColumnsToFit, true);
-                }
-                else {
-                    printHead(doc, table, cursor, firstColumnsToFit);
-                }
-                lastPrintedRowIndex = printBodyWithoutPageBreaks(doc, table, lastRowIndexOfLastPage_1 + 1, cursor, firstColumnsToFit);
-                printFoot(doc, table, cursor, firstColumnsToFit);
-            }
-            // Check how many rows were printed, so that the next columns would not print more rows than that
-            var maxNumberOfRows = lastPrintedRowIndex - lastRowIndexOfLastPage_1;
-            // Print the next columns, never exceding maxNumberOfRows
-            allColumnsCanFitResult.slice(1).forEach(function (colsAndIndexes) {
-                doc.applyStyles(doc.userStyles);
-                // When adding a page here, make sure not to print the footers
-                // because they were already printed before on this same loop
-                addPage(doc, table, startPos, cursor, colsAndIndexes.columns, true);
-                printBodyWithoutPageBreaks(doc, table, lastRowIndexOfLastPage_1 + 1, cursor, colsAndIndexes.columns, maxNumberOfRows);
-                printFoot(doc, table, cursor, colsAndIndexes.columns);
-            });
-            lastRowIndexOfLastPage_1 = lastPrintedRowIndex;
-        };
-        while (lastRowIndexOfLastPage_1 < table.body.length - 1) {
-            _loop_1();
-        }
-    }
-}
-function printHead(doc, table, cursor, columns) {
-    var settings = table.settings;
-    doc.applyStyles(doc.userStyles);
-    if (settings.showHead === 'firstPage' || settings.showHead === 'everyPage') {
-        table.head.forEach(function (row) { return printRow(doc, table, row, cursor, columns); });
-    }
-}
-function printBody(doc, table, startPos, cursor, columns) {
-    doc.applyStyles(doc.userStyles);
-    table.body.forEach(function (row, index) {
-        var isLastRow = index === table.body.length - 1;
-        printFullRow(doc, table, row, isLastRow, startPos, cursor, columns);
-    });
-}
-function printBodyWithoutPageBreaks(doc, table, startRowIndex, cursor, columns, maxNumberOfRows) {
-    doc.applyStyles(doc.userStyles);
-    maxNumberOfRows = maxNumberOfRows !== null && maxNumberOfRows !== void 0 ? maxNumberOfRows : table.body.length;
-    var endRowIndex = Math.min(startRowIndex + maxNumberOfRows, table.body.length);
-    var lastPrintedRowIndex = -1;
-    table.body.slice(startRowIndex, endRowIndex).forEach(function (row, index) {
-        var isLastRow = startRowIndex + index === table.body.length - 1;
-        var remainingSpace = getRemainingPageSpace(doc, table, isLastRow, cursor);
-        if (row.canEntireRowFit(remainingSpace, columns)) {
-            printRow(doc, table, row, cursor, columns);
-            lastPrintedRowIndex = startRowIndex + index;
-        }
-    });
-    return lastPrintedRowIndex;
-}
-function printFoot(doc, table, cursor, columns) {
-    var settings = table.settings;
-    doc.applyStyles(doc.userStyles);
-    if (settings.showFoot === 'lastPage' || settings.showFoot === 'everyPage') {
-        table.foot.forEach(function (row) { return printRow(doc, table, row, cursor, columns); });
-    }
-}
-function getRemainingLineCount(cell, remainingPageSpace, doc) {
-    var lineHeight = doc.getLineHeight(cell.styles.fontSize);
-    var vPadding = cell.padding('vertical');
-    var remainingLines = Math.floor((remainingPageSpace - vPadding) / lineHeight);
-    return Math.max(0, remainingLines);
-}
-function modifyRowToFit(row, remainingPageSpace, table, doc) {
-    var cells = {};
-    row.spansMultiplePages = true;
-    row.height = 0;
-    var rowHeight = 0;
-    for (var _i = 0, _a = table.columns; _i < _a.length; _i++) {
-        var column = _a[_i];
-        var cell = row.cells[column.index];
-        if (!cell)
-            continue;
-        if (!Array.isArray(cell.text)) {
-            cell.text = [cell.text];
-        }
-        var remainderCell = new Cell(cell.raw, cell.styles, cell.section);
-        remainderCell = assign(remainderCell, cell);
-        remainderCell.text = [];
-        var remainingLineCount = getRemainingLineCount(cell, remainingPageSpace, doc);
-        if (cell.text.length > remainingLineCount) {
-            remainderCell.text = cell.text.splice(remainingLineCount, cell.text.length);
-        }
-        var scaleFactor = doc.scaleFactor();
-        var lineHeightFactor = doc.getLineHeightFactor();
-        cell.contentHeight = cell.getContentHeight(scaleFactor, lineHeightFactor);
-        if (cell.contentHeight >= remainingPageSpace) {
-            cell.contentHeight = remainingPageSpace;
-            remainderCell.styles.minCellHeight -= remainingPageSpace;
-        }
-        if (cell.contentHeight > row.height) {
-            row.height = cell.contentHeight;
-        }
-        remainderCell.contentHeight = remainderCell.getContentHeight(scaleFactor, lineHeightFactor);
-        if (remainderCell.contentHeight > rowHeight) {
-            rowHeight = remainderCell.contentHeight;
-        }
-        cells[column.index] = remainderCell;
-    }
-    var remainderRow = new Row(row.raw, -1, row.section, cells, true);
-    remainderRow.height = rowHeight;
-    for (var _b = 0, _c = table.columns; _b < _c.length; _b++) {
-        var column = _c[_b];
-        var remainderCell = remainderRow.cells[column.index];
-        if (remainderCell) {
-            remainderCell.height = remainderRow.height;
-        }
-        var cell = row.cells[column.index];
-        if (cell) {
-            cell.height = row.height;
-        }
-    }
-    return remainderRow;
-}
-function shouldPrintOnCurrentPage(doc, row, remainingPageSpace, table) {
-    var pageHeight = doc.pageSize().height;
-    var margin = table.settings.margin;
-    var marginHeight = margin.top + margin.bottom;
-    var maxRowHeight = pageHeight - marginHeight;
-    if (row.section === 'body') {
-        // Should also take into account that head and foot is not
-        // on every page with some settings
-        maxRowHeight -=
-            table.getHeadHeight(table.columns) + table.getFootHeight(table.columns);
-    }
-    var minRowHeight = row.getMinimumRowHeight(table.columns, doc);
-    var minRowFits = minRowHeight < remainingPageSpace;
-    if (minRowHeight > maxRowHeight) {
-        console.error("Will not be able to print row ".concat(row.index, " correctly since it's minimum height is larger than page height"));
-        return true;
-    }
-    if (!minRowFits) {
-        return false;
-    }
-    var rowHasRowSpanCell = row.hasRowSpan(table.columns);
-    var rowHigherThanPage = row.getMaxCellHeight(table.columns) > maxRowHeight;
-    if (rowHigherThanPage) {
-        if (rowHasRowSpanCell) {
-            console.error("The content of row ".concat(row.index, " will not be drawn correctly since drawing rows with a height larger than the page height and has cells with rowspans is not supported."));
-        }
-        return true;
-    }
-    if (rowHasRowSpanCell) {
-        // Currently a new page is required whenever a rowspan row don't fit a page.
-        return false;
-    }
-    if (table.settings.rowPageBreak === 'avoid') {
-        return false;
-    }
-    // In all other cases print the row on current page
-    return true;
-}
-function printFullRow(doc, table, row, isLastRow, startPos, cursor, columns) {
-    var remainingSpace = getRemainingPageSpace(doc, table, isLastRow, cursor);
-    if (row.canEntireRowFit(remainingSpace, columns)) {
-        // The row fits in the current page
-        printRow(doc, table, row, cursor, columns);
-    }
-    else if (shouldPrintOnCurrentPage(doc, row, remainingSpace, table)) {
-        // The row gets split in two here, each piece in one page
-        var remainderRow = modifyRowToFit(row, remainingSpace, table, doc);
-        printRow(doc, table, row, cursor, columns);
-        addPage(doc, table, startPos, cursor, columns);
-        printFullRow(doc, table, remainderRow, isLastRow, startPos, cursor, columns);
-    }
-    else {
-        // The row get printed entirelly on the next page
-        addPage(doc, table, startPos, cursor, columns);
-        printFullRow(doc, table, row, isLastRow, startPos, cursor, columns);
-    }
-}
-function printRow(doc, table, row, cursor, columns) {
-    cursor.x = table.settings.margin.left;
-    for (var _i = 0, columns_1 = columns; _i < columns_1.length; _i++) {
-        var column = columns_1[_i];
-        var cell = row.cells[column.index];
-        if (!cell) {
-            cursor.x += column.width;
-            continue;
-        }
-        doc.applyStyles(cell.styles);
-        cell.x = cursor.x;
-        cell.y = cursor.y;
-        var result = table.callCellHooks(doc, table.hooks.willDrawCell, cell, row, column, cursor);
-        if (result === false) {
-            cursor.x += column.width;
-            continue;
-        }
-        drawCellRect(doc, cell, cursor);
-        var textPos = cell.getTextPos();
-        autoTableText(cell.text, textPos.x, textPos.y, {
-            halign: cell.styles.halign,
-            valign: cell.styles.valign,
-            maxWidth: Math.ceil(cell.width - cell.padding('left') - cell.padding('right')),
-        }, doc.getDocument());
-        table.callCellHooks(doc, table.hooks.didDrawCell, cell, row, column, cursor);
-        cursor.x += column.width;
-    }
-    cursor.y += row.height;
-}
-function drawCellRect(doc, cell, cursor) {
-    var cellStyles = cell.styles;
-    // https://github.com/simonbengtsson/jsPDF-AutoTable/issues/774
-    // TODO (v4): better solution?
-    doc.getDocument().setFillColor(doc.getDocument().getFillColor());
-    if (typeof cellStyles.lineWidth === 'number') {
-        // Draw cell background with normal borders
-        var fillStyle = getFillStyle(cellStyles.lineWidth, cellStyles.fillColor);
-        if (fillStyle) {
-            doc.rect(cell.x, cursor.y, cell.width, cell.height, fillStyle);
-        }
-    }
-    else if (typeof cellStyles.lineWidth === 'object') {
-        // Draw cell background
-        if (cellStyles.fillColor) {
-            doc.rect(cell.x, cursor.y, cell.width, cell.height, 'F');
-        }
-        // Draw cell individual borders
-        drawCellBorders(doc, cell, cursor, cellStyles.lineWidth);
-    }
-}
-/**
- * Draw all specified borders. Borders are centered on cell's edge and lengthened
- * to overlap with neighbours to create sharp corners.
- * @param doc
- * @param cell
- * @param cursor
- * @param fillColor
- * @param lineWidth
- */
-function drawCellBorders(doc, cell, cursor, lineWidth) {
-    var x1, y1, x2, y2;
-    if (lineWidth.top) {
-        x1 = cursor.x;
-        y1 = cursor.y;
-        x2 = cursor.x + cell.width;
-        y2 = cursor.y;
-        if (lineWidth.right) {
-            x2 += 0.5 * lineWidth.right;
-        }
-        if (lineWidth.left) {
-            x1 -= 0.5 * lineWidth.left;
-        }
-        drawLine(lineWidth.top, x1, y1, x2, y2);
-    }
-    if (lineWidth.bottom) {
-        x1 = cursor.x;
-        y1 = cursor.y + cell.height;
-        x2 = cursor.x + cell.width;
-        y2 = cursor.y + cell.height;
-        if (lineWidth.right) {
-            x2 += 0.5 * lineWidth.right;
-        }
-        if (lineWidth.left) {
-            x1 -= 0.5 * lineWidth.left;
-        }
-        drawLine(lineWidth.bottom, x1, y1, x2, y2);
-    }
-    if (lineWidth.left) {
-        x1 = cursor.x;
-        y1 = cursor.y;
-        x2 = cursor.x;
-        y2 = cursor.y + cell.height;
-        if (lineWidth.top) {
-            y1 -= 0.5 * lineWidth.top;
-        }
-        if (lineWidth.bottom) {
-            y2 += 0.5 * lineWidth.bottom;
-        }
-        drawLine(lineWidth.left, x1, y1, x2, y2);
-    }
-    if (lineWidth.right) {
-        x1 = cursor.x + cell.width;
-        y1 = cursor.y;
-        x2 = cursor.x + cell.width;
-        y2 = cursor.y + cell.height;
-        if (lineWidth.top) {
-            y1 -= 0.5 * lineWidth.top;
-        }
-        if (lineWidth.bottom) {
-            y2 += 0.5 * lineWidth.bottom;
-        }
-        drawLine(lineWidth.right, x1, y1, x2, y2);
-    }
-    function drawLine(width, x1, y1, x2, y2) {
-        doc.getDocument().setLineWidth(width);
-        doc.getDocument().line(x1, y1, x2, y2, 'S');
-    }
-}
-function getRemainingPageSpace(doc, table, isLastRow, cursor) {
-    var bottomContentHeight = table.settings.margin.bottom;
-    var showFoot = table.settings.showFoot;
-    if (showFoot === 'everyPage' || (showFoot === 'lastPage' && isLastRow)) {
-        bottomContentHeight += table.getFootHeight(table.columns);
-    }
-    return doc.pageSize().height - cursor.y - bottomContentHeight;
-}
-function addPage(doc, table, startPos, cursor, columns, suppressFooter) {
-    if (columns === void 0) { columns = []; }
-    if (suppressFooter === void 0) { suppressFooter = false; }
-    doc.applyStyles(doc.userStyles);
-    if (table.settings.showFoot === 'everyPage' && !suppressFooter) {
-        table.foot.forEach(function (row) { return printRow(doc, table, row, cursor, columns); });
-    }
-    // Add user content just before adding new page ensure it will
-    // be drawn above other things on the page
-    table.callEndPageHooks(doc, cursor);
-    var margin = table.settings.margin;
-    addTableBorder(doc, table, startPos, cursor);
-    nextPage(doc);
-    table.pageNumber++;
-    table.pageCount++;
-    cursor.x = margin.left;
-    cursor.y = margin.top;
-    startPos.y = margin.top;
-    // call didAddPage hooks before any content is added to the page
-    table.callWillDrawPageHooks(doc, cursor);
-    if (table.settings.showHead === 'everyPage') {
-        table.head.forEach(function (row) { return printRow(doc, table, row, cursor, columns); });
-        doc.applyStyles(doc.userStyles);
-    }
-}
-function nextPage(doc) {
-    var current = doc.pageNumber();
-    doc.setPage(current + 1);
-    var newCurrent = doc.pageNumber();
-    if (newCurrent === current) {
-        doc.addPage();
-        return true;
-    }
-    return false;
-}
 
 /**
  * Calculate the column widths
@@ -2096,7 +1475,7 @@ function generateSectionRow(columns, section) {
 function getSectionTitle(section, column) {
     if (section === 'head') {
         if (typeof column === 'object') {
-            return column.header || column.title || null;
+            return column.header || null;
         }
         else if (typeof column === 'string' || typeof column === 'number') {
             return column;
@@ -2109,10 +1488,10 @@ function getSectionTitle(section, column) {
 }
 function createColumns(columns) {
     return columns.map(function (input, index) {
-        var _a, _b;
+        var _a;
         var key;
         if (typeof input === 'object') {
-            key = (_b = (_a = input.dataKey) !== null && _a !== void 0 ? _a : input.key) !== null && _b !== void 0 ? _b : index;
+            key = (_a = input.dataKey) !== null && _a !== void 0 ? _a : index;
         }
         else {
             key = index;
@@ -2145,6 +1524,493 @@ function cellStyles(sectionName, column, rowIndex, themeName, styles, scaleFacto
     return assign(themeStyles, cellInputStyles);
 }
 
+// get columns can be fit into page
+function getColumnsCanFitInPage(doc, table, config) {
+    var _a;
+    if (config === void 0) { config = {}; }
+    // Get page width
+    var remainingWidth = getPageAvailableWidth(doc, table);
+    // Get column data key to repeat
+    var repeatColumnsMap = new Map();
+    var colIndexes = [];
+    var columns = [];
+    var horizontalPageBreakRepeat = [];
+    if (Array.isArray(table.settings.horizontalPageBreakRepeat)) {
+        horizontalPageBreakRepeat = table.settings.horizontalPageBreakRepeat;
+        // It can be a single value of type string or number (even number: 0)
+    }
+    else if (typeof table.settings.horizontalPageBreakRepeat === 'string' ||
+        typeof table.settings.horizontalPageBreakRepeat === 'number') {
+        horizontalPageBreakRepeat = [table.settings.horizontalPageBreakRepeat];
+    }
+    // Code to repeat the given column in split pages
+    horizontalPageBreakRepeat.forEach(function (field) {
+        var col = table.columns.find(function (item) { return item.dataKey === field || item.index === field; });
+        if (col && !repeatColumnsMap.has(col.index)) {
+            repeatColumnsMap.set(col.index, true);
+            colIndexes.push(col.index);
+            columns.push(table.columns[col.index]);
+            remainingWidth -= col.wrappedWidth;
+        }
+    });
+    var first = true;
+    var i = (_a = config === null || config === void 0 ? void 0 : config.start) !== null && _a !== void 0 ? _a : 0; // make sure couter is initiated outside the loop
+    while (i < table.columns.length) {
+        // Prevent duplicates
+        if (repeatColumnsMap.has(i)) {
+            i++;
+            continue;
+        }
+        var colWidth = table.columns[i].wrappedWidth;
+        // Take at least one column even if it doesn't fit
+        if (first || remainingWidth >= colWidth) {
+            first = false;
+            colIndexes.push(i);
+            columns.push(table.columns[i]);
+            remainingWidth -= colWidth;
+        }
+        else {
+            break;
+        }
+        i++;
+    }
+    return { colIndexes: colIndexes, columns: columns, lastIndex: i - 1 };
+}
+function calculateAllColumnsCanFitInPage(doc, table) {
+    var allResults = [];
+    for (var i = 0; i < table.columns.length; i++) {
+        var result = getColumnsCanFitInPage(doc, table, { start: i });
+        if (result.columns.length) {
+            allResults.push(result);
+            i = result.lastIndex;
+        }
+    }
+    return allResults;
+}
+
+function drawTable(jsPDFDoc, table) {
+    var settings = table.settings;
+    var startY = settings.startY;
+    var margin = settings.margin;
+    var cursor = { x: margin.left, y: startY };
+    var sectionsHeight = table.getHeadHeight(table.columns) + table.getFootHeight(table.columns);
+    var minTableBottomPos = startY + margin.bottom + sectionsHeight;
+    if (settings.pageBreak === 'avoid') {
+        var rows = table.body;
+        var tableHeight = rows.reduce(function (acc, row) { return acc + row.height; }, 0);
+        minTableBottomPos += tableHeight;
+    }
+    var doc = new DocHandler(jsPDFDoc);
+    if (settings.pageBreak === 'always' ||
+        (settings.startY != null && minTableBottomPos > doc.pageSize().height)) {
+        nextPage(doc);
+        cursor.y = margin.top;
+    }
+    table.callWillDrawPageHooks(doc, cursor);
+    var startPos = assign({}, cursor);
+    table.startPageNumber = doc.pageNumber();
+    if (settings.horizontalPageBreak) {
+        // managed flow for split columns
+        printTableWithHorizontalPageBreak(doc, table, startPos, cursor);
+    }
+    else {
+        // normal flow
+        doc.applyStyles(doc.userStyles);
+        if (settings.showHead === 'firstPage' ||
+            settings.showHead === 'everyPage') {
+            table.head.forEach(function (row) {
+                return printRow(doc, table, row, cursor, table.columns);
+            });
+        }
+        doc.applyStyles(doc.userStyles);
+        table.body.forEach(function (row, index) {
+            var isLastRow = index === table.body.length - 1;
+            printFullRow(doc, table, row, isLastRow, startPos, cursor, table.columns);
+        });
+        doc.applyStyles(doc.userStyles);
+        if (settings.showFoot === 'lastPage' || settings.showFoot === 'everyPage') {
+            table.foot.forEach(function (row) {
+                return printRow(doc, table, row, cursor, table.columns);
+            });
+        }
+    }
+    addTableBorder(doc, table, startPos, cursor);
+    table.callEndPageHooks(doc, cursor);
+    table.finalY = cursor.y;
+    jsPDFDoc.lastAutoTable = table;
+    doc.applyStyles(doc.userStyles);
+}
+function printTableWithHorizontalPageBreak(doc, table, startPos, cursor) {
+    // calculate width of columns and render only those which can fit into page
+    var allColumnsCanFitResult = calculateAllColumnsCanFitInPage(doc, table);
+    var settings = table.settings;
+    if (settings.horizontalPageBreakBehaviour === 'afterAllRows') {
+        allColumnsCanFitResult.forEach(function (colsAndIndexes, index) {
+            doc.applyStyles(doc.userStyles);
+            // add page to print next columns in new page
+            if (index > 0) {
+                // When adding a page here, make sure not to print the footers
+                // because they were already printed before on this same loop
+                addPage(doc, table, startPos, cursor, colsAndIndexes.columns, true);
+            }
+            else {
+                // print head for selected columns
+                printHead(doc, table, cursor, colsAndIndexes.columns);
+            }
+            // print body & footer for selected columns
+            printBody(doc, table, startPos, cursor, colsAndIndexes.columns);
+            printFoot(doc, table, cursor, colsAndIndexes.columns);
+        });
+    }
+    else {
+        var lastRowIndexOfLastPage_1 = -1;
+        var firstColumnsToFitResult = allColumnsCanFitResult[0];
+        var _loop_1 = function () {
+            // Print the first columns, taking note of the last row printed
+            var lastPrintedRowIndex = lastRowIndexOfLastPage_1;
+            if (firstColumnsToFitResult) {
+                doc.applyStyles(doc.userStyles);
+                var firstColumnsToFit = firstColumnsToFitResult.columns;
+                if (lastRowIndexOfLastPage_1 >= 0) {
+                    // When adding a page here, make sure not to print the footers
+                    // because they were already printed before on this same loop
+                    addPage(doc, table, startPos, cursor, firstColumnsToFit, true);
+                }
+                else {
+                    printHead(doc, table, cursor, firstColumnsToFit);
+                }
+                lastPrintedRowIndex = printBodyWithoutPageBreaks(doc, table, lastRowIndexOfLastPage_1 + 1, cursor, firstColumnsToFit);
+                printFoot(doc, table, cursor, firstColumnsToFit);
+            }
+            // Check how many rows were printed, so that the next columns would not print more rows than that
+            var maxNumberOfRows = lastPrintedRowIndex - lastRowIndexOfLastPage_1;
+            // Print the next columns, never exceding maxNumberOfRows
+            allColumnsCanFitResult.slice(1).forEach(function (colsAndIndexes) {
+                doc.applyStyles(doc.userStyles);
+                // When adding a page here, make sure not to print the footers
+                // because they were already printed before on this same loop
+                addPage(doc, table, startPos, cursor, colsAndIndexes.columns, true);
+                printBodyWithoutPageBreaks(doc, table, lastRowIndexOfLastPage_1 + 1, cursor, colsAndIndexes.columns, maxNumberOfRows);
+                printFoot(doc, table, cursor, colsAndIndexes.columns);
+            });
+            lastRowIndexOfLastPage_1 = lastPrintedRowIndex;
+        };
+        while (lastRowIndexOfLastPage_1 < table.body.length - 1) {
+            _loop_1();
+        }
+    }
+}
+function printHead(doc, table, cursor, columns) {
+    var settings = table.settings;
+    doc.applyStyles(doc.userStyles);
+    if (settings.showHead === 'firstPage' || settings.showHead === 'everyPage') {
+        table.head.forEach(function (row) { return printRow(doc, table, row, cursor, columns); });
+    }
+}
+function printBody(doc, table, startPos, cursor, columns) {
+    doc.applyStyles(doc.userStyles);
+    table.body.forEach(function (row, index) {
+        var isLastRow = index === table.body.length - 1;
+        printFullRow(doc, table, row, isLastRow, startPos, cursor, columns);
+    });
+}
+function printBodyWithoutPageBreaks(doc, table, startRowIndex, cursor, columns, maxNumberOfRows) {
+    doc.applyStyles(doc.userStyles);
+    maxNumberOfRows = maxNumberOfRows !== null && maxNumberOfRows !== void 0 ? maxNumberOfRows : table.body.length;
+    var endRowIndex = Math.min(startRowIndex + maxNumberOfRows, table.body.length);
+    var lastPrintedRowIndex = -1;
+    table.body.slice(startRowIndex, endRowIndex).forEach(function (row, index) {
+        var isLastRow = startRowIndex + index === table.body.length - 1;
+        var remainingSpace = getRemainingPageSpace(doc, table, isLastRow, cursor);
+        if (row.canEntireRowFit(remainingSpace, columns)) {
+            printRow(doc, table, row, cursor, columns);
+            lastPrintedRowIndex = startRowIndex + index;
+        }
+    });
+    return lastPrintedRowIndex;
+}
+function printFoot(doc, table, cursor, columns) {
+    var settings = table.settings;
+    doc.applyStyles(doc.userStyles);
+    if (settings.showFoot === 'lastPage' || settings.showFoot === 'everyPage') {
+        table.foot.forEach(function (row) { return printRow(doc, table, row, cursor, columns); });
+    }
+}
+function getRemainingLineCount(cell, remainingPageSpace, doc) {
+    var lineHeight = doc.getLineHeight(cell.styles.fontSize);
+    var vPadding = cell.padding('vertical');
+    var remainingLines = Math.floor((remainingPageSpace - vPadding) / lineHeight);
+    return Math.max(0, remainingLines);
+}
+function modifyRowToFit(row, remainingPageSpace, table, doc) {
+    var cells = {};
+    row.spansMultiplePages = true;
+    row.height = 0;
+    var rowHeight = 0;
+    for (var _i = 0, _a = table.columns; _i < _a.length; _i++) {
+        var column = _a[_i];
+        var cell = row.cells[column.index];
+        if (!cell)
+            continue;
+        if (!Array.isArray(cell.text)) {
+            cell.text = [cell.text];
+        }
+        var remainderCell = new Cell(cell.raw, cell.styles, cell.section);
+        remainderCell = assign(remainderCell, cell);
+        remainderCell.text = [];
+        var remainingLineCount = getRemainingLineCount(cell, remainingPageSpace, doc);
+        if (cell.text.length > remainingLineCount) {
+            remainderCell.text = cell.text.splice(remainingLineCount, cell.text.length);
+        }
+        var scaleFactor = doc.scaleFactor();
+        var lineHeightFactor = doc.getLineHeightFactor();
+        cell.contentHeight = cell.getContentHeight(scaleFactor, lineHeightFactor);
+        if (cell.contentHeight >= remainingPageSpace) {
+            cell.contentHeight = remainingPageSpace;
+            remainderCell.styles.minCellHeight -= remainingPageSpace;
+        }
+        if (cell.contentHeight > row.height) {
+            row.height = cell.contentHeight;
+        }
+        remainderCell.contentHeight = remainderCell.getContentHeight(scaleFactor, lineHeightFactor);
+        if (remainderCell.contentHeight > rowHeight) {
+            rowHeight = remainderCell.contentHeight;
+        }
+        cells[column.index] = remainderCell;
+    }
+    var remainderRow = new Row(row.raw, -1, row.section, cells, true);
+    remainderRow.height = rowHeight;
+    for (var _b = 0, _c = table.columns; _b < _c.length; _b++) {
+        var column = _c[_b];
+        var remainderCell = remainderRow.cells[column.index];
+        if (remainderCell) {
+            remainderCell.height = remainderRow.height;
+        }
+        var cell = row.cells[column.index];
+        if (cell) {
+            cell.height = row.height;
+        }
+    }
+    return remainderRow;
+}
+function shouldPrintOnCurrentPage(doc, row, remainingPageSpace, table) {
+    var pageHeight = doc.pageSize().height;
+    var margin = table.settings.margin;
+    var marginHeight = margin.top + margin.bottom;
+    var maxRowHeight = pageHeight - marginHeight;
+    if (row.section === 'body') {
+        // Should also take into account that head and foot is not
+        // on every page with some settings
+        maxRowHeight -=
+            table.getHeadHeight(table.columns) + table.getFootHeight(table.columns);
+    }
+    var minRowHeight = row.getMinimumRowHeight(table.columns, doc);
+    var minRowFits = minRowHeight < remainingPageSpace;
+    if (minRowHeight > maxRowHeight) {
+        console.error("Will not be able to print row ".concat(row.index, " correctly since it's minimum height is larger than page height"));
+        return true;
+    }
+    if (!minRowFits) {
+        return false;
+    }
+    var rowHasRowSpanCell = row.hasRowSpan(table.columns);
+    var rowHigherThanPage = row.getMaxCellHeight(table.columns) > maxRowHeight;
+    if (rowHigherThanPage) {
+        if (rowHasRowSpanCell) {
+            console.error("The content of row ".concat(row.index, " will not be drawn correctly since drawing rows with a height larger than the page height and has cells with rowspans is not supported."));
+        }
+        return true;
+    }
+    if (rowHasRowSpanCell) {
+        // Currently a new page is required whenever a rowspan row don't fit a page.
+        return false;
+    }
+    if (table.settings.rowPageBreak === 'avoid') {
+        return false;
+    }
+    // In all other cases print the row on current page
+    return true;
+}
+function printFullRow(doc, table, row, isLastRow, startPos, cursor, columns) {
+    var remainingSpace = getRemainingPageSpace(doc, table, isLastRow, cursor);
+    if (row.canEntireRowFit(remainingSpace, columns)) {
+        // The row fits in the current page
+        printRow(doc, table, row, cursor, columns);
+    }
+    else if (shouldPrintOnCurrentPage(doc, row, remainingSpace, table)) {
+        // The row gets split in two here, each piece in one page
+        var remainderRow = modifyRowToFit(row, remainingSpace, table, doc);
+        printRow(doc, table, row, cursor, columns);
+        addPage(doc, table, startPos, cursor, columns);
+        printFullRow(doc, table, remainderRow, isLastRow, startPos, cursor, columns);
+    }
+    else {
+        // The row get printed entirelly on the next page
+        addPage(doc, table, startPos, cursor, columns);
+        printFullRow(doc, table, row, isLastRow, startPos, cursor, columns);
+    }
+}
+function printRow(doc, table, row, cursor, columns) {
+    cursor.x = table.settings.margin.left;
+    for (var _i = 0, columns_1 = columns; _i < columns_1.length; _i++) {
+        var column = columns_1[_i];
+        var cell = row.cells[column.index];
+        if (!cell) {
+            cursor.x += column.width;
+            continue;
+        }
+        doc.applyStyles(cell.styles);
+        cell.x = cursor.x;
+        cell.y = cursor.y;
+        var result = table.callCellHooks(doc, table.hooks.willDrawCell, cell, row, column, cursor);
+        if (result === false) {
+            cursor.x += column.width;
+            continue;
+        }
+        drawCellRect(doc, cell, cursor);
+        var textPos = cell.getTextPos();
+        autoTableText(cell.text, textPos.x, textPos.y, {
+            halign: cell.styles.halign,
+            valign: cell.styles.valign,
+            maxWidth: Math.ceil(cell.width - cell.padding('left') - cell.padding('right')),
+        }, doc.getDocument());
+        table.callCellHooks(doc, table.hooks.didDrawCell, cell, row, column, cursor);
+        cursor.x += column.width;
+    }
+    cursor.y += row.height;
+}
+function drawCellRect(doc, cell, cursor) {
+    var cellStyles = cell.styles;
+    // https://github.com/simonbengtsson/jsPDF-AutoTable/issues/774
+    // TODO (v4): better solution?
+    doc.getDocument().setFillColor(doc.getDocument().getFillColor());
+    if (typeof cellStyles.lineWidth === 'number') {
+        // Draw cell background with normal borders
+        var fillStyle = getFillStyle(cellStyles.lineWidth, cellStyles.fillColor);
+        if (fillStyle) {
+            doc.rect(cell.x, cursor.y, cell.width, cell.height, fillStyle);
+        }
+    }
+    else if (typeof cellStyles.lineWidth === 'object') {
+        // Draw cell background
+        if (cellStyles.fillColor) {
+            doc.rect(cell.x, cursor.y, cell.width, cell.height, 'F');
+        }
+        // Draw cell individual borders
+        drawCellBorders(doc, cell, cursor, cellStyles.lineWidth);
+    }
+}
+/**
+ * Draw all specified borders. Borders are centered on cell's edge and lengthened
+ * to overlap with neighbours to create sharp corners.
+ * @param doc
+ * @param cell
+ * @param cursor
+ * @param fillColor
+ * @param lineWidth
+ */
+function drawCellBorders(doc, cell, cursor, lineWidth) {
+    var x1, y1, x2, y2;
+    if (lineWidth.top) {
+        x1 = cursor.x;
+        y1 = cursor.y;
+        x2 = cursor.x + cell.width;
+        y2 = cursor.y;
+        if (lineWidth.right) {
+            x2 += 0.5 * lineWidth.right;
+        }
+        if (lineWidth.left) {
+            x1 -= 0.5 * lineWidth.left;
+        }
+        drawLine(lineWidth.top, x1, y1, x2, y2);
+    }
+    if (lineWidth.bottom) {
+        x1 = cursor.x;
+        y1 = cursor.y + cell.height;
+        x2 = cursor.x + cell.width;
+        y2 = cursor.y + cell.height;
+        if (lineWidth.right) {
+            x2 += 0.5 * lineWidth.right;
+        }
+        if (lineWidth.left) {
+            x1 -= 0.5 * lineWidth.left;
+        }
+        drawLine(lineWidth.bottom, x1, y1, x2, y2);
+    }
+    if (lineWidth.left) {
+        x1 = cursor.x;
+        y1 = cursor.y;
+        x2 = cursor.x;
+        y2 = cursor.y + cell.height;
+        if (lineWidth.top) {
+            y1 -= 0.5 * lineWidth.top;
+        }
+        if (lineWidth.bottom) {
+            y2 += 0.5 * lineWidth.bottom;
+        }
+        drawLine(lineWidth.left, x1, y1, x2, y2);
+    }
+    if (lineWidth.right) {
+        x1 = cursor.x + cell.width;
+        y1 = cursor.y;
+        x2 = cursor.x + cell.width;
+        y2 = cursor.y + cell.height;
+        if (lineWidth.top) {
+            y1 -= 0.5 * lineWidth.top;
+        }
+        if (lineWidth.bottom) {
+            y2 += 0.5 * lineWidth.bottom;
+        }
+        drawLine(lineWidth.right, x1, y1, x2, y2);
+    }
+    function drawLine(width, x1, y1, x2, y2) {
+        doc.getDocument().setLineWidth(width);
+        doc.getDocument().line(x1, y1, x2, y2, 'S');
+    }
+}
+function getRemainingPageSpace(doc, table, isLastRow, cursor) {
+    var bottomContentHeight = table.settings.margin.bottom;
+    var showFoot = table.settings.showFoot;
+    if (showFoot === 'everyPage' || (showFoot === 'lastPage' && isLastRow)) {
+        bottomContentHeight += table.getFootHeight(table.columns);
+    }
+    return doc.pageSize().height - cursor.y - bottomContentHeight;
+}
+function addPage(doc, table, startPos, cursor, columns, suppressFooter) {
+    if (columns === void 0) { columns = []; }
+    if (suppressFooter === void 0) { suppressFooter = false; }
+    doc.applyStyles(doc.userStyles);
+    if (table.settings.showFoot === 'everyPage' && !suppressFooter) {
+        table.foot.forEach(function (row) { return printRow(doc, table, row, cursor, columns); });
+    }
+    // Add user content just before adding new page ensure it will
+    // be drawn above other things on the page
+    table.callEndPageHooks(doc, cursor);
+    var margin = table.settings.margin;
+    addTableBorder(doc, table, startPos, cursor);
+    nextPage(doc);
+    table.pageNumber++;
+    cursor.x = margin.left;
+    cursor.y = margin.top;
+    startPos.y = margin.top;
+    // call didAddPage hooks before any content is added to the page
+    table.callWillDrawPageHooks(doc, cursor);
+    if (table.settings.showHead === 'everyPage') {
+        table.head.forEach(function (row) { return printRow(doc, table, row, cursor, columns); });
+        doc.applyStyles(doc.userStyles);
+    }
+}
+function nextPage(doc) {
+    var current = doc.pageNumber();
+    doc.setPage(current + 1);
+    var newCurrent = doc.pageNumber();
+    if (newCurrent === current) {
+        doc.addPage();
+        return true;
+    }
+    return false;
+}
+
 function _applyPlugin (jsPDF) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     jsPDF.API.autoTable = function () {
@@ -2152,16 +2018,7 @@ function _applyPlugin (jsPDF) {
         for (var _i = 0; _i < arguments.length; _i++) {
             args[_i] = arguments[_i];
         }
-        var options;
-        if (args.length === 1) {
-            options = args[0];
-        }
-        else {
-            console.error('Use of deprecated autoTable initiation');
-            options = args[2] || {};
-            options.columns = args[0];
-            options.body = args[1];
-        }
+        var options = args[0];
         var input = parseInput(this, options);
         var table = createTable(this, input);
         drawTable(this, table);
@@ -2169,8 +2026,6 @@ function _applyPlugin (jsPDF) {
     };
     // Assign false to enable `doc.lastAutoTable.finalY || 40` sugar
     jsPDF.API.lastAutoTable = false;
-    jsPDF.API.previousAutoTable = false; // deprecated in v3
-    jsPDF.API.autoTable.previous = false; // deprecated in v3
     jsPDF.API.autoTableText = function (text, x, y, styles) {
         autoTableText(text, x, y, styles, this);
     };
@@ -2193,38 +2048,6 @@ function _applyPlugin (jsPDF) {
         var columns = ((_a = head[0]) === null || _a === void 0 ? void 0 : _a.map(function (c) { return c.content; })) || [];
         return { columns: columns, rows: body, data: body };
     };
-    /**
-     * @deprecated
-     */
-    jsPDF.API.autoTableEndPosY = function () {
-        console.error('Use of deprecated function: autoTableEndPosY. Use doc.lastAutoTable.finalY instead.');
-        var prev = this.lastAutoTable;
-        if (prev && prev.finalY) {
-            return prev.finalY;
-        }
-        else {
-            return 0;
-        }
-    };
-    /**
-     * @deprecated
-     */
-    jsPDF.API.autoTableAddPageContent = function (hook) {
-        console.error('Use of deprecated function: autoTableAddPageContent. Use jsPDF.autoTableSetDefaults({didDrawPage: () => {}}) instead.');
-        if (!jsPDF.API.autoTable.globalDefaults) {
-            jsPDF.API.autoTable.globalDefaults = {};
-        }
-        jsPDF.API.autoTable.globalDefaults.addPageContent = hook;
-        return this;
-    };
-    /**
-     * @deprecated
-     */
-    jsPDF.API.autoTableAddPage = function () {
-        console.error('Use of deprecated function: autoTableAddPage. Use doc.addPage()');
-        this.addPage();
-        return this;
-    };
 }
 
 // export { applyPlugin } didn't export applyPlugin
@@ -2246,13 +2069,14 @@ function __drawTable(d, table) {
     drawTable(d, table);
 }
 try {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     var jsPDF = require('jspdf');
     // Webpack imported jspdf instead of jsPDF for some reason
     // while it seemed to work everywhere else.
     if (jsPDF.jsPDF)
         jsPDF = jsPDF.jsPDF;
     applyPlugin(jsPDF);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
 }
 catch (error) {
     // Importing jspdf in nodejs environments does not work as of jspdf
@@ -2260,4 +2084,4 @@ catch (error) {
     // the nodejs jspdf dist files with the exported applyPlugin
 }
 
-export { Cell, CellHookData, Column, Row, Table, __createTable, __drawTable, applyPlugin, autoTable as default };
+export { Cell, CellHookData, Column, Row, Table, __createTable, __drawTable, applyPlugin, autoTable, autoTable as default };
