@@ -746,6 +746,105 @@ examples.horizontalPageBreakBehaviour = function () {
   return doc
 }
 
+// Rowspan multiple pages - Show how to rowspan rows display over multiple pages
+examples.rowSpanMultiplePages = function () {
+    var doc = new jsPDF('p', 'px', 'a4', true);
+    doc.setFontSize(11);
+
+    const head = headRows()
+    head[0].country = 'Country'
+    head[0].region = 'Region'
+
+    const bodyData = bodyRows(50)
+    bodyData.forEach(function (row, i) {
+        row['country'] = faker.address.country()
+        row['region'] = faker.address.state()
+
+        if (i < 40) {
+            row['country'] = 'Country 01';
+
+            if (i < 35) {
+                row['region'] = 'Region 01-A';
+
+                if (i < 30) {
+                    row['city'] = 'City A-01';
+                } else {
+                    row['city'] = 'City A-02';
+                }
+
+            } else {
+                row['region'] = 'Region 01-B';
+                if (i < 36) {
+                    row['city'] = 'City B-a';
+                } else {
+                    row['city'] = 'City B-b';
+                }
+            }
+
+        } else {
+            row['country'] = 'Country 02';
+        }
+    })
+
+    var body = [];
+    var contries = [...new Set(bodyData.map(r => r['country']))];
+    contries.forEach((country, countryIndex) => {
+        var sameCountryItems = bodyData.filter(r => r['country'] == country);
+
+        var regions = [...new Set(sameCountryItems.map(r => r['region']))];
+        regions.forEach((region, regionIndex) => {
+            var sameRegionItems = sameCountryItems.filter(r => r['region'] == region);
+            var cities = [...new Set(sameRegionItems.map(r => r['city']))];
+            cities.forEach((city, cityIndex) => {
+                var sameCityItems = sameRegionItems.filter(r => r['city'] == city);
+                sameCityItems.forEach((r, itemIndex) => {
+                    var row = [];
+                    var groupStyles = { valign: 'middle', halign: 'center' }
+
+                    for (var key in head[0]) {
+                        var rowSpan = 0;
+                        var isGroup = true;
+                        switch (key) {
+                            case 'country':
+                                rowSpan = regionIndex == 0 && cityIndex == 0 && itemIndex == 0 ? sameCountryItems.length : 0;
+                                break;
+                            case 'region':
+                                rowSpan = cityIndex == 0 && itemIndex == 0 ? sameRegionItems.length : 0;
+                                break;
+                            case 'city':
+                                rowSpan = itemIndex == 0 ? sameCityItems.length : 0;
+                                break;
+                            default:
+                                rowSpan = 1;
+                                isGroup = false;
+                                break;
+                        }
+                        if (rowSpan) {
+                            row.push({
+                                rowSpan,
+                                content: r[key],
+                                styles: isGroup ? groupStyles : null
+                            })
+                        }
+
+                    }
+
+                    body.push(row);
+                })
+
+            })
+        })
+    })
+
+    var obj = {
+        head,
+        body,
+        theme: 'grid'
+    }
+    autoTable(doc, obj)
+    return doc
+}
+
 /*
  |--------------------------------------------------------------------------
  | Below is some helper functions for the examples
