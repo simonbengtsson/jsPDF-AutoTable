@@ -17,8 +17,8 @@ Get jsPDF and this plugin by doing one of these things:
 ## Usage
 
 ```js
-import jsPDF from 'jspdf'
-import autoTable from 'jspdf-autotable'
+import { jsPDF } from 'jspdf'
+import { autoTable } from 'jspdf-autotable'
 
 const doc = new jsPDF()
 
@@ -36,17 +36,16 @@ autoTable(doc, {
   ],
 })
 
-// Sometimes you might have to call the default function on the export (for example in Deno)
-autoTable.default(doc, { html: '#my-table' })
-
 doc.save('table.pdf')
 ```
 
 You can also use the plugin methods directly on the jsPDF documents:
 
 ```js
-import jsPDF from 'jspdf'
-import 'jspdf-autotable'
+import { jsPDF } from 'jspdf'
+import { applyPlugin } from 'jspdf-autotable'
+
+applyPlugin(jsPDF)
 
 const doc = new jsPDF()
 doc.autoTable({ html: '#my-table' })
@@ -239,16 +238,9 @@ autoTable(doc, {
 - `doc.autoTable({ /* options */ })`
 - `autoTable(doc, { /* options */ })`
 - `jsPDF.autoTableSetDefaults({ /* ... */ })` Use for setting global defaults which will be applied for all tables
+- `applyPlugin(jsPDF)` Use for adding the autoTable api to any jsPDF instance
 
 If you want to know something about the last table that was drawn you can use `doc.lastAutoTable`. It has a `doc.lastAutoTable.finalY` property among other things that has the value of the last printed y coordinate on a page. This can be used to draw text, multiple tables or other content after a table.
-
-In addition to the exported autoTable(doc, options) method you can also use applyPlugin to add the autoTable api to any jsPDF instance.
-
-```
-import jsPDF from 'jspdf/dist/jspdf.node.debug'
-import { applyPlugin } from 'jspdf-autotable'
-applyPlugin(jsPDF)
-```
 
 ## Contributions
 
