@@ -6,7 +6,7 @@ export type MarginPadding = {
 	bottom: number;
 	left: number;
 };
-declare class HookData {
+export declare class HookData {
 	table: Table;
 	pageNumber: number;
 	settings: Settings;

@@ -1,6 +1,6 @@
 /*!
  * 
- *               jsPDF AutoTable plugin v5.0.0
+ *               jsPDF AutoTable plugin v5.0.1
  *
  *               Copyright (c) 2025 Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable
  *               Licensed under the MIT License.
@@ -2292,7 +2292,7 @@ var exports = __webpack_exports__;
 
 var _a;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.Table = exports.Row = exports.Column = exports.CellHookData = exports.Cell = exports.applyPlugin = void 0;
+exports.Table = exports.Row = exports.HookData = exports.Column = exports.CellHookData = exports.Cell = exports.applyPlugin = void 0;
 exports.autoTable = autoTable;
 exports.__createTable = __createTable;
 exports.__drawTable = __drawTable;
@@ -2300,6 +2300,7 @@ var applyPlugin_1 = __webpack_require__(639);
 Object.defineProperty(exports, "applyPlugin", ({ enumerable: true, get: function () { return applyPlugin_1.applyPlugin; } }));
 var HookData_1 = __webpack_require__(601);
 Object.defineProperty(exports, "CellHookData", ({ enumerable: true, get: function () { return HookData_1.CellHookData; } }));
+Object.defineProperty(exports, "HookData", ({ enumerable: true, get: function () { return HookData_1.HookData; } }));
 var inputParser_1 = __webpack_require__(371);
 var models_1 = __webpack_require__(524);
 Object.defineProperty(exports, "Cell", ({ enumerable: true, get: function () { return models_1.Cell; } }));
