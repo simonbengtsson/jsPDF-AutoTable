@@ -3,11 +3,14 @@ global.TextEncoder = require('util').TextEncoder
 global.TextDecoder = require('util').TextDecoder
 
 import { jsPDF } from 'jspdf'
+import { applyPlugin } from '../src/applyPlugin'
 import { DocHandler } from '../src/documentHandler'
 import { parseHtml } from '../src/htmlParser'
 const assert = require('assert')
 const jsdom = require('jsdom')
 const dom = new jsdom.JSDOM('')
+
+applyPlugin(jsPDF)
 
 describe('html parser', () => {
   it('full table', () => {
