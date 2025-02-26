@@ -40,7 +40,7 @@ export default (env) => {
       port: 9000,
       proxy: [
         {
-          context: ['/libs/jspdf.plugin.autotable.js'],
+          context: ['/assets/jspdf.plugin.autotable.js'],
           target: 'http://localhost:9000/dist/',
           changeOrigin: true,
         },
