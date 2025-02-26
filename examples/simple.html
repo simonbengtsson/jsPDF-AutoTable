@@ -1,24 +1,13 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 
 <head>
   <meta charset="UTF-8" />
   <title>Simple example</title>
 </head>
-<style>
-  html {
-    box-sizing: border-box;
-  }
-
-  *,
-  *:before,
-  *:after {
-    box-sizing: inherit;
-  }
-</style>
 
 <body>
-  <button onclick="generate()">Generate pdf</button>
+  <button id="create-btn">Create PDF</button>
 
   <script src="libs/jspdf.js"></script>
   <script src="../dist/jspdf.plugin.autotable.js"></script>
@@ -55,12 +44,12 @@
   </table>
 
   <script>
-    function generate() {
-      var doc = new jspdf.jsPDF()
+    document.getElementById('create-btn').addEventListener('click', function () {
+      const doc = new jspdf.jsPDF()
 
       // Simple data example
-      var head = [['ID', 'Country', 'Rank', 'Capital']]
-      var body = [
+      const head = [['ID', 'Country', 'Rank', 'Capital']]
+      const body = [
         [1, 'Denmark', 7.526, 'Copenhagen'],
         [2, 'Switzerland', 7.509, 'Bern'],
         [3, 'Iceland', 7.501, 'Reykjavík'],
@@ -71,7 +60,7 @@
       doc.autoTable({ html: '#table' })
 
       doc.save('table.pdf')
-    }
+    })
   </script>
 </body>
 
