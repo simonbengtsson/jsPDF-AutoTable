@@ -9,7 +9,7 @@
  | To make it possible to view each example in examples.html some extra code
  | is added to the examples below. For example they return their jspdf
  | doc instance and gets generated data from the library faker.js. See simple.html
- | for a minimal example.
+ | and nodejs.mjs for a minimal examples.
  */
 
 const faker = window.faker
