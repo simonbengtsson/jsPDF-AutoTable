@@ -54,7 +54,7 @@ export function calculateWidths(doc: DocHandler, table: Table) {
     // reduce font size, increase page size or remove custom cell widths
     // to allow more columns to be reduced in size
     resizeWidth = resizeWidth < 1 ? resizeWidth : Math.round(resizeWidth)
-    console.warn(
+    console.log(
       `Of the table content, ${resizeWidth} units width could not fit page`,
     )
   }

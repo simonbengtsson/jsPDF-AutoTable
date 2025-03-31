@@ -332,7 +332,7 @@ function shouldPrintOnCurrentPage(
   const minRowHeight = row.getMinimumRowHeight(table.columns, doc)
   const minRowFits = minRowHeight < remainingPageSpace
   if (minRowHeight > maxRowHeight) {
-    console.error(
+    console.log(
       `Will not be able to print row ${row.index} correctly since it's minimum height is larger than page height`,
     )
     return true
@@ -346,7 +346,7 @@ function shouldPrintOnCurrentPage(
   const rowHigherThanPage = row.getMaxCellHeight(table.columns) > maxRowHeight
   if (rowHigherThanPage) {
     if (rowHasRowSpanCell) {
-      console.error(
+      console.log(
         `The content of row ${row.index} will not be drawn correctly since drawing rows with a height larger than the page height and has cells with rowspans is not supported.`,
       )
     }
