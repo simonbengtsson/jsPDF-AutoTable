@@ -1,6 +1,6 @@
 {
   "name": "jspdf-autotable-devhus",
-  "version": "3.8.8",
+  "version": "4.0.0",
   "description": "Generate pdf tables with javascript (jsPDF plugin)",
   "main": "dist/jspdf.plugin.autotable.js",
   "exports": {
@@ -26,7 +26,7 @@
     "example": "examples"
   },
   "peerDependencies": {
-    "jspdf": "^2.5.1"
+    "jspdf": "^3.0.0"
   },
   "prettier": {
     "semi": false,
