@@ -244,12 +244,16 @@ If you want to know something about the last table that was drawn you can use `d
 
 ## Contributions
 
-Contributions are always welcome, especially on open issues. If you have something major you want to add or change, please post an issue about it first to discuss it further. The workflow for contributing would be something like this:
+Contributions are always welcome, especially on open issues. If you have something major you want to add or change, please post an issue about it first to discuss it further. Describe the change you are making and ideally link to related issues. If the pull request is a bug fix it is helpful with examples of what did not work before but works now etc.
+
+The workflow for contributing would be something like this:
 
 - Start watcher with `npm start`
 - Make code changes
 - Make sure all examples works
 - Commit and submit pull request
+
+Don't include updated build files in the pull request since these are auto created during release.
 
 **If you don't use [Prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode) on autosave, please run `yarn run format-all` before opening your PR**
 
