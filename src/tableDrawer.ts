@@ -1,6 +1,6 @@
 import autoTableText from './autoTableText'
 import { addTableBorder, getFillStyle } from './common'
-import { LineWidths } from './config'
+import { LineWidths, Color } from './config'
 import { DocHandler, jsPDFDocument } from './documentHandler'
 import { Cell, Column, Pos, Row, Table } from './models'
 import { assign } from './polyfills'
@@ -500,7 +500,7 @@ function drawCellBorders(
     if (lineWidth.left) {
       x1 -= 0.5 * lineWidth.left
     }
-    drawLine(lineWidth.top, x1, y1, x2, y2)
+    drawLine(lineWidth.top, x1, y1, x2, y2, cell.styles.lineColor)
   }
 
   if (lineWidth.bottom) {
@@ -514,7 +514,7 @@ function drawCellBorders(
     if (lineWidth.left) {
       x1 -= 0.5 * lineWidth.left
     }
-    drawLine(lineWidth.bottom, x1, y1, x2, y2)
+    drawLine(lineWidth.bottom, x1, y1, x2, y2, cell.styles.lineColor)
   }
 
   if (lineWidth.left) {
@@ -528,7 +528,7 @@ function drawCellBorders(
     if (lineWidth.bottom) {
       y2 += 0.5 * lineWidth.bottom
     }
-    drawLine(lineWidth.left, x1, y1, x2, y2)
+    drawLine(lineWidth.left, x1, y1, x2, y2, cell.styles.lineColor)
   }
 
   if (lineWidth.right) {
@@ -542,7 +542,7 @@ function drawCellBorders(
     if (lineWidth.bottom) {
       y2 += 0.5 * lineWidth.bottom
     }
-    drawLine(lineWidth.right, x1, y1, x2, y2)
+    drawLine(lineWidth.right, x1, y1, x2, y2, cell.styles.lineColor)
   }
 
   function drawLine(
@@ -551,9 +551,18 @@ function drawCellBorders(
     y1: number,
     x2: number,
     y2: number,
+    lineColor: Color,
   ) {
-    doc.getDocument().setLineWidth(width)
-    doc.getDocument().line(x1, y1, x2, y2, 'S')
+    const jsPDFDoc = doc.getDocument()
+    if (typeof lineColor === 'string') {
+      jsPDFDoc.setDrawColor(lineColor)
+    } else if (Array.isArray(lineColor)) {
+      jsPDFDoc.setDrawColor(lineColor[0], lineColor[1], lineColor[2])
+    } else if (typeof lineColor === 'number') {
+      jsPDFDoc.setDrawColor(lineColor)
+    }
+    jsPDFDoc.setLineWidth(width)
+    jsPDFDoc.line(x1, y1, x2, y2, 'S')
   }
 }
 
