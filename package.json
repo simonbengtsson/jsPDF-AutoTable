@@ -27,7 +27,7 @@
     "example": "examples"
   },
   "peerDependencies": {
-    "jspdf": "^2 || ^3"
+    "jspdf": "^2 || ^3 || ^4"
   },
   "prettier": {
     "semi": false,
@@ -44,10 +44,10 @@
     "eslint": "^9.21.0",
     "eslint-config-prettier": "^10.0.1",
     "eslint-plugin-prettier": "^5.0.0",
-    "jsdom": "^26.0.0",
+    "jsdom": "^27.0.0",
     "jspdf": "^3.0.0",
     "mocha": "^11.1.0",
-    "npm-check-updates": "^17.1.15",
+    "npm-check-updates": "^19.0.0",
     "prettier": "^3.0.3",
     "rollup": "^4.0.2",
     "ts-loader": "^9.5.0",
@@ -70,7 +70,6 @@
     "version": "npm test && npm run build && git add -A dist",
     "hosting": "git push origin main:gh-pages -f",
     "deploy": "git push --follow-tags && npm run hosting && npm publish",
-    "update-libs": "cd examples/nodejs && ncu -u && npm i && cd ../typescript && ncu -u && npm i && cd ../webpack && ncu -u && npm i",
     "types": "dts-bundle-generator src/main.ts -o ./dist/index.d.ts"
   },
   "repository": {
