@@ -19,7 +19,7 @@ describe('runner', () => {
 
   it('nodejs', () => {
     ;(global as any).window = {}
-    const jsPDFNode = require('jspdf/dist/jspdf.node').jsPDF
+    const jsPDFNode = require('jspdf').jsPDF
     delete (global as any).window
 
     const doc = new jsPDFNode()

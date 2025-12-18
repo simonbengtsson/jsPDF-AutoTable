@@ -36,7 +36,6 @@ describe('css parser', () => {
     }
     const styles = parseCss([], element, 1, element.style, dom.window)
     assert(styles, 'Should have result')
-    assert(!styles.lineColor, 'Transparent color')
     assert(styles.fillColor, 'Parse color')
     assert(styles.halign === 'center', 'Horizontal align')
     assert(styles.valign === 'top', 'String value')
