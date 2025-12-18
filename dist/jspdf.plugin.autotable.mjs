@@ -1115,7 +1115,7 @@ function calculateWidths(doc, table) {
         // reduce font size, increase page size or remove custom cell widths
         // to allow more columns to be reduced in size
         resizeWidth = resizeWidth < 1 ? resizeWidth : Math.round(resizeWidth);
-        console.warn("Of the table content, ".concat(resizeWidth, " units width could not fit page"));
+        console.log("Of the table content, ".concat(resizeWidth, " units width could not fit page"));
     }
     applyColSpans(table);
     fitContent(table, doc);
@@ -1807,7 +1807,7 @@ function shouldPrintOnCurrentPage(doc, row, remainingPageSpace, table) {
     var minRowHeight = row.getMinimumRowHeight(table.columns, doc);
     var minRowFits = minRowHeight < remainingPageSpace;
     if (minRowHeight > maxRowHeight) {
-        console.error("Will not be able to print row ".concat(row.index, " correctly since it's minimum height is larger than page height"));
+        console.log("Will not be able to print row ".concat(row.index, " correctly since it's minimum height is larger than page height"));
         return true;
     }
     if (!minRowFits) {
@@ -1817,7 +1817,7 @@ function shouldPrintOnCurrentPage(doc, row, remainingPageSpace, table) {
     var rowHigherThanPage = row.getMaxCellHeight(table.columns) > maxRowHeight;
     if (rowHigherThanPage) {
         if (rowHasRowSpanCell) {
-            console.error("The content of row ".concat(row.index, " will not be drawn correctly since drawing rows with a height larger than the page height and has cells with rowspans is not supported."));
+            console.log("The content of row ".concat(row.index, " will not be drawn correctly since drawing rows with a height larger than the page height and has cells with rowspans is not supported."));
         }
         return true;
     }
