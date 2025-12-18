@@ -30,7 +30,4 @@ jobs:
 
       - name: Deploy and publish
         run: |
-          echo '//registry.npmjs.org/:_authToken=${NPM_TOKEN}' > .npmrc
           npm run deploy
-        env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
