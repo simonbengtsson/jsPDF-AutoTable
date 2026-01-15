@@ -382,7 +382,6 @@ function printFullRow(
   } else if (shouldPrintOnCurrentPage(doc, row, remainingSpace, table)) {
     // The row gets split in two here, each piece in one page
     const remainderRow = modifyRowToFit(row, remainingSpace, table, doc)
-    printRow(doc, table, row, cursor, columns)
     addPage(doc, table, startPos, cursor, columns)
     printFullRow(doc, table, remainderRow, isLastRow, startPos, cursor, columns)
   } else {
