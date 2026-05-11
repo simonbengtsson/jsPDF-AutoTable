@@ -1856,14 +1856,19 @@ function printBodyWithoutPageBreaks(doc, table, startRowIndex, cursor, columns, 
     maxNumberOfRows = maxNumberOfRows !== null && maxNumberOfRows !== void 0 ? maxNumberOfRows : table.body.length;
     var endRowIndex = Math.min(startRowIndex + maxNumberOfRows, table.body.length);
     var lastPrintedRowIndex = -1;
-    table.body.slice(startRowIndex, endRowIndex).forEach(function (row, index) {
+    var rows = table.body.slice(startRowIndex, endRowIndex);
+    for (var index = 0; index < rows.length; index++) {
+        var row = rows[index];
         var isLastRow = startRowIndex + index === table.body.length - 1;
         var remainingSpace = getRemainingPageSpace(doc, table, isLastRow, cursor);
         if (row.canEntireRowFit(remainingSpace, columns)) {
             printRow(doc, table, row, cursor, columns);
             lastPrintedRowIndex = startRowIndex + index;
         }
-    });
+        else {
+            break;
+        }
+    }
     return lastPrintedRowIndex;
 }
 function printFoot(doc, table, cursor, columns) {
