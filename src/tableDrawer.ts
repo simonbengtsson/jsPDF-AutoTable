@@ -198,15 +198,19 @@ function printBodyWithoutPageBreaks(
     table.body.length,
   )
   let lastPrintedRowIndex = -1
-  table.body.slice(startRowIndex, endRowIndex).forEach((row, index) => {
+  const rows = table.body.slice(startRowIndex, endRowIndex)
+  for (let index = 0; index < rows.length; index++) {
+    const row = rows[index]
     const isLastRow = startRowIndex + index === table.body.length - 1
 
     const remainingSpace = getRemainingPageSpace(doc, table, isLastRow, cursor)
     if (row.canEntireRowFit(remainingSpace, columns)) {
       printRow(doc, table, row, cursor, columns)
       lastPrintedRowIndex = startRowIndex + index
+    } else {
+      break
     }
-  })
+  }
 
   return lastPrintedRowIndex
 }
