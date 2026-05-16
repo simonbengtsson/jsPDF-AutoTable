@@ -45,7 +45,7 @@
     "eslint-config-prettier": "^10.0.1",
     "eslint-plugin-prettier": "^5.0.0",
     "jsdom": "^27.0.0",
-    "jspdf": "^4.0.0",
+    "jspdf": "^4.2.1",
     "mocha": "^11.1.0",
     "npm-check-updates": "^19.0.0",
     "prettier": "^3.0.3",
