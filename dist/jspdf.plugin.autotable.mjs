@@ -683,10 +683,10 @@ function parseStyles(gInput, dInput, cInput) {
     };
     var _loop_1 = function (prop) {
         if (prop === 'columnStyles') {
-            var global_1 = gInput[prop];
+            var global = gInput[prop];
             var document_1 = dInput[prop];
             var current = cInput[prop];
-            styleOptions.columnStyles = assign({}, global_1, document_1, current);
+            styleOptions.columnStyles = assign({}, global, document_1, current);
         }
         else {
             var allOptions = [gInput, dInput, cInput];
