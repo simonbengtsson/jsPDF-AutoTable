@@ -1,4 +1,4 @@
-const assert = require('assert')
+import assert from 'node:assert'
 import { Column } from '../src/models'
 import { resizeColumns } from '../src/widthCalculator'
 

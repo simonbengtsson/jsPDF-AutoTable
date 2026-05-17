@@ -1,4 +1,4 @@
-const assert = require('assert')
+import assert from 'node:assert'
 import { jsPDF } from 'jspdf'
 import { DocHandler } from '../src/documentHandler'
 import { ellipsize } from '../src/widthCalculator'

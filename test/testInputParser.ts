@@ -1,5 +1,5 @@
-import * as assert from 'assert'
 import { jsPDF } from 'jspdf'
+import assert from 'node:assert'
 import { parseInput } from '../src/inputParser'
 import { createTable } from '../src/tableCalculator'
 

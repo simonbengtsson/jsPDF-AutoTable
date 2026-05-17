@@ -1,12 +1,10 @@
-// Fix for https://github.com/simonbengtsson/jsPDF-AutoTable/runs/3567913815
-global.TextEncoder = require('util').TextEncoder
-global.TextDecoder = require('util').TextDecoder
-
+import assert from 'node:assert'
+import { Window } from 'happy-dom'
 import { parseCss } from '../src/cssParser'
-const assert = require('assert')
-const jsdom = require('jsdom')
-const dom = new jsdom.JSDOM('')
-const table = dom.window.document.createElement('table')
+
+const window = new Window() as unknown as globalThis.Window
+const table = window.document.createElement('table')
+window.document.body.appendChild(table)
 
 describe('css parser', () => {
   it('normal styles', () => {
@@ -34,7 +32,7 @@ describe('css parser', () => {
     for (const [prop, value] of Object.entries(style)) {
       element.style[prop] = value
     }
-    const styles = parseCss([], element, 1, element.style, dom.window)
+    const styles = parseCss([], element, 1, element.style, window)
     assert(styles, 'Should have result')
     assert(styles.fillColor, 'Parse color')
     assert(styles.halign === 'center', 'Horizontal align')
@@ -61,7 +59,7 @@ describe('css parser', () => {
     for (const [prop, value] of Object.entries(style)) {
       element.style[prop] = value
     }
-    const styles = parseCss([], element, scaleFactor, element.style, dom.window)
+    const styles = parseCss([], element, scaleFactor, element.style, window)
     assert.equal(typeof styles.lineWidth, 'object', 'Line width object')
     assert.deepStrictEqual(
       styles.lineWidth,
@@ -77,7 +75,7 @@ describe('css parser', () => {
 
   it('minimal styles', () => {
     let element = table.insertRow()
-    const styles = parseCss([], element, 1, element.style, dom.window)
+    const styles = parseCss([], element, 1, element.style, window)
     assert(styles, 'Should have result')
     assert.strictEqual(styles.fillColor, undefined, 'Transparent')
     assert(styles.halign == null, 'Empty string halign')

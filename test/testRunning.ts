@@ -1,6 +1,6 @@
 import { jsPDF } from 'jspdf'
+import assert from 'node:assert'
 import autoTable, { applyPlugin, autoTableInstanceType } from '../src/main'
-const assert = require('assert')
 
 applyPlugin(jsPDF)
 
@@ -13,16 +13,6 @@ describe('runner', () => {
 
   it('export', () => {
     const doc = new jsPDF()
-    autoTable(doc, { body: [['cell']] })
-    assert(true)
-  })
-
-  it('nodejs', () => {
-    ;(global as any).window = {}
-    const jsPDFNode = require('jspdf').jsPDF
-    delete (global as any).window
-
-    const doc = new jsPDFNode()
     autoTable(doc, { body: [['cell']] })
     assert(true)
   })

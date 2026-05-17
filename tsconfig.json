@@ -1,6 +1,9 @@
 {
   "compilerOptions": {
     "strict": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "ignoreDeprecations": "6.0",
     "target": "ES5"
   },
   "include": ["src/**/*"]

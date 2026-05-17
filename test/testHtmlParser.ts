@@ -1,21 +1,24 @@
-// Fix for https://github.com/simonbengtsson/jsPDF-AutoTable/runs/3567913815
-global.TextEncoder = require('util').TextEncoder
-global.TextDecoder = require('util').TextDecoder
-
+import { Window } from 'happy-dom'
 import { jsPDF } from 'jspdf'
+import assert from 'node:assert'
 import { applyPlugin } from '../src/applyPlugin'
 import { DocHandler } from '../src/documentHandler'
 import { parseHtml } from '../src/htmlParser'
-const assert = require('assert')
-const jsdom = require('jsdom')
-const dom = new jsdom.JSDOM('')
+
+const window = new Window()
 
 applyPlugin(jsPDF)
+
+function createTable() {
+  const table = window.document.createElement('table')
+  window.document.body.appendChild(table)
+  return table
+}
 
 describe('html parser', () => {
   it('full table', () => {
     const doc = new DocHandler(new jsPDF())
-    const table = dom.window.document.createElement('table')
+    const table = createTable()
     let section = table.createTBody()
     let row = section.insertRow()
     let cell1 = row.insertCell()
@@ -33,7 +36,7 @@ describe('html parser', () => {
     cell1 = row.insertCell()
     cell1.innerHTML = '<p>test</p>'
 
-    const res = parseHtml(doc, table, dom.window)
+    const res = parseHtml(doc, table as any, window as any)
     assert(res, 'Should have result')
     assert(res.head[0].length, 'Should have head cell')
     assert.equal(res.body[0].length, 2, 'Should have two body cells')
@@ -42,7 +45,7 @@ describe('html parser', () => {
 
   it('cloned table', () => {
     const doc = new DocHandler(new jsPDF())
-    const table = dom.window.document.createElement('table')
+    const table = createTable()
     let section = table.createTBody()
     let row = section.insertRow()
     let cell1 = row.insertCell()
@@ -60,7 +63,7 @@ describe('html parser', () => {
     cell1 = row.insertCell()
     cell1.innerHTML = '<p>test</p>'
 
-    const res = parseHtml(doc, table.cloneNode(true), dom.window)
+    const res = parseHtml(doc, table.cloneNode(true) as any, window as any)
     assert(res, 'Should have result')
     assert(res.head[0].length, 'Should have head cell')
     assert.equal(res.body[0].length, 2, 'Should have two body cells')
@@ -69,7 +72,7 @@ describe('html parser', () => {
 
   it('hidden content', () => {
     const doc = new DocHandler(new jsPDF())
-    const table = dom.window.document.createElement('table')
+    const table = createTable()
     let section = table.createTBody()
     let row = section.insertRow()
     let cell1 = row.insertCell()
@@ -90,7 +93,7 @@ describe('html parser', () => {
     cell1.style.display = 'none'
     cell1.innerHTML = '<p>test</p>'
 
-    const res = parseHtml(doc, table, dom.window)
+    const res = parseHtml(doc, table as any, window as any)
     assert(res, 'Should have result')
     assert(res.head.length === 0, 'Should have no head cells')
     assert(res.body.length === 1, 'Should have one body cell')
@@ -99,8 +102,8 @@ describe('html parser', () => {
 
   it('empty table', () => {
     const doc = new DocHandler(new jsPDF())
-    const table = dom.window.document.createElement('table')
-    const res = parseHtml(doc, table, dom.window)
+    const table = createTable()
+    const res = parseHtml(doc, table as any, window as any)
     assert(res, 'Should have result')
     assert(res.head.length === 0, 'Should have no head cells')
     assert(res.body.length === 0, 'Should have no body cells')
@@ -108,17 +111,16 @@ describe('html parser', () => {
   })
 
   it('autoTableHtmlToJson', () => {
-    ;(global as any).window = dom.window
-    ;(global as any).HTMLTableElement = dom.window.HTMLTableElement
-    const table = dom.window.document.createElement('table')
+    ; (global as any).window = window
+      ; (global as any).HTMLTableElement = window.HTMLTableElement
+    const table = createTable()
     let body = table.createTBody()
     let brow = body.insertRow()
     brow.insertCell().textContent = 'body'
     brow.insertCell().textContent = 'body 2'
     let head = table.createTHead()
     let hrow = head.insertRow()
-    hrow.insertCell().textContent = 'head'
-    hrow.insertCell().outerHTML = '<th>th</th>'
+    hrow.innerHTML = '<td>head</td><th>th</th>'
     const doc: any = new jsPDF()
     const res = doc.autoTableHtmlToJson(table)
     assert.equal(res.data[0].length, 2, 'Should have body cell')
@@ -128,9 +130,9 @@ describe('html parser', () => {
   })
 
   it('autoTableHtmlToJson should work with tables without head', () => {
-    ;(global as any).window = dom.window
-    ;(global as any).HTMLTableElement = dom.window.HTMLTableElement
-    const table = dom.window.document.createElement('table')
+    ; (global as any).window = window
+      ; (global as any).HTMLTableElement = window.HTMLTableElement
+    const table = createTable()
     let body = table.createTBody()
     let brow = body.insertRow()
     brow.insertCell().textContent = 'body'
