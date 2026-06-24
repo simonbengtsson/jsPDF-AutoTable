@@ -7,6 +7,14 @@ export interface LineWidths {
   right: number
 }
 
+export interface TextOptions {
+  isInputVisual?: boolean
+  isOutputVisual?: boolean
+  isInputRtl?: boolean
+  isOutputRtl?: boolean
+  isSymmetricSwapping?: boolean
+}
+
 export type FontStyle = 'normal' | 'bold' | 'italic' | 'bolditalic'
 export type StandardFontType = 'helvetica' | 'times' | 'courier'
 export type CustomFontType = string
@@ -36,6 +44,7 @@ export interface Styles {
   cellWidth: CellWidthType
   minCellHeight: number
   minCellWidth: number
+  textOptions: TextOptions
 }
 
 export type ThemeType = 'striped' | 'grid' | 'plain' | null
@@ -146,6 +155,7 @@ export function defaultStyles(scaleFactor: number): Styles {
     cellWidth: 'auto', // 'auto'|'wrap'|number
     minCellHeight: 0,
     minCellWidth: 0,
+    textOptions: { isInputVisual: false, isOutputVisual: undefined, isInputRtl: false, isOutputRtl: undefined, isSymmetricSwapping: false },
   }
 }
 
