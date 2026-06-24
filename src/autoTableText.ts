@@ -1,4 +1,5 @@
 import { jsPDFDocument } from './documentHandler'
+import { TextOptions } from './config'
 
 /**
  * Improved text function with halign and valign support
@@ -50,6 +51,7 @@ export default function (
           splitText[iLine],
           x - doc.getStringUnitWidth(splitText[iLine]) * alignSize,
           y,
+          styles.textOptions,
         )
         y += lineHeight
       }
@@ -59,9 +61,13 @@ export default function (
   }
 
   if (styles.halign === 'justify') {
-    doc.text(text, x, y, { maxWidth: styles.maxWidth || 100, align: 'justify' })
+    doc.text(text, x, y, {
+      maxWidth: styles.maxWidth || 100,
+      align: 'justify',
+      ...styles.textOptions,
+    })
   } else {
-    doc.text(text, x, y)
+    doc.text(text, x, y, styles.textOptions)
   }
 
   return doc
@@ -71,4 +77,5 @@ export interface TextStyles {
   valign?: 'middle' | 'bottom' | 'top'
   halign?: 'justify' | 'center' | 'right' | 'left'
   maxWidth?: number
+  textOptions?: TextOptions
 }
