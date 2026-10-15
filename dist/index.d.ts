@@ -167,6 +167,13 @@ export interface LineWidths {
 	left: number;
 	right: number;
 }
+export interface TextOptions {
+	isInputVisual?: boolean;
+	isOutputVisual?: boolean;
+	isInputRtl?: boolean;
+	isOutputRtl?: boolean;
+	isSymmetricSwapping?: boolean;
+}
 export type FontStyle = "normal" | "bold" | "italic" | "bolditalic";
 export type StandardFontType = "helvetica" | "times" | "courier";
 export type CustomFontType = string;
@@ -190,6 +197,7 @@ export interface Styles {
 	cellWidth: CellWidthType;
 	minCellHeight: number;
 	minCellWidth: number;
+	textOptions: TextOptions;
 }
 export type ThemeType = "striped" | "grid" | "plain" | null;
 export type PageBreakType = "auto" | "avoid" | "always";

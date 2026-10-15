@@ -1,6 +1,6 @@
 /*!
  * 
- *               jsPDF AutoTable plugin v5.0.8
+ *               jsPDF AutoTable plugin v5.0.9
  *
  *               Copyright (c) 2026 Simon Bengtsson, https://github.com/simonbengtsson/jsPDF-AutoTable
  *               Licensed under the MIT License.
@@ -73,6 +73,17 @@ __webpack_require__.d(__webpack_exports__, {
 
 ;// ./src/autoTableText.ts
 Object.defineProperty(autoTableText, "name", { value: "default", configurable: true });
+var __assign = (undefined && undefined.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
 /**
  * Improved text function with halign and valign support
  * Inspiration from: http://stackoverflow.com/questions/28327510/align-text-right-using-jspdf/28433113#28433113
@@ -108,7 +119,7 @@ Object.defineProperty(autoTableText, "name", { value: "default", configurable: t
             alignSize *= 0.5;
         if (splitText && lineCount >= 1) {
             for (var iLine = 0; iLine < splitText.length; iLine++) {
-                doc.text(splitText[iLine], x - doc.getStringUnitWidth(splitText[iLine]) * alignSize, y);
+                doc.text(splitText[iLine], x - doc.getStringUnitWidth(splitText[iLine]) * alignSize, y, styles.textOptions);
                 y += lineHeight;
             }
             return doc;
@@ -116,10 +127,10 @@ Object.defineProperty(autoTableText, "name", { value: "default", configurable: t
         x -= doc.getStringUnitWidth(text) * alignSize;
     }
     if (styles.halign === 'justify') {
-        doc.text(text, x, y, { maxWidth: styles.maxWidth || 100, align: 'justify' });
+        doc.text(text, x, y, __assign({ maxWidth: styles.maxWidth || 100, align: 'justify' }, styles.textOptions));
     }
     else {
-        doc.text(text, x, y);
+        doc.text(text, x, y, styles.textOptions);
     }
     return doc;
 }
@@ -327,6 +338,7 @@ function defaultStyles(scaleFactor) {
         cellWidth: 'auto', // 'auto'|'wrap'|number
         minCellHeight: 0,
         minCellWidth: 0,
+        textOptions: { isInputVisual: false, isOutputVisual: undefined, isInputRtl: false, isOutputRtl: undefined, isSymmetricSwapping: false },
     };
 }
 function getTheme(name) {
@@ -1993,6 +2005,7 @@ function printRow(doc, table, row, cursor, columns) {
             halign: cell.styles.halign,
             valign: cell.styles.valign,
             maxWidth: Math.ceil(cell.width - cell.padding('left') - cell.padding('right')),
+            textOptions: cell.styles.textOptions,
         }, doc.getDocument());
         table.callCellHooks(doc, table.hooks.didDrawCell, cell, row, column, cursor);
         cursor.x += column.width;
